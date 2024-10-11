@@ -11,22 +11,22 @@ module.exports = {
     extend: {
       colors: {
         foreground: "hsl(var(--foreground))",
-        foregroundLight: "hsl(var(--foreground-light))",
+        "foreground-light": "hsl(var(--foreground-light))",
         background: "hsl(var(--background))",
 
         blue: {
           DEFAULT: "hsl(var(--blue))",
           foreground: "hsl(var(--blue-foreground))",
         },
-        glacierBlue: {
+        "glacier-blue": {
           DEFAULT: "hsl(var(--glacier-blue))",
           foreground: "hsl(var(--glacier-blue-foreground))",
         },
-        lightBlue: {
+        "light-blue": {
           DEFAULT: "hsl(var(--light-blue))",
           foreground: "hsl(var(--light-blue-foreground))",
         },
-        darkNavy: {
+        "dark-navy": {
           DEFAULT: "hsl(var(--dark-navy))",
           foreground: "hsl(var(--dark-navy-foreground))",
         },
