@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* colors */
+    --foreground: #232b39;
+    --foreground-light: #3e567b;
+    --background: var(--white);
+
+    --blue: #51a5e1;
+    --blue-foreground: #ffffff;
+
+    --glacier-blue: #8fddff;
+    --glacier-blue-foreground: #000000;
+
+    --light-blue: #e2f6fc;
+    --light-blue-foreground: #000000;
+
+    --dark-navy: #182537;
+    --dark-navy-foreground: #ffffff;
+
+    --white: #ffffff;
+    --white-foreground: #000000;
+
+    --success: #22c292;
+    --error: #f17070;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "extends": [
+    "prettier",
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "react-hooks/exhaustive-deps": "error",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-require-imports": "off",
+    "prettier/prettier": ["error"],
+    "import/order": [
+      "error",
+      {
+        "pathGroups": [
+          {
+            "pattern": "*(react|next)/**",
+            "patternOptions": { "partial": true },
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "@/*/**",
+            "group": "internal",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": [],
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index",
+          "object",
+          "type"
+        ],
+        "newlines-between": "always",
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
+      }
+    ],
+    "sort-imports": [
+      "error",
+      {
+        "ignoreDeclarationSort": true
+      }
+    ]
+  }
+}
