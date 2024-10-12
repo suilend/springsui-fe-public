@@ -18,34 +18,8 @@ export const formatAddress = (value: string, length = 4) => {
   );
 };
 
-export const formatId = (value: string, length = 4) => {
-  return shorten(
-    replace0x(value),
-    length + (value.startsWith("0x") ? 2 : 0),
-    length,
-  );
-};
-
-export const formatType = (value: string, length = 4) => {
-  const [id, module, type] = value.split("::");
-
-  return [
-    shorten(replace0x(id), length + (id.startsWith("0x") ? 2 : 0), length),
-    module,
-    type,
-  ].join("::");
-};
-
-export const formatList = (array: string[]) => {
-  if (array.length === 1) return array[0];
-  if (array.length === 2) return array.join(" and ");
-  return `${array.slice(0, -1).join(", ")}, and ${array.slice(-1)}`;
-};
-
 export const formatInteger = (value: number, useGrouping?: boolean) =>
   Intl.NumberFormat(undefined, { useGrouping }).format(value);
-
-export const formatRank = (rank: number) => `#${formatInteger(rank)}`;
 
 export const formatNumber = (
   value: BigNumber,
@@ -65,12 +39,10 @@ export const formatNumber = (
   const roundingMode = options?.roundingMode ?? BigNumber.ROUND_HALF_UP;
   const exact = options?.exact ?? false;
 
-  // Zero
-  if (value.eq(0)) return `${prefix}0${dp > 0 ? `.${"0".repeat(dp)}` : ""}`;
-
-  // <Min
+  // 0 < value < minValue
   const minValue = new BigNumber(10).pow(-dp);
-  if (value.lt(minValue)) return `<${prefix}${minValue.toFixed(dp)}`;
+  if (value.gt(0) && value.lt(minValue))
+    return `<${prefix}${minValue.toFixed(dp)}`;
 
   if (!exact) {
     let _value = value;
@@ -151,25 +123,6 @@ export const formatUsd = (
   });
 };
 
-export const formatPrice = (value: BigNumber) => {
-  return formatNumber(value, {
-    prefix: "$",
-    dp: Math.max(0, -Math.floor(Math.log10(+value)) - 1) + 2, // 2sf
-    roundingMode: BigNumber.ROUND_HALF_UP,
-    exact: true,
-  });
-};
-
-export const formatPoints = (value: BigNumber, options?: { dp?: number }) => {
-  const dp = options?.dp ?? 0;
-
-  return formatNumber(value, {
-    dp,
-    roundingMode: BigNumber.ROUND_HALF_UP,
-    exact: true,
-  });
-};
-
 export const formatPercent = (
   value: BigNumber,
   options?: { dp?: number; useAccountingSign?: boolean },
@@ -188,14 +141,6 @@ export const formatPercent = (
     : `(${formattedValue[0] === "-" ? formattedValue.slice(1) : formattedValue})`;
 };
 
-export const formatDuration = (seconds: BigNumber) => {
-  if (seconds.lt(1)) return "<1s";
-  if (seconds.lt(60)) return `${seconds}s`;
-  if (seconds.lt(60 * 60)) return `${seconds.div(60).toFixed(0)}m`;
-  if (seconds.lt(60 * 60 * 24)) return `${seconds.div(60 * 60).toFixed(1)}h`;
-  return `${seconds.div(60 * 60 * 24).toFixed(1)}d`;
-};
-
 export const formatToken = (
   value: BigNumber,
   options?: {
@@ -205,10 +150,10 @@ export const formatToken = (
     trimTrailingZeros?: boolean;
   },
 ) => {
-  const dp = options?.dp ?? 3;
+  const dp = options?.dp ?? 2;
   const exact = options?.exact ?? true;
   const useGrouping = options?.useGrouping ?? true;
-  const trimTrailingZeros = options?.trimTrailingZeros ?? false;
+  const trimTrailingZeros = options?.trimTrailingZeros ?? true;
 
   return formatNumber(value, {
     dp,
@@ -217,16 +162,4 @@ export const formatToken = (
     useGrouping,
     trimTrailingZeros,
   });
-};
-
-export const formatLtvPercent = (value: BigNumber) =>
-  formatPercent(value, { dp: 0 });
-
-export const formatBorrowWeight = (value: BigNumber) => {
-  const [integers, decimals] = value.toFixed(1).split(".");
-  const integersFormatted = formatInteger(parseInt(integers));
-  const decimalsFormatted = ![undefined, "0"].includes(decimals)
-    ? `.${decimals}`
-    : "";
-  return `${integersFormatted}${decimalsFormatted}`;
 };

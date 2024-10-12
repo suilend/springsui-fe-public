@@ -126,7 +126,7 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
     } else {
       setAccounts([]);
     }
-  }, [connected, getAccounts, accountAddress, setAccountAddress]);
+  }, [connected, getAccounts, setAccountAddress, accountAddress]);
 
   const account =
     accounts?.find((a) => a.address === accountAddress) ?? undefined;

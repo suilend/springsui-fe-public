@@ -8,41 +8,36 @@ module.exports = {
     fontFamily: {
       sans: ["var(--font-general-sans)"],
     },
-    extend: {
-      colors: {
-        foreground: "hsl(var(--foreground))",
-        "foreground-light": "hsl(var(--foreground-light))",
-        background: "hsl(var(--background))",
+    fontSize: {
+      h1: ["32px", "40px"],
+      h2: ["24px", "32px"],
+      h3: ["20px", "28px"],
+      p1: ["16px", "24px"],
+      p2: ["14px", "20px"],
+      p3: ["12px", "16px"],
+    },
+    colors: {
+      foreground: "hsl(var(--foreground))",
+      background: "hsl(var(--background))",
 
-        blue: {
-          DEFAULT: "hsl(var(--blue))",
-          foreground: "hsl(var(--blue-foreground))",
-        },
-        "glacier-blue": {
-          DEFAULT: "hsl(var(--glacier-blue))",
-          foreground: "hsl(var(--glacier-blue-foreground))",
-        },
-        "light-blue": {
-          DEFAULT: "hsl(var(--light-blue))",
-          foreground: "hsl(var(--light-blue-foreground))",
-        },
-        "dark-navy": {
-          DEFAULT: "hsl(var(--dark-navy))",
-          foreground: "hsl(var(--dark-navy-foreground))",
-        },
-        white: {
-          DEFAULT: "hsl(var(--white))",
-          foreground: "hsl(var(--white-foreground))",
-        },
+      white: "hsl(var(--white))",
+      "navy-100": "hsl(var(--navy-100))",
+      "navy-200": "hsl(var(--navy-200))",
+      "navy-400": "hsl(var(--navy-400))",
+      "navy-500": "hsl(var(--navy-500))",
+      "navy-600": "hsl(var(--navy-600))",
+      "navy-800": "hsl(var(--navy-800))",
+      "navy-900": "hsl(var(--navy-900))",
 
-        success: "hsl(var(--success))",
-        error: "hsl(var(--error))",
-      },
-      borderRadius: {
-        sm: "8px",
-        md: "12px",
-        lg: "24px",
-      },
+      blue: "hsl(var(--blue))",
+
+      success: "hsl(var(--success))",
+      error: "hsl(var(--error))",
+    },
+    borderRadius: {
+      sm: "8px",
+      md: "12px",
+      lg: "24px",
     },
   },
   plugins: [require("tailwindcss-animate")],

@@ -18,31 +18,31 @@ import { isEqual } from "lodash";
 
 import { useWalletContext } from "@/contexts/WalletContext";
 import useFetchAppData from "@/fetchers/useFetchAppData";
-import { EXPLORERS, RPCS } from "@/lib/constants";
+import { EXPLORER, RPC } from "@/lib/constants";
 
 export interface AppData {
   coinBalancesRaw: CoinBalance[];
 }
 
 export interface AppContext {
-  suiClient: SuiClient | null;
+  suiClient: SuiClient;
   data: AppData | null;
   refreshData: () => Promise<void>;
-  rpc: (typeof RPCS)[number];
-  explorer: (typeof EXPLORERS)[number];
+  rpc: typeof RPC;
+  explorer: typeof EXPLORER;
   signExecuteAndWaitForTransaction: (
     transaction: Transaction,
   ) => Promise<SuiTransactionBlockResponse>;
 }
 
 const defaultContextValue: AppContext = {
-  suiClient: null,
+  suiClient: new SuiClient({ url: RPC.url }),
   data: null,
   refreshData: async () => {
     throw Error("AppContextProvider not initialized");
   },
-  rpc: RPCS[0],
-  explorer: EXPLORERS[0],
+  rpc: RPC,
+  explorer: EXPLORER,
   signExecuteAndWaitForTransaction: () => {
     throw Error("AppContextProvider not initialized");
   },
@@ -56,7 +56,7 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
 
   // Sui client
-  const suiClient = useMemo(() => new SuiClient({ url: RPCS[0].url }), []);
+  const suiClient = useMemo(() => new SuiClient({ url: RPC.url }), []);
 
   // App data
   const { data, mutate: mutateData } = useFetchAppData(suiClient, address);
@@ -101,8 +101,8 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       suiClient,
       data: data ?? null,
       refreshData,
-      rpc: RPCS[0],
-      explorer: EXPLORERS[0],
+      rpc: RPC,
+      explorer: EXPLORER,
       signExecuteAndWaitForTransaction: (transaction: Transaction) =>
         signExecuteAndWaitForTransaction(suiClient, transaction),
     }),

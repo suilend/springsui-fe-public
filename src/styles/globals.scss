@@ -5,24 +5,19 @@
 @layer base {
   :root {
     /* colors */
-    --foreground: 218 24% 18%;
-    --foreground-light: 216 33% 36%;
+    --foreground: var(--navy-800);
     --background: var(--white);
 
-    --blue: 205 71% 60%;
-    --blue-foreground: 0 0% 100%;
-
-    --glacier-blue: 198 100% 78%;
-    --glacier-blue-foreground: 0 0% 0%;
-
-    --light-blue: 194 81% 94%;
-    --light-blue-foreground: 0 0% 0%;
-
-    --dark-navy: 216 39% 16%;
-    --dark-navy-foreground: 0 0% 100%;
-
     --white: 0 0% 100%;
-    --white-foreground: 0 0% 0%;
+    --navy-100: 216 71% 95%; // #E7EFFB
+    --navy-200: 218 30% 84%; // #CBD4E3
+    --navy-400: 214 24% 62%; // #879BB6
+    --navy-500: 214 28% 56%; // #718CAF
+    --navy-600: 216 33% 36%; // #3E567B
+    --navy-800: 218 24% 18%; // #232B39
+    --navy-900: 219 23% 14%; // #1C222D
+
+    --blue: 205 71% 60%; // #51A5E1
 
     --success: 162 70% 45%;
     --error: 0 83% 69%;
@@ -31,6 +26,6 @@
 
 @layer base {
   body {
-    @apply bg-background font-sans text-sm font-medium text-foreground;
+    @apply text-p1 bg-background font-sans font-medium text-foreground;
   }
 }

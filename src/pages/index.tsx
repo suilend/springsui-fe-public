@@ -1,36 +1,55 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+import { CoinMetadata } from "@mysten/sui/client";
 import { useWallet } from "@suiet/wallet-kit";
-import { Wallet } from "lucide-react";
+import BigNumber from "bignumber.js";
+import { Loader2, Wallet } from "lucide-react";
 
-import { useAppContext } from "@/contexts/AppContext";
+import StakeInput from "@/components/Input";
+import { AppData, useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
-import { COINTYPE_LOGO_MAP, NORMALIZED_SUI_COINTYPE } from "@/lib/coinType";
+import {
+  NORMALIZED_LST_COINTYPE,
+  NORMALIZED_SUI_COINTYPE,
+} from "@/lib/coinType";
+import { formatPercent, formatToken } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
+import { Token } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useListWallets } from "@/lib/wallets";
+import lstLogo from "@/public/assets/lst.png";
+import suiLogo from "@/public/assets/sui.png";
 
 enum QueryParams {
   TAB = "tab",
 }
 
-export default function Home() {
+interface HomeProps {
+  suiToken: Token;
+  lstToken: Token;
+}
+
+function Home({ suiToken, lstToken }: HomeProps) {
   const router = useRouter();
   const queryParams = {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
   };
 
-  const { data } = useAppContext();
   const { disconnect } = useWallet();
   const { address, selectWallet } = useWalletContext();
+  const appContext = useAppContext();
+  const data = appContext.data as AppData;
 
   const { mainWallets, otherWallets } = useListWallets();
 
+  // Ref
+  const inInputRef = useRef<HTMLInputElement>(null);
+
   // Tabs
   enum Tab {
-    STAKE = "Stake",
-    UNSTAKE = "Unstake",
+    STAKE = "stake",
+    UNSTAKE = "unstake",
   }
 
   const tabs = [
@@ -45,36 +64,145 @@ export default function Home() {
       : Tab.STAKE;
   const onSelectedTabChange = (tab: Tab) => {
     shallowPushQuery(router, { ...router.query, [QueryParams.TAB]: tab });
+    inInputRef.current?.focus();
   };
 
-  // Stake
-  const stakeAmount = 0;
+  const isStaking = selectedTab === Tab.STAKE;
 
-  // Receive
-  const receiveAmount = 0;
+  // Stats
+  const suiPrice = 2.05; // TODO: Use real price
+  const lstPrice = 2.087; // TODO: Use real price
+  const inToOutExchangeRate = isStaking
+    ? suiPrice / lstPrice
+    : lstPrice / suiPrice;
+
+  // Balance
+  const getBalance = (token: Token) =>
+    new BigNumber(
+      data.coinBalancesRaw.find((cb) => cb.coinType === token.coinType)
+        ?.totalBalance ?? 0,
+    ).div(10 ** token.decimals);
+
+  const suiBalance = getBalance(suiToken);
+  const lstBalance = getBalance(lstToken);
+
+  const inBalance = isStaking ? suiBalance : lstBalance;
+  const outBalance = isStaking ? lstBalance : suiBalance;
+
+  // In
+  const inPrice = isStaking ? suiPrice : lstPrice;
+  const inToken = isStaking ? suiToken : lstToken;
+
+  const [inValue, setInValue] = useState<string>("");
+  const inValueUsd = new BigNumber(inValue || 0).times(inPrice);
+
+  // Out
+  const outPrice = isStaking ? lstPrice : suiPrice;
+  const outToken = isStaking ? lstToken : suiToken;
+
+  const outValue =
+    inValue === ""
+      ? ""
+      : formatToken(BigNumber.max(0, inValue).times(inToOutExchangeRate), {
+          dp: outToken.decimals,
+          useGrouping: false,
+        });
+  const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
+
+  const onBalanceClick = () => {
+    setInValue(
+      formatToken(inBalance, {
+        dp: inToken.decimals,
+        useGrouping: false,
+      }),
+    );
+    inInputRef.current?.focus();
+  };
+
+  // Submit
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const submit = () => {
+    setIsSubmitting(true);
+  };
+
+  // Parameters
+  const parameters = [
+    {
+      label: "Exchange rate",
+      value: `1 ${inToken.symbol} ≈ ${formatToken(new BigNumber(inToOutExchangeRate), { dp: 3 })} ${outToken.symbol}`,
+    },
+  ];
+  if (isStaking)
+    parameters.push(
+      {
+        label: "Staking rewards fee",
+        value: formatPercent(new BigNumber(8.6)),
+      },
+      {
+        label: "APR",
+        value: formatPercent(new BigNumber(2.65)),
+      },
+      {
+        label: "Est. yearly earnings",
+        value: `${formatToken(
+          new BigNumber(outValue || 0)
+            .times(2.65 / 100)
+            .div(inToOutExchangeRate),
+        )} ${inToken.symbol}`,
+      },
+    );
 
   return (
     <div className="flex h-dvh flex-col px-2 pb-2">
-      <div className="flex h-20 w-full flex-row">hi</div>
+      {/* Navbar */}
+      <div className="flex h-20 w-full flex-row">
+        {!address ? (
+          <>
+            {mainWallets.map((w) => (
+              <button key={w.name} onClick={() => selectWallet(w.name)}>
+                {w.name}
+              </button>
+            ))}
+            {otherWallets.map((w) => (
+              <button key={w.name} onClick={() => selectWallet(w.name)}>
+                {w.name}
+              </button>
+            ))}
+          </>
+        ) : (
+          <button onClick={disconnect}>Disconnect</button>
+        )}
+      </div>
 
-      <div className="flex min-h-0 w-full flex-1 flex-col items-center overflow-x-hidden overflow-y-scroll rounded-lg bg-[lightgray] px-8 pb-8 pt-20">
+      <div className="flex min-h-0 w-full flex-1 flex-col items-center overflow-x-hidden overflow-y-scroll rounded-lg bg-navy-100 px-8 pb-8 pt-20">
         <div className="flex w-full max-w-md flex-col items-center gap-4">
-          <div className="w-full rounded-lg border border-white">
+          {/* Card */}
+          <div className="w-full rounded-lg border border-white bg-white/20 shadow-[0_1px_1px_0px_hsla(var(--navy-800)/10%)] backdrop-blur-md">
             {/* Tabs */}
-            <div className="w-full p-4">
-              <div className="flex h-12 w-full flex-row gap-0.5 rounded-sm bg-white/50">
+            <div className="w-full px-4 py-3.5">
+              <div className="flex w-full flex-row rounded-sm bg-white/50">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     className={cn(
-                      "h-12 flex-1 rounded-sm transition-colors hover:bg-white hover:text-foreground",
+                      "group h-10 flex-1 rounded-sm border transition-colors",
                       selectedTab === tab.id
-                        ? "bg-white"
-                        : "text-foreground-light",
+                        ? "border-navy-200 bg-white"
+                        : "border-[transparent]",
                     )}
                     onClick={() => onSelectedTabChange(tab.id)}
                   >
-                    {tab.title}
+                    <p
+                      className={cn(
+                        "transition-colors",
+                        selectedTab === tab.id
+                          ? "text-foreground"
+                          : "text-navy-600 group-hover:text-foreground",
+                      )}
+                    >
+                      {tab.title}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -86,134 +214,121 @@ export default function Home() {
             {/* Form */}
             <div className="flex w-full flex-col gap-4 p-4">
               <div className="flex w-full flex-col gap-0.5">
-                {/* Stake */}
-                <div className="flex w-full flex-col gap-1.5 rounded-md bg-white px-5 py-4">
-                  <p className="text-foreground-light">Stake</p>
-
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <div className="flex-1">
-                      <input
-                        className="w-full font-sans text-3xl text-foreground placeholder:text-foreground-light/50"
-                        placeholder="0"
-                        value={stakeAmount}
-                      />
-                    </div>
-
-                    <div className="flex flex-row items-center gap-2">
-                      <Image
-                        width={28}
-                        height={28}
-                        src={COINTYPE_LOGO_MAP[NORMALIZED_SUI_COINTYPE]}
-                        alt="SUI logo"
-                      />
-                      <p className="text-lg">SUI</p>
-                    </div>
-                  </div>
-
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <p className="text-xs text-foreground-light/50">$0.00</p>
-
-                    <div className="group flex cursor-pointer flex-row items-center gap-1.5">
-                      <Wallet className="h-4 w-4 text-foreground-light group-hover:text-foreground" />
-                      <p className="text-foreground-light underline decoration-dotted decoration-1 underline-offset-2 group-hover:text-foreground group-hover:decoration-solid">
-                        120.56
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Receive */}
-                <div className="flex w-full flex-col gap-1.5 rounded-md bg-white/50 px-5 py-4">
-                  <p className="text-foreground-light">Receive</p>
-
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <p
-                      className={cn(
-                        "flex-1 text-3xl",
-                        stakeAmount === 0 && "text-foreground-light/50",
-                      )}
-                    >
-                      {receiveAmount}
-                    </p>
-
-                    <div className="flex flex-row items-center gap-2">
-                      <Image
-                        width={28}
-                        height={28}
-                        src={COINTYPE_LOGO_MAP[NORMALIZED_SUI_COINTYPE]}
-                        alt="SUI logo"
-                      />
-                      <p className="text-lg">sSUI</p>
-                    </div>
-                  </div>
-
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <p className="text-xs text-foreground-light/50">$0.00</p>
-
-                    <div className="group flex cursor-pointer flex-row items-center gap-1.5">
-                      <Wallet className="h-4 w-4 text-foreground-light group-hover:text-foreground" />
-                      <p className="text-foreground-light underline decoration-dotted decoration-1 underline-offset-2 group-hover:text-foreground group-hover:decoration-solid">
-                        0.00
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <StakeInput
+                  ref={inInputRef}
+                  token={inToken}
+                  title={isStaking ? "Stake" : "Unstake"}
+                  value={inValue}
+                  onChange={setInValue}
+                  usdValue={inValueUsd}
+                  onBalanceClick={onBalanceClick}
+                  hasError={new BigNumber(inValue || 0).gt(inBalance)}
+                />
+                <StakeInput
+                  token={outToken}
+                  title="Receive"
+                  value={outValue}
+                  usdValue={outValueUsd}
+                />
               </div>
 
               {/* Submit */}
-              <button className="bg-glacier-blue h-16 w-full rounded-md text-lg text-foreground-light/50">
-                Enter amount
+              <button
+                className={cn(
+                  "flex h-[60px] w-full flex-row items-center justify-center gap-2.5 rounded-md",
+                  !address ||
+                    !(
+                      new BigNumber(inValue || 0).lte(0) ||
+                      new BigNumber(inValue).gt(inBalance)
+                    )
+                    ? "bg-navy-800"
+                    : "bg-navy-200",
+                )}
+              >
+                {!address ? (
+                  <>
+                    <Wallet className="h-4 w-4 text-white" />
+                    <p className="text-white">Connect wallet</p>
+                  </>
+                ) : isSubmitting ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                ) : new BigNumber(inValue || 0).lte(0) ? (
+                  <p className="text-navy-500">Enter an amount</p>
+                ) : new BigNumber(inValue).gt(inBalance) ? (
+                  <p className="text-navy-500">Insufficient balance</p>
+                ) : (
+                  <p className="text-white">
+                    Stake {inValue} {inToken.symbol}
+                  </p>
+                )}
               </button>
             </div>
           </div>
 
+          {/* Parameters */}
           <div className="flex w-full flex-col gap-4 px-4">
-            <div className="flex w-full flex-row items-center justify-between">
-              <p className="text-foreground-light">Exchange rate</p>
-              <p>1 SUI = 0.987 sSUI</p>
-            </div>
-            <div className="flex w-full flex-row items-center justify-between">
-              <p className="text-foreground-light">Staking rewards fee</p>
-              <p>8.6%</p>
-            </div>
-            <div className="flex w-full flex-row items-center justify-between">
-              <p className="text-foreground-light">APR</p>
-              <p>2.65%</p>
-            </div>
-            <div className="flex w-full flex-row items-center justify-between">
-              <p className="text-foreground-light">Est. yearly earnings</p>
-              <p>0.00 SUI</p>
-            </div>
+            {parameters.map((param) => (
+              <div
+                key={param.label}
+                className="flex w-full flex-row items-center justify-between"
+              >
+                <p className="text-p2 text-navy-600">{param.label}</p>
+                <p className="text-p2">{param.value}</p>
+              </div>
+            ))}
           </div>
-
-          {!address ? (
-            <>
-              {mainWallets.map((w) => (
-                <button key={w.name} onClick={() => selectWallet(w.name)}>
-                  {w.name}
-                </button>
-              ))}
-              {otherWallets.map((w) => (
-                <button key={w.name} onClick={() => selectWallet(w.name)}>
-                  {w.name}
-                </button>
-              ))}
-            </>
-          ) : (
-            <>
-              <button onClick={disconnect}>Disconnect</button>
-              <p className="break-all">
-                {data &&
-                  JSON.stringify(
-                    data.coinBalancesRaw.find(
-                      (cb) => cb.coinType === NORMALIZED_SUI_COINTYPE,
-                    ),
-                  )}
-              </p>
-            </>
-          )}
         </div>
       </div>
     </div>
   );
+}
+
+export default function Wrapper() {
+  const { suiClient, data } = useAppContext();
+
+  // Tokens
+  const [tokens, setTokens] = useState<Token[] | undefined>(undefined);
+
+  const suiToken = tokens?.find((t) => t.coinType === NORMALIZED_SUI_COINTYPE);
+  const lstToken = tokens?.find((t) => t.coinType === NORMALIZED_LST_COINTYPE);
+
+  const fetchTokens = useCallback(async () => {
+    const coinTypes = [NORMALIZED_SUI_COINTYPE, NORMALIZED_LST_COINTYPE];
+
+    const result = await Promise.all(
+      coinTypes.map((coinType) =>
+        (async () => {
+          const metadata = (await suiClient.getCoinMetadata({
+            coinType,
+          })) as CoinMetadata;
+
+          return {
+            coinType,
+            ...metadata,
+            iconUrl:
+              {
+                [NORMALIZED_SUI_COINTYPE]: suiLogo,
+                [NORMALIZED_LST_COINTYPE]: lstLogo,
+              }[coinType] ?? metadata.iconUrl,
+          };
+        })(),
+      ),
+    );
+    setTokens(result);
+  }, [suiClient]);
+
+  useEffect(() => {
+    fetchTokens();
+  }, [fetchTokens]);
+
+  if (!data || tokens === undefined || !suiToken || !lstToken)
+    return (
+      <div className="flex h-dvh flex-col px-2 pb-2">
+        <div className="flex h-20 w-full flex-row" />
+        <div className="flex h-0 w-full flex-1 flex-col items-center justify-center rounded-lg bg-navy-100">
+          <Loader2 className="h-6 w-6 animate-spin text-foreground" />
+        </div>
+      </div>
+    );
+  return <Home suiToken={suiToken} lstToken={lstToken} />;
 }
