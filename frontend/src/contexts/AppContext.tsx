@@ -14,14 +14,19 @@ import {
   SuiTransactionBlockResponse,
 } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
+import BigNumber from "bignumber.js";
 import { isEqual } from "lodash";
 
 import { useWalletContext } from "@/contexts/WalletContext";
 import useFetchAppData from "@/fetchers/useFetchAppData";
 import { EXPLORER, RPC } from "@/lib/constants";
+import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
 export interface AppData {
-  coinBalancesRaw: CoinBalance[];
+  suiPrice: BigNumber;
+  coinMetadataMap: Record<string, Token>;
+  balanceMap: Record<string, BigNumber>;
+  liquidStakingInfo: ParsedLiquidStakingInfo;
 }
 
 export interface AppContext {

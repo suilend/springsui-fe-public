@@ -22,6 +22,12 @@
             "position": "before"
           },
           {
+            "pattern": "@springsui/sdk/*/**",
+            "patternOptions": { "partial": true },
+            "group": "internal",
+            "position": "before"
+          },
+          {
             "pattern": "@/*/**",
             "group": "internal",
             "position": "before"

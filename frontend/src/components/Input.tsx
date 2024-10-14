@@ -1,10 +1,10 @@
-import Image from "next/image";
 import { forwardRef, useEffect, useRef } from "react";
 
 import BigNumber from "bignumber.js";
 import { mergeRefs } from "react-merge-refs";
 
 import BalanceLabel from "@/components/BalanceLabel";
+import TokenLogo from "@/components/TokenLogo";
 import { formatUsd } from "@/lib/format";
 import { Token } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -16,14 +16,10 @@ interface InputProps {
   onChange?: (value: string) => void;
   usdValue: BigNumber;
   onBalanceClick?: () => void;
-  hasError?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    { token, title, value, onChange, usdValue, onBalanceClick, hasError },
-    ref,
-  ) => {
+  ({ token, title, value, onChange, usdValue, onBalanceClick }, ref) => {
     // Autofocus
     const localRef = useRef<HTMLInputElement>(null);
     useEffect(() => {
@@ -35,11 +31,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div
         className={cn(
-          "flex w-full flex-col rounded-md bg-white px-5 py-4",
-          hasError
-            ? "shadow-[inset_0_0_0_1px_hsl(var(--error))]"
-            : !isReadOnly &&
-                "focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))]",
+          "flex w-full flex-col rounded-md bg-white px-5 py-4 transition-shadow",
+          !isReadOnly &&
+            "focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))]",
         )}
       >
         <p className="text-p2 text-navy-600">{title}</p>
@@ -62,16 +56,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           </div>
 
           <div className="flex flex-row items-center gap-2">
-            {token.iconUrl ? (
-              <Image
-                width={28}
-                height={28}
-                src={token.iconUrl}
-                alt={`${token.symbol} logo`}
-              />
-            ) : (
-              <div className="h-7 w-7 rounded-[50%] bg-navy-100" />
-            )}
+            <TokenLogo token={token} size={28} />
             <p className="text-h3">{token.symbol}</p>
           </div>
         </div>

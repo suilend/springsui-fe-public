@@ -1,11 +1,12 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
-import { CoinMetadata } from "@mysten/sui/client";
-import { useWallet } from "@suiet/wallet-kit";
+import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
-import { Loader2, Wallet } from "lucide-react";
 
+import Card from "@/components/Card";
+import Icon, { IconList } from "@/components/Icon";
 import StakeInput from "@/components/Input";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
@@ -13,35 +14,33 @@ import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
+import { SUI_GAS_MIN } from "@/lib/constants";
 import { formatPercent, formatToken } from "@/lib/format";
+import { DEFI_URL, ROOT_URL } from "@/lib/navigation";
 import { shallowPushQuery } from "@/lib/router";
-import { Token } from "@/lib/types";
+import { mint, redeem } from "@/lib/transactions";
+import { SubmitButtonState } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useListWallets } from "@/lib/wallets";
-import lstLogo from "@/public/assets/lst.png";
-import suiLogo from "@/public/assets/sui.png";
 
 enum QueryParams {
   TAB = "tab",
 }
 
-interface HomeProps {
-  suiToken: Token;
-  lstToken: Token;
-}
-
-function Home({ suiToken, lstToken }: HomeProps) {
+function Content() {
   const router = useRouter();
   const queryParams = {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
   };
 
-  const { disconnect } = useWallet();
-  const { address, selectWallet } = useWalletContext();
-  const appContext = useAppContext();
-  const data = appContext.data as AppData;
-
-  const { mainWallets, otherWallets } = useListWallets();
+  const { address } = useWalletContext();
+  const {
+    suiClient,
+    refreshData,
+    explorer,
+    signExecuteAndWaitForTransaction,
+    ...restAppContext
+  } = useAppContext();
+  const data = restAppContext.data as AppData;
 
   // Ref
   const inInputRef = useRef<HTMLInputElement>(null);
@@ -70,35 +69,44 @@ function Home({ suiToken, lstToken }: HomeProps) {
   const isStaking = selectedTab === Tab.STAKE;
 
   // Stats
-  const suiPrice = 2.05; // TODO: Use real price
-  const lstPrice = 2.087; // TODO: Use real price
+  const suiPrice = data.suiPrice;
+  const lstPrice = data.suiPrice.div(
+    data.liquidStakingInfo.suiToLstExchangeRate,
+  );
+
   const inToOutExchangeRate = isStaking
-    ? suiPrice / lstPrice
-    : lstPrice / suiPrice;
+    ? data.liquidStakingInfo.suiToLstExchangeRate
+    : data.liquidStakingInfo.lstToSuiExchangeRate;
+
+  const aprPercent = new BigNumber(2.65);
+
+  // Tokens
+  const suiToken = data.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
+  const lstToken = data.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   // Balance
-  const getBalance = (token: Token) =>
-    new BigNumber(
-      data.coinBalancesRaw.find((cb) => cb.coinType === token.coinType)
-        ?.totalBalance ?? 0,
-    ).div(10 ** token.decimals);
-
-  const suiBalance = getBalance(suiToken);
-  const lstBalance = getBalance(lstToken);
+  const suiBalance = data.balanceMap[suiToken.coinType] ?? new BigNumber(0);
+  const lstBalance = data.balanceMap[lstToken.coinType] ?? new BigNumber(0);
+  console.log("XXX", +suiBalance, +lstBalance);
 
   const inBalance = isStaking ? suiBalance : lstBalance;
   const outBalance = isStaking ? lstBalance : suiBalance;
 
   // In
-  const inPrice = isStaking ? suiPrice : lstPrice;
+  const inTitle = isStaking ? "Stake" : "Unstake";
   const inToken = isStaking ? suiToken : lstToken;
+  const inPrice = isStaking ? suiPrice : lstPrice;
 
   const [inValue, setInValue] = useState<string>("");
   const inValueUsd = new BigNumber(inValue || 0).times(inPrice);
 
+  const maxInValue = isStaking
+    ? BigNumber.max(0, inBalance.minus(SUI_GAS_MIN))
+    : inBalance;
+
   // Out
-  const outPrice = isStaking ? lstPrice : suiPrice;
   const outToken = isStaking ? lstToken : suiToken;
+  const outPrice = isStaking ? lstPrice : suiPrice;
 
   const outValue =
     inValue === ""
@@ -109,9 +117,9 @@ function Home({ suiToken, lstToken }: HomeProps) {
         });
   const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
 
-  const onBalanceClick = () => {
+  const onInBalanceClick = () => {
     setInValue(
-      formatToken(inBalance, {
+      formatToken(maxInValue, {
         dp: inToken.decimals,
         useGrouping: false,
       }),
@@ -121,9 +129,66 @@ function Home({ suiToken, lstToken }: HomeProps) {
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
+    useState<boolean>(false);
 
-  const submit = () => {
+  const getSubmitButtonState = (): SubmitButtonState => {
+    if (!address)
+      return {
+        icon: <Icon icon={IconList.WALLET} size={28} />,
+        title: "Connect wallet",
+      };
+    if (isSubmitting) return { isLoading: true, isDisabled: true };
+
+    if (new BigNumber(inValue || 0).lte(0))
+      return { title: "Enter an amount", isDisabled: true };
+    if (new BigNumber(inValue).gt(inBalance))
+      return { title: "Insufficient balance", isDisabled: true };
+    if (isStaking && new BigNumber(inValue).gt(maxInValue))
+      return {
+        title: `${SUI_GAS_MIN} SUI should be saved for gas`,
+        isDisabled: true,
+      };
+
+    return {
+      title: `${inTitle} ${inValue} ${inToken.symbol}`,
+    };
+  };
+  const submitButtonState = getSubmitButtonState();
+
+  // TODO
+  const submit = async () => {
+    if (submitButtonState.isDisabled) return;
+
     setIsSubmitting(true);
+
+    const submitAmount = new BigNumber(inValue)
+      .times(10 ** inToken.decimals)
+      .integerValue(BigNumber.ROUND_DOWN)
+      .toString();
+
+    const transaction = new Transaction();
+    if (isStaking) mint(transaction, address!, submitAmount);
+    else await redeem(suiClient, transaction, address!, submitAmount);
+
+    try {
+      setIsConfirmationModalOpen(true);
+
+      const res = await signExecuteAndWaitForTransaction(transaction);
+      const txUrl = explorer.buildTxUrl(res.digest);
+
+      // const balanceChangeOut = getBalanceChange(res, address!, inToken);
+
+      // console.log(res, +balanceChangeOut);
+      setInValue("");
+    } catch (err) {
+    } finally {
+      setIsSubmitting(false);
+      setIsConfirmationModalOpen(false);
+
+      inInputRef.current?.focus();
+      await refreshData();
+    }
   };
 
   // Parameters
@@ -136,199 +201,206 @@ function Home({ suiToken, lstToken }: HomeProps) {
   if (isStaking)
     parameters.push(
       {
-        label: "Staking rewards fee",
-        value: formatPercent(new BigNumber(8.6)),
-      },
-      {
         label: "APR",
-        value: formatPercent(new BigNumber(2.65)),
+        value: formatPercent(aprPercent),
       },
       {
         label: "Est. yearly earnings",
-        value: `${formatToken(
-          new BigNumber(outValue || 0)
-            .times(2.65 / 100)
-            .div(inToOutExchangeRate),
-        )} ${inToken.symbol}`,
+        value: `${
+          inValue === ""
+            ? "--"
+            : formatToken(
+                new BigNumber(inValue || 0).times(aprPercent.div(100)),
+              )
+        } ${inToken.symbol}`,
       },
     );
 
   return (
-    <div className="flex h-dvh flex-col px-2 pb-2">
-      {/* Navbar */}
-      <div className="flex h-20 w-full flex-row">
-        {!address ? (
-          <>
-            {mainWallets.map((w) => (
-              <button key={w.name} onClick={() => selectWallet(w.name)}>
-                {w.name}
-              </button>
-            ))}
-            {otherWallets.map((w) => (
-              <button key={w.name} onClick={() => selectWallet(w.name)}>
-                {w.name}
-              </button>
-            ))}
-          </>
-        ) : (
-          <button onClick={disconnect}>Disconnect</button>
-        )}
-      </div>
-
-      <div className="flex min-h-0 w-full flex-1 flex-col items-center overflow-x-hidden overflow-y-scroll rounded-lg bg-navy-100 px-8 pb-8 pt-20">
-        <div className="flex w-full max-w-md flex-col items-center gap-4">
-          {/* Card */}
-          <div className="w-full rounded-lg border border-white bg-white/20 shadow-[0_1px_1px_0px_hsla(var(--navy-800)/10%)] backdrop-blur-md">
-            {/* Tabs */}
-            <div className="w-full px-4 py-3.5">
-              <div className="flex w-full flex-row rounded-sm bg-white/50">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    className={cn(
-                      "group h-10 flex-1 rounded-sm border transition-colors",
-                      selectedTab === tab.id
-                        ? "border-navy-200 bg-white"
-                        : "border-[transparent]",
-                    )}
-                    onClick={() => onSelectedTabChange(tab.id)}
-                  >
-                    <p
-                      className={cn(
-                        "transition-colors",
-                        selectedTab === tab.id
-                          ? "text-foreground"
-                          : "text-navy-600 group-hover:text-foreground",
-                      )}
-                    >
-                      {tab.title}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px w-full bg-white" />
-
-            {/* Form */}
-            <div className="flex w-full flex-col gap-4 p-4">
-              <div className="flex w-full flex-col gap-0.5">
-                <StakeInput
-                  ref={inInputRef}
-                  token={inToken}
-                  title={isStaking ? "Stake" : "Unstake"}
-                  value={inValue}
-                  onChange={setInValue}
-                  usdValue={inValueUsd}
-                  onBalanceClick={onBalanceClick}
-                  hasError={new BigNumber(inValue || 0).gt(inBalance)}
-                />
-                <StakeInput
-                  token={outToken}
-                  title="Receive"
-                  value={outValue}
-                  usdValue={outValueUsd}
-                />
-              </div>
-
-              {/* Submit */}
+    <div className="relative z-[1] flex w-full max-w-md flex-col items-center gap-4">
+      <Card>
+        {/* Tabs */}
+        <div className="w-full px-4 py-3.5">
+          <div className="flex w-full flex-row rounded-md bg-white/50">
+            {tabs.map((tab) => (
               <button
+                key={tab.id}
                 className={cn(
-                  "flex h-[60px] w-full flex-row items-center justify-center gap-2.5 rounded-md",
-                  !address ||
-                    !(
-                      new BigNumber(inValue || 0).lte(0) ||
-                      new BigNumber(inValue).gt(inBalance)
-                    )
-                    ? "bg-navy-800"
-                    : "bg-navy-200",
+                  "group h-10 flex-1 rounded-md border transition-colors",
+                  selectedTab === tab.id
+                    ? "border-navy-200 bg-white"
+                    : "border-[transparent]",
                 )}
+                onClick={() => onSelectedTabChange(tab.id)}
               >
-                {!address ? (
-                  <>
-                    <Wallet className="h-4 w-4 text-white" />
-                    <p className="text-white">Connect wallet</p>
-                  </>
-                ) : isSubmitting ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-white" />
-                ) : new BigNumber(inValue || 0).lte(0) ? (
-                  <p className="text-navy-500">Enter an amount</p>
-                ) : new BigNumber(inValue).gt(inBalance) ? (
-                  <p className="text-navy-500">Insufficient balance</p>
-                ) : (
-                  <p className="text-white">
-                    Stake {inValue} {inToken.symbol}
-                  </p>
-                )}
+                <p
+                  className={cn(
+                    "transition-colors",
+                    selectedTab === tab.id
+                      ? "text-foreground"
+                      : "text-navy-600 group-hover:text-foreground",
+                  )}
+                >
+                  {tab.title}
+                </p>
               </button>
-            </div>
-          </div>
-
-          {/* Parameters */}
-          <div className="flex w-full flex-col gap-4 px-4">
-            {parameters.map((param) => (
-              <div
-                key={param.label}
-                className="flex w-full flex-row items-center justify-between"
-              >
-                <p className="text-p2 text-navy-600">{param.label}</p>
-                <p className="text-p2">{param.value}</p>
-              </div>
             ))}
           </div>
         </div>
+
+        {/* Divider */}
+        <div className="h-px w-full bg-white/75" />
+
+        {/* Form */}
+        <div className="flex w-full flex-col gap-4 p-4">
+          <div className="flex w-full flex-col gap-0.5">
+            <StakeInput
+              ref={inInputRef}
+              token={inToken}
+              title={inTitle}
+              value={inValue}
+              onChange={setInValue}
+              usdValue={inValueUsd}
+              onBalanceClick={onInBalanceClick}
+            />
+            <StakeInput
+              token={outToken}
+              title="Receive"
+              value={outValue}
+              usdValue={outValueUsd}
+            />
+          </div>
+
+          {/* Submit */}
+          <button
+            className={cn(
+              "flex h-[60px] w-full flex-row items-center justify-center gap-2.5 rounded-md",
+              !submitButtonState.isDisabled || submitButtonState.isLoading
+                ? "bg-navy-800 text-white"
+                : "bg-navy-200 text-navy-500",
+            )}
+            disabled={submitButtonState.isDisabled}
+            onClick={submit}
+          >
+            {submitButtonState.isLoading ? (
+              <Icon
+                className="animate-spin"
+                icon={IconList.LOADING}
+                size={36}
+              />
+            ) : (
+              <>
+                {submitButtonState.icon}
+                <p>{submitButtonState.title}</p>
+              </>
+            )}
+          </button>
+        </div>
+      </Card>
+
+      {/* Parameters */}
+      <div className="flex w-full flex-col gap-4 px-4">
+        {parameters.map((param) => (
+          <div
+            key={param.label}
+            className="flex w-full flex-row items-center justify-between"
+          >
+            <p className="text-p2 text-navy-600">{param.label}</p>
+            <p className="text-p2">{param.value}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-export default function Wrapper() {
-  const { suiClient, data } = useAppContext();
+export default function Home() {
+  const router = useRouter();
 
-  // Tokens
-  const [tokens, setTokens] = useState<Token[] | undefined>(undefined);
+  const { data } = useAppContext();
 
-  const suiToken = tokens?.find((t) => t.coinType === NORMALIZED_SUI_COINTYPE);
-  const lstToken = tokens?.find((t) => t.coinType === NORMALIZED_LST_COINTYPE);
+  const isLoading = !data;
 
-  const fetchTokens = useCallback(async () => {
-    const coinTypes = [NORMALIZED_SUI_COINTYPE, NORMALIZED_LST_COINTYPE];
+  return (
+    <div className="flex h-dvh flex-col px-2 pb-2">
+      {/* Navbar */}
+      <div className="flex h-20 w-full flex-row items-center justify-center gap-12">
+        {[
+          { url: ROOT_URL, icon: IconList.STAKE, title: "Stake" },
+          { url: DEFI_URL, icon: IconList.DEFI, title: "DeFi" },
+          {
+            icon: IconList.SPRING_SUI,
+            title: "Spring Standard",
+            endDecorator: "Soon",
+          },
+        ].map((item) => {
+          const isSelected = router.pathname === item.url;
+          const isDisabled = !item.url;
+          const Component = !isDisabled ? Link : "div";
 
-    const result = await Promise.all(
-      coinTypes.map((coinType) =>
-        (async () => {
-          const metadata = (await suiClient.getCoinMetadata({
-            coinType,
-          })) as CoinMetadata;
+          return (
+            <Component
+              href={item.url as string}
+              key={item.title}
+              className="group flex flex-row items-center gap-2"
+            >
+              <Icon
+                className={cn(
+                  "h-5 w-5",
+                  isSelected
+                    ? "text-foreground"
+                    : !isDisabled
+                      ? "text-navy-600 transition-colors group-hover:text-foreground"
+                      : "text-navy-400",
+                )}
+                icon={item.icon}
+                size={28}
+              />
+              <p
+                className={cn(
+                  isSelected
+                    ? "text-foreground"
+                    : !isDisabled
+                      ? "text-navy-600 transition-colors group-hover:text-foreground"
+                      : "text-navy-400",
+                )}
+              >
+                {item.title}
+              </p>
 
-          return {
-            coinType,
-            ...metadata,
-            iconUrl:
-              {
-                [NORMALIZED_SUI_COINTYPE]: suiLogo,
-                [NORMALIZED_LST_COINTYPE]: lstLogo,
-              }[coinType] ?? metadata.iconUrl,
-          };
-        })(),
-      ),
-    );
-    setTokens(result);
-  }, [suiClient]);
-
-  useEffect(() => {
-    fetchTokens();
-  }, [fetchTokens]);
-
-  if (!data || tokens === undefined || !suiToken || !lstToken)
-    return (
-      <div className="flex h-dvh flex-col px-2 pb-2">
-        <div className="flex h-20 w-full flex-row" />
-        <div className="flex h-0 w-full flex-1 flex-col items-center justify-center rounded-lg bg-navy-100">
-          <Loader2 className="h-6 w-6 animate-spin text-foreground" />
-        </div>
+              {item.endDecorator && (
+                <p className="rounded-[4px] bg-navy-100 px-1 py-0.5 text-p3 text-navy-600">
+                  {item.endDecorator}
+                </p>
+              )}
+            </Component>
+          );
+        })}
       </div>
-    );
-  return <Home suiToken={suiToken} lstToken={lstToken} />;
+
+      {/* Container */}
+      <div
+        className={cn(
+          "flex min-h-0 w-full flex-1 flex-col items-center overflow-x-hidden overflow-y-scroll rounded-lg bg-navy-100",
+          isLoading ? "justify-center" : "px-8 pb-12 pt-20",
+        )}
+        style={{
+          backgroundImage: "url('/assets/bg.png')",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        {isLoading ? (
+          <Icon
+            className="animate-spin text-foreground"
+            icon={IconList.LOADING}
+            size={36}
+          />
+        ) : (
+          <Content />
+        )}
+      </div>
+    </div>
+  );
 }

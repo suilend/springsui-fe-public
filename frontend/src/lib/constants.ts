@@ -1,5 +1,8 @@
 export const TWITTER = "@springsui_";
 
+export const TOAST_DURATION = 4 * 1000;
+export const TX_TOAST_DURATION = 10 * 1000;
+
 export const SUI_GAS_MIN = 0.05;
 
 enum Network {
@@ -7,19 +10,20 @@ enum Network {
   TESTNET = "testnet",
 }
 const NETWORK: Network = Network.TESTNET;
+export const isOnTestnet = (NETWORK as Network) === Network.TESTNET;
+export const isOnMainnet = (NETWORK as Network) === Network.MAINNET;
 
-export const RPC =
-  (NETWORK as Network) === Network.TESTNET
-    ? {
-        name: "Full Node",
-        url: "https://fullnode.testnet.sui.io",
-      }
-    : {
-        name: "Triton One",
-        url: `https://solendf-suishar-0c55.mainnet.sui.rpcpool.com/${
-          process.env.NEXT_PUBLIC_SUI_TRITON_ONE_DEV_API_KEY ?? ""
-        }`,
-      };
+export const RPC = isOnTestnet
+  ? {
+      name: "Full Node",
+      url: "https://fullnode.testnet.sui.io",
+    }
+  : {
+      name: "Triton One",
+      url: `https://solendf-suishar-0c55.mainnet.sui.rpcpool.com/${
+        process.env.NEXT_PUBLIC_SUI_TRITON_ONE_DEV_API_KEY ?? ""
+      }`,
+    };
 
 export const EXPLORER = {
   name: "Suiscan",

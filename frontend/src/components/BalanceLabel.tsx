@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
-import { Wallet } from "lucide-react";
 
+import Icon, { IconList } from "@/components/Icon";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import { formatToken } from "@/lib/format";
@@ -17,12 +17,7 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
   const data = appContext.data as AppData;
   const { address } = useWalletContext();
 
-  const balance = new BigNumber(
-    data.coinBalancesRaw.find((cb) => cb.coinType === token.coinType)
-      ?.totalBalance ?? 0,
-  ).div(10 ** token.decimals);
-
-  const hasOnClick = !!onClick && balance.gt(0);
+  const hasOnClick = !!onClick && data.balanceMap[token.coinType].gt(0);
 
   return (
     <div
@@ -32,11 +27,12 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
       )}
       onClick={hasOnClick ? onClick : undefined}
     >
-      <Wallet
+      <Icon
         className={cn(
-          "h-4 w-4 text-navy-600",
+          "text-navy-600",
           hasOnClick && "transition-colors group-hover:text-foreground",
         )}
+        icon={IconList.WALLET}
       />
       <p
         className={cn(
@@ -45,7 +41,7 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
             "underline decoration-dotted decoration-1 underline-offset-2 transition-colors group-hover:text-foreground group-hover:decoration-solid",
         )}
       >
-        {address ? formatToken(balance) : "-"}
+        {address ? formatToken(data.balanceMap[token.coinType]) : "-"}
       </p>
     </div>
   );
