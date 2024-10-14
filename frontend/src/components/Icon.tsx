@@ -15,6 +15,8 @@ export enum IconList {
   FAQ = "faq",
   ERROR = "error",
   SUCCESS = "success",
+  ARROW_UP = "arrowUp",
+  ARROW_DOWN = "arrowDown",
 }
 
 const ICONS: Record<IconList, ReactElement> = {
@@ -194,6 +196,42 @@ const ICONS: Record<IconList, ReactElement> = {
         clipRule="evenodd"
         d="M12.6001 2C18.1229 2 22.6001 6.47715 22.6001 12C22.6001 17.5228 18.1229 22 12.6001 22C7.07725 22 2.6001 17.5228 2.6001 12C2.6001 6.47715 7.07725 2 12.6001 2ZM18.162 8.49671C18.4364 8.18636 18.4072 7.71239 18.0968 7.43806C17.7865 7.16373 17.3125 7.19294 17.0382 7.50329L11.3886 13.8947L9.13998 11.5627C8.85246 11.2646 8.37767 11.2559 8.0795 11.5434C7.78133 11.831 7.77269 12.3058 8.06021 12.6039L10.8727 15.5206C11.018 15.6713 11.2196 15.7544 11.4289 15.7498C11.6381 15.7453 11.8359 15.6535 11.9745 15.4967L18.162 8.49671Z"
         fill="currentColor"
+      />
+    </svg>
+  ),
+  [IconList.ARROW_UP]: (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M16 14L12 10L8 14"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeMiterlimit="16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  [IconList.ARROW_DOWN]: (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M8 10L12 14L16 10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeMiterlimit="16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),

@@ -1,7 +1,5 @@
-import BigNumber from "bignumber.js";
-
 import Icon, { IconList } from "@/components/Icon";
-import { AppData, useAppContext } from "@/contexts/AppContext";
+import { useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import { formatToken } from "@/lib/format";
 import { Token } from "@/lib/types";
@@ -13,11 +11,10 @@ interface BalanceLabelProps {
 }
 
 export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
-  const appContext = useAppContext();
-  const data = appContext.data as AppData;
+  const { getBalance } = useAppContext();
   const { address } = useWalletContext();
 
-  const hasOnClick = !!onClick && data.balanceMap[token.coinType].gt(0);
+  const hasOnClick = !!onClick && getBalance(token.coinType).gt(0);
 
   return (
     <div
@@ -41,7 +38,7 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
             "underline decoration-dotted decoration-1 underline-offset-2 transition-colors group-hover:text-foreground group-hover:decoration-solid",
         )}
       >
-        {address ? formatToken(data.balanceMap[token.coinType]) : "-"}
+        {address ? formatToken(getBalance(token.coinType)) : "-"}
       </p>
     </div>
   );

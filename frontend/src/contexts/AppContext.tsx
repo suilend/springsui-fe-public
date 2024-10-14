@@ -33,6 +33,7 @@ export interface AppContext {
   suiClient: SuiClient;
   data: AppData | null;
   refreshData: () => Promise<void>;
+  getBalance: (coinType: string) => BigNumber;
   rpc: typeof RPC;
   explorer: typeof EXPLORER;
   signExecuteAndWaitForTransaction: (
@@ -44,6 +45,9 @@ const defaultContextValue: AppContext = {
   suiClient: new SuiClient({ url: RPC.url }),
   data: null,
   refreshData: async () => {
+    throw Error("AppContextProvider not initialized");
+  },
+  getBalance: () => {
     throw Error("AppContextProvider not initialized");
   },
   rpc: RPC,
@@ -69,6 +73,11 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   const refreshData = useCallback(async () => {
     await mutateData();
   }, [mutateData]);
+
+  const getBalance = useCallback(
+    (coinType: string) => data?.balanceMap[coinType] ?? new BigNumber(0),
+    [data],
+  );
 
   // Poll for balance changes
   const previousBalancesRef = useRef<CoinBalance[] | undefined>(undefined);
@@ -106,12 +115,19 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       suiClient,
       data: data ?? null,
       refreshData,
+      getBalance,
       rpc: RPC,
       explorer: EXPLORER,
       signExecuteAndWaitForTransaction: (transaction: Transaction) =>
         signExecuteAndWaitForTransaction(suiClient, transaction),
     }),
-    [suiClient, data, refreshData, signExecuteAndWaitForTransaction],
+    [
+      suiClient,
+      data,
+      refreshData,
+      getBalance,
+      signExecuteAndWaitForTransaction,
+    ],
   );
 
   return (

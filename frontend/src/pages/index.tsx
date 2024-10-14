@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 
@@ -8,6 +7,9 @@ import BigNumber from "bignumber.js";
 import Card from "@/components/Card";
 import Icon, { IconList } from "@/components/Icon";
 import StakeInput from "@/components/Input";
+import Nav from "@/components/Nav";
+import Popover from "@/components/Popover";
+import TransactionConfirmationDialog from "@/components/TransactionConfirmationDialog";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import {
@@ -15,8 +17,7 @@ import {
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { SUI_GAS_MIN } from "@/lib/constants";
-import { formatPercent, formatToken } from "@/lib/format";
-import { DEFI_URL, ROOT_URL } from "@/lib/navigation";
+import { formatNumber, formatPercent, formatToken } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
 import { mint, redeem } from "@/lib/transactions";
 import { SubmitButtonState } from "@/lib/types";
@@ -36,6 +37,7 @@ function Content() {
   const {
     suiClient,
     refreshData,
+    getBalance,
     explorer,
     signExecuteAndWaitForTransaction,
     ...restAppContext
@@ -85,9 +87,8 @@ function Content() {
   const lstToken = data.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   // Balance
-  const suiBalance = data.balanceMap[suiToken.coinType] ?? new BigNumber(0);
-  const lstBalance = data.balanceMap[lstToken.coinType] ?? new BigNumber(0);
-  console.log("XXX", +suiBalance, +lstBalance);
+  const suiBalance = getBalance(suiToken.coinType);
+  const lstBalance = getBalance(lstToken.coinType);
 
   const inBalance = isStaking ? suiBalance : lstBalance;
   const outBalance = isStaking ? lstBalance : suiBalance;
@@ -129,8 +130,10 @@ function Content() {
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
-    useState<boolean>(false);
+  const [
+    isTransactionConfirmationDialogOpen,
+    setIsTransactionConfirmationDialogOpen,
+  ] = useState<boolean>(false);
 
   const getSubmitButtonState = (): SubmitButtonState => {
     if (!address)
@@ -172,7 +175,7 @@ function Content() {
     else await redeem(suiClient, transaction, address!, submitAmount);
 
     try {
-      setIsConfirmationModalOpen(true);
+      setIsTransactionConfirmationDialogOpen(true);
 
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
@@ -184,7 +187,7 @@ function Content() {
     } catch (err) {
     } finally {
       setIsSubmitting(false);
-      setIsConfirmationModalOpen(false);
+      setIsTransactionConfirmationDialogOpen(false);
 
       inInputRef.current?.focus();
       await refreshData();
@@ -216,174 +219,228 @@ function Content() {
       },
     );
 
+  // Stats
+  const stats = [
+    {
+      label: "APR",
+      value: formatPercent(aprPercent),
+    },
+    {
+      label: `Total staked ${lstToken.symbol}`,
+      value: formatToken(data.liquidStakingInfo.totalLstSupply),
+    },
+    {
+      label: `Total locked ${suiToken.symbol}`,
+      value: formatToken(data.liquidStakingInfo.totalSuiSupply),
+    },
+    {
+      label: "Total users",
+      value: formatNumber(new BigNumber(1200)), // TODO
+    },
+  ];
+
+  // FAQ
+  const [faqOpenIndex, setFaqOpenIndex] = useState<number>(0);
+
+  // TODO
+  const faq = [
+    {
+      question: "What is staking?",
+      answer: "Staking is...",
+    },
+    {
+      question: `Where can I use ${lstToken.symbol}?`,
+      answer: `${lstToken.symbol} will be deeply integrated throughout the Sui ecosystem. It will be usable across DEXes, lending protocols, stablecoins protocols, NFT marketplaces and more. The goal is to have as many integrations for ${lstToken.symbol} as ${suiToken.symbol} itself!`,
+    },
+  ];
+
   return (
-    <div className="relative z-[1] flex w-full max-w-md flex-col items-center gap-4">
-      <Card>
-        {/* Tabs */}
-        <div className="w-full px-4 py-3.5">
-          <div className="flex w-full flex-row rounded-md bg-white/50">
-            {tabs.map((tab) => (
+    <>
+      <TransactionConfirmationDialog
+        isStaking={isStaking}
+        inToken={inToken}
+        outToken={outToken}
+        inValue={inValue}
+        outValue={outValue}
+        isOpen={isTransactionConfirmationDialogOpen}
+      />
+
+      <div className="relative z-[1] flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto overflow-x-hidden px-8 py-12">
+        <div className="flex w-full max-w-md shrink-0 flex-col items-center gap-4">
+          <Card>
+            {/* Tabs */}
+            <div className="w-full px-4 py-3.5">
+              <div className="flex w-full flex-row rounded-md bg-white/50">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    className={cn(
+                      "group h-10 flex-1 rounded-md border transition-colors",
+                      selectedTab === tab.id
+                        ? "border-navy-200 bg-white"
+                        : "border-[transparent]",
+                    )}
+                    onClick={() => onSelectedTabChange(tab.id)}
+                  >
+                    <p
+                      className={cn(
+                        "!text-p2 transition-colors",
+                        selectedTab === tab.id
+                          ? "text-foreground"
+                          : "text-navy-600 group-hover:text-foreground",
+                      )}
+                    >
+                      {tab.title}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px w-full bg-white/75" />
+
+            {/* Form */}
+            <div className="flex w-full flex-col gap-4 p-4">
+              <div className="flex w-full flex-col gap-0.5">
+                <StakeInput
+                  ref={inInputRef}
+                  token={inToken}
+                  title={inTitle}
+                  value={inValue}
+                  onChange={setInValue}
+                  usdValue={inValueUsd}
+                  onBalanceClick={onInBalanceClick}
+                />
+                <StakeInput
+                  token={outToken}
+                  title="Receive"
+                  value={outValue}
+                  usdValue={outValueUsd}
+                />
+              </div>
+
+              {/* Submit */}
               <button
-                key={tab.id}
                 className={cn(
-                  "group h-10 flex-1 rounded-md border transition-colors",
-                  selectedTab === tab.id
-                    ? "border-navy-200 bg-white"
-                    : "border-[transparent]",
+                  "flex h-[60px] w-full flex-row items-center justify-center gap-2.5 rounded-md",
+                  !submitButtonState.isDisabled || submitButtonState.isLoading
+                    ? "bg-navy-800 text-white"
+                    : "bg-navy-200 text-navy-500",
                 )}
-                onClick={() => onSelectedTabChange(tab.id)}
+                disabled={submitButtonState.isDisabled}
+                onClick={submit}
               >
-                <p
-                  className={cn(
-                    "transition-colors",
-                    selectedTab === tab.id
-                      ? "text-foreground"
-                      : "text-navy-600 group-hover:text-foreground",
-                  )}
-                >
-                  {tab.title}
-                </p>
+                {submitButtonState.isLoading ? (
+                  <Icon
+                    className="animate-spin"
+                    icon={IconList.LOADING}
+                    size={36}
+                  />
+                ) : (
+                  <>
+                    {submitButtonState.icon}
+                    <p>{submitButtonState.title}</p>
+                  </>
+                )}
               </button>
+            </div>
+          </Card>
+
+          {/* Parameters */}
+          <div className="flex w-full flex-col gap-4 px-4">
+            {parameters.map((param) => (
+              <div
+                key={param.label}
+                className="flex w-full flex-row items-center justify-between"
+              >
+                <p className="text-p2 text-navy-600">{param.label}</p>
+                <p className="text-p2">{param.value}</p>
+              </div>
             ))}
           </div>
         </div>
-
-        {/* Divider */}
-        <div className="h-px w-full bg-white/75" />
-
-        {/* Form */}
-        <div className="flex w-full flex-col gap-4 p-4">
-          <div className="flex w-full flex-col gap-0.5">
-            <StakeInput
-              ref={inInputRef}
-              token={inToken}
-              title={inTitle}
-              value={inValue}
-              onChange={setInValue}
-              usdValue={inValueUsd}
-              onBalanceClick={onInBalanceClick}
-            />
-            <StakeInput
-              token={outToken}
-              title="Receive"
-              value={outValue}
-              usdValue={outValueUsd}
-            />
-          </div>
-
-          {/* Submit */}
-          <button
-            className={cn(
-              "flex h-[60px] w-full flex-row items-center justify-center gap-2.5 rounded-md",
-              !submitButtonState.isDisabled || submitButtonState.isLoading
-                ? "bg-navy-800 text-white"
-                : "bg-navy-200 text-navy-500",
-            )}
-            disabled={submitButtonState.isDisabled}
-            onClick={submit}
-          >
-            {submitButtonState.isLoading ? (
-              <Icon
-                className="animate-spin"
-                icon={IconList.LOADING}
-                size={36}
-              />
-            ) : (
-              <>
-                {submitButtonState.icon}
-                <p>{submitButtonState.title}</p>
-              </>
-            )}
-          </button>
-        </div>
-      </Card>
-
-      {/* Parameters */}
-      <div className="flex w-full flex-col gap-4 px-4">
-        {parameters.map((param) => (
-          <div
-            key={param.label}
-            className="flex w-full flex-row items-center justify-between"
-          >
-            <p className="text-p2 text-navy-600">{param.label}</p>
-            <p className="text-p2">{param.value}</p>
-          </div>
-        ))}
       </div>
-    </div>
+
+      {/* Stats */}
+      <div className="absolute bottom-8 left-8 z-[2]">
+        <Popover
+          trigger={
+            <button className="flex h-12 flex-row items-center gap-2 rounded-md bg-white px-4 shadow-sm">
+              <Icon icon={IconList.STATS} />
+              <p className="text-p2">Stats</p>
+            </button>
+          }
+        >
+          <div className="flex w-full flex-col gap-3">
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className="flex w-full flex-row items-center justify-between"
+              >
+                <p className="text-p2 text-navy-600">{stat.label}</p>
+                <p className="text-p2">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        </Popover>
+      </div>
+
+      {/* FAQ */}
+      <div className="absolute bottom-8 right-8 z-[2]">
+        <Popover
+          trigger={
+            <button className="flex h-12 flex-row items-center gap-2 rounded-md bg-white px-4 shadow-sm">
+              <Icon icon={IconList.FAQ} />
+              <p className="text-p2">FAQ</p>
+            </button>
+          }
+          contentProps={{
+            align: "end",
+          }}
+        >
+          <div className="flex w-full flex-col gap-3">
+            {faq.map((qa, index) => {
+              const isOpen = faqOpenIndex === index;
+
+              return (
+                <div
+                  key={index}
+                  className="flex w-full cursor-pointer flex-col gap-2"
+                  onClick={() =>
+                    setFaqOpenIndex((i) => (i !== index ? index : -1))
+                  }
+                >
+                  <div className="flex w-full flex-row items-center justify-between gap-4">
+                    <p className="text-p2">{qa.question}</p>
+
+                    <Icon
+                      className="text-navy-600"
+                      icon={isOpen ? IconList.ARROW_UP : IconList.ARROW_DOWN}
+                    />
+                  </div>
+                  {isOpen && <p className="text-p2 font-normal">{qa.answer}</p>}
+                </div>
+              );
+            })}
+          </div>
+        </Popover>
+      </div>
+    </>
   );
 }
 
 export default function Home() {
-  const router = useRouter();
-
   const { data } = useAppContext();
 
   const isLoading = !data;
 
   return (
     <div className="flex h-dvh flex-col px-2 pb-2">
-      {/* Navbar */}
-      <div className="flex h-20 w-full flex-row items-center justify-center gap-12">
-        {[
-          { url: ROOT_URL, icon: IconList.STAKE, title: "Stake" },
-          { url: DEFI_URL, icon: IconList.DEFI, title: "DeFi" },
-          {
-            icon: IconList.SPRING_SUI,
-            title: "Spring Standard",
-            endDecorator: "Soon",
-          },
-        ].map((item) => {
-          const isSelected = router.pathname === item.url;
-          const isDisabled = !item.url;
-          const Component = !isDisabled ? Link : "div";
+      <Nav />
 
-          return (
-            <Component
-              href={item.url as string}
-              key={item.title}
-              className="group flex flex-row items-center gap-2"
-            >
-              <Icon
-                className={cn(
-                  "h-5 w-5",
-                  isSelected
-                    ? "text-foreground"
-                    : !isDisabled
-                      ? "text-navy-600 transition-colors group-hover:text-foreground"
-                      : "text-navy-400",
-                )}
-                icon={item.icon}
-                size={28}
-              />
-              <p
-                className={cn(
-                  isSelected
-                    ? "text-foreground"
-                    : !isDisabled
-                      ? "text-navy-600 transition-colors group-hover:text-foreground"
-                      : "text-navy-400",
-                )}
-              >
-                {item.title}
-              </p>
-
-              {item.endDecorator && (
-                <p className="rounded-[4px] bg-navy-100 px-1 py-0.5 text-p3 text-navy-600">
-                  {item.endDecorator}
-                </p>
-              )}
-            </Component>
-          );
-        })}
-      </div>
-
-      {/* Container */}
       <div
-        className={cn(
-          "flex min-h-0 w-full flex-1 flex-col items-center overflow-x-hidden overflow-y-scroll rounded-lg bg-navy-100",
-          isLoading ? "justify-center" : "px-8 pb-12 pt-20",
-        )}
+        className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-lg bg-navy-100"
         style={{
           backgroundImage: "url('/assets/bg.png')",
           backgroundPosition: "center",

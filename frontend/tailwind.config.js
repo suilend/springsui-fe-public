@@ -39,6 +39,9 @@ module.exports = {
       md: "12px",
       lg: "24px",
     },
+    boxShadow: {
+      sm: "0 1px 1px 0 hsla(var(--navy-800) / 15%)",
+    },
   },
   plugins: [require("tailwindcss-animate")],
 };

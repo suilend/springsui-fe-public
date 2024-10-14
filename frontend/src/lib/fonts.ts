@@ -5,7 +5,7 @@ const font = localFont({
   src: [
     {
       path: "../fonts/GeneralSans-Variable.ttf",
-      weight: "500 700",
+      weight: "400 500",
     },
   ],
 });
