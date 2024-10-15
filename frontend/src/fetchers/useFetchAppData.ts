@@ -10,7 +10,6 @@ import {
 import { WAD } from "@suilend/sdk/mainnet/constants";
 import * as simulate from "@suilend/sdk/mainnet/utils/simulate";
 import BigNumber from "bignumber.js";
-import { toast } from "sonner";
 import useSWR from "swr";
 
 import { fetchLiquidStakingInfo } from "@springsui/sdk/functions";
@@ -24,6 +23,7 @@ import {
   isSui,
 } from "@/lib/coinType";
 import { isOnTestnet } from "@/lib/constants";
+import { errorToast } from "@/lib/toasts";
 import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
 export default function useFetchAppData(
@@ -125,6 +125,8 @@ export default function useFetchAppData(
       suiToLstExchangeRate,
       lstToSuiExchangeRate,
       fees,
+      aprPercent: new BigNumber(2.51), // TODO
+      totalStakers: new BigNumber(11022), // TODO
     } as ParsedLiquidStakingInfo;
 
     return {
@@ -144,9 +146,7 @@ export default function useFetchAppData(
         console.log("Refreshed app data", data);
       },
       onError: (err) => {
-        toast.error("Failed to refresh app data.", {
-          description: (err as Error)?.message || "An unknown error occured",
-        });
+        errorToast("Failed to refresh app data.", err);
         console.error(err);
       },
     },

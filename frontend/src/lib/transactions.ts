@@ -21,6 +21,7 @@ export const getBalanceChange = (
   res: SuiTransactionBlockResponse,
   address: string,
   token: Token,
+  multiplier: -1 | 1 = 1,
 ) => {
   if (!res.balanceChanges) return undefined;
 
@@ -37,7 +38,8 @@ export const getBalanceChange = (
       new BigNumber(0),
     )
     .div(10 ** token.decimals)
-    .plus(isSui(token.coinType) ? getTotalGasFee(res) : 0);
+    .plus(isSui(token.coinType) ? getTotalGasFee(res) : 0)
+    .times(multiplier);
 };
 
 export const mint = (

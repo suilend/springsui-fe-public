@@ -15,10 +15,10 @@ export default function TokenLogo({ className, token, size }: TokenLogoProps) {
   return token.iconUrl ? (
     <Image
       className={cn(className)}
-      width={size}
-      height={size}
       src={token.iconUrl}
       alt={`${token.symbol} logo`}
+      width={size}
+      height={size}
       style={{ width: size, height: size }}
     />
   ) : (

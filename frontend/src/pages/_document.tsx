@@ -9,17 +9,17 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta name="description" content={description} />
-        {/* <link rel="icon" href="/android-chrome-384x384.png" /> */}
+        <link rel="icon" href="/android-chrome-512x512.png" />
         <meta property="og:description" content={description} />
-        {/* <meta property="og:type" content="website" /> */}
+        <meta property="og:type" content="website" />
         <meta property="og:title" content="SpringSui" />
-        {/* <meta
+        <meta
           property="og:image"
-          content="https://www.suilend.fi/android-chrome-384x384.png"
-        /> */}
+          content="https://www.springsui.com/android-chrome-512x512.png"
+        />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content={TWITTER} />
-        {/* <link
+        <link
           rel="apple-touch-icon"
           sizes="180x180"
           href="/apple-touch-icon.png"
@@ -38,9 +38,9 @@ export default function Document() {
           href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
-        <meta name="msapplication-TileColor" content="#da532c" />
-        <meta name="theme-color" content="#020A19" /> */}
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#8FDDFF" />
+        <meta name="msapplication-TileColor" content="#8FDDFF" />
+        <meta name="theme-color" content="#ffffff" />
       </Head>
       <body>
         <Main />

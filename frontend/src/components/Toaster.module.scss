@@ -1,0 +1,23 @@
+.toast {
+  a[class*="actionButton"] {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: calc(8px + 20px + 16px);
+    height: calc(16px + 24px + 8px);
+    padding-top: 16px;
+    padding-right: 16px;
+    padding-bottom: 8px;
+    padding-left: 8px;
+  }
+}
+
+.icon,
+.closeButton {
+  svg {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+  }
+}

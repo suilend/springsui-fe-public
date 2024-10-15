@@ -1,33 +1,46 @@
-import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
-} from "@/components/ui/toast";
-import { useToast } from "@/hooks/useToast";
+import { CSSProperties } from "react";
+
+import { AlertTriangle, Check, Info } from "lucide-react";
+
+import styles from "@/components/Toaster.module.scss";
+import { Toaster as ToasterComponent } from "@/components/ui/sonner";
+import { TOAST_DURATION_MS } from "@/lib/constants";
+import { fontClassNames } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 export default function Toaster() {
-  const { toasts } = useToast();
-
   return (
-    <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            {action}
-            <ToastClose />
-          </Toast>
-        );
-      })}
-      <ToastViewport />
-    </ToastProvider>
+    <ToasterComponent
+      theme="light"
+      position="bottom-right"
+      toastOptions={{
+        classNames: {
+          toast: cn(
+            "bg-white text-foreground border-none outline outline-navy-200/25 shadow-sm gap-1 p-4 flex flex-col items-start justify-start rounded-md",
+            fontClassNames,
+            styles.toast,
+          ),
+          content: "gap-1.5",
+          icon: cn("absolute top-4 left-4 w-5 h-6 m-0", styles.icon),
+          title: "px-7 text-foreground text-p1 font-sans font-medium",
+          description: "text-navy-600 text-p2 font-sans font-medium",
+          // closeButton: cn(
+          //   "absolute top-0 right-0 text-foreground border-none transition-colors w-11 h-12 !bg-transparent pt-4 pr-4 pb-2 pl-2",
+          //   styles.closeButton,
+          // ),
+        },
+        style: {
+          "--toast-close-button-start": "auto",
+          "--toast-close-button-transform": "none",
+        } as CSSProperties,
+      }}
+      gap={2 * 4}
+      icons={{
+        success: <Check className="text-success" />,
+        info: <Info className="text-navy-600" />,
+        error: <AlertTriangle className="text-error" />,
+      }}
+      duration={TOAST_DURATION_MS}
+    />
   );
 }

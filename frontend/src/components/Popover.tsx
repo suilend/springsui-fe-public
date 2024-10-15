@@ -16,7 +16,10 @@ import { cn } from "@/lib/utils";
 interface PopoverProps extends PropsWithChildren {
   rootProps?: PopoverRootProps;
   trigger?: ReactNode;
-  contentProps?: PopoverContentProps;
+  contentProps?: PopoverContentProps & {
+    maxWidth?: number;
+    maxHeight?: number;
+  };
 }
 
 export default function Popover({
@@ -25,20 +28,26 @@ export default function Popover({
   contentProps,
   children,
 }: PopoverProps) {
-  const { className: contentClassName, ...restContentProps } =
-    contentProps || {};
+  const {
+    className: contentClassName,
+    style: contentStyle,
+    maxWidth: contentMaxWidth,
+    maxHeight: contentMaxHeight,
+    ...restContentProps
+  } = contentProps || {};
 
   return (
     <PopoverRoot {...rootProps}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-      {/* Set fonts on popover as using PopoverPortal with container set to the app container (see Tooltip) doesn't work */}
       <PopoverContent
         className={cn(fontClassNames, contentClassName)}
         collisionPadding={12}
-        sideOffset={12}
+        sideOffset={2}
         align="start"
         style={{
-          maxWidth: "var(--radix-popover-content-available-width)",
+          maxWidth: `min(${contentMaxWidth ?? 9999}px, var(--radix-popover-content-available-width))`,
+          maxHeight: `min(${contentMaxHeight ?? 9999}px, var(--radix-popper-available-height))`,
+          ...contentStyle,
         }}
         {...restContentProps}
       >

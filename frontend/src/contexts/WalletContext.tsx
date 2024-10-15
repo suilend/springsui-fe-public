@@ -15,9 +15,9 @@ import { SuiClient, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { IdentifierString, WalletAccount } from "@mysten/wallet-standard";
 import { useWallet } from "@suiet/wallet-kit";
-import { toast } from "sonner";
 
 import { formatAddress } from "@/lib/format";
+import { infoToast } from "@/lib/toasts";
 
 export enum QueryParams {
   WALLET = "wallet",
@@ -28,7 +28,7 @@ interface WalletContext {
   setIsConnectWalletDropdownOpen: Dispatch<SetStateAction<boolean>>;
   accounts: readonly WalletAccount[];
   account?: WalletAccount;
-  selectAccount: (address: string, addressNameServiceName?: string) => void;
+  selectAccount: (address: string) => void;
   address?: string;
   isImpersonatingAddress?: boolean;
   selectWallet: (name: string) => Promise<void>;
@@ -201,29 +201,27 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
       setIsConnectWalletDropdownOpen,
       accounts,
       account,
-      selectAccount: (_address: string, addressNameServiceName?: string) => {
+      selectAccount: (_address: string) => {
         const _account = accounts.find((a) => a.address === _address);
         if (!_account) return;
 
         setAccountAddress(_address);
         window.localStorage.setItem("accountAddress", _address);
 
-        toast.info(
-          `Switched to ${_account?.label ?? addressNameServiceName ?? formatAddress(_address)}`,
-          {
-            description: _account?.label
-              ? (addressNameServiceName ?? formatAddress(_address))
-              : undefined,
-            descriptionClassName: "uppercase !font-mono",
-          },
-        );
+        infoToast(`Switched to ${_account?.label ?? formatAddress(_address)}`, {
+          description: _account?.label ? formatAddress(_address) : undefined,
+          descriptionClassName: "uppercase",
+        });
       },
       address: impersonatedAddress ?? account?.address,
       isImpersonatingAddress: !!impersonatedAddress,
-      selectWallet,
+      selectWallet: async (walletName: string) => {
+        await selectWallet(walletName);
+        setIsConnectWalletDropdownOpen(false);
+      },
       disconnectWallet: async () => {
         await disconnectWallet();
-        toast.info("Disconnected wallet");
+        infoToast("Disconnected wallet");
       },
       signExecuteAndWaitForTransaction,
     }),

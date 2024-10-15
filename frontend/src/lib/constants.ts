@@ -1,7 +1,7 @@
 export const TWITTER = "@springsui_";
 
-export const TOAST_DURATION = 4 * 1000;
-export const TX_TOAST_DURATION = 10 * 1000;
+export const TOAST_DURATION_MS = 4 * 1000;
+export const TX_TOAST_DURATION_MS = 10 * 1000;
 
 export const SUI_GAS_MIN = 0.05;
 

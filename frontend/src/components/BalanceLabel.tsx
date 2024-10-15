@@ -1,4 +1,5 @@
-import Icon, { IconList } from "@/components/Icon";
+import { Wallet } from "lucide-react";
+
 import { useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import { formatToken } from "@/lib/format";
@@ -24,12 +25,12 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
       )}
       onClick={hasOnClick ? onClick : undefined}
     >
-      <Icon
+      <Wallet
         className={cn(
           "text-navy-600",
           hasOnClick && "transition-colors group-hover:text-foreground",
         )}
-        icon={IconList.WALLET}
+        size={16}
       />
       <p
         className={cn(

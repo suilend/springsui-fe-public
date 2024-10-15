@@ -10,6 +10,8 @@ export type ParsedLiquidStakingInfo = {
   suiToLstExchangeRate: BigNumber;
   lstToSuiExchangeRate: BigNumber;
   fees: BigNumber;
+  aprPercent: BigNumber;
+  totalStakers: BigNumber;
 };
 
 export type Token = Omit<CoinMetadata, "iconUrl"> & {
@@ -20,7 +22,7 @@ export type Token = Omit<CoinMetadata, "iconUrl"> & {
 export type SubmitButtonState = {
   icon?: ReactElement;
   title?: string;
-  description?: string;
   isLoading?: boolean;
   isDisabled?: boolean;
+  onClick?: () => void;
 };

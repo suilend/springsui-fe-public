@@ -1,7 +1,19 @@
 import { useWallet } from "@suiet/wallet-kit";
 import { merge } from "lodash";
 
-const PRIORITY_WALLET_IDS = ["Sui Wallet"];
+const PRIORITY_WALLET_NAMES = ["Sui Wallet", "Nightly", "Suiet"];
+
+const walletKitOverrides = {
+  "Sui Wallet": {
+    logoUrl:
+      "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/05/7c/f1/057cf17e-109e-72cd-eed7-2d539cf3d1f9/AppIcon-0-0-1x_U007ephone-0-85-220.png/460x0w.webp", // Chrome Web Store logo isn't full size
+    downloadUrls: {
+      iOS: "https://apps.apple.com/us/app/sui-wallet-mobile/id6476572140",
+      android:
+        "https://play.google.com/store/apps/details?id=com.mystenlabs.suiwallet",
+    },
+  },
+};
 
 export type Wallet = {
   id: string;
@@ -16,20 +28,19 @@ export type Wallet = {
 };
 
 export const useListWallets = () => {
-  // Wallets
-  const { allAvailableWallets } = useWallet();
+  const { configuredWallets, allAvailableWallets } = useWallet();
 
-  const walletKitOverrides = {
-    "Sui Wallet": {
-      downloadUrls: {
-        iOS: "https://apps.apple.com/us/app/sui-wallet-mobile/id6476572140",
-        android:
-          "https://play.google.com/store/apps/details?id=com.mystenlabs.suiwallet",
-      },
-    },
-  };
+  const filteredConfiguredWallets = configuredWallets.filter((wallet) =>
+    PRIORITY_WALLET_NAMES.find((wName) => wName === wallet.name),
+  );
+  const filteredAvailableWallets = allAvailableWallets.filter(
+    (wallet) => !filteredConfiguredWallets.find((w) => w.name === wallet.name),
+  );
 
-  const wallets = allAvailableWallets.map(
+  const allWallets = [
+    ...filteredConfiguredWallets,
+    ...filteredAvailableWallets,
+  ].map(
     (w) =>
       merge(
         {
@@ -43,36 +54,28 @@ export const useListWallets = () => {
       ) as Wallet,
   );
 
-  const installedWallets = wallets.filter((w) => w.isInstalled);
-  const priorityWallets = PRIORITY_WALLET_IDS.map((wId) =>
-    wallets.find((w) => w.id === wId),
-  ).filter(Boolean) as Wallet[];
+  // Sort
+  const sortWallets = (wallets: Wallet[]) =>
+    wallets.slice().sort((wA, wB) => {
+      const wA_priorityIndex = PRIORITY_WALLET_NAMES.findIndex(
+        (wName) => wName === wA.name,
+      );
+      const wB_priorityIndex = PRIORITY_WALLET_NAMES.findIndex(
+        (wName) => wName === wB.name,
+      );
 
-  // Categorize wallets
-  const sortedInstalledWallets = installedWallets.sort((wA, wB) => {
-    const wAPriorityIndex = priorityWallets.findIndex((w) => w.id === wA.id);
-    const wBPriorityIndex = priorityWallets.findIndex((w) => w.id === wB.id);
+      if (wA_priorityIndex > -1 && wB_priorityIndex > -1)
+        return wA_priorityIndex - wB_priorityIndex;
+      else if (wA_priorityIndex === -1 && wB_priorityIndex === -1) return 0;
+      else return wA_priorityIndex > -1 ? -1 : 1;
+    });
 
-    if (wAPriorityIndex > -1 && wBPriorityIndex > -1)
-      return wAPriorityIndex - wBPriorityIndex;
-    else if (wAPriorityIndex === -1 && wBPriorityIndex === -1) return 0;
-    else return wAPriorityIndex > -1 ? -1 : 1;
-  });
-  const notInstalledPriorityWallets = priorityWallets.filter(
-    (w) => !sortedInstalledWallets.find((iw) => iw.id === w.id),
+  const installedWallets = sortWallets(
+    allWallets.filter((wallet) => wallet.isInstalled),
+  );
+  const notInstalledWallets = sortWallets(
+    allWallets.filter((wallet) => !wallet.isInstalled),
   );
 
-  const mainWallets = [
-    ...sortedInstalledWallets,
-    ...notInstalledPriorityWallets,
-  ];
-  const otherWallets = wallets.filter(
-    (w) => !mainWallets.find((iw) => iw.id === w.id),
-  );
-
-  return {
-    mainWallets,
-    otherWallets,
-    wallets: [...mainWallets, ...otherWallets],
-  };
+  return [...installedWallets, ...notInstalledWallets];
 };

@@ -12,7 +12,7 @@ export default function Card({ className, children }: CardProps) {
   return (
     <div
       className={cn(
-        "w-full rounded-lg border border-white/75 bg-white/20 shadow-sm backdrop-blur-md",
+        "w-full rounded-lg border border-white/75 bg-white/20 shadow-sm backdrop-blur-[10px] md:rounded-xl",
         className,
       )}
     >
