@@ -112,16 +112,20 @@ export default function useFetchAppData(suiClient: SuiClient) {
     } as AppData;
   };
 
-  const { data, mutate } = useSWR<AppContext["data"]>("appData", dataFetcher, {
-    refreshInterval: 30 * 1000,
-    onSuccess: (data) => {
-      console.log("Refreshed app data", data);
+  const { data, mutate } = useSWR<AppContext["appData"]>(
+    "appData",
+    dataFetcher,
+    {
+      refreshInterval: 30 * 1000,
+      onSuccess: (data) => {
+        console.log("Refreshed app data", data);
+      },
+      onError: (err) => {
+        errorToast("Failed to refresh app data.", err);
+        console.error(err);
+      },
     },
-    onError: (err) => {
-      errorToast("Failed to refresh app data.", err);
-      console.error(err);
-    },
-  });
+  );
 
   return { data, mutate };
 }
