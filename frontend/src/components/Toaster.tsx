@@ -2,13 +2,17 @@ import { CSSProperties } from "react";
 
 import { AlertTriangle, Check, Info } from "lucide-react";
 
+import { BOTTOM_NAV_BOTTOM_HEIGHT } from "@/components/BottomNav";
 import styles from "@/components/Toaster.module.scss";
 import { Toaster as ToasterComponent } from "@/components/ui/sonner";
+import useBreakpoint from "@/hooks/useBreakpoint";
 import { TOAST_DURATION_MS } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
 export default function Toaster() {
+  const { md } = useBreakpoint();
+
   return (
     <ToasterComponent
       theme="light"
@@ -41,6 +45,13 @@ export default function Toaster() {
         error: <AlertTriangle className="text-error" />,
       }}
       duration={TOAST_DURATION_MS}
+      style={
+        {
+          "--offset": "32px",
+          "--mobile-offset": "16px",
+          bottom: md ? 0 : BOTTOM_NAV_BOTTOM_HEIGHT + 16,
+        } as CSSProperties
+      }
     />
   );
 }

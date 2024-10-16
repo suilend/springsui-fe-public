@@ -20,17 +20,14 @@ import {
   LIQUID_STAKING_INFO,
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
+  coinTypes,
   isSui,
 } from "@/lib/coinType";
 import { isOnTestnet } from "@/lib/constants";
 import { errorToast } from "@/lib/toasts";
 import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
-export default function useFetchAppData(
-  suiClient: SuiClient,
-  address: string | undefined,
-) {
-  // Data
+export default function useFetchAppData(suiClient: SuiClient) {
   const dataFetcher = async () => {
     // Sui price
     let suiPrice;
@@ -61,8 +58,6 @@ export default function useFetchAppData(
     }
 
     // Metadata
-    const coinTypes = [NORMALIZED_SUI_COINTYPE, NORMALIZED_LST_COINTYPE];
-
     const coinMetadataMap: Record<string, Token> = {};
     for (const coinType of coinTypes) {
       const metadata = (await suiClient.getCoinMetadata({
@@ -74,25 +69,6 @@ export default function useFetchAppData(
         ...metadata,
         iconUrl: COINTYPE_LOGO_MAP[coinType] ?? metadata.iconUrl,
       };
-    }
-
-    // Balance
-    const balanceMap: Record<string, BigNumber> = {};
-    if (address) {
-      const rawBalances = (
-        await suiClient.getAllBalances({
-          owner: address,
-        })
-      )
-        .map((cb) => ({ ...cb, coinType: normalizeStructTag(cb.coinType) }))
-        .sort((a, b) => (a.coinType < b.coinType ? -1 : 1));
-
-      for (const coinType of coinTypes) {
-        balanceMap[coinType] = new BigNumber(
-          rawBalances.find((balance) => balance.coinType === coinType)
-            ?.totalBalance ?? 0,
-        ).div(10 ** coinMetadataMap[coinType].decimals);
-      }
     }
 
     // State
@@ -132,28 +108,20 @@ export default function useFetchAppData(
     return {
       suiPrice,
       coinMetadataMap,
-      balanceMap,
       liquidStakingInfo,
     } as AppData;
   };
 
-  const { data, mutate } = useSWR<AppContext["data"]>(
-    `appData-${address}`,
-    dataFetcher,
-    {
-      refreshInterval: 30 * 1000,
-      onSuccess: (data) => {
-        console.log("Refreshed app data", data);
-      },
-      onError: (err) => {
-        errorToast("Failed to refresh app data.", err);
-        console.error(err);
-      },
+  const { data, mutate } = useSWR<AppContext["data"]>("appData", dataFetcher, {
+    refreshInterval: 30 * 1000,
+    onSuccess: (data) => {
+      console.log("Refreshed app data", data);
     },
-  );
+    onError: (err) => {
+      errorToast("Failed to refresh app data.", err);
+      console.error(err);
+    },
+  });
 
-  return {
-    data,
-    mutate,
-  };
+  return { data, mutate };
 }

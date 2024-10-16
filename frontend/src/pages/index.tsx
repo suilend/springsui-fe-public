@@ -1,14 +1,15 @@
 import { useRouter } from "next/router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
-import { Loader2 } from "lucide-react";
 import { Wallet } from "lucide-react";
 
+import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
 import FaqPopover from "@/components/FaqPopover";
 import StakeInput from "@/components/Input";
+import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import StatsPopover from "@/components/StatsPopover";
 import SubmitButton from "@/components/SubmitButton";
@@ -31,25 +32,28 @@ enum QueryParams {
   TAB = "tab",
 }
 
-function Content() {
+export default function Home() {
   const router = useRouter();
   const queryParams = {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
   };
 
-  const { setIsConnectWalletDropdownOpen, address } = useWalletContext();
+  const { suiClient, refreshAppData, explorer, ...restAppContext } =
+    useAppContext();
   const {
-    suiClient,
-    refreshData,
-    getBalance,
-    explorer,
+    setIsConnectWalletDropdownOpen,
+    address,
     signExecuteAndWaitForTransaction,
-    ...restAppContext
-  } = useAppContext();
-  const data = restAppContext.data as AppData;
+    refreshBalancesData,
+    getAccountBalance,
+  } = useWalletContext();
+  const appData = restAppContext.appData as AppData;
 
   // Ref
   const inInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    inInputRef.current?.focus();
+  }, []);
 
   // Tabs
   enum Tab {
@@ -75,22 +79,22 @@ function Content() {
   const isStaking = selectedTab === Tab.STAKE;
 
   // Stats
-  const suiPrice = data.suiPrice;
-  const lstPrice = data.suiPrice.div(
-    data.liquidStakingInfo.suiToLstExchangeRate,
+  const suiPrice = appData.suiPrice;
+  const lstPrice = appData.suiPrice.div(
+    appData.liquidStakingInfo.suiToLstExchangeRate,
   );
 
   const inToOutExchangeRate = isStaking
-    ? data.liquidStakingInfo.suiToLstExchangeRate
-    : data.liquidStakingInfo.lstToSuiExchangeRate;
+    ? appData.liquidStakingInfo.suiToLstExchangeRate
+    : appData.liquidStakingInfo.lstToSuiExchangeRate;
 
   // Tokens
-  const suiToken = data.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
-  const lstToken = data.coinMetadataMap[NORMALIZED_LST_COINTYPE];
+  const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
+  const lstToken = appData.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   // Balance
-  const suiBalance = getBalance(suiToken.coinType);
-  const lstBalance = getBalance(lstToken.coinType);
+  const suiBalance = getAccountBalance(suiToken.coinType);
+  const lstBalance = getAccountBalance(lstToken.coinType);
 
   const inBalance = isStaking ? suiBalance : lstBalance;
   const outBalance = isStaking ? lstBalance : suiBalance;
@@ -239,7 +243,8 @@ function Content() {
       setIsTransactionConfirmationDialogOpen(false);
 
       inInputRef.current?.focus();
-      await refreshData();
+      await refreshAppData();
+      await refreshBalancesData();
     }
   };
 
@@ -254,7 +259,7 @@ function Content() {
     parameters.push(
       {
         label: "APR",
-        value: formatPercent(data.liquidStakingInfo.aprPercent),
+        value: formatPercent(appData.liquidStakingInfo.aprPercent),
       },
       {
         label: "Est. yearly earnings",
@@ -263,7 +268,7 @@ function Content() {
             ? "--"
             : formatToken(
                 new BigNumber(inValue || 0).times(
-                  data.liquidStakingInfo.aprPercent.div(100),
+                  appData.liquidStakingInfo.aprPercent.div(100),
                 ),
               )
         } ${inToken.symbol}`,
@@ -272,6 +277,7 @@ function Content() {
 
   return (
     <>
+      {/* Fixed */}
       <TransactionConfirmationDialog
         isStaking={isStaking}
         inToken={inToken}
@@ -283,8 +289,11 @@ function Content() {
 
       <Nav />
 
-      <div className="relative z-[1] flex min-h-0 w-full flex-1 flex-col items-center px-4 md:px-10">
-        <div className="flex w-full max-w-md shrink-0 flex-col items-center gap-4 pb-8 pt-4 md:py-16">
+      {/* Fixed, WIDTH >= md */}
+      <Mask />
+
+      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-12 pt-4 md:px-10 md:py-20">
+        <div className="flex w-full max-w-md flex-col items-center gap-4">
           <Card>
             {/* Tabs */}
             <div className="w-full p-2 md:px-4 md:py-3.5">
@@ -357,34 +366,17 @@ function Content() {
         </div>
       </div>
 
+      {/* WIDTH < md */}
+      <BottomNav />
+
+      {/* Fixed, WIDTH >= md */}
       <div className="fixed bottom-10 left-10 z-[2] max-md:hidden">
         <StatsPopover />
       </div>
 
+      {/* Fixed, WIDTH >= md */}
       <div className="fixed bottom-10 right-10 z-[2] max-md:hidden">
         <FaqPopover />
-      </div>
-    </>
-  );
-}
-
-export default function Home() {
-  const { data } = useAppContext();
-
-  return (
-    <>
-      <div
-        className="fixed inset-0 z-[0]"
-        style={{
-          backgroundImage: "url('/assets/bg.png')",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
-
-      <div className="relative z-[1] flex h-dvh flex-col items-center justify-center">
-        {!data ? <Loader2 className="animate-spin" /> : <Content />}
       </div>
     </>
   );

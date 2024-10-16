@@ -41,7 +41,7 @@ export default function Popover({
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
         className={cn(fontClassNames, contentClassName)}
-        collisionPadding={12}
+        collisionPadding={16}
         sideOffset={2}
         align="start"
         style={{

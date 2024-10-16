@@ -2,42 +2,48 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { cloneElement } from "react";
 
-import { Coins } from "lucide-react";
+import { Blocks } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import FaqPopover from "@/components/FaqPopover";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
 import StatsPopover from "@/components/StatsPopover";
+import useBreakpoint from "@/hooks/useBreakpoint";
 import { DEFI_URL, ROOT_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
-export const NAV_HEIGHT = 72; // px
+const SM_NAV_HEIGHT = 60; // px
+export const MD_NAV_HEIGHT = 72; // px
+
+export const NAV_ITEMS = [
+  { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
+  { url: DEFI_URL, icon: <Blocks />, title: "DeFi" },
+  { icon: <SpringSuiIcon />, title: "SpringSui Standard" },
+];
 
 export default function Nav() {
   const router = useRouter();
 
+  const { md } = useBreakpoint();
+
   return (
     <>
       <div
-        className="fixed inset-x-0 top-0 z-[2] flex w-full flex-row items-center justify-between px-4 py-2.5 md:justify-start md:gap-6 md:bg-white md:px-10 md:py-4"
-        style={{ height: NAV_HEIGHT }}
+        className="fixed inset-x-0 top-0 z-[2] flex w-full flex-row items-center justify-between px-4 py-2.5 max-md:backdrop-blur-[10px] md:justify-start md:bg-white md:px-10 md:py-4"
+        style={{ height: md ? MD_NAV_HEIGHT : SM_NAV_HEIGHT }}
       >
-        <div className="flex flex-row items-center gap-1.5 md:w-40 md:justify-start">
+        {/* Logo */}
+        <div className="flex flex-row items-center gap-1.5 md:w-32">
           <SpringSuiIcon />
+
+          {/* WIDTH >= md */}
           <p className="text-h3 max-md:hidden">SpringSui</p>
         </div>
 
+        {/* Items, WIDTH >= md */}
         <div className="flex flex-1 flex-row justify-center gap-10 max-md:hidden">
-          {[
-            { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
-            { url: DEFI_URL, icon: <Coins />, title: "DeFi" },
-            {
-              icon: <SpringSuiIcon />,
-              title: "SpringSui Standard",
-              endDecorator: "Soon",
-            },
-          ].map((item) => {
+          {NAV_ITEMS.map((item) => {
             const isSelected = router.pathname === item.url;
             const isDisabled = !item.url;
             const Component = !isDisabled ? Link : "div";
@@ -70,18 +76,14 @@ export default function Nav() {
                 >
                   {item.title}
                 </p>
-
-                {item.endDecorator && (
-                  <p className="rounded-[4px] bg-navy-100 px-1 py-0.5 text-p3 text-navy-600">
-                    {item.endDecorator}
-                  </p>
-                )}
               </Component>
             );
           })}
         </div>
 
-        <div className="flex flex-row items-center gap-3 md:w-40 md:justify-end">
+        {/* Stats, FAQ, and wallet */}
+        <div className="flex flex-row items-center gap-3 md:w-32 md:justify-end">
+          {/* Stats and FAQ, WIDTH < md */}
           <div className="flex flex-row items-center gap-1 md:hidden">
             <StatsPopover />
             <FaqPopover />
@@ -90,7 +92,11 @@ export default function Nav() {
           <ConnectWalletButton />
         </div>
       </div>
-      <div className="relative z-[1] w-full" style={{ height: NAV_HEIGHT }} />
+
+      <div
+        className="relative z-[1] w-full shrink-0"
+        style={{ height: md ? MD_NAV_HEIGHT : SM_NAV_HEIGHT }}
+      />
     </>
   );
 }

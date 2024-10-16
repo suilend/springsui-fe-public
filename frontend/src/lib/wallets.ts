@@ -1,6 +1,8 @@
 import { useWallet } from "@suiet/wallet-kit";
 import { merge } from "lodash";
 
+import { Wallet } from "@/lib/types";
+
 const PRIORITY_WALLET_NAMES = ["Sui Wallet", "Nightly", "Suiet"];
 
 const walletKitOverrides = {
@@ -13,18 +15,6 @@ const walletKitOverrides = {
         "https://play.google.com/store/apps/details?id=com.mystenlabs.suiwallet",
     },
   },
-};
-
-export type Wallet = {
-  id: string;
-  name: string;
-  isInstalled: boolean;
-  logoUrl?: string;
-  downloadUrls: {
-    browserExtension?: string;
-    iOS?: string;
-    android?: string;
-  };
 };
 
 export const useListWallets = () => {

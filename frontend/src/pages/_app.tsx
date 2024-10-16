@@ -7,6 +7,7 @@ import { WalletProvider } from "@suiet/wallet-kit";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
+import Layout from "@/components/Layout";
 import Toaster from "@/components/Toaster";
 import { AppContextProvider } from "@/contexts/AppContext";
 import { WalletContextProvider } from "@/contexts/WalletContext";
@@ -31,11 +32,13 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <main id="__app_main" className={cn(fontClassNames)}>
         <WalletProvider>
-          <WalletContextProvider>
-            <AppContextProvider>
-              <Component {...pageProps} />
-            </AppContextProvider>
-          </WalletContextProvider>
+          <AppContextProvider>
+            <WalletContextProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </WalletContextProvider>
+          </AppContextProvider>
         </WalletProvider>
         <Toaster />
       </main>

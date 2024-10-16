@@ -14,7 +14,7 @@ interface TokenLogoProps {
 export default function TokenLogo({ className, token, size }: TokenLogoProps) {
   return token.iconUrl ? (
     <Image
-      className={cn(className)}
+      className={cn("rounded-[50%]", className)}
       src={token.iconUrl}
       alt={`${token.symbol} logo`}
       width={size}

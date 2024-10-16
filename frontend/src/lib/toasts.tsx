@@ -27,6 +27,7 @@ export const successToast = (
       action: txUrl ? (
         <Link
           className="actionButton block flex flex-col justify-center text-navy-600 transition-colors hover:text-foreground"
+          target="_blank"
           href={txUrl}
         >
           <ExternalLink className="h-5 w-5" />

@@ -7,15 +7,15 @@ import Popover from "@/components/Popover";
 import { useWalletContext } from "@/contexts/WalletContext";
 import useIsAndroid from "@/hooks/useIsAndroid";
 import useIsiOS from "@/hooks/useIsiOS";
-import { errorToast, infoToast } from "@/lib/toasts";
-import { Wallet, useListWallets } from "@/lib/wallets";
+import { Wallet } from "@/lib/types";
+import { useListWallets } from "@/lib/wallets";
 
 interface WalletItemProps {
   wallet: Wallet;
 }
 
 function WalletItem({ wallet }: WalletItemProps) {
-  const { selectWallet } = useWalletContext();
+  const { connectWallet } = useWalletContext();
 
   const isiOS = useIsiOS();
   const isAndroid = useIsAndroid();
@@ -27,22 +27,13 @@ function WalletItem({ wallet }: WalletItemProps) {
       : "browserExtension";
   const downloadUrl = wallet.downloadUrls[platform];
 
-  const onClick = async () => {
+  const onClick = () => {
     if (!wallet.isInstalled) {
       window.open(downloadUrl, "_blank");
       return;
     }
 
-    try {
-      await selectWallet(wallet.name);
-      infoToast(`Connected ${wallet.name}`);
-    } catch (err) {
-      errorToast(
-        `Failed to connect ${wallet.name}`,
-        new Error("Please try a different wallet."),
-      );
-      console.error(err);
-    }
+    connectWallet(wallet);
   };
 
   if (!wallet.isInstalled && !downloadUrl) return null;
@@ -91,7 +82,7 @@ export default function ConnectWalletPopover() {
       trigger={
         <button className="flex h-10 flex-row items-center justify-center gap-2 rounded-sm bg-navy-800 px-3 text-white">
           <WalletIcon size={16} />
-          <p className="text-p2">Connect wallet</p>
+          <p className="text-p2">Connect</p>
         </button>
       }
     >

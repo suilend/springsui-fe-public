@@ -2,6 +2,7 @@ import { ChartBar } from "lucide-react";
 
 import Popover from "@/components/Popover";
 import { AppData, useAppContext } from "@/contexts/AppContext";
+import useBreakpoint from "@/hooks/useBreakpoint";
 import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
@@ -10,39 +11,44 @@ import { formatNumber, formatPercent, formatToken } from "@/lib/format";
 
 export default function StatsPopover() {
   const appContext = useAppContext();
-  const data = appContext.data as AppData;
+  const appData = appContext.appData as AppData;
 
-  const suiToken = data.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
-  const lstToken = data.coinMetadataMap[NORMALIZED_LST_COINTYPE];
+  const { md } = useBreakpoint();
+
+  const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
+  const lstToken = appData.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   const stats = [
     {
       label: "APR",
-      value: formatPercent(data.liquidStakingInfo.aprPercent),
+      value: formatPercent(appData.liquidStakingInfo.aprPercent),
     },
     {
       label: `Total staked ${lstToken.symbol}`,
-      value: formatToken(data.liquidStakingInfo.totalLstSupply),
+      value: formatToken(appData.liquidStakingInfo.totalLstSupply),
     },
     {
       label: `Total locked ${suiToken.symbol}`,
-      value: formatToken(data.liquidStakingInfo.totalSuiSupply),
+      value: formatToken(appData.liquidStakingInfo.totalSuiSupply),
     },
     {
       label: "Total stakers",
-      value: formatNumber(data.liquidStakingInfo.totalStakers),
+      value: formatNumber(appData.liquidStakingInfo.totalStakers),
     },
   ];
 
   return (
     <Popover
       trigger={
-        <button className="flex h-8 w-8 flex-row items-center justify-center gap-2 md:h-12 md:w-auto md:rounded-md md:bg-white md:px-4 md:shadow-sm">
+        <button className="flex h-10 w-8 flex-row items-center justify-center gap-2 md:h-12 md:w-auto md:rounded-md md:bg-white md:px-4 md:shadow-sm">
           <ChartBar size={20} />
+
+          {/* WIDTH >= md */}
           <p className="text-p2 max-md:hidden">Stats</p>
         </button>
       }
       contentProps={{
+        align: md ? "end" : "center",
         maxWidth: 280,
       }}
     >

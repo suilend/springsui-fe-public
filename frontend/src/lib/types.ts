@@ -26,3 +26,15 @@ export type SubmitButtonState = {
   isDisabled?: boolean;
   onClick?: () => void;
 };
+
+export type Wallet = {
+  id: string;
+  name: string;
+  isInstalled: boolean;
+  logoUrl?: string;
+  downloadUrls: {
+    browserExtension?: string;
+    iOS?: string;
+    android?: string;
+  };
+};

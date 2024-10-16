@@ -1,6 +1,5 @@
 import { Wallet } from "lucide-react";
 
-import { useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import { formatToken } from "@/lib/format";
 import { Token } from "@/lib/types";
@@ -12,10 +11,9 @@ interface BalanceLabelProps {
 }
 
 export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
-  const { getBalance } = useAppContext();
-  const { address } = useWalletContext();
+  const { address, getAccountBalance } = useWalletContext();
 
-  const hasOnClick = !!onClick && getBalance(token.coinType).gt(0);
+  const hasOnClick = !!onClick && getAccountBalance(token.coinType).gt(0);
 
   return (
     <div
@@ -39,7 +37,7 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
             "underline decoration-dotted decoration-1 underline-offset-2 transition-colors group-hover:text-foreground group-hover:decoration-solid",
         )}
       >
-        {address ? formatToken(getBalance(token.coinType)) : "-"}
+        {address ? formatToken(getAccountBalance(token.coinType)) : "-"}
       </p>
     </div>
   );

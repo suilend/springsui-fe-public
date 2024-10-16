@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, MessageCircleQuestion } from "lucide-react";
 
 import Popover from "@/components/Popover";
 import { AppData, useAppContext } from "@/contexts/AppContext";
+import useBreakpoint from "@/hooks/useBreakpoint";
 import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
@@ -43,10 +44,12 @@ function QuestionAnswer({
 
 export default function FaqPopover() {
   const appContext = useAppContext();
-  const data = appContext.data as AppData;
+  const appData = appContext.appData as AppData;
 
-  const suiToken = data.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
-  const lstToken = data.coinMetadataMap[NORMALIZED_LST_COINTYPE];
+  const { md } = useBreakpoint();
+
+  const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
+  const lstToken = appData.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   const questionsAnswers = [
     {
@@ -62,13 +65,15 @@ export default function FaqPopover() {
   return (
     <Popover
       trigger={
-        <button className="flex h-8 w-8 flex-row items-center justify-center gap-2 md:h-12 md:w-auto md:rounded-md md:bg-white md:px-4 md:shadow-sm">
+        <button className="flex h-10 w-8 flex-row items-center justify-center gap-2 md:h-12 md:w-auto md:rounded-md md:bg-white md:px-4 md:shadow-sm">
           <MessageCircleQuestion size={20} />
+
+          {/* WIDTH >= md */}
           <p className="text-p2 max-md:hidden">FAQ</p>
         </button>
       }
       contentProps={{
-        align: "end",
+        align: md ? "end" : "center",
         maxWidth: 320,
         maxHeight: 400,
       }}

@@ -1,7 +1,6 @@
-import { forwardRef, useEffect, useRef } from "react";
+import { forwardRef } from "react";
 
 import BigNumber from "bignumber.js";
-import { mergeRefs } from "react-merge-refs";
 
 import BalanceLabel from "@/components/BalanceLabel";
 import TokenLogo from "@/components/TokenLogo";
@@ -20,12 +19,6 @@ interface InputProps {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ token, title, value, onChange, usdValue, onBalanceClick }, ref) => {
-    // Autofocus
-    const localRef = useRef<HTMLInputElement>(null);
-    useEffect(() => {
-      setTimeout(() => localRef.current?.focus());
-    }, []);
-
     const isReadOnly = !onChange;
 
     return (
@@ -41,7 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         <div className="flex w-full flex-row items-center justify-between">
           <div className="flex-1">
             <input
-              ref={mergeRefs([localRef, ref])}
+              ref={ref}
               autoFocus
               type="number"
               className="w-full py-1.5 font-sans text-h1 text-foreground placeholder:text-navy-500 focus-visible:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
