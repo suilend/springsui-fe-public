@@ -72,8 +72,8 @@ export default function Defi() {
   const opportunities = [
     {
       protocol: {
-        name: "Aftermath",
-        logoUrl: null,
+        name: "Suilend",
+        logoUrl: "https://suilend.fi/_next/static/media/suilend.b071d056.svg",
       },
       title: "Lend on Suilend",
       url: `https://suilend.fi/dashboard?asset=${lstToken.symbol}`,
@@ -82,20 +82,36 @@ export default function Defi() {
       tvlUsd: new BigNumber(1540000),
       category: Category.LENDING,
     },
+    // {
+    //   protocol: {
+    //     name: "Alpha Fi",
+    //     logoUrl: null,
+    //   },
+    //   title: "Deposit on Alpha Fi",
+    //   url: "https://alphafi.xyz/portfolio",
+    //   assets: [
+    //     { coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol },
+    //     { coinType: NORMALIZED_ALPHA_COINTYPE, symbol: "ALPHA" },
+    //   ],
+    //   aprPercent: new BigNumber(301.08),
+    //   tvlUsd: new BigNumber(278522),
+    //   category: Category.VAULT,
+    // },
     {
       protocol: {
-        name: "Alpha Fi",
-        logoUrl: null,
+        name: "Aftermath",
+        logoUrl:
+          "https://pbs.twimg.com/profile_images/1748401104151576576/YO-fkavY_400x400.jpg",
       },
-      title: "Deposit on Alpha Fi",
-      url: "https://alphafi.xyz/portfolio",
+      title: "Provide liquidity on Aftermath",
+      url: "https://aftermath.finance/",
       assets: [
-        { coinType: NORMALIZED_ALPHA_COINTYPE, symbol: "ALPHA" },
         { coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol },
+        { coinType: NORMALIZED_SUI_COINTYPE, symbol: "afSUI" },
       ],
       aprPercent: new BigNumber(301.08),
       tvlUsd: new BigNumber(278522),
-      category: Category.VAULT,
+      category: Category.DEX,
     },
   ];
 
@@ -163,6 +179,7 @@ export default function Defi() {
                   <div className="flex w-full flex-row items-center gap-2">
                     {opportunity.protocol.logoUrl ? (
                       <Image
+                        className="rounded-[50%]"
                         src={opportunity.protocol.logoUrl}
                         alt={`${opportunity.protocol.name} logo`}
                         width={28}
@@ -206,7 +223,8 @@ export default function Defi() {
                                       coinType: a.coinType,
                                       decimals: 0,
                                       description: "",
-                                      iconUrl: "",
+                                      iconUrl:
+                                        "https://assets.coingecko.com/coins/images/32391/standard/coin_icon_afsui.png?1698051868",
                                       name: "",
                                       symbol: a.symbol,
                                     }
