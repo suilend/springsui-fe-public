@@ -7,7 +7,7 @@ import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
-import { formatNumber, formatToken } from "@/lib/format";
+import { formatToken } from "@/lib/format";
 
 export default function StatsPopover() {
   const appContext = useAppContext();
@@ -20,17 +20,17 @@ export default function StatsPopover() {
 
   const stats = [
     {
-      label: `Total staked ${lstToken.symbol}`,
+      label: `Staked ${lstToken.symbol}`,
       value: formatToken(appData.liquidStakingInfo.totalLstSupply),
     },
     {
-      label: `Total locked ${suiToken.symbol}`,
+      label: `Locked ${suiToken.symbol}`,
       value: formatToken(appData.liquidStakingInfo.totalSuiSupply),
     },
-    {
-      label: "Total stakers",
-      value: formatNumber(appData.liquidStakingInfo.totalStakers),
-    },
+    // {
+    //   label: "Stakers",
+    //   value: formatNumber(appData.liquidStakingInfo.totalStakers),
+    // },
   ];
 
   return (

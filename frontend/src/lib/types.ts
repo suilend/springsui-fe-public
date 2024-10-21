@@ -13,7 +13,7 @@ export type ParsedLiquidStakingInfo = {
   redeemFeePercent: BigNumber;
   fees: BigNumber;
   aprPercent: BigNumber;
-  totalStakers: BigNumber;
+  // totalStakers: BigNumber;
 };
 
 export type Token = Omit<CoinMetadata, "iconUrl"> & {

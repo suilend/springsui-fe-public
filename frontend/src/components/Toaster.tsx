@@ -1,5 +1,6 @@
 import { CSSProperties } from "react";
 
+import { merge } from "lodash";
 import { AlertTriangle, Check, Info } from "lucide-react";
 
 import { BOTTOM_NAV_BOTTOM_HEIGHT } from "@/components/BottomNav";
@@ -46,11 +47,13 @@ export default function Toaster() {
       }}
       duration={TOAST_DURATION_MS}
       style={
-        {
-          "--offset": "32px",
-          "--mobile-offset": "16px",
-          bottom: md ? 0 : BOTTOM_NAV_BOTTOM_HEIGHT + 16,
-        } as CSSProperties
+        merge(
+          {
+            "--offset": "32px",
+            "--mobile-offset": "16px",
+          },
+          md ? {} : { bottom: BOTTOM_NAV_BOTTOM_HEIGHT + 16 },
+        ) as CSSProperties
       }
     />
   );

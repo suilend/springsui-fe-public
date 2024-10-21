@@ -48,14 +48,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             />
           </div>
 
-          <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-row items-center gap-2 pl-px">
             <TokenLogo token={token} size={28} />
             <p className="text-h3">{token.symbol}</p>
           </div>
         </div>
 
         <div className="flex w-full flex-row items-center justify-between">
-          <p className="text-p3 text-navy-500">{formatUsd(usdValue)}</p>
+          <p className="text-p2 text-navy-500">{formatUsd(usdValue)}</p>
 
           <BalanceLabel token={token} onClick={onBalanceClick} />
         </div>

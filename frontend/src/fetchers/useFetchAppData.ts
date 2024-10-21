@@ -111,7 +111,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
       redeemFeePercent,
       fees,
       aprPercent: new BigNumber(2.51), // TODO
-      totalStakers: new BigNumber(11022), // TODO
+      // totalStakers: new BigNumber(11022), // TODO
     } as ParsedLiquidStakingInfo;
 
     return {

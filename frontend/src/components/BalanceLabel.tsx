@@ -32,7 +32,7 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
       />
       <p
         className={cn(
-          "text-p2 text-navy-600",
+          "!text-p2 text-navy-600",
           hasOnClick &&
             "underline decoration-dotted decoration-1 underline-offset-2 transition-colors group-hover:text-foreground group-hover:decoration-solid",
         )}
