@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { cloneElement } from "react";
 
-import { Blocks } from "lucide-react";
+import { GitCompare } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import FaqButton from "@/components/FaqButton";
@@ -18,7 +18,7 @@ export const MD_NAV_HEIGHT = 72; // px
 
 export const NAV_ITEMS = [
   { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
-  { url: DEFI_URL, icon: <Blocks />, title: "DeFi" },
+  { url: DEFI_URL, icon: <GitCompare />, title: "DeFi" },
   { icon: <SpringSuiIcon />, title: "SpringSui Standard" },
 ];
 

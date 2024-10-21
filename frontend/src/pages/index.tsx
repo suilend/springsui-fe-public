@@ -332,7 +332,7 @@ export default function Home() {
           <Card>
             {/* Tabs */}
             <div className="w-full p-2 md:px-4 md:py-3.5">
-              <div className="flex w-full flex-row rounded-md bg-white/25 md:rounded-lg">
+              <div className="flex w-full flex-row rounded-sm bg-white/25 md:rounded-md">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
