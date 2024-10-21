@@ -92,12 +92,10 @@ export default function useFetchAppData(suiClient: SuiClient) {
       : new BigNumber(0);
 
     const mintFeePercent = new BigNumber(
-      rawLiquidStakingInfo.feeConfig.element?.stakedSuiMintFeeBps.toString() ??
-        0,
+      rawLiquidStakingInfo.feeConfig.element?.suiMintFeeBps.toString() ?? 0,
     ).div(100);
     const redeemFeePercent = new BigNumber(
-      rawLiquidStakingInfo.feeConfig.element?.stakedSuiRedeemFeeBps.toString() ??
-        0,
+      rawLiquidStakingInfo.feeConfig.element?.redeemFeeBps.toString() ?? 0,
     ).div(100);
 
     const fees = new BigNumber(rawLiquidStakingInfo.fees.value.toString()).div(
