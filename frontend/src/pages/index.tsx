@@ -13,7 +13,9 @@ import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import StatsPopover from "@/components/StatsPopover";
 import SubmitButton from "@/components/SubmitButton";
-import TransactionConfirmationDialog from "@/components/TransactionConfirmationDialog";
+import TransactionConfirmationDialog, {
+  TransactionConfirmationDialogConfig,
+} from "@/components/TransactionConfirmationDialog";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import {
@@ -148,18 +150,42 @@ export default function Home() {
   const outValue =
     inValue === ""
       ? ""
-      : formatToken(BigNumber.max(0, inValue).times(inToOutExchangeRate), {
-          dp: outToken.decimals,
-          useGrouping: false,
-        });
+      : formatToken(
+          BigNumber.max(0, inValue)
+            .times(inToOutExchangeRate)
+            .times(
+              new BigNumber(1).minus(
+                (isStaking
+                  ? appData.liquidStakingInfo.mintFeePercent
+                  : appData.liquidStakingInfo.redeemFeePercent
+                ).div(100),
+              ),
+            ),
+          {
+            dp: outToken.decimals,
+            useGrouping: false,
+          },
+        );
   const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
   const [
     isTransactionConfirmationDialogOpen,
     setIsTransactionConfirmationDialogOpen,
   ] = useState<boolean>(false);
+
+  const getTransactionConfirmationDialogConfig =
+    (): TransactionConfirmationDialogConfig => {
+      return { isStaking, inToken, outToken, inValue, outValue };
+    };
+  const [
+    transactionConfirmationDialogConfig,
+    setTransactionConfirmationDialogConfig,
+  ] = useState<TransactionConfirmationDialogConfig>(
+    getTransactionConfirmationDialogConfig,
+  );
 
   const getSubmitButtonState = (): SubmitButtonState => {
     if (!address)
@@ -188,7 +214,11 @@ export default function Home() {
 
   const submit = async () => {
     if (submitButtonState.isDisabled) return;
+
     setIsSubmitting(true);
+    setTransactionConfirmationDialogConfig(
+      getTransactionConfirmationDialogConfig(),
+    );
 
     const submitAmount = new BigNumber(inValue)
       .times(10 ** inToken.decimals)
@@ -258,6 +288,10 @@ export default function Home() {
   if (isStaking)
     parameters.push(
       {
+        label: "Staking fee",
+        value: formatPercent(appData.liquidStakingInfo.mintFeePercent),
+      },
+      {
         label: "APR",
         value: formatPercent(appData.liquidStakingInfo.aprPercent),
       },
@@ -274,17 +308,18 @@ export default function Home() {
         } ${inToken.symbol}`,
       },
     );
+  else
+    parameters.push({
+      label: "Unstaking fee",
+      value: formatPercent(appData.liquidStakingInfo.redeemFeePercent),
+    });
 
   return (
     <>
       {/* Fixed */}
       <TransactionConfirmationDialog
-        isStaking={isStaking}
-        inToken={inToken}
-        outToken={outToken}
-        inValue={inValue}
-        outValue={outValue}
         isOpen={isTransactionConfirmationDialogOpen}
+        config={transactionConfirmationDialogConfig}
       />
 
       <Nav />

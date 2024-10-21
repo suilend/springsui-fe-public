@@ -9,6 +9,8 @@ export type ParsedLiquidStakingInfo = {
   totalLstSupply: BigNumber;
   suiToLstExchangeRate: BigNumber;
   lstToSuiExchangeRate: BigNumber;
+  mintFeePercent: BigNumber;
+  redeemFeePercent: BigNumber;
   fees: BigNumber;
   aprPercent: BigNumber;
   totalStakers: BigNumber;

@@ -7,7 +7,7 @@ import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
-import { formatNumber, formatPercent, formatToken } from "@/lib/format";
+import { formatNumber, formatToken } from "@/lib/format";
 
 export default function StatsPopover() {
   const appContext = useAppContext();
@@ -19,10 +19,6 @@ export default function StatsPopover() {
   const lstToken = appData.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   const stats = [
-    {
-      label: "APR",
-      value: formatPercent(appData.liquidStakingInfo.aprPercent),
-    },
     {
       label: `Total staked ${lstToken.symbol}`,
       value: formatToken(appData.liquidStakingInfo.totalLstSupply),

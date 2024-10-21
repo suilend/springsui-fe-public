@@ -6,23 +6,25 @@ import TokenLogo from "@/components/TokenLogo";
 import { formatToken } from "@/lib/format";
 import { Token } from "@/lib/types";
 
-interface TransactionConfirmationDialogProps {
+export type TransactionConfirmationDialogConfig = {
   isStaking: boolean;
   inToken: Token;
   outToken: Token;
   inValue: string;
   outValue: string;
+};
+
+interface TransactionConfirmationDialogProps {
   isOpen: boolean;
+  config: TransactionConfirmationDialogConfig;
 }
 
 export default function TransactionConfirmationDialog({
-  isStaking,
-  inToken,
-  outToken,
-  inValue,
-  outValue,
   isOpen,
+  config,
 }: TransactionConfirmationDialogProps) {
+  const { isStaking, inToken, outToken, inValue, outValue } = config;
+
   return (
     <Dialog rootProps={{ open: isOpen }}>
       <Card className="p-2 md:p-4">

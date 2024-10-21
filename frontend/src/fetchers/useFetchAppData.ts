@@ -91,6 +91,15 @@ export default function useFetchAppData(suiClient: SuiClient) {
       ? totalSuiSupply.div(totalLstSupply)
       : new BigNumber(0);
 
+    const mintFeePercent = new BigNumber(
+      rawLiquidStakingInfo.feeConfig.element?.stakedSuiMintFeeBps.toString() ??
+        0,
+    ).div(100);
+    const redeemFeePercent = new BigNumber(
+      rawLiquidStakingInfo.feeConfig.element?.stakedSuiRedeemFeeBps.toString() ??
+        0,
+    ).div(100);
+
     const fees = new BigNumber(rawLiquidStakingInfo.fees.value.toString()).div(
       10 ** coinMetadataMap[NORMALIZED_SUI_COINTYPE].decimals,
     );
@@ -100,6 +109,8 @@ export default function useFetchAppData(suiClient: SuiClient) {
       totalLstSupply,
       suiToLstExchangeRate,
       lstToSuiExchangeRate,
+      mintFeePercent,
+      redeemFeePercent,
       fees,
       aprPercent: new BigNumber(2.51), // TODO
       totalStakers: new BigNumber(11022), // TODO

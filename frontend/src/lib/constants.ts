@@ -9,7 +9,7 @@ enum Network {
   MAINNET = "mainnet",
   TESTNET = "testnet",
 }
-const NETWORK: Network = Network.TESTNET;
+const NETWORK: Network = Network.MAINNET;
 export const isOnTestnet = (NETWORK as Network) === Network.TESTNET;
 export const isOnMainnet = (NETWORK as Network) === Network.MAINNET;
 
