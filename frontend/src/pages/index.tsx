@@ -284,13 +284,17 @@ export default function Home() {
       label: "Exchange rate",
       value: `1 ${inToken.symbol} ≈ ${formatToken(new BigNumber(inToOutExchangeRate), { dp: 3 })} ${outToken.symbol}`,
     },
+    {
+      label: isStaking ? "Staking fee" : "Unstaking fee",
+      value: formatPercent(
+        isStaking
+          ? appData.liquidStakingInfo.mintFeePercent
+          : appData.liquidStakingInfo.redeemFeePercent,
+      ),
+    },
   ];
   if (isStaking)
     parameters.push(
-      {
-        label: "Staking fee",
-        value: formatPercent(appData.liquidStakingInfo.mintFeePercent),
-      },
       {
         label: "APR",
         value: formatPercent(appData.liquidStakingInfo.aprPercent),
@@ -308,11 +312,6 @@ export default function Home() {
         } ${inToken.symbol}`,
       },
     );
-  else
-    parameters.push({
-      label: "Unstaking fee",
-      value: formatPercent(appData.liquidStakingInfo.redeemFeePercent),
-    });
 
   return (
     <>
