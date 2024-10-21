@@ -44,7 +44,7 @@ export default function StatsPopover() {
         </button>
       }
       contentProps={{
-        align: md ? "end" : "center",
+        align: md ? "start" : "center",
         maxWidth: 280,
       }}
     >

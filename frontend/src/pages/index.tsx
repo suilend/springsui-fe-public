@@ -7,7 +7,7 @@ import { Wallet } from "lucide-react";
 
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
-import FaqPopover from "@/components/FaqPopover";
+import FaqButton from "@/components/FaqButton";
 import StakeInput from "@/components/Input";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
@@ -332,15 +332,13 @@ export default function Home() {
           <Card>
             {/* Tabs */}
             <div className="w-full p-2 md:px-4 md:py-3.5">
-              <div className="flex w-full flex-row rounded-md bg-white/50 md:rounded-lg">
+              <div className="flex w-full flex-row rounded-md bg-white/25 md:rounded-lg">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     className={cn(
-                      "group h-10 flex-1 rounded-sm border transition-colors md:rounded-md",
-                      selectedTab === tab.id
-                        ? "border-navy-200 bg-white"
-                        : "border-[transparent]",
+                      "group h-10 flex-1 rounded-sm transition-colors md:rounded-md",
+                      selectedTab === tab.id && "bg-white",
                     )}
                     onClick={() => onSelectedTabChange(tab.id)}
                   >
@@ -411,7 +409,7 @@ export default function Home() {
 
       {/* Fixed, WIDTH >= md */}
       <div className="fixed bottom-10 right-10 z-[2] max-md:hidden">
-        <FaqPopover />
+        <FaqButton />
       </div>
     </>
   );

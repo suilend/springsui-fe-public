@@ -14,7 +14,7 @@ export default function BottomNav() {
     <>
       {/* WIDTH < md */}
       <div
-        className="fixed inset-x-0 bottom-0 z-[2] flex w-full flex-row items-center justify-around rounded-t-lg bg-white py-3.5 md:hidden"
+        className="fixed inset-x-0 bottom-0 z-[2] flex w-full flex-row items-center justify-around rounded-t-lg bg-white py-3.5 shadow-sm outline outline-navy-200/25 md:hidden"
         style={{ height: BOTTOM_NAV_BOTTOM_HEIGHT }}
       >
         {NAV_ITEMS.map((item) => {

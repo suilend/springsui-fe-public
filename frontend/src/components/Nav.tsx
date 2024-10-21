@@ -5,7 +5,7 @@ import { cloneElement } from "react";
 import { Blocks } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
-import FaqPopover from "@/components/FaqPopover";
+import FaqButton from "@/components/FaqButton";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
 import StatsPopover from "@/components/StatsPopover";
@@ -30,7 +30,7 @@ export default function Nav() {
   return (
     <>
       <div
-        className="fixed inset-x-0 top-0 z-[2] flex w-full flex-row items-center justify-between px-4 py-2.5 max-md:backdrop-blur-[10px] md:justify-start md:bg-white md:px-10 md:py-4"
+        className="fixed inset-x-0 top-0 z-[2] flex w-full flex-row items-center justify-between px-4 py-2.5 max-md:bg-[#DFEAFA]/25 max-md:backdrop-blur-[10px] md:justify-start md:bg-white md:px-10 md:py-4"
         style={{ height: md ? MD_NAV_HEIGHT : SM_NAV_HEIGHT }}
       >
         {/* Logo */}
@@ -86,7 +86,7 @@ export default function Nav() {
           {/* Stats and FAQ, WIDTH < md */}
           <div className="flex flex-row items-center gap-1 md:hidden">
             <StatsPopover />
-            <FaqPopover />
+            <FaqButton />
           </div>
 
           <ConnectWalletButton />
