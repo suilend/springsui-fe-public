@@ -49,7 +49,7 @@ export class LstClient {
     this.client = client;
   }
 
-  async getAdminCapId(address: string): Promise<string | null> {
+  async getAdminCapId(address: string): Promise<string | null | undefined> {
     let res = (
       await this.client.getOwnedObjects({
       owner: address,
@@ -63,7 +63,7 @@ export class LstClient {
       return null;
     }
 
-    return res[0].data.objectId;
+    return res[0].data?.objectId;
   }
 
   // returns the lst object
