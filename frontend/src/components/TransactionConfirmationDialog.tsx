@@ -34,15 +34,13 @@ export default function TransactionConfirmationDialog({
           </p>
 
           <video
-            className="h-36 w-36"
+            className="relative z-[-1] h-36 w-36"
             autoPlay
             controls={false}
             loop
             muted
             preload="auto"
             playsInline
-            disablePictureInPicture
-            disableRemotePlayback
           >
             <source
               src="/assets/transaction-confirmation.webm"
