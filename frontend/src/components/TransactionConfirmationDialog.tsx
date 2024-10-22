@@ -41,6 +41,9 @@ export default function TransactionConfirmationDialog({
             muted
             preload="auto"
             src={"/assets/transaction-confirmation.webm"}
+            playsInline
+            disablePictureInPicture
+            disableRemotePlayback
           />
 
           <div className="flex w-full flex-col rounded-md border border-navy-100">

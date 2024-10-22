@@ -110,7 +110,9 @@ export default function Home() {
   const inPrice = isStaking ? suiPrice : lstPrice;
 
   const [inValue, setInValue] = useState<string>("");
-  const inValueUsd = new BigNumber(inValue || 0).times(inPrice);
+  const inValueUsd = new BigNumber(BigNumber.max(0, inValue || 0)).times(
+    inPrice,
+  );
 
   const formatAndSetInValue = useCallback(
     (_value: string) => {
@@ -213,7 +215,7 @@ export default function Home() {
       return { title: "Amount too low", isDisabled: true };
 
     return {
-      title: `${inTitle} ${inValue} ${inToken.symbol}`,
+      title: `${inTitle} ${formatToken(new BigNumber(inValue), { dp: inToken.decimals })} ${inToken.symbol}`,
     };
   };
   const submitButtonState = getSubmitButtonState();
