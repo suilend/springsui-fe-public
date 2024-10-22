@@ -29,6 +29,7 @@ import { SUI_GAS_MIN } from "@/lib/constants";
 import { formatInteger, formatPercent, formatToken } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
 import { errorToast, successToast } from "@/lib/toasts";
+import track from "@/lib/track";
 import { getBalanceChange, mint, redeem } from "@/lib/transactions";
 import { SubmitButtonState } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -272,6 +273,13 @@ export default function Home() {
         txUrl,
       );
       formatAndSetInValue("");
+
+      track(isStaking ? "stake" : "unstake", {
+        amountIn: inValue,
+        amountInUsd: inValueUsd.toFixed(2, BigNumber.ROUND_DOWN),
+        amountOut: outValue,
+        amountOutUsd: outValueUsd.toFixed(2, BigNumber.ROUND_DOWN),
+      });
     } catch (err) {
       errorToast(
         `Failed to ${isStaking ? "stake" : "unstake"}`,
