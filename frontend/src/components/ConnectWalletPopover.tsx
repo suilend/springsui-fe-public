@@ -39,7 +39,7 @@ function WalletItem({ wallet }: WalletItemProps) {
   if (!wallet.isInstalled && !downloadUrl) return null;
   return (
     <button
-      className="flex h-12 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3 transition-colors hover:bg-navy-100"
+      className="group flex h-12 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3 transition-colors"
       onClick={onClick}
     >
       <div className="flex flex-row items-center gap-2">
@@ -54,10 +54,16 @@ function WalletItem({ wallet }: WalletItemProps) {
           <div className="h-6 w-6" />
         )}
 
-        <p className="text-p2">{wallet.name}</p>
+        <p className="!text-p2 text-navy-600 transition-colors group-hover:text-foreground">
+          {wallet.name}
+        </p>
       </div>
 
-      {wallet.isInstalled && <p className="text-p3 text-navy-600">Installed</p>}
+      {wallet.isInstalled && (
+        <p className="!text-p3 text-navy-600 transition-colors group-hover:text-foreground">
+          Installed
+        </p>
+      )}
     </button>
   );
 }

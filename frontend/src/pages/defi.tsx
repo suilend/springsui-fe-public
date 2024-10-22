@@ -12,7 +12,6 @@ import Nav from "@/components/Nav";
 import TokenLogo from "@/components/TokenLogo";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import {
-  NORMALIZED_ALPHA_COINTYPE,
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
   isLst,
@@ -78,40 +77,9 @@ export default function Defi() {
       title: "Lend on Suilend",
       url: `https://suilend.fi/dashboard?asset=${lstToken.symbol}`,
       assets: [{ coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol }],
-      aprPercent: new BigNumber(2.65),
-      tvlUsd: new BigNumber(1540000),
+      aprPercent: new BigNumber(0),
+      tvlUsd: new BigNumber(0),
       category: Category.LENDING,
-    },
-    // {
-    //   protocol: {
-    //     name: "Alpha Fi",
-    //     logoUrl: null,
-    //   },
-    //   title: "Deposit on Alpha Fi",
-    //   url: "https://alphafi.xyz/portfolio",
-    //   assets: [
-    //     { coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol },
-    //     { coinType: NORMALIZED_ALPHA_COINTYPE, symbol: "ALPHA" },
-    //   ],
-    //   aprPercent: new BigNumber(301.08),
-    //   tvlUsd: new BigNumber(278522),
-    //   category: Category.VAULT,
-    // },
-    {
-      protocol: {
-        name: "Aftermath",
-        logoUrl:
-          "https://pbs.twimg.com/profile_images/1748401104151576576/YO-fkavY_400x400.jpg",
-      },
-      title: "Provide liquidity on Aftermath",
-      url: "https://aftermath.finance/",
-      assets: [
-        { coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol },
-        { coinType: NORMALIZED_SUI_COINTYPE, symbol: "afSUI" },
-      ],
-      aprPercent: new BigNumber(301.08),
-      tvlUsd: new BigNumber(278522),
-      category: Category.DEX,
     },
   ];
 
@@ -123,7 +91,7 @@ export default function Defi() {
       <Mask />
 
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-12 pt-4 md:px-10 md:py-20">
-        <div className="flex w-full max-w-xl flex-col items-center gap-4">
+        <div className="flex w-full max-w-2xl flex-col items-center gap-4">
           <Card>
             {/* Categories */}
             <div className="flex w-full flex-row flex-nowrap gap-2 overflow-x-auto p-2 md:px-4 md:py-3.5">
@@ -131,10 +99,10 @@ export default function Defi() {
                 <button
                   key={category.id}
                   className={cn(
-                    "group flex h-10 flex-row items-center gap-2 rounded-[20px] border px-4 transition-colors",
+                    "group flex h-10 flex-row items-center gap-2 rounded-[20px] px-4 transition-colors",
                     selectedCategory === category.id
-                      ? "border-white bg-white"
-                      : "border-navy-200 hover:bg-navy-200/25",
+                      ? "bg-white"
+                      : "bg-white/25",
                   )}
                   onClick={() => onSelectedCategoryChange(category.id)}
                 >
@@ -243,19 +211,21 @@ export default function Defi() {
                     {/* APR */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">APR</p>
-                      <p>{formatPercent(opportunity.aprPercent)}</p>
+                      <p className="text-p2">
+                        {formatPercent(opportunity.aprPercent)}
+                      </p>
                     </div>
 
                     {/* TVL */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">TVL</p>
-                      <p>{formatUsd(opportunity.tvlUsd)}</p>
+                      <p className="text-p2">{formatUsd(opportunity.tvlUsd)}</p>
                     </div>
 
                     {/* Category */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">Category</p>
-                      <p>
+                      <p className="text-p2">
                         {
                           categories.find((c) => c.id === opportunity.category)
                             ?.title
