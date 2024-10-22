@@ -14,7 +14,7 @@ export default function BottomNav() {
     <>
       {/* WIDTH < md */}
       <div
-        className="fixed inset-x-0 bottom-0 z-[2] flex w-full flex-row items-center justify-around rounded-t-lg bg-white py-3.5 shadow-sm outline outline-navy-200/25 md:hidden"
+        className="fixed inset-x-0 bottom-0 z-[2] flex w-full flex-row items-center rounded-t-lg bg-white py-3.5 shadow-sm outline outline-navy-200/25 md:hidden"
         style={{ height: BOTTOM_NAV_BOTTOM_HEIGHT }}
       >
         {NAV_ITEMS.map((item) => {
@@ -26,7 +26,7 @@ export default function BottomNav() {
             <Component
               href={item.url as string}
               key={item.title}
-              className="group flex flex-col items-center gap-1.5"
+              className="group flex flex-1 flex-col items-center gap-1.5"
             >
               {item.icon &&
                 cloneElement(item.icon, {

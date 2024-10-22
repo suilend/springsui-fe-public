@@ -31,6 +31,7 @@ export const formatNumber = (
     exact?: boolean;
     useGrouping?: boolean;
     trimTrailingZeros?: boolean;
+    roundLtMinToZero?: boolean;
   },
 ) => {
   const prefix = options?.prefix ?? "";
@@ -41,8 +42,10 @@ export const formatNumber = (
 
   // 0 < value < minValue
   const minValue = new BigNumber(10).pow(-dp);
-  if (value.gt(0) && value.lt(minValue))
-    return `<${prefix}${minValue.toFixed(dp)}`;
+  if (value.gt(0) && value.lt(minValue)) {
+    if (!options?.roundLtMinToZero) return `<${prefix}${minValue.toFixed(dp)}`;
+    return `${prefix}${new BigNumber(0).toFixed(dp)}`;
+  }
 
   if (!exact) {
     let _value = value;
@@ -148,12 +151,14 @@ export const formatToken = (
     exact?: boolean;
     useGrouping?: boolean;
     trimTrailingZeros?: boolean;
+    roundLtMinToZero?: boolean;
   },
 ) => {
   const dp = options?.dp ?? 2;
   const exact = options?.exact ?? true;
   const useGrouping = options?.useGrouping ?? true;
   const trimTrailingZeros = options?.trimTrailingZeros ?? true;
+  const roundLtMinToZero = options?.roundLtMinToZero ?? false;
 
   return formatNumber(value, {
     dp,
@@ -161,5 +166,6 @@ export const formatToken = (
     exact,
     useGrouping,
     trimTrailingZeros,
+    roundLtMinToZero,
   });
 };

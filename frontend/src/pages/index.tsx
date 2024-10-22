@@ -167,6 +167,7 @@ export default function Home() {
           {
             dp: outToken.decimals,
             useGrouping: false,
+            roundLtMinToZero: true,
           },
         );
   const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
@@ -208,6 +209,8 @@ export default function Home() {
         title: `${SUI_GAS_MIN} SUI should be saved for gas`,
         isDisabled: true,
       };
+    if (new BigNumber(outValue).lte(0))
+      return { title: "Amount too low", isDisabled: true };
 
     return {
       title: `${inTitle} ${inValue} ${inToken.symbol}`,
@@ -309,11 +312,15 @@ export default function Home() {
           inValue === ""
             ? "--"
             : formatToken(
-                new BigNumber(inValue || 0).times(
+                new BigNumber(BigNumber.max(0, inValue || 0)).times(
                   appData.liquidStakingInfo.apyPercent.div(100),
                 ),
               )
         } ${inToken.symbol}`,
+      },
+      {
+        label: "Points (on Suilend)",
+        value: `0/${lstToken.symbol}/day`,
       },
     );
 

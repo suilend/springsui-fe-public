@@ -95,43 +95,52 @@ export default function Defi() {
           <Card>
             {/* Categories */}
             <div className="flex w-full flex-row flex-nowrap gap-2 overflow-x-auto p-2 md:px-4 md:py-3.5">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  className={cn(
-                    "group flex h-10 flex-row items-center gap-2 rounded-[20px] px-4 transition-colors",
-                    selectedCategory === category.id
-                      ? "bg-white"
-                      : "bg-white/25",
-                  )}
-                  onClick={() => onSelectedCategoryChange(category.id)}
-                >
-                  <p
+              {categories
+                .filter(
+                  (category) =>
+                    category.id === Category.ALL ||
+                    opportunities.filter(
+                      (opportunity) => opportunity.category === category.id,
+                    ).length > 0,
+                )
+                .map((category) => (
+                  <button
+                    key={category.id}
                     className={cn(
-                      "!text-p2 transition-colors",
+                      "group flex h-10 flex-row items-center gap-2 rounded-[20px] px-4 transition-colors",
                       selectedCategory === category.id
-                        ? "text-foreground"
-                        : "text-navy-600 group-hover:text-foreground",
+                        ? "bg-white"
+                        : "bg-white/25",
                     )}
+                    onClick={() => onSelectedCategoryChange(category.id)}
                   >
-                    {category.title}
-                  </p>
-                  <p
-                    className={cn(
-                      "!text-p3 transition-colors",
-                      selectedCategory === category.id
-                        ? "text-foreground"
-                        : "text-navy-600 group-hover:text-foreground",
-                    )}
-                  >
-                    {category.id === Category.ALL
-                      ? opportunities.length
-                      : opportunities.filter(
-                          (opportunity) => opportunity.category === category.id,
-                        ).length}
-                  </p>
-                </button>
-              ))}
+                    <p
+                      className={cn(
+                        "!text-p2 transition-colors",
+                        selectedCategory === category.id
+                          ? "text-foreground"
+                          : "text-navy-600 group-hover:text-foreground",
+                      )}
+                    >
+                      {category.title}
+                    </p>
+                    <p
+                      className={cn(
+                        "!text-p3 transition-colors",
+                        selectedCategory === category.id
+                          ? "text-foreground"
+                          : "text-navy-600 group-hover:text-foreground",
+                      )}
+                    >
+                      {category.id === Category.ALL
+                        ? opportunities.length
+                        : opportunities.filter(
+                            (opportunity) =>
+                              opportunity.category === category.id,
+                          ).length}
+                    </p>
+                  </button>
+                ))}
             </div>
 
             {/* Divider */}
@@ -144,7 +153,11 @@ export default function Defi() {
                   key={index}
                   className="flex w-full flex-col gap-4 rounded-md bg-white p-4 md:gap-5 md:p-5"
                 >
-                  <div className="flex w-full flex-row items-center gap-2">
+                  <Link
+                    className="group flex w-full flex-row items-center gap-2"
+                    target="_blank"
+                    href={opportunity.url}
+                  >
                     {opportunity.protocol.logoUrl ? (
                       <Image
                         className="rounded-[50%]"
@@ -158,22 +171,13 @@ export default function Defi() {
                     )}
                     <p className="text-p1 md:text-h3">{opportunity.title}</p>
 
-                    {opportunity.url && (
-                      <Link
-                        className="block flex flex-col justify-center text-navy-400 transition-colors hover:text-navy-600"
-                        target="_blank"
-                        href={opportunity.url}
-                      >
-                        <ExternalLink className="h-5 w-5" />
-                      </Link>
-                    )}
-                  </div>
+                    <ExternalLink className="h-5 w-5 text-navy-600 transition-colors group-hover:text-foreground" />
+                  </Link>
 
                   <div className="grid w-full grid-cols-2 justify-between gap-y-6 md:flex md:flex-row md:gap-0">
                     {/* Assets */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">Assets</p>
-
                       <div className="flex w-full flex-row items-center gap-1.5">
                         <div className="flex flex-row">
                           {opportunity.assets.map((a, index) => (
@@ -211,7 +215,7 @@ export default function Defi() {
                     {/* APR */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">APR</p>
-                      <p className="text-p2">
+                      <p className="text-p2 leading-6">
                         {formatPercent(opportunity.aprPercent)}
                       </p>
                     </div>
@@ -219,13 +223,15 @@ export default function Defi() {
                     {/* TVL */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">TVL</p>
-                      <p className="text-p2">{formatUsd(opportunity.tvlUsd)}</p>
+                      <p className="text-p2 leading-6">
+                        {formatUsd(opportunity.tvlUsd)}
+                      </p>
                     </div>
 
                     {/* Category */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">Category</p>
-                      <p className="text-p2">
+                      <p className="text-p2 leading-6">
                         {
                           categories.find((c) => c.id === opportunity.category)
                             ?.title

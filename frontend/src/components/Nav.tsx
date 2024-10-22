@@ -19,7 +19,7 @@ export const MD_NAV_HEIGHT = 72; // px
 export const NAV_ITEMS = [
   { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
   { url: DEFI_URL, icon: <GitCompare />, title: "DeFi" },
-  { icon: <SpringSuiIcon />, title: "SpringSui Standard" },
+  // { icon: <SpringSuiIcon />, title: "SpringSui Standard" },
 ];
 
 export default function Nav() {

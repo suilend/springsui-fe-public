@@ -3,10 +3,7 @@ import { ChartBar } from "lucide-react";
 import Popover from "@/components/Popover";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import {
-  NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
-} from "@/lib/coinType";
+import { NORMALIZED_SUI_COINTYPE } from "@/lib/coinType";
 import { formatToken } from "@/lib/format";
 
 export default function StatsPopover() {
@@ -16,21 +13,12 @@ export default function StatsPopover() {
   const { md } = useBreakpoint();
 
   const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
-  const lstToken = appData.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   const stats = [
     {
-      label: `Staked ${lstToken.symbol}`,
-      value: formatToken(appData.liquidStakingInfo.totalLstSupply),
+      label: `Total value locked (TVL)`,
+      value: `${formatToken(appData.liquidStakingInfo.totalSuiSupply)} ${suiToken.symbol}`,
     },
-    {
-      label: `Locked ${suiToken.symbol}`,
-      value: formatToken(appData.liquidStakingInfo.totalSuiSupply),
-    },
-    // {
-    //   label: "Stakers",
-    //   value: formatNumber(appData.liquidStakingInfo.totalStakers),
-    // },
   ];
 
   return (
