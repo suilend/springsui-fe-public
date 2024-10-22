@@ -72,13 +72,13 @@ export default function Defi() {
     {
       protocol: {
         name: "Suilend",
-        logoUrl: "https://suilend.fi/_next/static/media/suilend.b071d056.svg",
+        logoUrl: "https://suilend.fi/assets/suilend.svg",
       },
       title: "Lend on Suilend",
       url: `https://suilend.fi/dashboard?asset=${lstToken.symbol}`,
       assets: [{ coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol }],
-      aprPercent: new BigNumber(0),
-      tvlUsd: new BigNumber(0),
+      aprPercent: new BigNumber(0), // TODO
+      tvlUsd: new BigNumber(0), // TODO
       category: Category.LENDING,
     },
   ];
@@ -91,7 +91,19 @@ export default function Defi() {
       <Mask />
 
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-12 pt-4 md:px-10 md:py-20">
-        <div className="flex w-full max-w-2xl flex-col items-center gap-4">
+        <div className="flex w-full max-w-2xl flex-col items-center gap-8">
+          <div className="flex w-full flex-col items-center gap-2">
+            <p className="text-center text-h1">Explore DeFi</p>
+            <p className="text-center text-navy-600">
+              <span className="whitespace-nowrap">
+                Discover rewards and DeFi
+              </span>{" "}
+              <span className="whitespace-nowrap">
+                opportunities with your sSUI.
+              </span>
+            </p>
+          </div>
+
           <Card>
             {/* Categories */}
             <div className="flex w-full flex-row flex-nowrap gap-2 overflow-x-auto p-2 md:px-4 md:py-3.5">
@@ -174,7 +186,7 @@ export default function Defi() {
                     <ExternalLink className="h-5 w-5 text-navy-600 transition-colors group-hover:text-foreground" />
                   </Link>
 
-                  <div className="grid w-full grid-cols-2 justify-between gap-y-6 md:flex md:flex-row md:gap-0">
+                  <div className="grid w-full grid-cols-2 justify-between gap-x-4 gap-y-6 md:flex md:flex-row md:gap-0">
                     {/* Assets */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">Assets</p>
