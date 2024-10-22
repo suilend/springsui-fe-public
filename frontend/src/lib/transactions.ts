@@ -3,7 +3,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
-import { mint as mintLst, redeemLst } from "@springsui/sdk/functions";
+import { LstClient } from "@springsui/sdk/functions";
 
 import { LIQUID_STAKING_INFO, isSui } from "@/lib/coinType";
 import { Token } from "@/lib/types";
@@ -43,17 +43,19 @@ export const getBalanceChange = (
 };
 
 export const mint = (
+  lstClient: LstClient,
   transaction: Transaction,
   address: string,
   amount: string,
 ) => {
   const [sui] = transaction.splitCoins(transaction.gas, [BigInt(amount)]);
-  const rSui = mintLst(transaction, LIQUID_STAKING_INFO, sui);
+  const rSui = lstClient.mint(transaction, sui);
   transaction.transferObjects([rSui], address);
 };
 
 export const redeem = async (
   suiClient: SuiClient,
+  lstClient: LstClient,
   transaction: Transaction,
   address: string,
   amount: string,
@@ -74,7 +76,7 @@ export const redeem = async (
   const [lst] = transaction.splitCoins(lstCoins.data[0].coinObjectId, [
     BigInt(amount),
   ]);
-  const sui = redeemLst(transaction, LIQUID_STAKING_INFO, lst);
+  const sui = lstClient.redeemLst(transaction, lst);
 
   transaction.transferObjects([sui], address);
 };

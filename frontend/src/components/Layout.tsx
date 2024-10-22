@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useAppContext } from "@/contexts/AppContext";
 
 export default function Layout({ children }: PropsWithChildren) {
-  const { appData } = useAppContext();
+  const { lstClient, appData } = useAppContext();
 
   return (
     <>
@@ -20,7 +20,7 @@ export default function Layout({ children }: PropsWithChildren) {
       />
 
       <div className="relative z-[2] h-dvh">
-        {!appData ? (
+        {!lstClient || !appData ? (
           <div className="fixed inset-0 flex flex-col items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>

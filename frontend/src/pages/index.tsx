@@ -5,6 +5,8 @@ import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
 import { Wallet } from "lucide-react";
 
+import { LstClient } from "@springsui/sdk/functions";
+
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
 import FaqButton from "@/components/FaqButton";
@@ -42,6 +44,8 @@ export default function Home() {
 
   const { suiClient, refreshAppData, explorer, ...restAppContext } =
     useAppContext();
+  const lstClient = restAppContext.lstClient as LstClient;
+  const appData = restAppContext.appData as AppData;
   const {
     setIsConnectWalletDropdownOpen,
     address,
@@ -49,7 +53,6 @@ export default function Home() {
     refreshBalancesData,
     getAccountBalance,
   } = useWalletContext();
-  const appData = restAppContext.appData as AppData;
 
   // Ref
   const inInputRef = useRef<HTMLInputElement>(null);
@@ -226,8 +229,9 @@ export default function Home() {
       .toString();
 
     const transaction = new Transaction();
-    if (isStaking) mint(transaction, address!, submitAmount);
-    else await redeem(suiClient, transaction, address!, submitAmount);
+    if (isStaking) mint(lstClient, transaction, address!, submitAmount);
+    else
+      await redeem(suiClient, lstClient, transaction, address!, submitAmount);
 
     try {
       setIsTransactionConfirmationDialogOpen(true);
@@ -296,8 +300,8 @@ export default function Home() {
   if (isStaking)
     parameters.push(
       {
-        label: "APR",
-        value: formatPercent(appData.liquidStakingInfo.aprPercent),
+        label: "APY",
+        value: formatPercent(appData.liquidStakingInfo.apyPercent),
       },
       {
         label: "Est. yearly earnings",
@@ -306,7 +310,7 @@ export default function Home() {
             ? "--"
             : formatToken(
                 new BigNumber(inValue || 0).times(
-                  appData.liquidStakingInfo.aprPercent.div(100),
+                  appData.liquidStakingInfo.apyPercent.div(100),
                 ),
               )
         } ${inToken.symbol}`,

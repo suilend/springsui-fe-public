@@ -12,7 +12,10 @@ import * as simulate from "@suilend/sdk/mainnet/utils/simulate";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
-import { fetchLiquidStakingInfo } from "@springsui/sdk/functions";
+import {
+  fetchLiquidStakingInfo,
+  getSpringSuiApy,
+} from "@springsui/sdk/functions";
 
 import { AppContext, AppData } from "@/contexts/AppContext";
 import {
@@ -102,6 +105,9 @@ export default function useFetchAppData(suiClient: SuiClient) {
       10 ** coinMetadataMap[NORMALIZED_SUI_COINTYPE].decimals,
     );
 
+    const apy = await getSpringSuiApy(suiClient);
+    const apyPercent = new BigNumber(apy ?? 0).times(100);
+
     const liquidStakingInfo = {
       totalSuiSupply,
       totalLstSupply,
@@ -110,7 +116,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
       mintFeePercent,
       redeemFeePercent,
       fees,
-      aprPercent: new BigNumber(2.51), // TODO
+      apyPercent,
       // totalStakers: new BigNumber(11022), // TODO
     } as ParsedLiquidStakingInfo;
 
