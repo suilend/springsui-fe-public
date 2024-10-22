@@ -1,18 +1,16 @@
 import { Head, Html, Main, NextScript } from "next/document";
 
-import { TWITTER } from "@/lib/constants";
+import { DESCRIPTION, TITLE, TWITTER } from "@/lib/constants";
 
 export default function Document() {
-  const description = "LST";
-
   return (
     <Html lang="en">
       <Head>
-        <meta name="description" content={description} />
+        <meta name="description" content={DESCRIPTION} />
         <link rel="icon" href="/android-chrome-512x512.png" />
-        <meta property="og:description" content={description} />
+        <meta property="og:description" content={DESCRIPTION} />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="SpringSui" />
+        <meta property="og:title" content={TITLE} />
         <meta
           property="og:image"
           content="https://www.springsui.com/android-chrome-512x512.png"

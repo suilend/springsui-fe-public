@@ -11,6 +11,7 @@ import Layout from "@/components/Layout";
 import Toaster from "@/components/Toaster";
 import { AppContextProvider } from "@/contexts/AppContext";
 import { WalletContextProvider } from "@/contexts/WalletContext";
+import { TITLE } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <SpeedInsights />
       <Analytics />
       <Head>
-        <title>SpringSui</title>
+        <title>{TITLE}</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"

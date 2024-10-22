@@ -1,3 +1,8 @@
+export const TITLE =
+  "SpringSui: Liquid Staking on Sui | Stake and Earn Passive Rewards";
+export const DESCRIPTION =
+  "Stake SUI with SpringSui and earn passive rewards with liquid staking. Maximize earnings while keeping your tokens liquid and secure.";
+
 export const TWITTER = "@springsui_";
 
 export const TOAST_DURATION_MS = 4 * 1000;
