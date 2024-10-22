@@ -40,11 +40,15 @@ export default function TransactionConfirmationDialog({
             loop
             muted
             preload="auto"
-            src={"/assets/transaction-confirmation.webm"}
             playsInline
             disablePictureInPicture
             disableRemotePlayback
-          />
+          >
+            <source
+              src="/assets/transaction-confirmation.webm"
+              type="video/webm"
+            />
+          </video>
 
           <div className="flex w-full flex-col rounded-md border border-navy-100">
             <div className="flex w-full flex-row items-center justify-between p-3">
