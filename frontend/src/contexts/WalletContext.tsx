@@ -214,7 +214,6 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
           description: _walletAccount?.label
             ? formatAddress(_walletAccount.address)
             : undefined,
-          descriptionClassName: "uppercase", // TODO
         },
       );
     },

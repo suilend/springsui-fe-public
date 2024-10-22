@@ -1,15 +1,11 @@
+import ConnectedWalletPopover from "@/components/ConnectedWalletPopover";
 import ConnectWalletPopover from "@/components/ConnectWalletPopover";
 import { useWalletContext } from "@/contexts/WalletContext";
 
 export default function ConnectWalletButton() {
-  const { isImpersonating, wallet, disconnectWallet, address } =
-    useWalletContext();
+  const { isImpersonating, wallet, address } = useWalletContext();
 
   const isConnected = !!address && (!isImpersonating ? !!wallet : true);
 
-  return isConnected ? (
-    <button onClick={disconnectWallet}>Disconnect</button>
-  ) : (
-    <ConnectWalletPopover />
-  );
+  return isConnected ? <ConnectedWalletPopover /> : <ConnectWalletPopover />;
 }

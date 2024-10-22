@@ -166,7 +166,7 @@ export default function Defi() {
                   className="flex w-full flex-col gap-4 rounded-md bg-white p-4 md:gap-5 md:p-5"
                 >
                   <Link
-                    className="group flex w-full flex-row items-center gap-2"
+                    className="group flex w-max flex-row items-center gap-2"
                     target="_blank"
                     href={opportunity.url}
                   >

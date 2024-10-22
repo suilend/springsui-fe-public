@@ -20,7 +20,6 @@ module.exports = {
       foreground: "hsl(var(--foreground))",
       background: "hsl(var(--background))",
 
-      white: "hsl(var(--white))",
       "navy-100": "hsl(var(--navy-100))",
       "navy-200": "hsl(var(--navy-200))",
       "navy-400": "hsl(var(--navy-400))",
@@ -30,6 +29,10 @@ module.exports = {
       "navy-900": "hsl(var(--navy-900))",
 
       blue: "hsl(var(--blue))",
+      "glacier-blue": "hsl(var(--glacier-blue))",
+      "light-blue": "hsl(var(--light-blue))",
+      "dark-navy": "hsl(var(--dark-navy))",
+      white: "hsl(var(--white))",
 
       success: "hsl(var(--success))",
       error: "hsl(var(--error))",

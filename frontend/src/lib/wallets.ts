@@ -7,8 +7,6 @@ const PRIORITY_WALLET_NAMES = ["Sui Wallet", "Nightly", "Suiet"];
 
 const walletKitOverrides = {
   "Sui Wallet": {
-    logoUrl:
-      "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/05/7c/f1/057cf17e-109e-72cd-eed7-2d539cf3d1f9/AppIcon-0-0-1x_U007ephone-0-85-220.png/460x0w.webp", // Chrome Web Store logo isn't full size
     downloadUrls: {
       browserExtension:
         "https://chromewebstore.google.com/detail/sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil",
@@ -18,8 +16,6 @@ const walletKitOverrides = {
     },
   },
   Nightly: {
-    logoUrl:
-      "https://lh3.googleusercontent.com/_feXM9qulMM5w9BYMLzMpZrxW2WlBmdyg3SbETIoRsHdAD9PANnLCEPabC7lzEK0N8fOyyvFkY3746jk8l73zUErxhU=s120",
     downloadUrls: {
       browserExtension:
         "https://chromewebstore.google.com/detail/nightly/fiikommddbeccaoicoejoniammnalkfa",
@@ -29,8 +25,6 @@ const walletKitOverrides = {
     },
   },
   Suiet: {
-    logoUrl:
-      "https://lh3.googleusercontent.com/JLASDvvsaGcOrFvuC1gcay_9J1ZyelGHhs1EnHdrr7wtjPD_KEYL88vriXBia97omZngQTDNIiXlQyvr_hUnHKnv=s120",
     downloadUrls: {
       browserExtension:
         "https://chromewebstore.google.com/detail/suiet-sui-wallet/khpkpbbcccdmmclmpigdgddabeilkdpd",

@@ -10,6 +10,7 @@ import { LstClient } from "@springsui/sdk/functions";
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
 import FaqButton from "@/components/FaqButton";
+import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
 import StakeInput from "@/components/Input";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
@@ -341,6 +342,8 @@ export default function Home() {
 
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-12 pt-4 md:px-10 md:py-20">
         <div className="flex w-full max-w-md flex-col items-center gap-4">
+          <ImpersonationModeBanner />
+
           <Card>
             {/* Tabs */}
             <div className="w-full p-2 md:px-4 md:py-3.5">

@@ -34,7 +34,7 @@ export default function Nav() {
         style={{ height: md ? MD_NAV_HEIGHT : SM_NAV_HEIGHT }}
       >
         {/* Logo */}
-        <div className="flex flex-row items-center gap-1.5 md:w-32">
+        <div className="flex flex-row items-center gap-1.5 md:w-40">
           <SpringSuiIcon />
 
           {/* WIDTH >= md */}
@@ -82,7 +82,7 @@ export default function Nav() {
         </div>
 
         {/* Stats, FAQ, and wallet */}
-        <div className="flex flex-row items-center gap-3 md:w-32 md:justify-end">
+        <div className="flex flex-row items-center gap-3 md:w-40 md:justify-end">
           {/* Stats and FAQ, WIDTH < md */}
           <div className="flex flex-row items-center gap-1 md:hidden">
             <StatsPopover />

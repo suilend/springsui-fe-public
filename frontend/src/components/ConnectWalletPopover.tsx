@@ -39,7 +39,7 @@ function WalletItem({ wallet }: WalletItemProps) {
   if (!wallet.isInstalled && !downloadUrl) return null;
   return (
     <button
-      className="group flex h-12 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3 transition-colors"
+      className="group flex h-12 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3"
       onClick={onClick}
     >
       <div className="flex flex-row items-center gap-2">
