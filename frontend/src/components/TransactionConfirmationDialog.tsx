@@ -1,8 +1,11 @@
+import Image from "next/image";
+
 import BigNumber from "bignumber.js";
 
 import Card from "@/components/Card";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
+import useBreakpoint from "@/hooks/useBreakpoint";
 import { formatToken } from "@/lib/format";
 import { Token } from "@/lib/types";
 
@@ -25,6 +28,8 @@ export default function TransactionConfirmationDialog({
 }: TransactionConfirmationDialogProps) {
   const { isStaking, inToken, outToken, inValue, outValue } = config;
 
+  const { md } = useBreakpoint();
+
   return (
     <Dialog rootProps={{ open: isOpen }}>
       <Card className="p-2 md:p-4">
@@ -33,20 +38,30 @@ export default function TransactionConfirmationDialog({
             Confirm transaction in your wallet
           </p>
 
-          <video
-            className="relative z-[-1] h-36 w-36"
-            autoPlay
-            controls={false}
-            loop
-            muted
-            preload="auto"
-            playsInline
-          >
-            <source
-              src="/assets/transaction-confirmation.webm"
-              type="video/webm"
+          {md ? (
+            <video
+              className="h-36 w-36"
+              autoPlay
+              controls={false}
+              loop
+              muted
+              preload="auto"
+              playsInline
+            >
+              <source
+                src="/assets/transaction-confirmation.webm"
+                type="video/webm"
+              />
+            </video>
+          ) : (
+            <Image
+              className="h-36 w-36"
+              src="/assets/transaction-confirmation-static.png"
+              alt="Transaction confirmation"
+              width={480}
+              height={480}
             />
-          </video>
+          )}
 
           <div className="flex w-full flex-col rounded-md border border-navy-100">
             <div className="flex w-full flex-row items-center justify-between p-3">
