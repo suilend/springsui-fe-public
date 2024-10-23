@@ -314,8 +314,8 @@ export default function Home() {
   if (isStaking)
     parameters.push(
       {
-        label: "APY",
-        value: formatPercent(appData.liquidStakingInfo.apyPercent),
+        label: "APR",
+        value: formatPercent(appData.liquidStakingInfo.aprPercent),
       },
       {
         label: "Est. yearly earnings",
@@ -324,7 +324,7 @@ export default function Home() {
             ? "--"
             : formatToken(
                 new BigNumber(BigNumber.max(0, inValue || 0)).times(
-                  appData.liquidStakingInfo.apyPercent.div(100),
+                  appData.liquidStakingInfo.aprPercent.div(100),
                 ),
               )
         } ${inToken.symbol}`,

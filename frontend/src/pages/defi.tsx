@@ -177,6 +177,7 @@ export default function Defi() {
                         alt={`${opportunity.protocol.name} logo`}
                         width={28}
                         height={28}
+                        quality={100}
                       />
                     ) : (
                       <div className="h-7 w-7 rounded-[50%] bg-navy-100" />

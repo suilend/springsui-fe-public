@@ -20,6 +20,7 @@ export default function TokenLogo({ className, token, size }: TokenLogoProps) {
       width={size}
       height={size}
       style={{ width: size, height: size }}
+      quality={100}
     />
   ) : (
     <div

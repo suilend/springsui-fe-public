@@ -55,6 +55,7 @@ export default function ConnectedWalletPopover() {
               alt={`${wallet.name} logo`}
               width={16}
               height={16}
+              quality={100}
             />
           ) : null}
 

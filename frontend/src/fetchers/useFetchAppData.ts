@@ -105,8 +105,8 @@ export default function useFetchAppData(suiClient: SuiClient) {
       10 ** coinMetadataMap[NORMALIZED_SUI_COINTYPE].decimals,
     );
 
-    const apy = await getSpringSuiApy(suiClient);
-    const apyPercent = new BigNumber(apy ?? 0).times(100);
+    const apr = await getSpringSuiApy(suiClient); // TODO: Use APR
+    const aprPercent = new BigNumber(apr ?? 0).times(100);
 
     const liquidStakingInfo = {
       totalSuiSupply,
@@ -116,7 +116,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
       mintFeePercent,
       redeemFeePercent,
       fees,
-      apyPercent,
+      aprPercent,
       // totalStakers: new BigNumber(11022), // TODO
     } as ParsedLiquidStakingInfo;
 

@@ -49,6 +49,7 @@ function WalletItem({ wallet }: WalletItemProps) {
             alt={`${wallet.name} logo`}
             width={24}
             height={24}
+            quality={100}
           />
         ) : (
           <div className="h-6 w-6" />

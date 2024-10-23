@@ -12,7 +12,7 @@ export type ParsedLiquidStakingInfo = {
   mintFeePercent: BigNumber;
   redeemFeePercent: BigNumber;
   fees: BigNumber;
-  apyPercent: BigNumber;
+  aprPercent: BigNumber;
   // totalStakers: BigNumber;
 };
 

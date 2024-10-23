@@ -1,7 +1,7 @@
 import { normalizeStructTag } from "@mysten/sui/utils";
 
-import lstLogo from "@/public/assets/lst.png";
-import suiLogo from "@/public/assets/sui.svg";
+import lstLogo from "@/public/assets/lst512w.png";
+import suiLogo from "@/public/assets/sui512w.png";
 
 export const LIQUID_STAKING_INFO = {
   id: "0xdae271405d47f04ab6c824d3b362b7375844ec987a2627845af715fdcd835795",
