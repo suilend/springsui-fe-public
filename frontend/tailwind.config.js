@@ -47,8 +47,7 @@ module.exports = {
       sm: "0 1px 1px 0 hsla(var(--navy-800) / 15%)",
     },
     backgroundImage: {
-      sm: "url('/assets/bg-sm.png')",
-      md: "url('/assets/bg-md.png')",
+      bg: "url('/assets/bg.png')",
     },
   },
   plugins: [require("tailwindcss-animate")],

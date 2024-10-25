@@ -11,7 +11,7 @@ export default function Layout({ children }: PropsWithChildren) {
     <>
       {/* Fixed */}
       <div
-        className="fixed inset-0 z-[1] bg-sm md:bg-md"
+        className="fixed inset-0 z-[1] bg-bg"
         style={{
           backgroundPosition: "center",
           backgroundSize: "cover",

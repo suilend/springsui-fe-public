@@ -10,6 +10,7 @@ import { LstClient } from "@springsui/sdk/functions";
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
 import FaqPopover from "@/components/FaqPopover";
+import Footer from "@/components/Footer";
 import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
 import StakeInput from "@/components/Input";
 import Mask from "@/components/Mask";
@@ -372,7 +373,7 @@ export default function Home() {
       {/* Fixed, WIDTH >= md */}
       <Mask />
 
-      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-12 pt-4 md:px-10 md:py-20">
+      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-8 pt-4 md:px-10 md:py-20">
         <div className="flex w-full max-w-md flex-col items-center gap-4">
           <ImpersonationModeBanner />
 
@@ -451,6 +452,8 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          <Footer />
         </div>
       </div>
 

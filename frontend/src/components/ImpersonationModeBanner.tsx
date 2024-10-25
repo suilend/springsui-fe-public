@@ -25,7 +25,7 @@ export default function ImpersonationModeBanner() {
     isImpersonating &&
     address && (
       <button
-        className="flex w-full flex-row items-center justify-start gap-4 rounded-lg bg-white/25 p-4 text-left md:rounded-xl"
+        className="flex w-full flex-row items-center justify-start gap-4 rounded-lg bg-white/25 p-4 text-left backdrop-blur-[10px] md:rounded-xl"
         onClick={onImpersonationModeBannerClick}
       >
         <VenetianMask className="h-6 w-6" />

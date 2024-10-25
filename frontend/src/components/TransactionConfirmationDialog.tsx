@@ -64,7 +64,7 @@ export default function TransactionConfirmationDialog({
                     dp: inToken.decimals,
                   })}
                 </p>
-                <TokenLogo className="mr-1" token={inToken} size={16} />
+                <TokenLogo className="mr-1.5" token={inToken} size={16} />
                 <p>{inToken.symbol}</p>
               </div>
             </div>
@@ -78,7 +78,7 @@ export default function TransactionConfirmationDialog({
                     dp: outToken.decimals,
                   })}
                 </p>
-                <TokenLogo className="mr-1" token={outToken} size={16} />
+                <TokenLogo className="mr-1.5" token={outToken} size={16} />
                 <p>{outToken.symbol}</p>
               </div>
             </div>

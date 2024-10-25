@@ -6,6 +6,7 @@ import { ExternalLink } from "lucide-react";
 
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
+import Footer from "@/components/Footer";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import TokenLogo from "@/components/TokenLogo";
@@ -90,16 +91,17 @@ export default function Defi() {
       {/* Fixed, WIDTH >= md */}
       <Mask />
 
-      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-12 pt-4 md:px-10 md:py-20">
-        <div className="flex w-full max-w-3xl flex-col items-center gap-8">
-          <div className="flex w-full flex-col items-center gap-2">
+      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-8 pt-4 md:px-10 md:py-20">
+        <div className="flex w-full max-w-3xl flex-col items-center gap-4">
+          {/* Title */}
+          <div className="mb-4 flex w-full flex-col items-center gap-2">
             <p className="text-center text-h1">Explore DeFi</p>
             <p className="text-center text-navy-600">
               <span className="whitespace-nowrap">
                 Discover rewards and DeFi
               </span>{" "}
               <span className="whitespace-nowrap">
-                opportunities with your {lstToken.symbol}.
+                opportunities with your {lstToken.symbol}
               </span>
             </p>
           </div>
@@ -167,12 +169,12 @@ export default function Defi() {
                 >
                   <Link
                     className="group flex w-max flex-row items-center gap-2"
-                    target="_blank"
                     href={opportunity.url}
+                    target="_blank"
                   >
                     {opportunity.protocol.logoUrl ? (
                       <Image
-                        className="h-6 w-6 rounded-[50%]"
+                        className="h-6 w-6"
                         src={opportunity.protocol.logoUrl}
                         alt={`${opportunity.protocol.name} logo`}
                         width={24}
@@ -267,6 +269,8 @@ export default function Defi() {
               ))}
             </div>
           </Card>
+
+          <Footer />
         </div>
       </div>
 
