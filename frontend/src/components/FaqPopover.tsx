@@ -7,26 +7,31 @@ import useBreakpoint from "@/hooks/useBreakpoint";
 import { cn } from "@/lib/utils";
 
 interface QuestionAnswerProps {
+  initialIsExpanded?: boolean;
   question: string;
   answer: ReactNode;
 }
 
-function QuestionAnswer({ question, answer }: QuestionAnswerProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+function QuestionAnswer({
+  initialIsExpanded,
+  question,
+  answer,
+}: QuestionAnswerProps) {
+  const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
 
   const Chevron = isExpanded ? ChevronDown : ChevronRight;
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <div
-        className="group -my-2 flex w-full cursor-pointer flex-row items-center gap-2 py-2"
+      <button
+        className="group -my-2 flex w-full flex-row items-center gap-2 py-2 text-left"
         onClick={() => setIsExpanded((is) => !is)}
       >
         <Chevron className="h-4 w-4 text-navy-600 transition-colors group-hover:text-foreground" />
         <p className="flex-1 text-p2 text-navy-600 transition-colors group-hover:text-foreground">
           {question}
         </p>
-      </div>
+      </button>
       {isExpanded && <p className="pl-6 text-p2">{answer}</p>}
     </div>
   );
@@ -163,6 +168,7 @@ export default function FaqPopover() {
         {qas.map((qa, index) => (
           <QuestionAnswer
             key={index}
+            initialIsExpanded={index === 0}
             question={qa.question}
             answer={qa.answer}
           />

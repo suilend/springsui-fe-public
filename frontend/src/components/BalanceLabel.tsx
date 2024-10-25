@@ -16,12 +16,13 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
   const hasOnClick = !!onClick && getAccountBalance(token.coinType).gt(0);
 
   return (
-    <div
+    <button
       className={cn(
-        "flex flex-row items-center gap-1.5",
-        hasOnClick && "group cursor-pointer",
+        "flex flex-row items-center gap-1.5 text-left",
+        hasOnClick && "group",
       )}
-      onClick={hasOnClick ? onClick : undefined}
+      onClick={onClick}
+      disabled={!hasOnClick}
     >
       <Wallet
         className={cn(
@@ -39,6 +40,6 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
       >
         {address ? formatToken(getAccountBalance(token.coinType)) : "-"}
       </p>
-    </div>
+    </button>
   );
 }

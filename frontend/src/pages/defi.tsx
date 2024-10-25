@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { ExternalLink } from "lucide-react";
-
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
 import Footer from "@/components/Footer";
@@ -163,15 +161,13 @@ export default function Defi() {
             {/* Opportunities */}
             <div className="flex w-full flex-col gap-0.5 p-2 md:p-4">
               {opportunities.map((opportunity, index) => (
-                <div
+                <Link
                   key={index}
-                  className="flex w-full flex-col gap-4 rounded-md bg-white p-4 md:gap-5 md:p-5"
+                  className="block flex w-full flex-col gap-4 rounded-md bg-white p-4 md:gap-5 md:p-5"
+                  href={opportunity.url}
+                  target="_blank"
                 >
-                  <Link
-                    className="group flex w-max flex-row items-center gap-2"
-                    href={opportunity.url}
-                    target="_blank"
-                  >
+                  <div className="flex flex-row items-center gap-2">
                     {opportunity.protocol.logoUrl ? (
                       <Image
                         className="h-6 w-6"
@@ -185,9 +181,7 @@ export default function Defi() {
                       <div className="h-6 w-6 rounded-[50%] bg-navy-100" />
                     )}
                     <p className="text-h3">{opportunity.title}</p>
-
-                    <ExternalLink className="h-5 w-5 text-navy-600 transition-colors group-hover:text-foreground" />
-                  </Link>
+                  </div>
 
                   <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
                     {/* Assets */}
@@ -265,7 +259,7 @@ export default function Defi() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </Card>
