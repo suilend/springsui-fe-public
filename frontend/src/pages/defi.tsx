@@ -77,8 +77,8 @@ export default function Defi() {
       assets: [{ coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol }],
       aprPercent: appData.lstReserveAprPercent,
       tvlUsd: appData.lstReserveTvlUsd,
-      suilendPointsPerDay: appData.lstReserveSuilendPointsPerDay,
       category: Category.LENDING,
+      suilendPointsPerDay: appData.lstReserveSuilendPointsPerDay,
     },
   ];
 
@@ -222,9 +222,20 @@ export default function Defi() {
                       <p className="text-p2">{formatUsd(opportunity.tvlUsd)}</p>
                     </div>
 
+                    {/* Category */}
+                    <div className="flex min-w-20 flex-col gap-1.5">
+                      <p className="text-p2 text-navy-500">Category</p>
+                      <p className="text-p2">
+                        {
+                          categories.find((c) => c.id === opportunity.category)
+                            ?.title
+                        }
+                      </p>
+                    </div>
+
                     {/* Suilend Points */}
                     {opportunity.suilendPointsPerDay !== undefined && (
-                      <div className="flex min-w-20 flex-col gap-1.5">
+                      <div className="col-span-2 flex min-w-20 flex-col gap-1.5">
                         <p className="text-p2 text-navy-500">Suilend Points</p>
                         <div className="flex flex-row gap-1.5">
                           <TokenLogo
@@ -247,17 +258,6 @@ export default function Defi() {
                         </div>
                       </div>
                     )}
-
-                    {/* Category */}
-                    <div className="flex min-w-20 flex-col gap-1.5">
-                      <p className="text-p2 text-navy-500">Category</p>
-                      <p className="text-p2">
-                        {
-                          categories.find((c) => c.id === opportunity.category)
-                            ?.title
-                        }
-                      </p>
-                    </div>
                   </div>
                 </Link>
               ))}
