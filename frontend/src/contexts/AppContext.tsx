@@ -20,8 +20,12 @@ import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
 export interface AppData {
   suiPrice: BigNumber;
-  suilendPointsPerDay: BigNumber;
-  coinMetadataMap: Record<string, Token>;
+  lstPrice: BigNumber;
+  lstReserveAprPercent: BigNumber;
+  lstReserveTvlUsd: BigNumber;
+  lstReserveSuilendPointsPerDay: BigNumber;
+
+  tokenMap: Record<string, Token>;
   liquidStakingInfo: ParsedLiquidStakingInfo;
 }
 

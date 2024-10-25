@@ -1,7 +1,5 @@
-import { StaticImageData } from "next/image";
 import { ReactElement } from "react";
 
-import { CoinMetadata } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 
 export type ParsedLiquidStakingInfo = {
@@ -16,9 +14,11 @@ export type ParsedLiquidStakingInfo = {
   // totalStakers: BigNumber;
 };
 
-export type Token = Omit<CoinMetadata, "iconUrl"> & {
+export type Token = {
   coinType: string;
-  iconUrl?: StaticImageData | string | null;
+  decimals: number;
+  symbol: string;
+  iconUrl?: string | null;
 };
 
 export type SubmitButtonState = {

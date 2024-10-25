@@ -1,13 +1,13 @@
 import { CoinMetadata, SuiClient } from "@mysten/sui/client";
 import { normalizeStructTag } from "@mysten/sui/utils";
 import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
+import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
 import { phantom } from "@suilend/sdk/mainnet/_generated/_framework/reified";
 import { LendingMarket } from "@suilend/sdk/mainnet/_generated/suilend/lending-market/structs";
 import {
   LENDING_MARKET_ID,
   LENDING_MARKET_TYPE,
 } from "@suilend/sdk/mainnet/client";
-import { WAD } from "@suilend/sdk/mainnet/constants";
 import * as simulate from "@suilend/sdk/mainnet/utils/simulate";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
@@ -18,24 +18,49 @@ import {
 } from "@springsui/sdk/functions";
 
 import { AppContext, AppData } from "@/contexts/AppContext";
+import { getCoinMetadataMap } from "@/lib/coinMetadata";
 import {
-  COINTYPE_LOGO_MAP,
   LIQUID_STAKING_INFO,
   NORMALIZED_LST_COINTYPE,
+  NORMALIZED_SUILEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
-  coinTypes,
+  isLst,
   isSui,
+  isSuilendPoints,
 } from "@/lib/coinType";
 import { isOnTestnet } from "@/lib/constants";
+import {
+  formatRewards,
+  getDedupedPerDayRewards,
+  getFilteredRewards,
+  getTotalAprPercent,
+} from "@/lib/liquidityMining";
 import { errorToast } from "@/lib/toasts";
 import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
 export default function useFetchAppData(suiClient: SuiClient) {
   const dataFetcher = async () => {
-    // Sui price
-    let suiPrice;
-    if (isOnTestnet) suiPrice = new BigNumber(2.25);
-    else {
+    let suiPrice,
+      lstPrice,
+      lstReserveAprPercent,
+      lstReserveTvlUsd,
+      lstReserveSuilendPointsPerDay;
+    let coinMetadataMap: Record<string, CoinMetadata>;
+
+    if (isOnTestnet) {
+      suiPrice = new BigNumber(2);
+      lstPrice = suiPrice;
+      lstReserveAprPercent = new BigNumber(3.5);
+      lstReserveTvlUsd = new BigNumber(10000);
+      lstReserveSuilendPointsPerDay = new BigNumber(0.5);
+
+      const coinTypes = [
+        NORMALIZED_SUILEND_POINTS_COINTYPE,
+        NORMALIZED_SUI_COINTYPE,
+        NORMALIZED_LST_COINTYPE,
+      ];
+      coinMetadataMap = await getCoinMetadataMap(suiClient, coinTypes);
+    } else {
       const now = Math.floor(Date.now() / 1000);
       const rawLendingMarket = await LendingMarket.fetch(
         suiClient,
@@ -45,37 +70,70 @@ export default function useFetchAppData(suiClient: SuiClient) {
 
       const refreshedRawReserves = await simulate.refreshReservePrice(
         rawLendingMarket.reserves
-          .filter((r) => isSui(normalizeStructTag(r.coinType.name)))
+          .filter((r) => {
+            const coinType = normalizeStructTag(r.coinType.name);
+            return isSui(coinType) || isLst(coinType);
+          })
           .map((r) => simulate.compoundReserveInterest(r, now)),
         new SuiPriceServiceConnection("https://hermes.pyth.network"),
       );
 
-      const suiRefreshedRawReserve = refreshedRawReserves.find((r) =>
-        isSui(normalizeStructTag(r.coinType.name)),
+      const coinTypes: string[] = [NORMALIZED_LST_COINTYPE]; // TODO
+      refreshedRawReserves.forEach((r) => {
+        coinTypes.push(normalizeStructTag(r.coinType.name));
+
+        [
+          ...r.depositsPoolRewardManager.poolRewards,
+          ...r.borrowsPoolRewardManager.poolRewards,
+        ].forEach((pr) => {
+          if (!pr) return;
+          coinTypes.push(normalizeStructTag(pr.coinType.name));
+        });
+      });
+      const uniqueCoinTypes = Array.from(new Set(coinTypes));
+
+      coinMetadataMap = await getCoinMetadataMap(suiClient, uniqueCoinTypes);
+
+      const lendingMarket = parseLendingMarket(
+        rawLendingMarket,
+        refreshedRawReserves,
+        coinMetadataMap,
+        now,
       );
-      if (!suiRefreshedRawReserve) throw new Error("Missing SUI reserve");
 
-      suiPrice = new BigNumber(
-        suiRefreshedRawReserve.price.value.toString(),
-      ).div(WAD);
+      const reservesMap = lendingMarket.reserves.reduce(
+        (acc, reserve) => ({ ...acc, [reserve.coinType]: reserve }),
+        {},
+      ) as Record<string, ParsedReserve>;
+
+      const rewardsMap = formatRewards(reservesMap, coinMetadataMap);
+
+      //
+      const suiReserve = reservesMap[NORMALIZED_SUI_COINTYPE];
+      const lstReserve = reservesMap[NORMALIZED_LST_COINTYPE];
+
+      suiPrice = suiReserve.price;
+      lstPrice = suiReserve.price; // TODO
+      lstReserveAprPercent = getTotalAprPercent(
+        Side.DEPOSIT,
+        suiReserve.depositAprPercent,
+        getFilteredRewards(rewardsMap[NORMALIZED_SUI_COINTYPE].deposit),
+      ); // TODO
+      lstReserveTvlUsd = suiReserve.availableAmountUsd; // TODO
+      lstReserveSuilendPointsPerDay =
+        getDedupedPerDayRewards(
+          getFilteredRewards(rewardsMap[NORMALIZED_SUI_COINTYPE].deposit),
+        ).find((r) => isSuilendPoints(r.stats.rewardCoinType))?.stats.perDay ??
+        new BigNumber(0); // TODO
     }
 
-    // Suilend Points
-    const suilendPointsPerDay = new BigNumber(0.5); // TODO: Use actual data once sSUI is listed
-
-    // Metadata
-    const coinMetadataMap: Record<string, Token> = {};
-    for (const coinType of coinTypes) {
-      const metadata = (await suiClient.getCoinMetadata({
-        coinType,
-      })) as CoinMetadata;
-
-      coinMetadataMap[coinType] = {
-        coinType,
-        ...metadata,
-        iconUrl: COINTYPE_LOGO_MAP[coinType] ?? metadata.iconUrl,
-      };
-    }
+    const tokenMap = Object.entries(coinMetadataMap).reduce(
+      (acc, [coinType, coinMetadata]) => ({
+        ...acc,
+        [coinType]: { coinType, ...coinMetadata },
+      }),
+      {} as Record<string, Token>,
+    );
 
     // State
     const rawLiquidStakingInfo = await fetchLiquidStakingInfo(
@@ -85,10 +143,10 @@ export default function useFetchAppData(suiClient: SuiClient) {
 
     const totalSuiSupply = new BigNumber(
       rawLiquidStakingInfo.storage.totalSuiSupply.toString(),
-    ).div(10 ** coinMetadataMap[NORMALIZED_SUI_COINTYPE].decimals);
+    ).div(10 ** tokenMap[NORMALIZED_SUI_COINTYPE].decimals);
     const totalLstSupply = new BigNumber(
       rawLiquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
-    ).div(10 ** coinMetadataMap[NORMALIZED_LST_COINTYPE].decimals);
+    ).div(10 ** tokenMap[NORMALIZED_LST_COINTYPE].decimals);
 
     const suiToLstExchangeRate = !totalSuiSupply.eq(0)
       ? totalLstSupply.div(totalSuiSupply)
@@ -105,7 +163,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
     ).div(100);
 
     const fees = new BigNumber(rawLiquidStakingInfo.fees.value.toString()).div(
-      10 ** coinMetadataMap[NORMALIZED_SUI_COINTYPE].decimals,
+      10 ** tokenMap[NORMALIZED_SUI_COINTYPE].decimals,
     );
 
     const apr = await getSpringSuiApy(suiClient); // TODO: Use APR
@@ -120,13 +178,18 @@ export default function useFetchAppData(suiClient: SuiClient) {
       redeemFeePercent,
       fees,
       aprPercent,
-      // totalStakers: new BigNumber(11022), // TODO
     } as ParsedLiquidStakingInfo;
+
+    lstPrice = lstPrice.times(liquidStakingInfo.suiToLstExchangeRate); // TODO
 
     return {
       suiPrice,
-      suilendPointsPerDay,
-      coinMetadataMap,
+      lstPrice,
+      lstReserveAprPercent,
+      lstReserveTvlUsd,
+      lstReserveSuilendPointsPerDay,
+
+      tokenMap,
       liquidStakingInfo,
     } as AppData;
   };

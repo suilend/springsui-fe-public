@@ -294,9 +294,9 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
   const getAccountBalance = useCallback(
     (coinType: string) =>
       new BigNumber(balancesData?.[coinType] ?? new BigNumber(0)).div(
-        10 ** (appData?.coinMetadataMap[coinType]?.decimals ?? 0),
+        10 ** (appData?.tokenMap[coinType]?.decimals ?? 0),
       ),
-    [balancesData, appData?.coinMetadataMap],
+    [balancesData, appData?.tokenMap],
   );
 
   // Poll for balance changes

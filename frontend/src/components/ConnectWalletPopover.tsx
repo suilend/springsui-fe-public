@@ -45,6 +45,7 @@ function WalletItem({ wallet }: WalletItemProps) {
       <div className="flex flex-row items-center gap-2">
         {wallet.logoUrl ? (
           <Image
+            className="h-6 w-6"
             src={wallet.logoUrl}
             alt={`${wallet.name} logo`}
             width={24}

@@ -5,7 +5,10 @@ import { ChartBar } from "lucide-react";
 import Popover from "@/components/Popover";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import { NORMALIZED_SUI_COINTYPE } from "@/lib/coinType";
+import {
+  NORMALIZED_LST_COINTYPE,
+  NORMALIZED_SUI_COINTYPE,
+} from "@/lib/coinType";
 import { formatToken } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -13,9 +16,10 @@ export default function StatsPopover() {
   const appContext = useAppContext();
   const appData = appContext.appData as AppData;
 
-  const { md } = useBreakpoint();
+  const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
+  const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
 
-  const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
+  const { md } = useBreakpoint();
 
   // State
   const [isOpen, setIsOpen] = useState<boolean>(false);

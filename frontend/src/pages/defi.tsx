@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import BigNumber from "bignumber.js";
 import { ExternalLink } from "lucide-react";
 
 import BottomNav from "@/components/BottomNav";
@@ -13,10 +12,10 @@ import TokenLogo from "@/components/TokenLogo";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import {
   NORMALIZED_LST_COINTYPE,
+  NORMALIZED_SUILEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
-  isLst,
 } from "@/lib/coinType";
-import { formatPercent, formatUsd } from "@/lib/format";
+import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
 import { cn } from "@/lib/utils";
 
@@ -35,8 +34,8 @@ export default function Defi() {
   const appContext = useAppContext();
   const appData = appContext.appData as AppData;
 
-  const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
-  const lstToken = appData.coinMetadataMap[NORMALIZED_LST_COINTYPE];
+  const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
+  const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
 
   // Categories
   enum Category {
@@ -77,8 +76,9 @@ export default function Defi() {
       title: "Lend on Suilend",
       url: `https://suilend.fi/dashboard?asset=${lstToken.symbol}`,
       assets: [{ coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol }],
-      aprPercent: new BigNumber(0), // TODO
-      tvlUsd: new BigNumber(0), // TODO
+      aprPercent: appData.lstReserveAprPercent,
+      tvlUsd: appData.lstReserveTvlUsd,
+      suilendPointsPerDay: appData.lstReserveSuilendPointsPerDay,
       category: Category.LENDING,
     },
   ];
@@ -91,7 +91,7 @@ export default function Defi() {
       <Mask />
 
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-12 pt-4 md:px-10 md:py-20">
-        <div className="flex w-full max-w-2xl flex-col items-center gap-8">
+        <div className="flex w-full max-w-3xl flex-col items-center gap-8">
           <div className="flex w-full flex-col items-center gap-2">
             <p className="text-center text-h1">Explore DeFi</p>
             <p className="text-center text-navy-600">
@@ -99,7 +99,7 @@ export default function Defi() {
                 Discover rewards and DeFi
               </span>{" "}
               <span className="whitespace-nowrap">
-                opportunities with your sSUI.
+                opportunities with your {lstToken.symbol}.
               </span>
             </p>
           </div>
@@ -172,22 +172,22 @@ export default function Defi() {
                   >
                     {opportunity.protocol.logoUrl ? (
                       <Image
-                        className="rounded-[50%]"
+                        className="h-6 w-6 rounded-[50%]"
                         src={opportunity.protocol.logoUrl}
                         alt={`${opportunity.protocol.name} logo`}
-                        width={28}
-                        height={28}
+                        width={24}
+                        height={24}
                         quality={100}
                       />
                     ) : (
-                      <div className="h-7 w-7 rounded-[50%] bg-navy-100" />
+                      <div className="h-6 w-6 rounded-[50%] bg-navy-100" />
                     )}
-                    <p className="text-p1 md:text-h3">{opportunity.title}</p>
+                    <p className="text-h3">{opportunity.title}</p>
 
                     <ExternalLink className="h-5 w-5 text-navy-600 transition-colors group-hover:text-foreground" />
                   </Link>
 
-                  <div className="grid w-full grid-cols-2 justify-between gap-x-4 gap-y-6 md:flex md:flex-row md:gap-0">
+                  <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
                     {/* Assets */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">Assets</p>
@@ -200,21 +200,8 @@ export default function Defi() {
                                 index !== 0 &&
                                   "outline-px -ml-2 outline outline-white",
                               )}
-                              token={
-                                isLst(a.coinType)
-                                  ? lstToken
-                                  : {
-                                      // TODO
-                                      coinType: a.coinType,
-                                      decimals: 0,
-                                      description: "",
-                                      iconUrl:
-                                        "https://assets.coingecko.com/coins/images/32391/standard/coin_icon_afsui.png?1698051868",
-                                      name: "",
-                                      symbol: a.symbol,
-                                    }
-                              }
-                              size={24}
+                              token={appData.tokenMap[a.coinType]}
+                              size={20}
                             />
                           ))}
                         </div>
@@ -228,7 +215,7 @@ export default function Defi() {
                     {/* APR */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">APR</p>
-                      <p className="text-p2 leading-6">
+                      <p className="text-p2">
                         {formatPercent(opportunity.aprPercent)}
                       </p>
                     </div>
@@ -236,15 +223,39 @@ export default function Defi() {
                     {/* TVL */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">TVL</p>
-                      <p className="text-p2 leading-6">
-                        {formatUsd(opportunity.tvlUsd)}
-                      </p>
+                      <p className="text-p2">{formatUsd(opportunity.tvlUsd)}</p>
                     </div>
+
+                    {/* Suilend Points */}
+                    {opportunity.suilendPointsPerDay !== undefined && (
+                      <div className="flex min-w-20 flex-col gap-1.5">
+                        <p className="text-p2 text-navy-500">Suilend Points</p>
+                        <div className="flex flex-row gap-1.5">
+                          <TokenLogo
+                            className="my-0.5"
+                            token={
+                              appData.tokenMap[
+                                NORMALIZED_SUILEND_POINTS_COINTYPE
+                              ]
+                            }
+                            size={16}
+                          />
+                          <p className="text-p2">
+                            {formatPoints(opportunity.suilendPointsPerDay, {
+                              dp: 3,
+                            })}
+                            {" / "}
+                            {lstToken.symbol}
+                            {" / day"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Category */}
                     <div className="flex min-w-20 flex-col gap-1.5">
                       <p className="text-p2 text-navy-500">Category</p>
-                      <p className="text-p2 leading-6">
+                      <p className="text-p2">
                         {
                           categories.find((c) => c.id === opportunity.category)
                             ?.title

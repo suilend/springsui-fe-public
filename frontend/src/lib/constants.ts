@@ -1,9 +1,11 @@
+export const msPerYear = 31556952000; // Approx. 1000 * 60 * 60 * 24 * 365;
+
+export const TWITTER = "@springsui_";
+
 export const TITLE =
   "SpringSui: Liquid Staking on Sui | Stake and Earn Passive Rewards";
 export const DESCRIPTION =
   "Stake SUI with SpringSui and earn passive rewards with liquid staking. Maximize earnings while keeping your tokens liquid and secure.";
-
-export const TWITTER = "@springsui_";
 
 export const TOAST_DURATION_MS = 4 * 1000;
 export const TX_TOAST_DURATION_MS = 10 * 1000;

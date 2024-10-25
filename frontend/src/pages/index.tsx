@@ -16,6 +16,7 @@ import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import StatsPopover from "@/components/StatsPopover";
 import SubmitButton from "@/components/SubmitButton";
+import TokenLogo from "@/components/TokenLogo";
 import Tooltip from "@/components/Tooltip";
 import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
@@ -24,6 +25,7 @@ import { AppData, useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import {
   NORMALIZED_LST_COINTYPE,
+  NORMALIZED_SUILEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { SUI_GAS_MIN } from "@/lib/constants";
@@ -62,6 +64,9 @@ export default function Home() {
     getAccountBalance,
   } = useWalletContext();
 
+  const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
+  const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
+
   // Ref
   const inInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -92,18 +97,9 @@ export default function Home() {
   const isStaking = selectedTab === Tab.STAKE;
 
   // Stats
-  const suiPrice = appData.suiPrice;
-  const lstPrice = appData.suiPrice.div(
-    appData.liquidStakingInfo.suiToLstExchangeRate,
-  );
-
   const inToOutExchangeRate = isStaking
     ? appData.liquidStakingInfo.suiToLstExchangeRate
     : appData.liquidStakingInfo.lstToSuiExchangeRate;
-
-  // Tokens
-  const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
-  const lstToken = appData.coinMetadataMap[NORMALIZED_LST_COINTYPE];
 
   // Balance
   const suiBalance = getAccountBalance(suiToken.coinType);
@@ -115,7 +111,7 @@ export default function Home() {
   // In
   const inTitle = isStaking ? "Stake" : "Unstake";
   const inToken = isStaking ? suiToken : lstToken;
-  const inPrice = isStaking ? suiPrice : lstPrice;
+  const inPrice = isStaking ? appData.suiPrice : appData.lstPrice;
 
   const [inValue, setInValue] = useState<string>("");
   const inValueUsd = new BigNumber(BigNumber.max(0, inValue || 0)).times(
@@ -158,7 +154,7 @@ export default function Home() {
 
   // Out
   const outToken = isStaking ? lstToken : suiToken;
-  const outPrice = isStaking ? lstPrice : suiPrice;
+  const outPrice = isStaking ? appData.lstPrice : appData.suiPrice;
 
   const outValue =
     inValue === ""
@@ -304,9 +300,12 @@ export default function Home() {
 
   // Parameters
   type Parameter = {
+    labelStartDecorator?: ReactNode;
     label: string;
     labelEndDecorator?: ReactNode;
+    valueStartDecorator?: ReactNode;
     value: string;
+    valueEndDecorator?: ReactNode;
   };
 
   const parameters: Parameter[] = [
@@ -344,11 +343,19 @@ export default function Home() {
       {
         label: "Suilend Points",
         labelEndDecorator: (
-          <Tooltip title="Suilend Points are earned by depositing the sSUI into Suilend">
+          <Tooltip
+            title={`Suilend Points are earned by depositing ${lstToken.symbol} in Suilend`}
+          >
             <Info className="h-4 w-4 text-navy-600" />
           </Tooltip>
         ),
-        value: `${formatPoints(new BigNumber(BigNumber.max(0, inValue || 0)).times(appData.suilendPointsPerDay), { dp: 3 })} / day`,
+        valueStartDecorator: (
+          <TokenLogo
+            token={appData.tokenMap[NORMALIZED_SUILEND_POINTS_COINTYPE]}
+            size={16}
+          />
+        ),
+        value: `${outValue === "" ? "--" : formatPoints(new BigNumber(outValue || 0).times(appData.lstReserveSuilendPointsPerDay), { dp: 3 })} / day`,
       },
     );
 
@@ -431,11 +438,16 @@ export default function Home() {
                 key={param.label}
                 className="flex w-full flex-row items-center justify-between"
               >
-                <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row items-center gap-1.5">
+                  {param.labelStartDecorator}
                   <p className="text-p2 text-navy-600">{param.label}</p>
                   {param.labelEndDecorator}
                 </div>
-                <p className="text-p2">{param.value}</p>
+                <div className="flex flex-row items-center gap-1.5">
+                  {param.valueStartDecorator}
+                  <p className="text-p2">{param.value}</p>
+                  {param.valueEndDecorator}
+                </div>
               </div>
             ))}
           </div>

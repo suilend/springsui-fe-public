@@ -3,7 +3,6 @@ import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
 import { useAppContext } from "@/contexts/AppContext";
-import { coinTypes } from "@/lib/coinType";
 import { errorToast } from "@/lib/toasts";
 
 export default function useFetchBalances(address: string | undefined) {
@@ -22,10 +21,9 @@ export default function useFetchBalances(address: string | undefined) {
         .map((cb) => ({ ...cb, coinType: normalizeStructTag(cb.coinType) }))
         .sort((a, b) => (a.coinType < b.coinType ? -1 : 1));
 
-      for (const coinType of coinTypes) {
-        balancesMap[coinType] = new BigNumber(
-          rawBalances.find((balance) => balance.coinType === coinType)
-            ?.totalBalance ?? 0,
+      for (const rawBalance of rawBalances) {
+        balancesMap[rawBalance.coinType] = new BigNumber(
+          rawBalance.totalBalance,
         );
       }
     }
