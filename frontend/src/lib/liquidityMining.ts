@@ -11,7 +11,7 @@ import { cloneDeep } from "lodash";
 
 import { msPerYear } from "@/lib/constants";
 
-export type RewardsMap = {
+export type RewardMap = {
   [coinType: string]: {
     deposit: RewardSummary[];
     borrow: RewardSummary[];
@@ -67,19 +67,19 @@ const getBorrowShareUsd = (reserve: ParsedReserve, share: BigNumber) =>
   getBorrowShare(reserve, share).times(reserve.price);
 
 export const formatRewards = (
-  parsedReservesMap: Record<string, ParsedReserve>,
+  parsedReserveMap: Record<string, ParsedReserve>,
   coinMetadataMap: Record<string, CoinMetadata>,
   obligations?: ParsedObligation[],
 ) => {
   const currentTime = new Date().getTime();
-  const rewardsMap: RewardsMap = {};
+  const rewardMap: RewardMap = {};
 
   const getRewardSummary = (
     reserve: ParsedReserve,
     poolReward: ParsedPoolReward,
     side: Side,
   ) => {
-    const rewardReserve = parsedReservesMap[poolReward.coinType];
+    const rewardReserve = parsedReserveMap[poolReward.coinType];
     const rewardCoinMetadata = coinMetadataMap[poolReward.coinType];
 
     const isActive =
@@ -172,7 +172,7 @@ export const formatRewards = (
     };
   };
 
-  Object.values(parsedReservesMap).forEach((reserve) => {
+  Object.values(parsedReserveMap).forEach((reserve) => {
     const depositRewards = reserve.depositsPoolRewardManager.poolRewards.map(
       (poolReward) => getRewardSummary(reserve, poolReward, Side.DEPOSIT),
     ) as RewardSummary[];
@@ -181,13 +181,13 @@ export const formatRewards = (
       (poolReward) => getRewardSummary(reserve, poolReward, Side.BORROW),
     ) as RewardSummary[];
 
-    rewardsMap[reserve.coinType] = {
+    rewardMap[reserve.coinType] = {
       deposit: depositRewards,
       borrow: borrowRewards,
     };
   });
 
-  return rewardsMap;
+  return rewardMap;
 };
 
 const getObligationClaims = (
@@ -280,7 +280,7 @@ export const getTotalAprPercent = (
 
 export const getNetAprPercent = (
   obligation: ParsedObligation,
-  rewardsMap: RewardsMap,
+  rewardMap: RewardMap,
 ) => {
   const aprPercentWeightedDepositedAmountUsd = obligation.deposits.reduce(
     (acc, deposit) => {
@@ -288,7 +288,7 @@ export const getNetAprPercent = (
         deposit.reserve.depositAprPercent.times(deposit.depositedAmountUsd);
       const rewardsAprPercentWeightedDepositedAmountUsd = getRewardsAprPercent(
         Side.DEPOSIT,
-        getFilteredRewards(rewardsMap[deposit.reserve.coinType].deposit),
+        getFilteredRewards(rewardMap[deposit.reserve.coinType].deposit),
       ).times(
         getDepositShareUsd(
           deposit.reserve,
@@ -309,7 +309,7 @@ export const getNetAprPercent = (
         borrow.reserve.borrowAprPercent.times(borrow.borrowedAmountUsd);
       const rewardsAprPercentWeightedBorrowedAmountUsd = getRewardsAprPercent(
         Side.BORROW,
-        getFilteredRewards(rewardsMap[borrow.reserve.coinType].borrow),
+        getFilteredRewards(rewardMap[borrow.reserve.coinType].borrow),
       ).times(
         getBorrowShareUsd(
           borrow.reserve,

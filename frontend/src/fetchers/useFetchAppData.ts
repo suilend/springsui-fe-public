@@ -101,28 +101,28 @@ export default function useFetchAppData(suiClient: SuiClient) {
         now,
       );
 
-      const reservesMap = lendingMarket.reserves.reduce(
+      const reserveMap = lendingMarket.reserves.reduce(
         (acc, reserve) => ({ ...acc, [reserve.coinType]: reserve }),
         {},
       ) as Record<string, ParsedReserve>;
 
-      const rewardsMap = formatRewards(reservesMap, coinMetadataMap);
+      const rewardMap = formatRewards(reserveMap, coinMetadataMap);
 
       //
-      const suiReserve = reservesMap[NORMALIZED_SUI_COINTYPE];
-      const lstReserve = reservesMap[NORMALIZED_LST_COINTYPE];
+      const suiReserve = reserveMap[NORMALIZED_SUI_COINTYPE];
+      const lstReserve = reserveMap[NORMALIZED_LST_COINTYPE];
 
       suiPrice = suiReserve.price;
       lstPrice = suiReserve.price; // TODO
       lstReserveAprPercent = getTotalAprPercent(
         Side.DEPOSIT,
         suiReserve.depositAprPercent,
-        getFilteredRewards(rewardsMap[NORMALIZED_SUI_COINTYPE].deposit),
+        getFilteredRewards(rewardMap[NORMALIZED_SUI_COINTYPE].deposit),
       ); // TODO
       lstReserveTvlUsd = suiReserve.availableAmountUsd; // TODO
       lstReserveSuilendPointsPerDay =
         getDedupedPerDayRewards(
-          getFilteredRewards(rewardsMap[NORMALIZED_SUI_COINTYPE].deposit),
+          getFilteredRewards(rewardMap[NORMALIZED_SUI_COINTYPE].deposit),
         ).find((r) => isSuilendPoints(r.stats.rewardCoinType))?.stats.perDay ??
         new BigNumber(0); // TODO
     }
