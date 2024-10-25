@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
-import { Wallet } from "lucide-react";
+import { Info, Wallet } from "lucide-react";
 
 import { LstClient } from "@springsui/sdk/functions";
 
@@ -16,6 +16,7 @@ import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import StatsPopover from "@/components/StatsPopover";
 import SubmitButton from "@/components/SubmitButton";
+import Tooltip from "@/components/Tooltip";
 import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
@@ -26,7 +27,12 @@ import {
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { SUI_GAS_MIN } from "@/lib/constants";
-import { formatInteger, formatPercent, formatToken } from "@/lib/format";
+import {
+  formatInteger,
+  formatPercent,
+  formatPoints,
+  formatToken,
+} from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
 import { errorToast, successToast } from "@/lib/toasts";
 import track from "@/lib/track";
@@ -297,7 +303,13 @@ export default function Home() {
   };
 
   // Parameters
-  const parameters = [
+  type Parameter = {
+    label: string;
+    labelEndDecorator?: ReactNode;
+    value: string;
+  };
+
+  const parameters: Parameter[] = [
     {
       label: "Exchange rate",
       value: `1 ${inToken.symbol} ≈ ${formatToken(new BigNumber(inToOutExchangeRate), { dp: 3 })} ${outToken.symbol}`,
@@ -330,8 +342,13 @@ export default function Home() {
         } ${inToken.symbol}`,
       },
       {
-        label: "Points (on Suilend)",
-        value: `0/${lstToken.symbol}/day`,
+        label: "Suilend Points",
+        labelEndDecorator: (
+          <Tooltip title="Suilend Points are earned by depositing the sSUI into Suilend">
+            <Info className="h-4 w-4 text-navy-600" />
+          </Tooltip>
+        ),
+        value: `${formatPoints(new BigNumber(BigNumber.max(0, inValue || 0)).times(appData.suilendPointsPerDay), { dp: 3 })} / day`,
       },
     );
 
@@ -414,7 +431,10 @@ export default function Home() {
                 key={param.label}
                 className="flex w-full flex-row items-center justify-between"
               >
-                <p className="text-p2 text-navy-600">{param.label}</p>
+                <div className="flex flex-row items-center gap-2">
+                  <p className="text-p2 text-navy-600">{param.label}</p>
+                  {param.labelEndDecorator}
+                </div>
                 <p className="text-p2">{param.value}</p>
               </div>
             ))}

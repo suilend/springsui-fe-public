@@ -126,6 +126,18 @@ export const formatUsd = (
   });
 };
 
+export const formatPoints = (value: BigNumber, options?: { dp?: number }) => {
+  const dp = options?.dp ?? 0;
+
+  return formatNumber(value, {
+    dp,
+    roundingMode: BigNumber.ROUND_HALF_UP,
+    exact: true,
+    useGrouping: true,
+    trimTrailingZeros: true,
+  });
+};
+
 export const formatPercent = (
   value: BigNumber,
   options?: { dp?: number; useAccountingSign?: boolean },

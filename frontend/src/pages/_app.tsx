@@ -1,5 +1,4 @@
 import "@/lib/abortSignalPolyfill";
-
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useEffect } from "react";
@@ -11,6 +10,7 @@ import mixpanel from "mixpanel-browser";
 
 import Layout from "@/components/Layout";
 import Toaster from "@/components/Toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppContextProvider } from "@/contexts/AppContext";
 import { WalletContextProvider } from "@/contexts/WalletContext";
 import { TITLE } from "@/lib/constants";
@@ -45,16 +45,18 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main id="__app_main" className={cn(fontClassNames)}>
-        <WalletProvider>
-          <AppContextProvider>
-            <WalletContextProvider>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </WalletContextProvider>
-          </AppContextProvider>
-        </WalletProvider>
-        <Toaster />
+        <TooltipProvider>
+          <WalletProvider>
+            <AppContextProvider>
+              <WalletContextProvider>
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              </WalletContextProvider>
+            </AppContextProvider>
+          </WalletProvider>
+          <Toaster />
+        </TooltipProvider>
       </main>
     </>
   );

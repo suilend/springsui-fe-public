@@ -60,6 +60,9 @@ export default function useFetchAppData(suiClient: SuiClient) {
       ).div(WAD);
     }
 
+    // Suilend Points
+    const suilendPointsPerDay = new BigNumber(0.5); // TODO: Use actual data once sSUI is listed
+
     // Metadata
     const coinMetadataMap: Record<string, Token> = {};
     for (const coinType of coinTypes) {
@@ -122,6 +125,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
 
     return {
       suiPrice,
+      suilendPointsPerDay,
       coinMetadataMap,
       liquidStakingInfo,
     } as AppData;
