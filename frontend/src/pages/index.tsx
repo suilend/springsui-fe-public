@@ -9,7 +9,7 @@ import { LstClient } from "@springsui/sdk/functions";
 
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
-import FaqButton from "@/components/FaqButton";
+import FaqPopover from "@/components/FaqPopover";
 import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
 import StakeInput from "@/components/Input";
 import Mask from "@/components/Mask";
@@ -432,7 +432,7 @@ export default function Home() {
 
       {/* Fixed, WIDTH >= md */}
       <div className="fixed bottom-10 right-10 z-[2] max-md:hidden">
-        <FaqButton />
+        <FaqPopover />
       </div>
     </>
   );

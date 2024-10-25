@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { ChartBar } from "lucide-react";
 
 import Popover from "@/components/Popover";
@@ -5,6 +7,7 @@ import { AppData, useAppContext } from "@/contexts/AppContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { NORMALIZED_SUI_COINTYPE } from "@/lib/coinType";
 import { formatToken } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export default function StatsPopover() {
   const appContext = useAppContext();
@@ -14,6 +17,10 @@ export default function StatsPopover() {
 
   const suiToken = appData.coinMetadataMap[NORMALIZED_SUI_COINTYPE];
 
+  // State
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  // Stats
   const stats = [
     {
       label: `Total value locked (TVL)`,
@@ -23,12 +30,29 @@ export default function StatsPopover() {
 
   return (
     <Popover
+      rootProps={{ open: isOpen, onOpenChange: setIsOpen }}
       trigger={
-        <button className="flex h-10 w-8 flex-row items-center justify-center gap-2 md:h-12 md:w-auto md:rounded-md md:bg-white md:px-4 md:shadow-sm">
-          <ChartBar size={20} />
+        <button className="group flex h-10 w-8 flex-row items-center justify-center gap-2 md:h-12 md:w-auto md:rounded-md md:bg-white md:px-4 md:shadow-sm">
+          <ChartBar
+            size={20}
+            className={cn(
+              isOpen
+                ? "text-foreground"
+                : "text-navy-600 transition-colors group-hover:text-foreground",
+            )}
+          />
 
           {/* WIDTH >= md */}
-          <p className="text-p2 max-md:hidden">Stats</p>
+          <p
+            className={cn(
+              "!text-p2 max-md:hidden",
+              isOpen
+                ? "text-foreground"
+                : "text-navy-600 transition-colors group-hover:text-foreground",
+            )}
+          >
+            Stats
+          </p>
         </button>
       }
       contentProps={{

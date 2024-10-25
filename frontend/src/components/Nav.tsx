@@ -5,7 +5,7 @@ import { cloneElement } from "react";
 import { GitCompare } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
-import FaqButton from "@/components/FaqButton";
+import FaqPopover from "@/components/FaqPopover";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
 import StatsPopover from "@/components/StatsPopover";
@@ -86,7 +86,7 @@ export default function Nav() {
           {/* Stats and FAQ, WIDTH < md */}
           <div className="flex flex-row items-center gap-1 md:hidden">
             <StatsPopover />
-            <FaqButton />
+            <FaqPopover />
           </div>
 
           <ConnectWalletButton />
