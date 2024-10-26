@@ -373,7 +373,7 @@ export default function Home() {
       {/* Fixed, WIDTH >= md */}
       <Mask />
 
-      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-8 pt-4 md:px-10 md:py-20">
+      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-6 pt-4 md:px-10 md:py-20">
         <div className="flex w-full max-w-md flex-col items-center gap-4">
           <ImpersonationModeBanner />
 
