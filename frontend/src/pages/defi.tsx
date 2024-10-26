@@ -11,7 +11,7 @@ import TokenLogo from "@/components/TokenLogo";
 import { AppData, useAppContext } from "@/contexts/AppContext";
 import {
   NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SUILEND_POINTS_COINTYPE,
+  NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
@@ -78,7 +78,7 @@ export default function Defi() {
       aprPercent: appData.lstReserveAprPercent,
       tvlUsd: appData.lstReserveTvlUsd,
       category: Category.LENDING,
-      suilendPointsPerDay: appData.lstReserveSuilendPointsPerDay,
+      sendPointsPerDay: appData.lstReserveSendPointsPerDay,
     },
   ];
 
@@ -233,22 +233,20 @@ export default function Defi() {
                       </p>
                     </div>
 
-                    {/* Suilend Points */}
-                    {opportunity.suilendPointsPerDay !== undefined && (
+                    {/* SEND Points */}
+                    {opportunity.sendPointsPerDay !== undefined && (
                       <div className="col-span-2 flex min-w-20 flex-col gap-1.5">
-                        <p className="text-p2 text-navy-500">Suilend Points</p>
+                        <p className="text-p2 text-navy-500">SEND Points</p>
                         <div className="flex flex-row gap-1.5">
                           <TokenLogo
                             className="my-0.5"
                             token={
-                              appData.tokenMap[
-                                NORMALIZED_SUILEND_POINTS_COINTYPE
-                              ]
+                              appData.tokenMap[NORMALIZED_SEND_POINTS_COINTYPE]
                             }
                             size={16}
                           />
                           <p className="text-p2">
-                            {formatPoints(opportunity.suilendPointsPerDay, {
+                            {formatPoints(opportunity.sendPointsPerDay, {
                               dp: 3,
                             })}
                             {" / "}

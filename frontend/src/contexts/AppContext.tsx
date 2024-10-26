@@ -23,7 +23,7 @@ export interface AppData {
   lstPrice: BigNumber;
   lstReserveAprPercent: BigNumber;
   lstReserveTvlUsd: BigNumber;
-  lstReserveSuilendPointsPerDay: BigNumber;
+  lstReserveSendPointsPerDay: BigNumber;
 
   tokenMap: Record<string, Token>;
   liquidStakingInfo: ParsedLiquidStakingInfo;

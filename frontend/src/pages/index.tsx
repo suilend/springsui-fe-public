@@ -26,7 +26,7 @@ import { AppData, useAppContext } from "@/contexts/AppContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import {
   NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SUILEND_POINTS_COINTYPE,
+  NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { SUI_GAS_MIN } from "@/lib/constants";
@@ -342,21 +342,21 @@ export default function Home() {
         } ${inToken.symbol}`,
       },
       {
-        label: "Suilend Points",
+        label: "SEND Points",
         labelEndDecorator: (
           <Tooltip
-            title={`Suilend Points are earned by depositing ${lstToken.symbol} in Suilend`}
+            title={`SEND Points are earned by depositing ${lstToken.symbol} in Suilend`}
           >
             <Info className="h-4 w-4 text-navy-600" />
           </Tooltip>
         ),
         valueStartDecorator: (
           <TokenLogo
-            token={appData.tokenMap[NORMALIZED_SUILEND_POINTS_COINTYPE]}
+            token={appData.tokenMap[NORMALIZED_SEND_POINTS_COINTYPE]}
             size={16}
           />
         ),
-        value: `${outValue === "" ? "--" : formatPoints(new BigNumber(outValue || 0).times(appData.lstReserveSuilendPointsPerDay), { dp: 3 })} / day`,
+        value: `${outValue === "" ? "--" : formatPoints(new BigNumber(outValue || 0).times(appData.lstReserveSendPointsPerDay), { dp: 3 })} / day`,
       },
     );
 

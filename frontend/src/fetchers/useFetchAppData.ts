@@ -22,11 +22,11 @@ import { getCoinMetadataMap } from "@/lib/coinMetadata";
 import {
   LIQUID_STAKING_INFO,
   NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SUILEND_POINTS_COINTYPE,
+  NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
   isLst,
+  isSendPoints,
   isSui,
-  isSuilendPoints,
 } from "@/lib/coinType";
 import { isOnTestnet } from "@/lib/constants";
 import {
@@ -44,7 +44,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
       lstPrice,
       lstReserveAprPercent,
       lstReserveTvlUsd,
-      lstReserveSuilendPointsPerDay;
+      lstReserveSendPointsPerDay;
     let coinMetadataMap: Record<string, CoinMetadata>;
 
     if (isOnTestnet) {
@@ -52,10 +52,10 @@ export default function useFetchAppData(suiClient: SuiClient) {
       lstPrice = suiPrice;
       lstReserveAprPercent = new BigNumber(3.5);
       lstReserveTvlUsd = new BigNumber(10000);
-      lstReserveSuilendPointsPerDay = new BigNumber(0.5);
+      lstReserveSendPointsPerDay = new BigNumber(0.5);
 
       const coinTypes = [
-        NORMALIZED_SUILEND_POINTS_COINTYPE,
+        NORMALIZED_SEND_POINTS_COINTYPE,
         NORMALIZED_SUI_COINTYPE,
         NORMALIZED_LST_COINTYPE,
       ];
@@ -120,10 +120,10 @@ export default function useFetchAppData(suiClient: SuiClient) {
         getFilteredRewards(rewardMap[NORMALIZED_SUI_COINTYPE].deposit),
       ); // TODO
       lstReserveTvlUsd = suiReserve.availableAmountUsd; // TODO
-      lstReserveSuilendPointsPerDay =
+      lstReserveSendPointsPerDay =
         getDedupedPerDayRewards(
           getFilteredRewards(rewardMap[NORMALIZED_SUI_COINTYPE].deposit),
-        ).find((r) => isSuilendPoints(r.stats.rewardCoinType))?.stats.perDay ??
+        ).find((r) => isSendPoints(r.stats.rewardCoinType))?.stats.perDay ??
         new BigNumber(0); // TODO
     }
 
@@ -187,7 +187,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
       lstPrice,
       lstReserveAprPercent,
       lstReserveTvlUsd,
-      lstReserveSuilendPointsPerDay,
+      lstReserveSendPointsPerDay,
 
       tokenMap,
       liquidStakingInfo,
