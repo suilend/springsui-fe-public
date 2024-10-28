@@ -89,7 +89,7 @@ export default function Defi() {
       {/* Fixed, WIDTH >= md */}
       <Mask />
 
-      <div className="relative z-[1] flex w-full flex-col items-center px-4 pb-6 pt-4 md:px-10 md:py-20">
+      <div className="relative z-[1] flex w-full flex-col items-center px-4 py-8 md:px-10 md:py-20">
         <div className="flex w-full max-w-3xl flex-col items-center gap-4">
           {/* Title */}
           <div className="mb-4 flex w-full flex-col items-center gap-2">
@@ -261,10 +261,11 @@ export default function Defi() {
               ))}
             </div>
           </Card>
-
-          <Footer />
         </div>
       </div>
+
+      {/* WIDTH >= md */}
+      <Footer />
 
       {/* WIDTH < md */}
       <BottomNav />

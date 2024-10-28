@@ -1,9 +1,9 @@
 import { CSSProperties } from "react";
 
-import { merge } from "lodash";
 import { AlertTriangle, Check, Info } from "lucide-react";
 
 import { BOTTOM_NAV_BOTTOM_HEIGHT } from "@/components/BottomNav";
+import { FOOTER_HEIGHT } from "@/components/Footer";
 import styles from "@/components/Toaster.module.scss";
 import { Toaster as ToasterComponent } from "@/components/ui/sonner";
 import useBreakpoint from "@/hooks/useBreakpoint";
@@ -46,15 +46,10 @@ export default function Toaster() {
         error: <AlertTriangle className="text-error" />,
       }}
       duration={TOAST_DURATION_MS}
-      style={
-        merge(
-          {
-            "--offset": "32px",
-            "--mobile-offset": "16px",
-          },
-          md ? {} : { bottom: BOTTOM_NAV_BOTTOM_HEIGHT + 16 },
-        ) as CSSProperties
-      }
+      style={{
+        right: md ? 8 + 24 : 16,
+        bottom: md ? FOOTER_HEIGHT + 24 : BOTTOM_NAV_BOTTOM_HEIGHT + 16,
+      }}
     />
   );
 }
