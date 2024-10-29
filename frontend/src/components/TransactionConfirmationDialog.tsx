@@ -38,7 +38,7 @@ export default function TransactionConfirmationDialog({
           </p>
 
           <video
-            className="h-36 w-36"
+            className="h-40 w-40"
             autoPlay
             controls={false}
             loop
