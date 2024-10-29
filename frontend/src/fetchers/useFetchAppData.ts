@@ -2,13 +2,10 @@ import { CoinMetadata, SuiClient } from "@mysten/sui/client";
 import { normalizeStructTag } from "@mysten/sui/utils";
 import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
 import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
-import { phantom } from "@suilend/sdk/mainnet/_generated/_framework/reified";
-import { LendingMarket } from "@suilend/sdk/mainnet/_generated/suilend/lending-market/structs";
-import {
-  LENDING_MARKET_ID,
-  LENDING_MARKET_TYPE,
-} from "@suilend/sdk/mainnet/client";
-import * as simulate from "@suilend/sdk/mainnet/utils/simulate";
+import { phantom } from "@suilend/sdk/_generated/_framework/reified";
+import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
+import { LENDING_MARKET_ID, LENDING_MARKET_TYPE } from "@suilend/sdk/client";
+import * as simulate from "@suilend/sdk/utils/simulate";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
