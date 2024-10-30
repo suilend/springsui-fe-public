@@ -456,21 +456,23 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-4 flex w-full flex-col gap-8 md:hidden">
+          <div className="flex w-full flex-col gap-4 md:hidden">
             {/* Stats, WIDTH < md */}
+            <div className="h-px w-full bg-navy-100" />
             <div className="flex w-full flex-col gap-4 px-2">
               <StatsTitle />
               <StatsContent />
             </div>
 
             {/* FAQ, WIDTH < md */}
+            <div className="h-px w-full bg-navy-100" />
             <div className="flex w-full flex-col gap-4 px-2">
               <FaqTitle />
               <FaqContent />
             </div>
 
             {/* WIDTH < md */}
-            <div className="w-full px-2">
+            <div className="mt-4 w-full">
               <FooterSm />
             </div>
           </div>
