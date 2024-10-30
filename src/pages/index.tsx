@@ -5,7 +5,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
-import { LstClient } from "@springsui/sdk/functions";
+import { LstClient } from "@suilend/springsui-sdk";
 
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";

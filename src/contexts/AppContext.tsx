@@ -11,7 +11,7 @@ import {
 import { SuiClient } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 
-import { LstClient } from "@springsui/sdk/functions";
+import { LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
 import { LIQUID_STAKING_INFO } from "@/lib/coinType";

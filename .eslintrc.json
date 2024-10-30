@@ -22,7 +22,7 @@
             "position": "before"
           },
           {
-            "pattern": "@springsui/sdk/*/**",
+            "pattern": "@suilend/springsui-sdk/*/**",
             "patternOptions": { "partial": true },
             "group": "internal",
             "position": "before"

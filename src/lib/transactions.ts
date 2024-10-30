@@ -3,7 +3,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
-import { LstClient } from "@springsui/sdk/functions";
+import { LstClient } from "@suilend/springsui-sdk";
 
 import { LIQUID_STAKING_INFO, isSui } from "@/lib/coinType";
 import { Token } from "@/lib/types";

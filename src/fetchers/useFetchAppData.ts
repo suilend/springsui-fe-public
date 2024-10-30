@@ -12,7 +12,7 @@ import useSWR from "swr";
 import {
   fetchLiquidStakingInfo,
   getSpringSuiApy,
-} from "@springsui/sdk/functions";
+} from "@suilend/springsui-sdk";
 
 import { AppContext, AppData } from "@/contexts/AppContext";
 import { getCoinMetadataMap } from "@/lib/coinMetadata";

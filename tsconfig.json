@@ -17,9 +17,7 @@
     "incremental": true,
     "paths": {
       "@/public/*": ["./public/*"],
-      "@/*": ["./src/*"],
-      "@springsui/sdk": ["../sdk/src/index"],
-      "@springsui/sdk/*": ["../sdk/src/*"]
+      "@/*": ["./src/*"] 
     },
     "plugins": [{ "name": "next" }]
   },
