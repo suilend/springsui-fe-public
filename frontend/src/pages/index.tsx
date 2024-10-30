@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
+import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
@@ -239,9 +240,15 @@ export default function Home() {
       .toString();
 
     const transaction = new Transaction();
-    if (isStaking) mint(lstClient, transaction, address!, submitAmount);
-    else
-      await redeem(suiClient, lstClient, transaction, address!, submitAmount);
+    try {
+      if (isStaking) mint(lstClient, transaction, address!, submitAmount);
+      else
+        await redeem(suiClient, lstClient, transaction, address!, submitAmount);
+    } catch (err) {
+      Sentry.captureException(err);
+      console.error(err);
+      throw err;
+    }
 
     try {
       setIsTransactionConfirmationDialogOpen(true);

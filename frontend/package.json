@@ -20,6 +20,7 @@
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@sentry/nextjs": "^8",
     "@suiet/wallet-kit": "0.3.2",
     "@suiet/wallet-sdk": "0.3.1",
     "@suilend/sdk": "^1.1.8",

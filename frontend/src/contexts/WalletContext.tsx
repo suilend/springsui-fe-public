@@ -15,6 +15,7 @@ import {
 import { CoinBalance, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { IdentifierString, WalletAccount } from "@mysten/wallet-standard";
+import * as Sentry from "@sentry/react";
 import { useWallet } from "@suiet/wallet-kit";
 import BigNumber from "bignumber.js";
 import { isEqual } from "lodash";
@@ -220,6 +221,12 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
     [walletAccounts],
   );
 
+  // Sentry
+  useEffect(() => {
+    if (impersonatedAddress) return;
+    Sentry.setUser({ id: walletAccount?.address });
+  }, [impersonatedAddress, walletAccount?.address]);
+
   // Tx
   const signExecuteAndWaitForTransaction = useCallback(
     async (transaction: Transaction) => {
@@ -236,6 +243,9 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
               throw simResult.error;
             }
           } catch (err) {
+            Sentry.captureException(err, {
+              extra: { simulation: true },
+            });
             console.error(err);
             // throw err; - Do not rethrow error
           }
@@ -275,6 +285,7 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
 
         return res2;
       } catch (err) {
+        Sentry.captureException(err);
         console.error(err);
         throw err;
       }
