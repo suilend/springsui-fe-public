@@ -1,8 +1,8 @@
 import { normalizeStructTag } from "@mysten/sui/utils";
 
 export const LIQUID_STAKING_INFO = {
-  id: "0xdae271405d47f04ab6c824d3b362b7375844ec987a2627845af715fdcd835795",
-  type: "0xba2a31b3b21776d859c9fdfe797f52b069fe8fe0961605ab093ca4eb437d2632::ripleys::RIPLEYS",
+  id: "0x15eda7330c8f99c30e430b4d82fd7ab2af3ead4ae17046fcb224aa9bad394f6b",
+  type: "0x83556891f4a0f233ce7b05cfe7f957d4020492a34f5405b2cb9377d060bef4bf::spring_sui::SPRING_SUI",
 };
 
 const SEND_POINTS_COINTYPE =

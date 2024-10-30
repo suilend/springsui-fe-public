@@ -200,7 +200,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
         console.log("Refreshed app data", data);
       },
       onError: (err) => {
-        errorToast("Failed to refresh app data.", err);
+        errorToast("Failed to refresh app data", err);
         console.error(err);
       },
     },
