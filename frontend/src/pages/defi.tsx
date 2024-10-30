@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
-import Footer from "@/components/Footer";
+import { FooterMd, FooterSm } from "@/components/Footer";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import TokenLogo from "@/components/TokenLogo";
@@ -89,10 +89,10 @@ export default function Defi() {
       {/* Fixed, WIDTH >= md */}
       <Mask />
 
-      <div className="relative z-[1] flex w-full flex-col items-center px-4 py-8 md:px-10 md:py-20">
-        <div className="flex w-full max-w-3xl flex-col items-center gap-4">
+      <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-8 md:px-10 md:py-20">
+        <div className="flex w-full max-w-3xl flex-col items-center gap-8">
           {/* Title */}
-          <div className="mb-4 flex w-full flex-col items-center gap-2">
+          <div className="flex w-full flex-col items-center gap-2">
             <p className="text-center text-h1">Explore DeFi</p>
             <p className="text-center text-navy-600">
               <span className="whitespace-nowrap">
@@ -261,11 +261,14 @@ export default function Defi() {
               ))}
             </div>
           </Card>
+
+          {/* WIDTH < md */}
+          <FooterSm />
         </div>
       </div>
 
       {/* WIDTH >= md */}
-      <Footer />
+      <FooterMd />
 
       {/* WIDTH < md */}
       <BottomNav />

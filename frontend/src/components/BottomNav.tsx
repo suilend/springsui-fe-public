@@ -2,11 +2,10 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { cloneElement } from "react";
 
-import { FooterContent } from "@/components/Footer";
 import { NAV_ITEMS } from "@/components/Nav";
 import { cn } from "@/lib/utils";
 
-export const BOTTOM_NAV_BOTTOM_HEIGHT = 119; // px
+export const BOTTOM_NAV_BOTTOM_HEIGHT = 78; // px
 
 export default function BottomNav() {
   const router = useRouter();
@@ -57,11 +56,6 @@ export default function BottomNav() {
               </Component>
             );
           })}
-        </div>
-
-        <div className="h-px w-full bg-navy-100" />
-        <div className="w-full px-4 py-2.5">
-          <FooterContent />
         </div>
       </div>
 

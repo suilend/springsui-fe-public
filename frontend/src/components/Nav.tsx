@@ -5,10 +5,8 @@ import { cloneElement } from "react";
 import { GitCompare } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
-import FaqPopover from "@/components/FaqPopover";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
-import StatsPopover from "@/components/StatsPopover";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { DEFI_URL, ROOT_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -35,9 +33,7 @@ export default function Nav() {
         {/* Logo */}
         <div className="flex flex-row items-center gap-1.5 md:w-40">
           <SpringSuiIcon />
-
-          {/* WIDTH >= md */}
-          <p className="text-h3 max-md:hidden">SpringSui</p>
+          <p className="text-h3">SpringSui</p>
         </div>
 
         {/* Items, WIDTH >= md */}
@@ -80,14 +76,8 @@ export default function Nav() {
           })}
         </div>
 
-        {/* Stats, FAQ, and wallet */}
-        <div className="flex flex-row items-center gap-3 md:w-40 md:justify-end">
-          {/* Stats and FAQ, WIDTH < md */}
-          <div className="flex flex-row items-center gap-1 md:hidden">
-            <StatsPopover />
-            <FaqPopover />
-          </div>
-
+        {/* Wallet */}
+        <div className="flex w-40 flex-row items-center justify-end">
           <ConnectWalletButton />
         </div>
       </div>

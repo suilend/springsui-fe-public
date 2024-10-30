@@ -6,6 +6,35 @@ import Popover from "@/components/Popover";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { cn } from "@/lib/utils";
 
+interface FaqTitleProps {
+  isOpen?: boolean;
+}
+
+export function FaqTitle({ isOpen }: FaqTitleProps) {
+  return (
+    <div className="flex flex-row items-center gap-2">
+      <MessageCircleQuestion
+        size={20}
+        className={cn(
+          isOpen
+            ? "text-foreground"
+            : "text-navy-600 text-navy-600 transition-colors group-hover:text-foreground",
+        )}
+      />
+      <p
+        className={cn(
+          "!text-p2",
+          isOpen
+            ? "text-foreground"
+            : "text-navy-600 transition-colors group-hover:text-foreground",
+        )}
+      >
+        FAQ
+      </p>
+    </div>
+  );
+}
+
 interface QuestionAnswerProps {
   initialIsExpanded?: boolean;
   question: string;
@@ -37,13 +66,7 @@ function QuestionAnswer({
   );
 }
 
-export default function FaqPopover() {
-  const { md } = useBreakpoint();
-
-  // State
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  // QAs
+export function FaqContent() {
   const qas = [
     {
       question: "What's SpringSui?",
@@ -132,31 +155,28 @@ export default function FaqPopover() {
     },
   ];
 
+  return qas.map((qa, index) => (
+    <QuestionAnswer
+      key={index}
+      initialIsExpanded={index === 0}
+      question={qa.question}
+      answer={qa.answer}
+    />
+  ));
+}
+
+export default function FaqPopover() {
+  const { md } = useBreakpoint();
+
+  // State
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   return (
     <Popover
       rootProps={{ open: isOpen, onOpenChange: setIsOpen }}
       trigger={
-        <button className="group flex h-10 w-8 flex-row items-center justify-center gap-2 md:h-12 md:w-auto md:rounded-md md:bg-white md:px-4 md:shadow-sm">
-          <MessageCircleQuestion
-            size={20}
-            className={cn(
-              isOpen
-                ? "text-foreground"
-                : "text-navy-600 transition-colors group-hover:text-foreground",
-            )}
-          />
-
-          {/* WIDTH >= md */}
-          <p
-            className={cn(
-              "!text-p2 max-md:hidden",
-              isOpen
-                ? "text-foreground"
-                : "text-navy-600 transition-colors group-hover:text-foreground",
-            )}
-          >
-            FAQ
-          </p>
+        <button className="group flex h-12 flex-row items-center justify-center rounded-md bg-white px-4 shadow-sm">
+          <FaqTitle isOpen={isOpen} />
         </button>
       }
       contentProps={{
@@ -165,14 +185,7 @@ export default function FaqPopover() {
       }}
     >
       <div className="flex w-full flex-col gap-4">
-        {qas.map((qa, index) => (
-          <QuestionAnswer
-            key={index}
-            initialIsExpanded={index === 0}
-            question={qa.question}
-            answer={qa.answer}
-          />
-        ))}
+        <FaqContent />
       </div>
     </Popover>
   );

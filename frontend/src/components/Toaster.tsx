@@ -3,7 +3,7 @@ import { CSSProperties } from "react";
 import { AlertTriangle, Check, Info } from "lucide-react";
 
 import { BOTTOM_NAV_BOTTOM_HEIGHT } from "@/components/BottomNav";
-import { FOOTER_HEIGHT } from "@/components/Footer";
+import { FOOTER_MD_HEIGHT } from "@/components/Footer";
 import styles from "@/components/Toaster.module.scss";
 import { Toaster as ToasterComponent } from "@/components/ui/sonner";
 import useBreakpoint from "@/hooks/useBreakpoint";
@@ -48,7 +48,7 @@ export default function Toaster() {
       duration={TOAST_DURATION_MS}
       style={{
         right: md ? 8 + 24 : 16,
-        bottom: md ? FOOTER_HEIGHT + 24 : BOTTOM_NAV_BOTTOM_HEIGHT + 16,
+        bottom: md ? FOOTER_MD_HEIGHT + 24 : BOTTOM_NAV_BOTTOM_HEIGHT + 16,
       }}
     />
   );

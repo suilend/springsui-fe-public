@@ -10,9 +10,9 @@ import {
   TWITTER_URL,
 } from "@/lib/navigation";
 
-export const FOOTER_HEIGHT = 40; // px
+export const FOOTER_MD_HEIGHT = 40; // px
 
-export function FooterContent() {
+function FooterContent() {
   return (
     <div className="flex w-full flex-row justify-between gap-2">
       {/* Powered by Suilend */}
@@ -66,18 +66,29 @@ export function FooterContent() {
   );
 }
 
-export default function Footer() {
+export function FooterSm() {
+  return (
+    <div className="w-full md:hidden">
+      <div className="h-px w-full bg-navy-100" />
+      <div className="w-full px-2 py-2.5">
+        <FooterContent />
+      </div>
+    </div>
+  );
+}
+
+export function FooterMd() {
   return (
     <>
       <div
         className="fixed inset-x-0 bottom-0 z-[2] bg-white px-10 py-2.5 max-md:hidden"
-        style={{ height: FOOTER_HEIGHT }}
+        style={{ height: FOOTER_MD_HEIGHT }}
       >
         <FooterContent />
       </div>
       <div
         className="relative z-[1] w-full shrink-0 max-md:hidden"
-        style={{ height: FOOTER_HEIGHT }}
+        style={{ height: FOOTER_MD_HEIGHT }}
       />
     </>
   );

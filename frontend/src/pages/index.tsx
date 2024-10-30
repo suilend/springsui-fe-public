@@ -9,13 +9,16 @@ import { LstClient } from "@springsui/sdk/functions";
 
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
-import FaqPopover from "@/components/FaqPopover";
-import Footer, { FOOTER_HEIGHT } from "@/components/Footer";
+import FaqPopover, { FaqContent, FaqTitle } from "@/components/FaqPopover";
+import { FOOTER_MD_HEIGHT, FooterMd, FooterSm } from "@/components/Footer";
 import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
 import StakeInput from "@/components/Input";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
-import StatsPopover from "@/components/StatsPopover";
+import StatsPopover, {
+  StatsContent,
+  StatsTitle,
+} from "@/components/StatsPopover";
 import SubmitButton from "@/components/SubmitButton";
 import TokenLogo from "@/components/TokenLogo";
 import Tooltip from "@/components/Tooltip";
@@ -373,7 +376,7 @@ export default function Home() {
       {/* Fixed, WIDTH >= md */}
       <Mask />
 
-      <div className="relative z-[1] flex w-full flex-col items-center px-4 py-8 md:px-10 md:py-20">
+      <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-8 md:px-10 md:py-20">
         <div className="flex w-full max-w-md flex-col items-center gap-4">
           <ImpersonationModeBanner />
 
@@ -452,11 +455,30 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          <div className="mt-4 flex w-full flex-col gap-8 md:hidden">
+            {/* Stats, WIDTH < md */}
+            <div className="flex w-full flex-col gap-4 px-2">
+              <StatsTitle />
+              <StatsContent />
+            </div>
+
+            {/* FAQ, WIDTH < md */}
+            <div className="flex w-full flex-col gap-4 px-2">
+              <FaqTitle />
+              <FaqContent />
+            </div>
+
+            {/* WIDTH < md */}
+            <div className="w-full px-2">
+              <FooterSm />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* WIDTH >= md */}
-      <Footer />
+      <FooterMd />
 
       {/* WIDTH < md */}
       <BottomNav />
@@ -464,7 +486,7 @@ export default function Home() {
       {/* Fixed, WIDTH >= md */}
       <div
         className="fixed z-[2] max-md:hidden"
-        style={{ left: 8 + 32, bottom: FOOTER_HEIGHT + 32 }}
+        style={{ left: 8 + 32, bottom: FOOTER_MD_HEIGHT + 32 }}
       >
         <StatsPopover />
       </div>
@@ -472,7 +494,7 @@ export default function Home() {
       {/* Fixed, WIDTH >= md */}
       <div
         className="fixed z-[2] max-md:hidden"
-        style={{ right: 8 + 32, bottom: FOOTER_HEIGHT + 32 }}
+        style={{ right: 8 + 32, bottom: FOOTER_MD_HEIGHT + 32 }}
       >
         <FaqPopover />
       </div>
