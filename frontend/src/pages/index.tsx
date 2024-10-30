@@ -9,16 +9,13 @@ import { LstClient } from "@suilend/springsui-sdk";
 
 import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
-import FaqPopover, { FaqContent, FaqTitle } from "@/components/FaqPopover";
+import FaqPopover, { FaqContent } from "@/components/FaqPopover";
 import { FOOTER_MD_HEIGHT, FooterMd, FooterSm } from "@/components/Footer";
 import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
 import StakeInput from "@/components/Input";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
-import StatsPopover, {
-  StatsContent,
-  StatsTitle,
-} from "@/components/StatsPopover";
+import StatsPopover, { StatsContent } from "@/components/StatsPopover";
 import SubmitButton from "@/components/SubmitButton";
 import TokenLogo from "@/components/TokenLogo";
 import Tooltip from "@/components/Tooltip";
@@ -377,105 +374,100 @@ export default function Home() {
       <Mask />
 
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-8 md:px-10 md:py-20">
-        <div className="flex w-full max-w-md flex-col items-center gap-4">
-          <ImpersonationModeBanner />
+        <div className="flex w-full max-w-md flex-col items-center gap-8">
+          <div className="flex w-full flex-col gap-4">
+            <ImpersonationModeBanner />
 
-          <Card>
-            {/* Tabs */}
-            <div className="w-full p-2 md:px-4 md:py-3.5">
-              <div className="flex w-full flex-row rounded-sm bg-white/25 md:rounded-md">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    className={cn(
-                      "group h-10 flex-1 rounded-sm transition-colors md:rounded-md",
-                      selectedTab === tab.id && "bg-white",
-                    )}
-                    onClick={() => onSelectedTabChange(tab.id)}
-                  >
-                    <p
+            <Card>
+              {/* Tabs */}
+              <div className="w-full p-2 md:px-4 md:py-3.5">
+                <div className="flex w-full flex-row rounded-sm bg-white/25 md:rounded-md">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
                       className={cn(
-                        "!text-p2 transition-colors",
-                        selectedTab === tab.id
-                          ? "text-foreground"
-                          : "text-navy-600 group-hover:text-foreground",
+                        "group h-10 flex-1 rounded-sm transition-colors md:rounded-md",
+                        selectedTab === tab.id && "bg-white",
                       )}
+                      onClick={() => onSelectedTabChange(tab.id)}
                     >
-                      {tab.title}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px w-full bg-white/75" />
-
-            {/* Form */}
-            <div className="flex w-full flex-col gap-2 p-2 md:gap-4 md:p-4">
-              <div className="flex w-full flex-col gap-0.5">
-                <StakeInput
-                  ref={inInputRef}
-                  token={inToken}
-                  title={inTitle}
-                  value={inValue}
-                  onChange={formatAndSetInValue}
-                  usdValue={inValueUsd}
-                  onBalanceClick={onInBalanceClick}
-                />
-                <StakeInput
-                  token={outToken}
-                  title="Receive"
-                  value={outValue}
-                  usdValue={outValueUsd}
-                />
-              </div>
-
-              <SubmitButton state={submitButtonState} submit={submit} />
-            </div>
-          </Card>
-
-          {/* Parameters */}
-          <div className="flex w-full flex-col gap-4 px-2 md:px-4">
-            {parameters.map((param) => (
-              <div
-                key={param.label}
-                className="flex w-full flex-row items-center justify-between"
-              >
-                <div className="flex flex-row items-center gap-1.5">
-                  {param.labelStartDecorator}
-                  <p className="text-p2 text-navy-600">{param.label}</p>
-                  {param.labelEndDecorator}
-                </div>
-                <div className="flex flex-row items-center gap-1.5">
-                  {param.valueStartDecorator}
-                  <p className="text-p2">{param.value}</p>
-                  {param.valueEndDecorator}
+                      <p
+                        className={cn(
+                          "!text-p2 transition-colors",
+                          selectedTab === tab.id
+                            ? "text-foreground"
+                            : "text-navy-600 group-hover:text-foreground",
+                        )}
+                      >
+                        {tab.title}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
+
+              {/* Divider */}
+              <div className="h-px w-full bg-white/75" />
+
+              {/* Form */}
+              <div className="flex w-full flex-col gap-2 p-2 md:gap-4 md:p-4">
+                <div className="flex w-full flex-col gap-0.5">
+                  <StakeInput
+                    ref={inInputRef}
+                    token={inToken}
+                    title={inTitle}
+                    value={inValue}
+                    onChange={formatAndSetInValue}
+                    usdValue={inValueUsd}
+                    onBalanceClick={onInBalanceClick}
+                  />
+                  <StakeInput
+                    token={outToken}
+                    title="Receive"
+                    value={outValue}
+                    usdValue={outValueUsd}
+                  />
+                </div>
+
+                <SubmitButton state={submitButtonState} submit={submit} />
+              </div>
+            </Card>
+
+            {/* Parameters */}
+            <div className="flex w-full flex-col gap-4 px-2 md:px-4">
+              {parameters.map((param) => (
+                <div
+                  key={param.label}
+                  className="flex w-full flex-row items-center justify-between"
+                >
+                  <div className="flex flex-row items-center gap-1.5">
+                    {param.labelStartDecorator}
+                    <p className="text-p2 text-navy-600">{param.label}</p>
+                    {param.labelEndDecorator}
+                  </div>
+                  <div className="flex flex-row items-center gap-1.5">
+                    {param.valueStartDecorator}
+                    <p className="text-p2">{param.value}</p>
+                    {param.valueEndDecorator}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="flex w-full flex-col gap-4 md:hidden">
-            {/* Stats, WIDTH < md */}
-            <div className="h-px w-full bg-navy-100" />
-            <div className="flex w-full flex-col gap-4 px-2">
-              <StatsTitle />
+          {/* Stats and FAQ, WIDTH < md */}
+          <div className="flex w-full flex-col gap-0.5 md:hidden">
+            <div className="flex w-full flex-col gap-4 rounded-md bg-navy-100/50 p-4">
               <StatsContent />
             </div>
 
-            {/* FAQ, WIDTH < md */}
-            <div className="h-px w-full bg-navy-100" />
-            <div className="flex w-full flex-col gap-4 px-2">
-              <FaqTitle />
+            <div className="flex w-full flex-col gap-4 rounded-md bg-navy-100/50 p-4">
               <FaqContent />
             </div>
-
-            {/* WIDTH < md */}
-            <div className="mt-4 w-full">
-              <FooterSm />
-            </div>
           </div>
+
+          {/* WIDTH < md */}
+          <FooterSm />
         </div>
       </div>
 

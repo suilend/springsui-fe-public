@@ -6,35 +6,6 @@ import Popover from "@/components/Popover";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { cn } from "@/lib/utils";
 
-interface FaqTitleProps {
-  isOpen?: boolean;
-}
-
-export function FaqTitle({ isOpen }: FaqTitleProps) {
-  return (
-    <div className="flex flex-row items-center gap-2">
-      <MessageCircleQuestion
-        size={20}
-        className={cn(
-          isOpen
-            ? "text-foreground"
-            : "text-navy-600 text-navy-600 transition-colors group-hover:text-foreground",
-        )}
-      />
-      <p
-        className={cn(
-          "!text-p2",
-          isOpen
-            ? "text-foreground"
-            : "text-navy-600 transition-colors group-hover:text-foreground",
-        )}
-      >
-        FAQ
-      </p>
-    </div>
-  );
-}
-
 interface QuestionAnswerProps {
   initialIsExpanded?: boolean;
   question: string;
@@ -176,7 +147,26 @@ export default function FaqPopover() {
       rootProps={{ open: isOpen, onOpenChange: setIsOpen }}
       trigger={
         <button className="group flex h-12 flex-row items-center justify-center rounded-md bg-white px-4 shadow-sm">
-          <FaqTitle isOpen={isOpen} />
+          <div className="flex flex-row items-center gap-2">
+            <MessageCircleQuestion
+              size={20}
+              className={cn(
+                isOpen
+                  ? "text-foreground"
+                  : "text-navy-600 text-navy-600 transition-colors group-hover:text-foreground",
+              )}
+            />
+            <p
+              className={cn(
+                "!text-p2",
+                isOpen
+                  ? "text-foreground"
+                  : "text-navy-600 transition-colors group-hover:text-foreground",
+              )}
+            >
+              FAQ
+            </p>
+          </div>
         </button>
       }
       contentProps={{
