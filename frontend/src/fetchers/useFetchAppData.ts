@@ -37,16 +37,14 @@ import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
 export default function useFetchAppData(suiClient: SuiClient) {
   const dataFetcher = async () => {
-    let suiPrice,
-      lstPrice,
-      lstReserveAprPercent,
-      lstReserveTvlUsd,
-      lstReserveSendPointsPerDay;
+    let suiPrice, lstPrice;
+    let lstReserveAprPercent, lstReserveTvlUsd, lstReserveSendPointsPerDay;
     let coinMetadataMap: Record<string, CoinMetadata>;
 
     if (isOnTestnet) {
       suiPrice = new BigNumber(2);
       lstPrice = suiPrice;
+
       lstReserveAprPercent = new BigNumber(3.5);
       lstReserveTvlUsd = new BigNumber(10000);
       lstReserveSendPointsPerDay = new BigNumber(0.5);
@@ -75,7 +73,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
         new SuiPriceServiceConnection("https://hermes.pyth.network"),
       );
 
-      const coinTypes: string[] = [NORMALIZED_LST_COINTYPE]; // TODO
+      const coinTypes: string[] = [];
       refreshedRawReserves.forEach((r) => {
         coinTypes.push(normalizeStructTag(r.coinType.name));
 
@@ -106,22 +104,24 @@ export default function useFetchAppData(suiClient: SuiClient) {
       const rewardMap = formatRewards(reserveMap, coinMetadataMap);
 
       //
+
       const suiReserve = reserveMap[NORMALIZED_SUI_COINTYPE];
       const lstReserve = reserveMap[NORMALIZED_LST_COINTYPE];
 
       suiPrice = suiReserve.price;
-      lstPrice = suiReserve.price; // TODO
+      lstPrice = lstReserve.price;
+
       lstReserveAprPercent = getTotalAprPercent(
         Side.DEPOSIT,
-        suiReserve.depositAprPercent,
-        getFilteredRewards(rewardMap[NORMALIZED_SUI_COINTYPE].deposit),
-      ); // TODO
-      lstReserveTvlUsd = suiReserve.availableAmountUsd; // TODO
+        lstReserve.depositAprPercent,
+        getFilteredRewards(rewardMap[NORMALIZED_LST_COINTYPE].deposit),
+      );
+      lstReserveTvlUsd = lstReserve.availableAmountUsd;
       lstReserveSendPointsPerDay =
         getDedupedPerDayRewards(
-          getFilteredRewards(rewardMap[NORMALIZED_SUI_COINTYPE].deposit),
+          getFilteredRewards(rewardMap[NORMALIZED_LST_COINTYPE].deposit),
         ).find((r) => isSendPoints(r.stats.rewardCoinType))?.stats.perDay ??
-        new BigNumber(0); // TODO
+        new BigNumber(0);
     }
 
     const tokenMap = Object.entries(coinMetadataMap).reduce(
@@ -162,6 +162,9 @@ export default function useFetchAppData(suiClient: SuiClient) {
     const fees = new BigNumber(rawLiquidStakingInfo.fees.value.toString()).div(
       10 ** tokenMap[NORMALIZED_SUI_COINTYPE].decimals,
     );
+    const accruedSpreadFees = new BigNumber(
+      rawLiquidStakingInfo.accruedSpreadFees.toString(),
+    ).div(10 ** tokenMap[NORMALIZED_SUI_COINTYPE].decimals);
 
     const apr = await getSpringSuiApy(suiClient); // TODO: Use APR
     const aprPercent = new BigNumber(apr ?? 0).times(100);
@@ -174,10 +177,9 @@ export default function useFetchAppData(suiClient: SuiClient) {
       mintFeePercent,
       redeemFeePercent,
       fees,
+      accruedSpreadFees,
       aprPercent,
     } as ParsedLiquidStakingInfo;
-
-    lstPrice = lstPrice.times(liquidStakingInfo.suiToLstExchangeRate); // TODO
 
     return {
       suiPrice,
