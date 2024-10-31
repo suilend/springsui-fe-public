@@ -418,23 +418,22 @@ export default function Home() {
 
               {/* Form */}
               <div className="flex w-full flex-col gap-2 p-2 md:gap-4 md:p-4">
-                <div className="flex w-full flex-col gap-0.5">
-                  <StakeInput
-                    ref={inInputRef}
-                    token={inToken}
-                    title={inTitle}
-                    value={inValue}
-                    onChange={formatAndSetInValue}
-                    usdValue={inValueUsd}
-                    onBalanceClick={onInBalanceClick}
-                  />
-                  <StakeInput
-                    token={outToken}
-                    title="Receive"
-                    value={outValue}
-                    usdValue={outValueUsd}
-                  />
-                </div>
+                <StakeInput
+                  ref={inInputRef}
+                  token={inToken}
+                  title={inTitle}
+                  value={inValue}
+                  onChange={formatAndSetInValue}
+                  usdValue={inValueUsd}
+                  onBalanceClick={onInBalanceClick}
+                />
+
+                <StakeInput
+                  token={outToken}
+                  title="Receive"
+                  value={outValue}
+                  usdValue={outValueUsd}
+                />
 
                 <SubmitButton state={submitButtonState} submit={submit} />
               </div>

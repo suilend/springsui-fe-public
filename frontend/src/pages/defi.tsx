@@ -159,7 +159,7 @@ export default function Defi() {
             <div className="h-px w-full bg-white/75" />
 
             {/* Opportunities */}
-            <div className="flex w-full flex-col gap-0.5 p-2 md:p-4">
+            <div className="flex w-full flex-col gap-2 p-2 md:gap-4 md:p-4">
               {opportunities.map((opportunity, index) => (
                 <Link
                   key={index}

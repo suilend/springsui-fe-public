@@ -95,7 +95,7 @@ export default function ConnectWalletPopover() {
       }
     >
       <div className="flex w-full flex-col gap-3">
-        <div className="flex w-full flex-col gap-0.5">
+        <div className="flex w-full flex-col gap-1">
           {wallets.map((wallet) => (
             <WalletItem key={wallet.name} wallet={wallet} />
           ))}

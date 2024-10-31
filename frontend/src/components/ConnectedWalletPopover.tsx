@@ -79,7 +79,7 @@ export default function ConnectedWalletPopover() {
             </button>
           )}
           {hasWallets && (
-            <div className="flex w-full flex-col gap-0.5">
+            <div className="flex w-full flex-col gap-1">
               {walletAccounts.map((a) => (
                 <button
                   key={a.address}
