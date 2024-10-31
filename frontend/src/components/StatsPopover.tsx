@@ -76,7 +76,7 @@ export default function StatsPopover() {
       }
       contentProps={{
         align: md ? "start" : "center",
-        maxWidth: 280,
+        maxWidth: 320,
       }}
     >
       <div className="flex w-full flex-col gap-3">
