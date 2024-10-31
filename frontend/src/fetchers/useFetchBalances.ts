@@ -2,11 +2,11 @@ import { normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
-import { useAppContext } from "@/contexts/AppContext";
+import { useRootContext } from "@/contexts/RootContext";
 import { errorToast } from "@/lib/toasts";
 
 export default function useFetchBalances(address: string | undefined) {
-  const { suiClient } = useAppContext();
+  const { suiClient } = useRootContext();
 
   const dataFetcher = async () => {
     // Balances
@@ -40,11 +40,11 @@ export default function useFetchBalances(address: string | undefined) {
         console.log("Refreshed wallet balances", data);
       },
       onError: (err) => {
-        errorToast("Failed to refresh wallet balances.", err);
+        errorToast("Failed to refresh wallet balances", err);
         console.error(err);
       },
     },
   );
 
-  return { data, mutate };
+  return { balancesData: data, mutateBalancesData: mutate };
 }

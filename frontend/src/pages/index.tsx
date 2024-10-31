@@ -23,7 +23,8 @@ import Tooltip from "@/components/Tooltip";
 import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
-import { AppData, useAppContext } from "@/contexts/AppContext";
+import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
+import { useRootContext } from "@/contexts/RootContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import {
   NORMALIZED_LST_COINTYPE,
@@ -54,10 +55,10 @@ export default function Home() {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
   };
 
-  const { suiClient, refreshAppData, explorer, ...restAppContext } =
-    useAppContext();
-  const lstClient = restAppContext.lstClient as LstClient;
-  const appData = restAppContext.appData as AppData;
+  const { suiClient, explorer, ...restRootContext } = useRootContext();
+  const lstClient = restRootContext.lstClient as LstClient;
+  const { refreshAppData, ...restAppDataContext } = useAppDataContext();
+  const appData = restAppDataContext.appData as AppData;
   const {
     setIsConnectWalletDropdownOpen,
     address,

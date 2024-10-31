@@ -2,10 +2,12 @@ import { PropsWithChildren } from "react";
 
 import { Loader2 } from "lucide-react";
 
-import { useAppContext } from "@/contexts/AppContext";
+import { useAppDataContext } from "@/contexts/AppDataContext";
+import { useRootContext } from "@/contexts/RootContext";
 
 export default function Layout({ children }: PropsWithChildren) {
-  const { lstClient, appData } = useAppContext();
+  const { lstClient } = useRootContext();
+  const { appData } = useAppDataContext();
 
   return (
     <>

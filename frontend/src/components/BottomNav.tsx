@@ -3,12 +3,20 @@ import { useRouter } from "next/router";
 import { cloneElement } from "react";
 
 import { NAV_ITEMS } from "@/components/Nav";
+import { useWalletContext } from "@/contexts/WalletContext";
+import { ADMIN_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export const BOTTOM_NAV_BOTTOM_HEIGHT = 78; // px
 
 export default function BottomNav() {
   const router = useRouter();
+
+  const { weightHookAdminCapId } = useWalletContext();
+
+  // Items
+  const navItems = [...NAV_ITEMS];
+  if (weightHookAdminCapId) navItems.push({ url: ADMIN_URL, title: "Admin" });
 
   return (
     <>
@@ -18,7 +26,7 @@ export default function BottomNav() {
         style={{ height: BOTTOM_NAV_BOTTOM_HEIGHT }}
       >
         <div className="flex w-full flex-row items-center px-6 py-4">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const isSelected = router.pathname === item.url;
             const isDisabled = !item.url;
             const Component = !isDisabled ? Link : "div";

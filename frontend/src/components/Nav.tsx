@@ -1,20 +1,25 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { cloneElement } from "react";
+import { ReactElement, cloneElement } from "react";
 
 import { Compass } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
+import { useWalletContext } from "@/contexts/WalletContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import { EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
+import { ADMIN_URL, EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 const SM_NAV_HEIGHT = 60; // px
 export const MD_NAV_HEIGHT = 72; // px
 
-export const NAV_ITEMS = [
+export const NAV_ITEMS: {
+  url: string;
+  icon?: ReactElement;
+  title: string;
+}[] = [
   { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
   { url: EXPLORE_URL, icon: <Compass />, title: "Explore" },
 ];
@@ -22,7 +27,13 @@ export const NAV_ITEMS = [
 export default function Nav() {
   const router = useRouter();
 
+  const { weightHookAdminCapId } = useWalletContext();
+
   const { md } = useBreakpoint();
+
+  // Items
+  const navItems = [...NAV_ITEMS];
+  if (weightHookAdminCapId) navItems.push({ url: ADMIN_URL, title: "Admin" });
 
   return (
     <>
@@ -38,7 +49,7 @@ export default function Nav() {
 
         {/* Items, WIDTH >= md */}
         <div className="flex flex-1 flex-row justify-center gap-10 max-md:hidden">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const isSelected = router.pathname === item.url;
             const isDisabled = !item.url;
             const Component = !isDisabled ? Link : "div";

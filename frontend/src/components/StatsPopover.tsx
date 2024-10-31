@@ -3,21 +3,25 @@ import { useState } from "react";
 import { ChartBar } from "lucide-react";
 
 import Popover from "@/components/Popover";
-import { AppData, useAppContext } from "@/contexts/AppContext";
+import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { NORMALIZED_SUI_COINTYPE } from "@/lib/coinType";
 import { formatToken, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function StatsContent() {
-  const appContext = useAppContext();
-  const appData = appContext.appData as AppData;
+  const appDataContext = useAppDataContext();
+  const appData = appDataContext.appData as AppData;
 
   const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
 
-  const stats = [
+  const stats: {
+    label: string;
+    value: string;
+    subValue?: string;
+  }[] = [
     {
-      label: `Total value locked (TVL)`,
+      label: "Total value locked (TVL)",
       value: `${formatToken(appData.liquidStakingInfo.totalSuiSupply)} ${suiToken.symbol}`,
       subValue: formatUsd(
         appData.liquidStakingInfo.totalSuiSupply.times(appData.suiPrice),

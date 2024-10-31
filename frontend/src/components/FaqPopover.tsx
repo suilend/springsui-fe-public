@@ -40,7 +40,10 @@ function QuestionAnswer({
 export function FaqContent() {
   // https://docs.google.com/document/d/1FFY3n97sQxRqVf_EHzaAqGTIQTIeeqXPp89Rz6WhQ1Q/edit?tab=t.0#heading=h.1cm8t3gdddqh
   // 31 October 4:18pm
-  const qas: { question: string; answer: string | ReactNode }[] = [
+  const qas: {
+    question: string;
+    answer: string | ReactNode;
+  }[] = [
     {
       question: "What is sSUI?",
       answer:

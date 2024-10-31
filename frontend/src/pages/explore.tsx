@@ -8,7 +8,7 @@ import { FooterMd, FooterSm } from "@/components/Footer";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import TokenLogo from "@/components/TokenLogo";
-import { AppData, useAppContext } from "@/contexts/AppContext";
+import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
 import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SEND_POINTS_COINTYPE,
@@ -29,8 +29,8 @@ export default function Explore() {
       | undefined,
   };
 
-  const appContext = useAppContext();
-  const appData = appContext.appData as AppData;
+  const appDataContext = useAppDataContext();
+  const appData = appDataContext.appData as AppData;
 
   const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
 

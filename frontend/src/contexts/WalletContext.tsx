@@ -20,7 +20,8 @@ import { useWallet } from "@suiet/wallet-kit";
 import BigNumber from "bignumber.js";
 import { isEqual } from "lodash";
 
-import { useAppContext } from "@/contexts/AppContext";
+import { useAppDataContext } from "@/contexts/AppDataContext";
+import { useRootContext } from "@/contexts/RootContext";
 import useFetchBalances from "@/fetchers/useFetchBalances";
 import { formatAddress } from "@/lib/format";
 import { errorToast, infoToast } from "@/lib/toasts";
@@ -51,6 +52,8 @@ export interface WalletContext {
 
   refreshBalancesData: () => Promise<void>;
   getAccountBalance: (coinType: string) => BigNumber;
+
+  weightHookAdminCapId: string | undefined;
 }
 
 const WalletContext = createContext<WalletContext>({
@@ -85,6 +88,8 @@ const WalletContext = createContext<WalletContext>({
   getAccountBalance: () => {
     throw new Error("WalletContextProvider not initialized");
   },
+
+  weightHookAdminCapId: undefined,
 });
 
 export const useWalletContext = () => useContext(WalletContext);
@@ -97,7 +102,8 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
       | undefined,
   };
 
-  const { suiClient, appData, refreshAppData } = useAppContext();
+  const { suiClient, lstClient } = useRootContext();
+  const { appData, refreshAppData } = useAppDataContext();
 
   // Impersonated address
   const impersonatedAddress = queryParams[QueryParams.WALLET];
@@ -143,7 +149,7 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
 
   // Wallet account
   const [walletAccounts, setWalletAccounts] = useState<
-    readonly WalletAccount[]
+    WalletContext["walletAccounts"]
   >([]);
   const [walletAccountAddress, setWalletAccountAddress] = useState<
     string | undefined
@@ -294,7 +300,7 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
   );
 
   // Balances
-  const { data: balancesData, mutate: mutateBalancesData } = useFetchBalances(
+  const { balancesData, mutateBalancesData } = useFetchBalances(
     impersonatedAddress ?? walletAccount?.address,
   );
 
@@ -347,6 +353,27 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
     refreshBalancesData,
   ]);
 
+  // Admin
+  const [weightHookAdminCapId, setWeightHookAdminCapId] =
+    useState<WalletContext["weightHookAdminCapId"]>(undefined);
+
+  useEffect(() => {
+    if (!lstClient) return;
+
+    const _address = impersonatedAddress ?? walletAccount?.address;
+    if (!_address) return;
+
+    (async () => {
+      try {
+        const _weightHookAdminCapId =
+          await lstClient.getWeightHookAdminCapId(_address);
+        setWeightHookAdminCapId(_weightHookAdminCapId ?? undefined);
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+  }, [lstClient, impersonatedAddress, walletAccount?.address]);
+
   // Context
   const contextValue = useMemo(
     () => ({
@@ -367,6 +394,8 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
 
       refreshBalancesData,
       getAccountBalance,
+
+      weightHookAdminCapId,
     }),
     [
       impersonatedAddress,
@@ -380,6 +409,7 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
       signExecuteAndWaitForTransaction,
       refreshBalancesData,
       getAccountBalance,
+      weightHookAdminCapId,
     ],
   );
 

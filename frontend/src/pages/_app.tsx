@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useEffect } from "react";
 
-import { WalletProvider } from "@suiet/wallet-kit";
+import { WalletProvider as SuietWalletProvider } from "@suiet/wallet-kit";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import mixpanel from "mixpanel-browser";
@@ -11,7 +11,8 @@ import mixpanel from "mixpanel-browser";
 import Layout from "@/components/Layout";
 import Toaster from "@/components/Toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppContextProvider } from "@/contexts/AppContext";
+import { AppDataContextProvider } from "@/contexts/AppDataContext";
+import { RootContextProvider } from "@/contexts/RootContext";
 import { WalletContextProvider } from "@/contexts/WalletContext";
 import { TITLE } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
@@ -45,18 +46,20 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main id="__app_main" className={cn(fontClassNames)}>
-        <TooltipProvider>
-          <WalletProvider>
-            <AppContextProvider>
-              <WalletContextProvider>
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
-              </WalletContextProvider>
-            </AppContextProvider>
-          </WalletProvider>
-          <Toaster />
-        </TooltipProvider>
+        <SuietWalletProvider>
+          <TooltipProvider>
+            <RootContextProvider>
+              <AppDataContextProvider>
+                <WalletContextProvider>
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
+                </WalletContextProvider>
+              </AppDataContextProvider>
+            </RootContextProvider>
+            <Toaster />
+          </TooltipProvider>
+        </SuietWalletProvider>
       </main>
     </>
   );

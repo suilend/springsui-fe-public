@@ -1,5 +1,6 @@
 export const ROOT_URL = "/";
 export const EXPLORE_URL = "/explore";
+export const ADMIN_URL = "/admin";
 
 export const SUILEND_URL = "https://suilend.fi";
 
