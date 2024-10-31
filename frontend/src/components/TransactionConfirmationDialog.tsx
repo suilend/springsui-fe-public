@@ -32,7 +32,7 @@ export default function TransactionConfirmationDialog({
   return (
     <Dialog rootProps={{ open: isOpen }}>
       <Card className="p-2 md:p-4">
-        <div className="flex w-full flex-col items-center gap-6 rounded-md bg-white px-5 pb-5 pt-8">
+        <div className="flex w-full flex-col items-center gap-6 rounded-md bg-white px-4 pb-4 pt-8">
           <p className="px-4 text-center text-h2">
             Confirm transaction in your wallet
           </p>

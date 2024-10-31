@@ -163,7 +163,7 @@ export default function Defi() {
               {opportunities.map((opportunity, index) => (
                 <Link
                   key={index}
-                  className="block flex w-full flex-col gap-4 rounded-md bg-white p-4 md:gap-5 md:p-5"
+                  className="block flex w-full flex-col gap-4 rounded-md bg-white p-4"
                   href={opportunity.url}
                   target="_blank"
                 >

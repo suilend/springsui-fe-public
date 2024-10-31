@@ -24,7 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div
         className={cn(
-          "flex w-full flex-col rounded-md bg-white px-5 py-4 transition-shadow",
+          "flex w-full flex-col rounded-md bg-white p-4 transition-shadow",
           !isReadOnly &&
             "focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))]",
         )}
