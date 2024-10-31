@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 
-import { ChevronDown, ChevronRight, MessageCircleQuestion } from "lucide-react";
+import { ChevronDown, ChevronUp, MessageCircleQuestion } from "lucide-react";
 
 import Popover from "@/components/Popover";
 import useBreakpoint from "@/hooks/useBreakpoint";
@@ -19,7 +19,7 @@ function QuestionAnswer({
 }: QuestionAnswerProps) {
   const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
 
-  const Chevron = isExpanded ? ChevronDown : ChevronRight;
+  const Chevron = isExpanded ? ChevronDown : ChevronUp;
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -27,12 +27,16 @@ function QuestionAnswer({
         className="group -my-2 flex w-full flex-row items-center gap-2 py-2 text-left"
         onClick={() => setIsExpanded((is) => !is)}
       >
-        <Chevron className="h-4 w-4 text-navy-600 transition-colors group-hover:text-foreground" />
         <p className="flex-1 text-p2 text-navy-600 transition-colors group-hover:text-foreground">
           {question}
         </p>
+        <Chevron className="h-4 w-4 text-navy-600 transition-colors group-hover:text-foreground" />
       </button>
-      {isExpanded && <p className="pl-6 text-p2">{answer}</p>}
+      {isExpanded && (
+        <p className="!border-l-[2px] border-l border-l-white/75 pl-3 text-p2 md:border-l-navy-100">
+          {answer}
+        </p>
+      )}
     </div>
   );
 }
@@ -177,6 +181,7 @@ export default function FaqPopover() {
       contentProps={{
         align: md ? "end" : "center",
         maxWidth: 360,
+        maxHeight: 480,
       }}
     >
       <div className="flex w-full flex-col gap-4">
