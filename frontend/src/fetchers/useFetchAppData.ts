@@ -18,6 +18,7 @@ import { AppDataContext } from "@/contexts/AppDataContext";
 import { getCoinMetadataMap } from "@/lib/coinMetadata";
 import {
   LIQUID_STAKING_INFO,
+  NORMALIZED_AAA_COINTYPE,
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
   isLst,
@@ -52,7 +53,10 @@ export default function useFetchAppData(suiClient: SuiClient) {
       new SuiPriceServiceConnection("https://hermes.pyth.network"),
     );
 
-    const coinTypes: string[] = [NORMALIZED_LST_COINTYPE]; // Add in case there isn't a Suilend reserve for the LST coinType
+    const coinTypes: string[] = [
+      NORMALIZED_LST_COINTYPE, // Add in case there isn't a Suilend reserve for the LST coinType
+      NORMALIZED_AAA_COINTYPE, // TEMP
+    ];
     refreshedRawReserves.forEach((r) => {
       coinTypes.push(normalizeStructTag(r.coinType.name));
 

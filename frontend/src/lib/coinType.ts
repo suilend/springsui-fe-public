@@ -11,11 +11,14 @@ const SEND_POINTS_COINTYPE =
   "0x34fe4f3c9e450fed4d0a3c587ed842eec5313c30c3cc3c0841247c49425e246b::suilend_point::SUILEND_POINT";
 const SUI_COINTYPE = "0x2::sui::SUI";
 const LST_COINTYPE = LIQUID_STAKING_INFO.type;
+const AAA_COINTYPE =
+  "0xd976fda9a9786cda1a36dee360013d775a5e5f206f8e20f84fad3385e99eeb2d::aaa::AAA";
 
 export const NORMALIZED_SEND_POINTS_COINTYPE =
   normalizeStructTag(SEND_POINTS_COINTYPE);
 export const NORMALIZED_SUI_COINTYPE = normalizeStructTag(SUI_COINTYPE);
 export const NORMALIZED_LST_COINTYPE = normalizeStructTag(LST_COINTYPE);
+export const NORMALIZED_AAA_COINTYPE = normalizeStructTag(AAA_COINTYPE);
 
 // 128x128
 export const COINTYPE_LOGO_MAP = {
