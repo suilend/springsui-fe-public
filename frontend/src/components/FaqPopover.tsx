@@ -38,21 +38,24 @@ function QuestionAnswer({
 }
 
 export function FaqContent() {
-  const qas = [
+  // https://docs.google.com/document/d/1FFY3n97sQxRqVf_EHzaAqGTIQTIeeqXPp89Rz6WhQ1Q/edit?tab=t.0#heading=h.1cm8t3gdddqh
+  // 31 October 4:18pm
+  const qas: { question: string; answer: string | ReactNode }[] = [
     {
-      question: "What's SpringSui?",
+      question: "What is sSUI?",
       answer:
-        "SpringSui is a Liquid Staking Token (LST) standard that offers instant unstaking for infinite liquidity, reducing depegging risks. It also enables other teams to deploy LSTs permissionlessly and for free using the SpringSui Standard.",
+        "Spring Staked SUI (sSUI) is the first LST built using the SpringSui Standard.",
     },
     {
-      question: "What's sSUI?",
-      answer: "sSUI is the first LST built using the SpringSui standard.",
+      question: "What is the SpringSui Standard?",
+      answer:
+        "SpringSui is an open source LST standard that offers infinite liquidity through instant unstaking, thereby reducing depegging risks. It also enables the creation of custom LSTs.",
     },
     {
       question: "How does it work?",
       answer: (
         <>
-          When you stake Sui, you get a token that represents your stake. These
+          When you stake SUI, you get a token that represents your stake. These
           tokens can lose value (depeg) during market volatility or low
           liquidity, creating risks like liquidations.
           <br />
@@ -66,7 +69,7 @@ export function FaqContent() {
     {
       question: "Why sSUI?",
       answer:
-        "SpringSui offers liquidity through sSUI tokens, allowing users to freely transfer or sell them while still earning staking rewards. Users can also use sSUI in DeFi protocols, maximizing the utility of their staked assets.",
+        "The SpringSui Standard offers liquidity through sSUI tokens, allowing users to freely transfer or sell them while still earning staking rewards. Users can also use sSUI in DeFi protocols, maximizing the utility of their staked assets.",
     },
     {
       question: "How long does unstaking take?",
@@ -81,7 +84,7 @@ export function FaqContent() {
     {
       question: "How are APRs determined?",
       answer:
-        "The APR for sSUI comes mainly from Sui network staking rewards, influenced by factors like total staked SUI, inflation, and validator performance. High-performing validators earn more, while poor ones face penalties. Commission fees from validators and protocol fees from SpringSui also impact the final APR for sSUI holders.",
+        "The APR for sSUI comes mainly from Sui network staking rewards, influenced by factors like total staked SUI, inflation, and validator performance. High-performing validators earn more, while poor ones face penalties. Commission fees from validators and protocol fees from SpringSui Standard LSTs also impact the final APR for sSUI holders.",
     },
     {
       question: "What fees are there?",
@@ -110,17 +113,16 @@ export function FaqContent() {
       answer: (
         <>
           <span className="font-semibold">Smart Contract Risk</span>: LSTs like
-          SpringSui are vulnerable to smart contract exploits, potentially
-          leading to loss of funds if hacked. A failure in the unstake mechanism
-          could prevent users from redeeming their tokens, causing depegging and
-          a loss in value. SpringSui mitigates this with rigorous audits.
+          sSUI are vulnerable to smart contract exploits, potentially leading to
+          loss of funds if hacked. A failure in the unstake mechanism could
+          prevent users from redeeming their tokens, causing depegging and a
+          loss in value. The SpringSui Standard mitigates this with rigorous
+          audits.
           <br />
           <br />
           <span className="font-semibold">Validator Risk</span>: Rewards depend
           on validator performance. Poor performance or slashing (penalties for
           misbehavior) can reduce rewards or lead to loss of staked assets.
-          SpringSui encourages due diligence on validators and ensures
-          safeguards like performance monitoring and reallocation.
         </>
       ),
     },
