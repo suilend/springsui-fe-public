@@ -12,7 +12,6 @@ import { AppData, useAppContext } from "@/contexts/AppContext";
 import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SEND_POINTS_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
@@ -33,7 +32,6 @@ export default function Explore() {
   const appContext = useAppContext();
   const appData = appContext.appData as AppData;
 
-  const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
   const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
 
   // Categories

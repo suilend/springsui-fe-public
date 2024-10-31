@@ -73,7 +73,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
         new SuiPriceServiceConnection("https://hermes.pyth.network"),
       );
 
-      const coinTypes: string[] = [];
+      const coinTypes: string[] = [NORMALIZED_LST_COINTYPE]; // Add in case there isn't a Suilend reserve for the LST coinType
       refreshedRawReserves.forEach((r) => {
         coinTypes.push(normalizeStructTag(r.coinType.name));
 
@@ -96,17 +96,20 @@ export default function useFetchAppData(suiClient: SuiClient) {
         now,
       );
 
-      const reserveMap = lendingMarket.reserves.reduce(
+      const reservesMap = lendingMarket.reserves.reduce(
         (acc, reserve) => ({ ...acc, [reserve.coinType]: reserve }),
         {},
       ) as Record<string, ParsedReserve>;
 
-      const rewardMap = formatRewards(reserveMap, coinMetadataMap);
+      const rewardsMap = formatRewards(reservesMap, coinMetadataMap);
 
       //
 
-      const suiReserve = reserveMap[NORMALIZED_SUI_COINTYPE];
-      const lstReserve = reserveMap[NORMALIZED_LST_COINTYPE];
+      const suiReserve = reservesMap[NORMALIZED_SUI_COINTYPE];
+      const lstReserve = reservesMap[NORMALIZED_LST_COINTYPE] ?? suiReserve;
+
+      const suiRewards = rewardsMap[NORMALIZED_SUI_COINTYPE];
+      const lstRewards = rewardsMap[NORMALIZED_LST_COINTYPE] ?? suiRewards;
 
       suiPrice = suiReserve.price;
       lstPrice = lstReserve.price;
@@ -114,14 +117,13 @@ export default function useFetchAppData(suiClient: SuiClient) {
       lstReserveAprPercent = getTotalAprPercent(
         Side.DEPOSIT,
         lstReserve.depositAprPercent,
-        getFilteredRewards(rewardMap[NORMALIZED_LST_COINTYPE].deposit),
+        getFilteredRewards(lstRewards.deposit),
       );
       lstReserveTvlUsd = lstReserve.availableAmountUsd;
       lstReserveSendPointsPerDay =
-        getDedupedPerDayRewards(
-          getFilteredRewards(rewardMap[NORMALIZED_LST_COINTYPE].deposit),
-        ).find((r) => isSendPoints(r.stats.rewardCoinType))?.stats.perDay ??
-        new BigNumber(0);
+        getDedupedPerDayRewards(getFilteredRewards(lstRewards.deposit)).find(
+          (r) => isSendPoints(r.stats.rewardCoinType),
+        )?.stats.perDay ?? new BigNumber(0);
     }
 
     const tokenMap = Object.entries(coinMetadataMap).reduce(

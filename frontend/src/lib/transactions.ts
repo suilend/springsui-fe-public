@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 
 import { LstClient } from "@suilend/springsui-sdk";
 
-import { LIQUID_STAKING_INFO, isSui } from "@/lib/coinType";
+import { NORMALIZED_LST_COINTYPE, isSui } from "@/lib/coinType";
 import { Token } from "@/lib/types";
 
 export const getTotalGasFee = (res: SuiTransactionBlockResponse) =>
@@ -62,7 +62,7 @@ export const redeem = async (
 ) => {
   const lstCoins = await suiClient.getCoins({
     owner: address,
-    coinType: LIQUID_STAKING_INFO.type,
+    coinType: NORMALIZED_LST_COINTYPE,
     limit: 1000,
   });
 
