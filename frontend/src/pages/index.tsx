@@ -463,12 +463,12 @@ export default function Home() {
           </div>
 
           {/* Stats and FAQ, WIDTH < md */}
-          <div className="flex w-full flex-col gap-0.5 md:hidden">
-            <div className="flex w-full flex-col gap-4 rounded-md bg-navy-100/50 p-4">
+          <div className="flex w-full flex-col gap-6 md:hidden">
+            <div className="flex w-full flex-col gap-4 rounded-lg border border-white/75 bg-white/20 p-4 backdrop-blur-[10px]">
               <StatsContent />
             </div>
 
-            <div className="flex w-full flex-col gap-4 rounded-md bg-navy-100/50 p-4">
+            <div className="flex w-full flex-col gap-4 rounded-lg border border-white/75 bg-white/20 p-4 backdrop-blur-[10px]">
               <FaqContent />
             </div>
           </div>
