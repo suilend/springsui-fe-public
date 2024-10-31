@@ -25,19 +25,16 @@ function FooterContent() {
           height={16}
           quality={100}
         />
-        <p className="text-p2 text-navy-600">
-          Powered by{" "}
-          <Link
-            className="transition-colors hover:text-foreground"
-            href={SUILEND_URL}
-            target="_blank"
-          >
-            Suilend
-          </Link>
-        </p>
+        <Link
+          className="text-p2 text-navy-600 transition-colors hover:text-foreground"
+          href={SUILEND_URL}
+          target="_blank"
+        >
+          Powered by Suilend
+        </Link>
       </div>
 
-      <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row items-center gap-6">
         <Link
           className="text-p2 text-navy-600 transition-colors hover:text-foreground"
           href={DOCS_URL}
