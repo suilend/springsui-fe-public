@@ -5,7 +5,11 @@ import BigNumber from "bignumber.js";
 
 import { LstClient } from "@suilend/springsui-sdk";
 
-import { NORMALIZED_LST_COINTYPE, isSui } from "@/lib/coinType";
+import {
+  NORMALIZED_LST_COINTYPE,
+  NORMALIZED_SUI_COINTYPE,
+  isSui,
+} from "@/lib/coinType";
 import { Token } from "@/lib/types";
 
 export const getTotalGasFee = (res: SuiTransactionBlockResponse) =>
@@ -42,12 +46,27 @@ export const getBalanceChange = (
     .times(multiplier);
 };
 
-export const mint = (
+export const mint = async (
+  suiClient: SuiClient,
   lstClient: LstClient,
   transaction: Transaction,
   address: string,
   amount: string,
 ) => {
+  const coins = (
+    await suiClient.getCoins({
+      owner: address,
+      coinType: NORMALIZED_SUI_COINTYPE,
+    })
+  ).data;
+
+  if (coins.length > 1) {
+    transaction.mergeCoins(
+      transaction.object(coins[0].coinObjectId),
+      coins.map((c) => transaction.object(c.coinObjectId)).slice(1),
+    );
+  }
+
   const [sui] = transaction.splitCoins(transaction.gas, [BigInt(amount)]);
   const rSui = lstClient.mint(transaction, sui);
   transaction.transferObjects([rSui], address);
@@ -60,23 +79,24 @@ export const redeem = async (
   address: string,
   amount: string,
 ) => {
-  const lstCoins = await suiClient.getCoins({
-    owner: address,
-    coinType: NORMALIZED_LST_COINTYPE,
-    limit: 1000,
-  });
+  const coins = (
+    await suiClient.getCoins({
+      owner: address,
+      coinType: NORMALIZED_LST_COINTYPE,
+    })
+  ).data;
 
-  if (lstCoins.data.length > 1) {
+  if (coins.length > 1) {
     transaction.mergeCoins(
-      lstCoins.data[0].coinObjectId,
-      lstCoins.data.slice(1).map((c) => c.coinObjectId),
+      transaction.object(coins[0].coinObjectId),
+      coins.map((c) => transaction.object(c.coinObjectId)).slice(1),
     );
   }
 
-  const [lst] = transaction.splitCoins(lstCoins.data[0].coinObjectId, [
-    BigInt(amount),
-  ]);
+  const [lst] = transaction.splitCoins(
+    transaction.object(coins[0].coinObjectId),
+    [BigInt(amount)],
+  );
   const sui = lstClient.redeemLst(transaction, lst);
-
   transaction.transferObjects([sui], address);
 };

@@ -238,7 +238,8 @@ export default function Home() {
 
     const transaction = new Transaction();
     try {
-      if (isStaking) mint(lstClient, transaction, address!, submitAmount);
+      if (isStaking)
+        mint(suiClient, lstClient, transaction, address!, submitAmount);
       else
         await redeem(suiClient, lstClient, transaction, address!, submitAmount);
     } catch (err) {
