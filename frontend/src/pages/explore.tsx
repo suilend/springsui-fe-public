@@ -2,11 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
-import { FooterMd, FooterSm } from "@/components/Footer";
-import Mask from "@/components/Mask";
-import Nav from "@/components/Nav";
+import { FooterSm } from "@/components/Footer";
 import TokenLogo from "@/components/TokenLogo";
 import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
 import {
@@ -82,11 +79,6 @@ export default function Explore() {
 
   return (
     <>
-      <Nav />
-
-      {/* Fixed, WIDTH >= md */}
-      <Mask />
-
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-4 md:px-10 md:py-20">
         <div className="flex w-full max-w-3xl flex-col items-center gap-8">
           {/* Title */}
@@ -264,12 +256,6 @@ export default function Explore() {
           <FooterSm />
         </div>
       </div>
-
-      {/* WIDTH >= md */}
-      <FooterMd />
-
-      {/* WIDTH < md */}
-      <BottomNav />
     </>
   );
 }

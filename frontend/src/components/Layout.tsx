@@ -2,6 +2,11 @@ import { PropsWithChildren } from "react";
 
 import { Loader2 } from "lucide-react";
 
+import BottomNav from "@/components/BottomNav";
+import { FooterMd } from "@/components/Footer";
+import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
+import Mask from "@/components/Mask";
+import Nav from "@/components/Nav";
 import { useAppDataContext } from "@/contexts/AppDataContext";
 import { useRootContext } from "@/contexts/RootContext";
 
@@ -27,7 +32,21 @@ export default function Layout({ children }: PropsWithChildren) {
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : (
-          children
+          <>
+            <Nav />
+
+            {/* Fixed, WIDTH >= md */}
+            <Mask />
+
+            <ImpersonationModeBanner />
+            {children}
+
+            {/* WIDTH >= md */}
+            <FooterMd />
+
+            {/* WIDTH < md */}
+            <BottomNav />
+          </>
         )}
       </div>
     </>

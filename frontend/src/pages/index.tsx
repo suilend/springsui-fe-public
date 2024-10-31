@@ -8,14 +8,10 @@ import { Info, Wallet } from "lucide-react";
 
 import { LstClient } from "@suilend/springsui-sdk";
 
-import BottomNav from "@/components/BottomNav";
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
-import { FOOTER_MD_HEIGHT, FooterMd, FooterSm } from "@/components/Footer";
-import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
+import { FOOTER_MD_HEIGHT, FooterSm } from "@/components/Footer";
 import StakeInput from "@/components/Input";
-import Mask from "@/components/Mask";
-import Nav from "@/components/Nav";
 import StatsPopover, { StatsContent } from "@/components/StatsPopover";
 import SubmitButton from "@/components/SubmitButton";
 import TokenLogo from "@/components/TokenLogo";
@@ -297,6 +293,7 @@ export default function Home() {
         err as Error,
         true,
       );
+      console.error(err);
     } finally {
       setIsSubmitting(false);
       setIsTransactionConfirmationDialogOpen(false);
@@ -376,16 +373,9 @@ export default function Home() {
         config={transactionConfirmationDialogConfig}
       />
 
-      <Nav />
-
-      {/* Fixed, WIDTH >= md */}
-      <Mask />
-
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-4 md:px-10 md:py-20">
         <div className="flex w-full max-w-md flex-col items-center gap-8">
           <div className="flex w-full flex-col gap-4">
-            <ImpersonationModeBanner />
-
             <Card>
               {/* Tabs */}
               <div className="w-full p-2 md:px-4 md:py-3.5">
@@ -477,12 +467,6 @@ export default function Home() {
           <FooterSm />
         </div>
       </div>
-
-      {/* WIDTH >= md */}
-      <FooterMd />
-
-      {/* WIDTH < md */}
-      <BottomNav />
 
       {/* Fixed, WIDTH >= md */}
       <div

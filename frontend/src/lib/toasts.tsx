@@ -18,7 +18,7 @@ export const infoToast = (title: string, data?: ExternalToast) => {
 
 export const successToast = (
   title: string,
-  description: string,
+  description?: string,
   txUrl?: string,
 ) => {
   onDismiss(() =>
