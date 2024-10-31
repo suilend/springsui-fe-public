@@ -5,11 +5,7 @@ import BigNumber from "bignumber.js";
 
 import { LstClient } from "@suilend/springsui-sdk";
 
-import {
-  NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
-  isSui,
-} from "@/lib/coinType";
+import { NORMALIZED_LST_COINTYPE, isSui } from "@/lib/coinType";
 import { Token } from "@/lib/types";
 
 export const getTotalGasFee = (res: SuiTransactionBlockResponse) =>
@@ -46,27 +42,12 @@ export const getBalanceChange = (
     .times(multiplier);
 };
 
-export const mint = async (
-  suiClient: SuiClient,
+export const mint = (
   lstClient: LstClient,
   transaction: Transaction,
   address: string,
   amount: string,
 ) => {
-  const coins = (
-    await suiClient.getCoins({
-      owner: address,
-      coinType: NORMALIZED_SUI_COINTYPE,
-    })
-  ).data;
-
-  if (coins.length > 1) {
-    transaction.mergeCoins(
-      transaction.object(coins[0].coinObjectId),
-      coins.map((c) => transaction.object(c.coinObjectId)).slice(1),
-    );
-  }
-
   const [sui] = transaction.splitCoins(transaction.gas, [BigInt(amount)]);
   const rSui = lstClient.mint(transaction, sui);
   transaction.transferObjects([rSui], address);
