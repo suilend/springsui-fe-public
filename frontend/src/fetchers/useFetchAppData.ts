@@ -181,6 +181,8 @@ export default function useFetchAppData(suiClient: SuiClient) {
       aprPercent,
     } as ParsedLiquidStakingInfo;
 
+    lstPrice = lstPrice.times(liquidStakingInfo.suiToLstExchangeRate);
+
     return {
       suiPrice,
       lstPrice,
