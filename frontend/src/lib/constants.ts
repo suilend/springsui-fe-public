@@ -4,7 +4,7 @@ export const TWITTER = "@springsui_";
 
 export const TITLE = "SpringSui | Infinitely liquid staking on Sui";
 export const DESCRIPTION =
-  "Stake SUI with SpringSui and earn passive rewards with liquid staking. Maximize earnings while keeping your tokens liquid and secure.";
+  "Stake SUI with SpringSui and access the power of DeFi with sSUI, our flagship LST. With SpringSui’s liquid staking, you can stake SUI and hold sSUI to earn yield while maintaining flexibility. Maximize your DeFi opportunities and enjoy rewards with sSUI, the LST that brings unmatched liquidity to Sui!";
 
 export const TOAST_DURATION_MS = 4 * 1000;
 export const TX_TOAST_DURATION_MS = 10 * 1000;
