@@ -171,6 +171,15 @@ export default function useFetchAppData(suiClient: SuiClient) {
         (r) => isSendPoints(r.stats.rewardCoinType),
       )?.stats.perDay ?? new BigNumber(0);
 
+    // Epoch
+    const latestSuiSystemState = await suiClient.getLatestSuiSystemState();
+
+    const currentEpoch = +latestSuiSystemState.epoch;
+    // const currentEpochProgressPercent =
+    //   ((Date.now() - +latestSuiSystemState.epochStartTimestampMs) /
+    //     +latestSuiSystemState.epochDurationMs) *
+    //   100;
+
     return {
       tokenMap,
       liquidStakingInfo,
@@ -180,6 +189,8 @@ export default function useFetchAppData(suiClient: SuiClient) {
       lstReserveAprPercent,
       lstReserveTvlUsd,
       lstReserveSendPointsPerDay,
+
+      currentEpoch,
     };
   };
 

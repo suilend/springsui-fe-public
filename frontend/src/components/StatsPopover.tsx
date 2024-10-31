@@ -27,6 +27,10 @@ export function StatsContent() {
         appData.liquidStakingInfo.totalSuiSupply.times(appData.suiPrice),
       ),
     },
+    {
+      label: "Current epoch",
+      value: `${appData.currentEpoch}`,
+    },
   ];
 
   return stats.map((stat, index) => (
