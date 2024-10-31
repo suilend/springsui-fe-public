@@ -8,11 +8,12 @@ import * as sdk from "../../sdk/src";
 import { LstClient } from "../../sdk/src";
 import { PACKAGE_ID } from "../../sdk/src/_generated/liquid_staking";
 
+
 const LIQUID_STAKING_INFO = {
   id: "0x15eda7330c8f99c30e430b4d82fd7ab2af3ead4ae17046fcb224aa9bad394f6b",
   type: "0x83556891f4a0f233ce7b05cfe7f957d4020492a34f5405b2cb9377d060bef4bf::spring_sui::SPRING_SUI",
   weightHookId:
-    "0xbbafcb2d7399c0846f8185da3f273ad5b26b3b35993050affa44cfa890f1f144",
+    "0xf244912738939d351aa762dd98c075f873fd95f2928db5fd9e74fbb01c9a686c",
 };
 
 const RPC_URL = "https://fullnode.mainnet.sui.io";
