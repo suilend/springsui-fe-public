@@ -1,5 +1,5 @@
 export const ROOT_URL = "/";
-export const DEFI_URL = "/defi";
+export const EXPLORE_URL = "/explore";
 
 export const SUILEND_URL = "https://suilend.fi";
 

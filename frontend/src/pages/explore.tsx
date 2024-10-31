@@ -22,7 +22,7 @@ enum QueryParams {
   CATEGORY = "category",
 }
 
-export default function Defi() {
+export default function Explore() {
   const router = useRouter();
   const queryParams = {
     [QueryParams.CATEGORY]: router.query[QueryParams.CATEGORY] as

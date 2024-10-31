@@ -2,13 +2,13 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { cloneElement } from "react";
 
-import { GitCompare } from "lucide-react";
+import { Compass } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import { DEFI_URL, ROOT_URL } from "@/lib/navigation";
+import { EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 const SM_NAV_HEIGHT = 60; // px
@@ -16,7 +16,7 @@ export const MD_NAV_HEIGHT = 72; // px
 
 export const NAV_ITEMS = [
   { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
-  { url: DEFI_URL, icon: <GitCompare />, title: "DeFi" },
+  { url: EXPLORE_URL, icon: <Compass />, title: "Explore" },
 ];
 
 export default function Nav() {
