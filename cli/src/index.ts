@@ -1,9 +1,11 @@
+import fs from "fs";
+
 import { SuiClient } from "@mysten/sui/client";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
 import { fromHex } from "@mysten/sui/utils";
 import { program } from "commander";
-import fs from "fs";
+
 import * as sdk from "../../sdk/src";
 import { LstClient } from "../../sdk/src";
 import { PACKAGE_ID } from "../../sdk/src/_generated/liquid_staking";
