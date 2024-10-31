@@ -327,10 +327,10 @@ export default function Home() {
           : appData.liquidStakingInfo.redeemFeePercent,
       ),
     },
-    {
-      label: "Spread fee",
-      value: formatPercent(appData.liquidStakingInfo.spreadFeePercent),
-    },
+    // {
+    //   label: "Spread fee",
+    //   value: formatPercent(appData.liquidStakingInfo.spreadFeePercent),
+    // },
   ];
   if (isStaking)
     parameters.push(
