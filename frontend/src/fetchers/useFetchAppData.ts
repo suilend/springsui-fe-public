@@ -120,6 +120,12 @@ export default function useFetchAppData(suiClient: SuiClient) {
     const redeemFeePercent = new BigNumber(
       rawLiquidStakingInfo.feeConfig.element?.redeemFeeBps.toString() ?? 0,
     ).div(100);
+    const spreadFeePercent = new BigNumber(
+      rawLiquidStakingInfo.feeConfig.element?.spreadFeeBps.toString() ?? 0,
+    ).div(100);
+
+    const apr = await getSpringSuiApy(suiClient); // TODO: Use APR
+    const aprPercent = new BigNumber(apr ?? 0).times(100);
 
     const fees = new BigNumber(rawLiquidStakingInfo.fees.value.toString()).div(
       10 ** tokenMap[NORMALIZED_SUI_COINTYPE].decimals,
@@ -128,9 +134,6 @@ export default function useFetchAppData(suiClient: SuiClient) {
       rawLiquidStakingInfo.accruedSpreadFees.toString(),
     ).div(10 ** tokenMap[NORMALIZED_SUI_COINTYPE].decimals);
 
-    const apr = await getSpringSuiApy(suiClient); // TODO: Use APR
-    const aprPercent = new BigNumber(apr ?? 0).times(100);
-
     const liquidStakingInfo = {
       totalSuiSupply,
       totalLstSupply,
@@ -138,9 +141,11 @@ export default function useFetchAppData(suiClient: SuiClient) {
       lstToSuiExchangeRate,
       mintFeePercent,
       redeemFeePercent,
+      spreadFeePercent,
+      aprPercent,
+
       fees,
       accruedSpreadFees,
-      aprPercent,
     } as ParsedLiquidStakingInfo;
 
     // Stats

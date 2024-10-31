@@ -9,9 +9,11 @@ export type ParsedLiquidStakingInfo = {
   lstToSuiExchangeRate: BigNumber;
   mintFeePercent: BigNumber;
   redeemFeePercent: BigNumber;
-  fees: BigNumber;
+  spreadFeePercent: BigNumber;
   aprPercent: BigNumber;
-  // totalStakers: BigNumber;
+
+  fees: BigNumber;
+  accruedSpreadFees: BigNumber;
 };
 
 export type Token = {
