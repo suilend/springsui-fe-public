@@ -228,11 +228,11 @@ export class LstClient {
       })[0];
     }
 
-    if (feeConfigArgs.spreadFee != null) {
-      console.log(`Setting spread fee bps to ${feeConfigArgs.spreadFee}`);
+    if (feeConfigArgs.spreadFeeBps != null) {
+      console.log(`Setting spread fee bps to ${feeConfigArgs.spreadFeeBps}`);
       builder = setSpreadFeeBps(tx, {
         self: builder,
-        fee: BigInt(feeConfigArgs.spreadFee),
+        fee: BigInt(feeConfigArgs.spreadFeeBps),
       })[0];
     }
 
@@ -320,10 +320,10 @@ export async function fetchLiquidStakingInfo(
   return LiquidStakingInfo.fetch(client, phantom(info.type), info.id);
 }
 
-interface FeeConfigArgs {
+export interface FeeConfigArgs {
   mintFeeBps?: number;
   redeemFeeBps?: number;
-  spreadFee?: number;
+  spreadFeeBps?: number;
 }
 
 // only works for sSui

@@ -117,12 +117,15 @@ export default function useFetchAppData(suiClient: SuiClient) {
     const mintFeePercent = new BigNumber(
       rawLiquidStakingInfo.feeConfig.element?.suiMintFeeBps.toString() ?? 0,
     ).div(100);
+    // stakedSuiMintFeeBps
     const redeemFeePercent = new BigNumber(
       rawLiquidStakingInfo.feeConfig.element?.redeemFeeBps.toString() ?? 0,
     ).div(100);
+    // stakedSuiRedeemFeeBps
     const spreadFeePercent = new BigNumber(
       rawLiquidStakingInfo.feeConfig.element?.spreadFeeBps.toString() ?? 0,
     ).div(100);
+    // customRedeemFeeBps
 
     const apr = await getSpringSuiApy(suiClient); // TODO: Use APR
     const aprPercent = new BigNumber(apr ?? 0).times(100);
@@ -139,6 +142,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
       totalLstSupply,
       suiToLstExchangeRate,
       lstToSuiExchangeRate,
+
       mintFeePercent,
       redeemFeePercent,
       spreadFeePercent,
