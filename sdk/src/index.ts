@@ -18,6 +18,7 @@ import { WeightHook } from "./_generated/liquid_staking/weight/structs";
 export interface LiquidStakingObjectInfo {
   id: string;
   type: string;
+  weightHookId: string;
 }
 
 const SUI_SYSTEM_STATE_ID =
@@ -57,6 +58,40 @@ export class LstClient {
     console.log(`Initialized LstClient with package ID: ${publishedAt}`);
 
     return new LstClient(liquidStakingObjectInfo, client);
+  }
+
+  static createNewLst(
+    tx: Transaction,
+    treasuryCap: string,
+    coinType: string,
+  ): TransactionObjectInput {
+    const [feeConfigBuilder] = newBuilder(tx);
+    const [feeConfig] = toFeeConfig(tx, feeConfigBuilder);
+
+    const [adminCap, liquidStakingInfo] = generated.createLst(tx, coinType, {
+      feeConfig,
+      lstTreasuryCap: treasuryCap,
+    });
+
+    tx.moveCall({
+      target: `0x2::transfer::public_share_object`,
+      typeArguments: [`${LiquidStakingInfo.$typeName}<${coinType}>`],
+      arguments: [liquidStakingInfo],
+    });
+
+    const [weightHook, weightHookAdminCap] = weightHookGenerated.new_(
+      tx,
+      coinType,
+      adminCap,
+    );
+
+    tx.moveCall({
+      target: `0x2::transfer::public_share_object`,
+      typeArguments: [`${WeightHook.$typeName}<${coinType}>`],
+      arguments: [weightHook],
+    });
+
+    return weightHookAdminCap;
   }
 
   constructor(liquidStakingObject: LiquidStakingObjectInfo, client: SuiClient) {
@@ -143,30 +178,35 @@ export class LstClient {
     tx: Transaction,
     adminCapId: TransactionObjectInput,
     validatorAddress: string,
-    maxSuiAmount: number,
+    targetUnstakeSuiAmount: bigint,
   ) {
     generated.decreaseValidatorStake(tx, this.liquidStakingObject.type, {
       self: this.liquidStakingObject.id,
       adminCap: adminCapId,
       systemState: SUI_SYSTEM_STATE_ID,
       validatorAddress,
-      maxSuiAmount: BigInt(maxSuiAmount),
+      targetUnstakeSuiAmount,
     });
   }
 
-  collectFees(tx: Transaction, adminCapId: TransactionObjectInput) {
-    const [sui] = generated.collectFees(tx, this.liquidStakingObject.type, {
-      self: this.liquidStakingObject.id,
-      systemState: SUI_SYSTEM_STATE_ID,
-      adminCap: adminCapId,
-    });
+  collectFees(tx: Transaction, weightHookAdminCapId: TransactionObjectInput) {
+    const [sui] = weightHookGenerated.collectFees(
+      tx,
+      this.liquidStakingObject.type,
+      {
+        self: this.liquidStakingObject.weightHookId,
+        liquidStakingInfo: this.liquidStakingObject.id,
+        systemState: SUI_SYSTEM_STATE_ID,
+        weightHookAdminCap: weightHookAdminCapId,
+      },
+    );
 
     return sui;
   }
 
   updateFees(
     tx: Transaction,
-    adminCapId: TransactionObjectInput,
+    weightHookAdminCapId: TransactionObjectInput,
     feeConfigArgs: FeeConfigArgs,
   ) {
     let [builder] = newBuilder(tx);
@@ -198,9 +238,10 @@ export class LstClient {
 
     const [feeConfig] = toFeeConfig(tx, builder);
 
-    generated.updateFees(tx, this.liquidStakingObject.type, {
-      self: this.liquidStakingObject.id,
-      adminCap: adminCapId,
+    weightHookGenerated.updateFees(tx, this.liquidStakingObject.type, {
+      self: this.liquidStakingObject.weightHookId,
+      liquidStakingInfo: this.liquidStakingObject.id,
+      weightHookAdminCap: weightHookAdminCapId,
       feeConfig,
     });
   }

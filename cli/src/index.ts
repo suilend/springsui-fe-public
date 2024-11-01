@@ -3,7 +3,7 @@ import fs from "fs";
 import { SuiClient } from "@mysten/sui/client";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
-import { fromHex } from "@mysten/sui/utils";
+import { fromBase64, fromHex } from "@mysten/sui/utils";
 import { program } from "commander";
 
 import * as sdk from "../../sdk/src";
@@ -19,13 +19,13 @@ const LIQUID_STAKING_INFO = {
 
 const RPC_URL = "https://fullnode.mainnet.sui.io";
 
-// const keypair = Ed25519Keypair.fromSecretKey(
-//   fromBase64(process.env.SUI_SECRET_KEY!),
-// );
-
 const keypair = Ed25519Keypair.fromSecretKey(
-  fromHex(fs.readFileSync(process.env.SUI_SECRET_KEY_PATH!).toString()),
+  fromBase64(process.env.SUI_SECRET_KEY!),
 );
+
+// const keypair = Ed25519Keypair.fromSecretKey(
+//   fromHex(fs.readFileSync(process.env.SUI_SECRET_KEY_PATH!).toString()),
+// );
 
 async function mint(options: any) {
   const client = new SuiClient({ url: RPC_URL });
@@ -263,6 +263,45 @@ async function rebalance(options: any) {
   console.log(txResponse);
 }
 
+async function createNewLst(options: any) {
+  const client = new SuiClient({ url: RPC_URL });
+
+  const treasuryCap = await client.getObject({
+    id: options.treasuryCap,
+    options: {
+      showContent: true,
+    },
+  });
+
+  console.log(treasuryCap);
+  // '0x2::coin::TreasuryCap<0xdc0c8026236f1be172ba03d7d689bfd663497cc5a730bf367bfb2e2c72ec6df8::ripleys::RIPLEYS>'
+  const type = (treasuryCap.data?.content as unknown as any).type;
+  if (!type) return;
+  const coinType = type.substring(type.indexOf("<") + 1, type.lastIndexOf(">"));
+  console.log(coinType);
+
+  const tx = new Transaction();
+  const weightHookAdminCap = LstClient.createNewLst(
+    tx,
+    options.treasuryCap,
+    coinType,
+  );
+
+  tx.transferObjects([tx.object(weightHookAdminCap)], keypair.toSuiAddress());
+
+  const txResponse = await client.signAndExecuteTransaction({
+    transaction: tx,
+    signer: keypair,
+    options: {
+      showEvents: true,
+      showEffects: true,
+      showObjectChanges: true,
+    },
+  });
+
+  console.log(txResponse);
+}
+
 program.version("1.0.0").description("Spring Sui CLI");
 
 program
@@ -340,5 +379,11 @@ program
   .command("rebalance")
   .description("rebalance the validator set")
   .action(rebalance);
+
+program
+  .command("create-new-lst")
+  .description("create a new liquid staking pool")
+  .option("--treasury-cap <TREASURY_CAP>", "Treasury cap")
+  .action(createNewLst);
 
 program.parse(process.argv);
