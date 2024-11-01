@@ -86,8 +86,6 @@ export default function Explore() {
         { coinType: NORMALIZED_AAA_COINTYPE },
         { coinType: NORMALIZED_LST_COINTYPE },
       ],
-      aprPercent: new BigNumber(0),
-      tvlUsd: new BigNumber(0),
       category: Category.AMM,
     },
   ];
@@ -225,7 +223,7 @@ export default function Explore() {
                       <div className="flex min-w-20 flex-col gap-1.5">
                         <p className="text-p2 text-navy-500">APR</p>
                         <p className="text-p2">
-                          {opportunity.aprPercent.eq(0)
+                          {opportunity.aprPercent === undefined
                             ? "--"
                             : formatPercent(opportunity.aprPercent)}
                         </p>
@@ -235,7 +233,7 @@ export default function Explore() {
                       <div className="flex min-w-20 flex-col gap-1.5">
                         <p className="text-p2 text-navy-500">TVL</p>
                         <p className="text-p2">
-                          {opportunity.tvlUsd.eq(0)
+                          {opportunity.tvlUsd === undefined
                             ? "--"
                             : formatUsd(opportunity.tvlUsd)}
                         </p>
