@@ -48,7 +48,7 @@ function FooterContent() {
           href={TWITTER_URL}
           target="_blank"
         >
-          <XIcon className="h-4 w-4 text-navy-600" />
+          <XIcon className="h-4 w-4" />
         </Link>
 
         <Link

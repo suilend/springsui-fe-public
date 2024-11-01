@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-import { WalletIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
 
 import Popover from "@/components/Popover";
 import { useWalletContext } from "@/contexts/WalletContext";
@@ -76,6 +76,8 @@ export default function ConnectWalletPopover() {
 
   const wallets = useListWallets();
 
+  const Chevron = isConnectWalletDropdownOpen ? ChevronUp : ChevronDown;
+
   return (
     <Popover
       rootProps={{
@@ -91,6 +93,7 @@ export default function ConnectWalletPopover() {
         <button className="flex h-10 flex-row items-center justify-center gap-2 rounded-sm bg-navy-800 px-3 text-white">
           <WalletIcon size={16} />
           <p className="text-p2">Connect</p>
+          <Chevron className="h-4 w-4" />
         </button>
       }
     >
