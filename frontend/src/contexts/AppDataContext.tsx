@@ -21,6 +21,8 @@ export interface AppData {
   lstReserveAprPercent: BigNumber;
   lstReserveTvlUsd: BigNumber;
   lstReserveSendPointsPerDay: BigNumber;
+
+  currentEpoch: number;
 }
 
 export interface AppDataContext {

@@ -2,11 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import BigNumber from "bignumber.js";
+
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
 import TokenLogo from "@/components/TokenLogo";
 import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
 import {
+  NORMALIZED_AAA_COINTYPE,
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SEND_POINTS_COINTYPE,
 } from "@/lib/coinType";
@@ -34,18 +37,14 @@ export default function Explore() {
   // Categories
   enum Category {
     ALL = "all",
-    DEX = "dex",
     LENDING = "lending",
-    VAULT = "vault",
-    FARMING = "farming",
+    AMM = "amm",
   }
 
   const categories = [
     { id: Category.ALL, title: "All" },
-    { id: Category.DEX, title: "DEX" },
     { id: Category.LENDING, title: "Lending" },
-    { id: Category.VAULT, title: "Vault" },
-    { id: Category.FARMING, title: "Farming" },
+    { id: Category.AMM, title: "AMM" },
   ];
 
   const selectedCategory =
@@ -69,11 +68,25 @@ export default function Explore() {
       },
       title: "Lend on Suilend",
       url: `https://suilend.fi/dashboard?asset=${lstToken.symbol}`,
-      assets: [{ coinType: NORMALIZED_LST_COINTYPE, symbol: lstToken.symbol }],
+      assets: [{ coinType: NORMALIZED_LST_COINTYPE }],
       aprPercent: appData.lstReserveAprPercent,
       tvlUsd: appData.lstReserveTvlUsd,
       category: Category.LENDING,
       sendPointsPerDay: appData.lstReserveSendPointsPerDay,
+    },
+    {
+      protocol: {
+        name: "Cetus",
+        logoUrl:
+          "https://assets.coingecko.com/coins/images/30256/standard/cetus.png",
+      },
+      title: "Provide liquidity on Cetus",
+      url: "https://app.cetus.zone/liquidity/deposit/?poolAddress=0x474ce7b61b0ae75cad36aa9c59aa5ca8485c00b98fd1890db33b40ef2a5ba604",
+      assets: [
+        { coinType: NORMALIZED_AAA_COINTYPE },
+        { coinType: NORMALIZED_LST_COINTYPE },
+      ],
+      category: Category.AMM,
     },
   ];
 
@@ -150,105 +163,124 @@ export default function Explore() {
 
             {/* Opportunities */}
             <div className="flex w-full flex-col gap-2 p-2 md:gap-4 md:p-4">
-              {opportunities.map((opportunity, index) => (
-                <Link
-                  key={index}
-                  className="block flex w-full flex-col gap-4 rounded-md bg-white p-4"
-                  href={opportunity.url}
-                  target="_blank"
-                >
-                  <div className="flex flex-row items-center gap-2">
-                    {opportunity.protocol.logoUrl ? (
-                      <Image
-                        className="h-6 w-6"
-                        src={opportunity.protocol.logoUrl}
-                        alt={`${opportunity.protocol.name} logo`}
-                        width={24}
-                        height={24}
-                        quality={100}
-                      />
-                    ) : (
-                      <div className="h-6 w-6 rounded-[50%] bg-navy-100" />
-                    )}
-                    <p className="text-h3">{opportunity.title}</p>
-                  </div>
-
-                  <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
-                    {/* Assets */}
-                    <div className="flex min-w-20 flex-col gap-1.5">
-                      <p className="text-p2 text-navy-500">Assets</p>
-                      <div className="flex w-full flex-row items-center gap-1.5">
-                        <div className="flex flex-row">
-                          {opportunity.assets.map((a, index) => (
-                            <TokenLogo
-                              key={a.coinType}
-                              className={cn(
-                                index !== 0 &&
-                                  "outline-px -ml-2 outline outline-white",
-                              )}
-                              token={appData.tokenMap[a.coinType]}
-                              size={20}
-                            />
-                          ))}
-                        </div>
-
-                        <p className="text-p2">
-                          {opportunity.assets.map((a) => a.symbol).join("-")}
-                        </p>
-                      </div>
+              {opportunities
+                .filter(
+                  (opportunity) =>
+                    selectedCategory === Category.ALL ||
+                    opportunity.category === selectedCategory,
+                )
+                .map((opportunity, index) => (
+                  <Link
+                    key={index}
+                    className="block flex w-full flex-col gap-4 rounded-md bg-white p-4"
+                    href={opportunity.url}
+                    target="_blank"
+                  >
+                    <div className="flex flex-row items-center gap-2">
+                      {opportunity.protocol.logoUrl ? (
+                        <Image
+                          className="h-6 w-6"
+                          src={opportunity.protocol.logoUrl}
+                          alt={`${opportunity.protocol.name} logo`}
+                          width={24}
+                          height={24}
+                          quality={100}
+                        />
+                      ) : (
+                        <div className="h-6 w-6 rounded-[50%] bg-navy-100" />
+                      )}
+                      <p className="text-h3">{opportunity.title}</p>
                     </div>
 
-                    {/* APR */}
-                    <div className="flex min-w-20 flex-col gap-1.5">
-                      <p className="text-p2 text-navy-500">APR</p>
-                      <p className="text-p2">
-                        {formatPercent(opportunity.aprPercent)}
-                      </p>
-                    </div>
+                    <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
+                      {/* Assets */}
+                      <div className="flex min-w-20 flex-col gap-1.5">
+                        <p className="text-p2 text-navy-500">Assets</p>
+                        <div className="flex w-full flex-row items-center gap-1.5">
+                          <div className="flex flex-row">
+                            {opportunity.assets.map((a, index) => (
+                              <TokenLogo
+                                key={a.coinType}
+                                className={cn(
+                                  index !== 0 &&
+                                    "outline-px -ml-2 outline outline-white",
+                                )}
+                                token={appData.tokenMap[a.coinType]}
+                                size={20}
+                              />
+                            ))}
+                          </div>
 
-                    {/* TVL */}
-                    <div className="flex min-w-20 flex-col gap-1.5">
-                      <p className="text-p2 text-navy-500">TVL</p>
-                      <p className="text-p2">{formatUsd(opportunity.tvlUsd)}</p>
-                    </div>
-
-                    {/* Category */}
-                    <div className="flex min-w-20 flex-col gap-1.5">
-                      <p className="text-p2 text-navy-500">Category</p>
-                      <p className="text-p2">
-                        {
-                          categories.find((c) => c.id === opportunity.category)
-                            ?.title
-                        }
-                      </p>
-                    </div>
-
-                    {/* SEND Points */}
-                    {opportunity.sendPointsPerDay !== undefined && (
-                      <div className="col-span-2 flex min-w-20 flex-col gap-1.5">
-                        <p className="text-p2 text-navy-500">SEND Points</p>
-                        <div className="flex flex-row gap-1.5">
-                          <TokenLogo
-                            className="my-0.5"
-                            token={
-                              appData.tokenMap[NORMALIZED_SEND_POINTS_COINTYPE]
-                            }
-                            size={16}
-                          />
                           <p className="text-p2">
-                            {formatPoints(opportunity.sendPointsPerDay, {
-                              dp: 3,
-                            })}
-                            {" / "}
-                            {lstToken.symbol}
-                            {" / day"}
+                            {opportunity.assets
+                              .map((a) => appData.tokenMap[a.coinType].symbol)
+                              .join("-")}
                           </p>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
+
+                      {/* APR */}
+                      <div className="flex min-w-20 flex-col gap-1.5">
+                        <p className="text-p2 text-navy-500">APR</p>
+                        <p className="text-p2">
+                          {opportunity.aprPercent === undefined
+                            ? "--"
+                            : formatPercent(opportunity.aprPercent)}
+                        </p>
+                      </div>
+
+                      {/* TVL */}
+                      <div className="flex min-w-20 flex-col gap-1.5">
+                        <p className="text-p2 text-navy-500">TVL</p>
+                        <p className="text-p2">
+                          {opportunity.tvlUsd === undefined
+                            ? "--"
+                            : formatUsd(opportunity.tvlUsd)}
+                        </p>
+                      </div>
+
+                      {/* Category */}
+                      <div className="flex min-w-20 flex-col gap-1.5">
+                        <p className="text-p2 text-navy-500">Category</p>
+                        <p className="text-p2">
+                          {
+                            categories.find(
+                              (c) => c.id === opportunity.category,
+                            )?.title
+                          }
+                        </p>
+                      </div>
+
+                      {/* SEND Points */}
+                      <div className="flex min-w-40 flex-col gap-1.5">
+                        <p className="text-p2 text-navy-500">SEND points</p>
+                        {opportunity.sendPointsPerDay === undefined ? (
+                          <p className="text-p2">--</p>
+                        ) : (
+                          <div className="flex flex-row gap-1.5">
+                            <TokenLogo
+                              className="my-0.5"
+                              token={
+                                appData.tokenMap[
+                                  NORMALIZED_SEND_POINTS_COINTYPE
+                                ]
+                              }
+                              size={16}
+                            />
+                            <p className="text-p2">
+                              {formatPoints(opportunity.sendPointsPerDay, {
+                                dp: 3,
+                              })}
+                              {" / "}
+                              {lstToken.symbol}
+                              {" / day"}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
             </div>
           </Card>
 

@@ -27,6 +27,10 @@ export function StatsContent() {
         appData.liquidStakingInfo.totalSuiSupply.times(appData.suiPrice),
       ),
     },
+    {
+      label: "Current epoch",
+      value: `${appData.currentEpoch}`,
+    },
   ];
 
   return stats.map((stat, index) => (
@@ -76,7 +80,7 @@ export default function StatsPopover() {
       }
       contentProps={{
         align: md ? "start" : "center",
-        maxWidth: 280,
+        maxWidth: 320,
       }}
     >
       <div className="flex w-full flex-col gap-3">
