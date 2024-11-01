@@ -158,7 +158,6 @@ export class LstClient {
   }
 
   // admin functions
-
   increaseValidatorStake(
     tx: Transaction,
     adminCapId: TransactionObjectInput,
@@ -269,7 +268,7 @@ export class LstClient {
     tx: Transaction,
     weightHookId: TransactionObjectInput,
     weightHookAdminCap: TransactionObjectInput,
-    validatorAddressesAndWeights: Map<string, number>,
+    validatorAddressesAndWeights: Record<string, number>,
   ) {
     const [vecMap] = tx.moveCall({
       target: `0x2::vec_map::empty`,
@@ -277,10 +276,9 @@ export class LstClient {
       arguments: [],
     });
 
-    for (const [
-      validatorAddress,
-      weight,
-    ] of validatorAddressesAndWeights.entries()) {
+    for (const [validatorAddress, weight] of Object.entries(
+      validatorAddressesAndWeights,
+    )) {
       tx.moveCall({
         target: `0x2::vec_map::insert`,
         typeArguments: ["address", "u64"],

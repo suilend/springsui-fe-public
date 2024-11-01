@@ -5,7 +5,11 @@ import BigNumber from "bignumber.js";
 
 import { LstClient } from "@suilend/springsui-sdk";
 
-import { NORMALIZED_LST_COINTYPE, isSui } from "@/lib/coinType";
+import {
+  LIQUID_STAKING_INFO,
+  NORMALIZED_LST_COINTYPE,
+  isSui,
+} from "@/lib/coinType";
 import { Token } from "@/lib/types";
 
 export const getTotalGasFee = (res: SuiTransactionBlockResponse) =>
@@ -51,6 +55,8 @@ export const mint = (
   const [sui] = transaction.splitCoins(transaction.gas, [BigInt(amount)]);
   const rSui = lstClient.mint(transaction, sui);
   transaction.transferObjects([rSui], address);
+
+  lstClient.rebalance(transaction, LIQUID_STAKING_INFO.weightHookId);
 };
 
 export const redeem = async (
