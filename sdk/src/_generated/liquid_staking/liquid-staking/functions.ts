@@ -202,7 +202,7 @@ export interface DecreaseValidatorStakeArgs {
   adminCap: TransactionObjectInput;
   systemState: TransactionObjectInput;
   validatorAddress: string | TransactionArgument;
-  maxSuiAmount: bigint | TransactionArgument;
+  targetUnstakeSuiAmount: bigint | TransactionArgument;
 }
 
 export function decreaseValidatorStake(
@@ -218,7 +218,7 @@ export function decreaseValidatorStake(
       obj(tx, args.adminCap),
       obj(tx, args.systemState),
       pure(tx, args.validatorAddress, `address`),
-      pure(tx, args.maxSuiAmount, `u64`),
+      pure(tx, args.targetUnstakeSuiAmount, `u64`),
     ],
   });
 }

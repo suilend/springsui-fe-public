@@ -25,6 +25,7 @@ export function registerClasses(loader: StructClassLoader) {
   loader.register(liquidStaking.LiquidStakingInfo);
   loader.register(liquidStaking.MintEvent);
   loader.register(liquidStaking.RedeemEvent);
+  loader.register(weight.WEIGHT);
   loader.register(weight.WeightHook);
   loader.register(weight.WeightHookAdminCap);
 }

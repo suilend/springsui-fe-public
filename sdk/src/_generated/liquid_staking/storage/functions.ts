@@ -106,6 +106,26 @@ export function findValidatorIndexByAddress(
   });
 }
 
+export interface GetLatestExchangeRateArgs {
+  self: TransactionObjectInput;
+  stakingPoolId: string | TransactionArgument;
+  systemState: TransactionObjectInput;
+}
+
+export function getLatestExchangeRate(
+  tx: Transaction,
+  args: GetLatestExchangeRateArgs,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::storage::get_latest_exchange_rate`,
+    arguments: [
+      obj(tx, args.self),
+      pure(tx, args.stakingPoolId, `${ID.$typeName}`),
+      obj(tx, args.systemState),
+    ],
+  });
+}
+
 export interface GetOrAddValidatorIndexByStakingPoolIdMutArgs {
   self: TransactionObjectInput;
   systemState: TransactionObjectInput;

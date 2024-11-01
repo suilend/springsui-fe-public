@@ -14,6 +14,74 @@ export function new_(
   });
 }
 
+export interface CollectFeesArgs {
+  self: TransactionObjectInput;
+  weightHookAdminCap: TransactionObjectInput;
+  liquidStakingInfo: TransactionObjectInput;
+  systemState: TransactionObjectInput;
+}
+
+export function collectFees(
+  tx: Transaction,
+  typeArg: string,
+  args: CollectFeesArgs,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::weight::collect_fees`,
+    typeArguments: [typeArg],
+    arguments: [
+      obj(tx, args.self),
+      obj(tx, args.weightHookAdminCap),
+      obj(tx, args.liquidStakingInfo),
+      obj(tx, args.systemState),
+    ],
+  });
+}
+
+export function init(tx: Transaction, otw: TransactionObjectInput) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::weight::init`,
+    arguments: [obj(tx, otw)],
+  });
+}
+
+export interface UpdateFeesArgs {
+  self: TransactionObjectInput;
+  weightHookAdminCap: TransactionObjectInput;
+  liquidStakingInfo: TransactionObjectInput;
+  feeConfig: TransactionObjectInput;
+}
+
+export function updateFees(
+  tx: Transaction,
+  typeArg: string,
+  args: UpdateFeesArgs,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::weight::update_fees`,
+    typeArguments: [typeArg],
+    arguments: [
+      obj(tx, args.self),
+      obj(tx, args.weightHookAdminCap),
+      obj(tx, args.liquidStakingInfo),
+      obj(tx, args.feeConfig),
+    ],
+  });
+}
+
+export interface AdminCapArgs {
+  self: TransactionObjectInput;
+  weightHookAdminCap: TransactionObjectInput;
+}
+
+export function adminCap(tx: Transaction, typeArg: string, args: AdminCapArgs) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::weight::admin_cap`,
+    typeArguments: [typeArg],
+    arguments: [obj(tx, args.self), obj(tx, args.weightHookAdminCap)],
+  });
+}
+
 export interface EjectArgs {
   self: TransactionObjectInput;
   adminCap: TransactionObjectInput;
