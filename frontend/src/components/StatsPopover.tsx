@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
+import { intervalToDuration } from "date-fns";
 import { ChartBar } from "lucide-react";
 
 import Popover from "@/components/Popover";
@@ -15,9 +16,15 @@ export function StatsContent() {
 
   const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
 
+  const currentEpochEndsDuration = intervalToDuration({
+    start: new Date(),
+    end: new Date(appData.currentEpochEndMs),
+  });
+
   const stats: {
     label: string;
-    value: string;
+    children?: ReactNode;
+    value?: string;
     subValue?: string;
   }[] = [
     {
@@ -29,7 +36,20 @@ export function StatsContent() {
     },
     {
       label: "Current epoch",
-      value: `${appData.currentEpoch}`,
+      children: (
+        <div className="flex flex-row items-center gap-2">
+          <p className="text-p2">{appData.currentEpoch}</p>
+          <div className="h-2 w-[80px] overflow-hidden rounded-[4px] bg-white/75 md:bg-navy-100">
+            <div
+              className="h-full w-[80px] rounded-[4px] bg-navy-600 transition-transform"
+              style={{
+                transform: `translateX(${-(100 - appData.currentEpochProgressPercent)}%)`,
+              }}
+            />
+          </div>
+        </div>
+      ),
+      subValue: `Ends in ${currentEpochEndsDuration.hours}h ${currentEpochEndsDuration.minutes}m`,
     },
   ];
 
@@ -37,7 +57,7 @@ export function StatsContent() {
     <div key={index} className="flex w-full flex-row justify-between">
       <p className="text-p2 text-navy-600">{stat.label}</p>
       <div className="flex flex-col items-end">
-        <p className="text-p2">{stat.value}</p>
+        {stat.children ?? <p className="text-p2">{stat.value}</p>}
         {stat.subValue && (
           <p className="text-p2 text-navy-500">{stat.subValue}</p>
         )}

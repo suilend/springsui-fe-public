@@ -179,10 +179,13 @@ export default function useFetchAppData(suiClient: SuiClient) {
     const latestSuiSystemState = await suiClient.getLatestSuiSystemState();
 
     const currentEpoch = +latestSuiSystemState.epoch;
-    // const currentEpochProgressPercent =
-    //   ((Date.now() - +latestSuiSystemState.epochStartTimestampMs) /
-    //     +latestSuiSystemState.epochDurationMs) *
-    //   100;
+    const currentEpochProgressPercent =
+      ((Date.now() - +latestSuiSystemState.epochStartTimestampMs) /
+        +latestSuiSystemState.epochDurationMs) *
+      100;
+    const currentEpochEndMs =
+      +latestSuiSystemState.epochStartTimestampMs +
+      +latestSuiSystemState.epochDurationMs;
 
     return {
       tokenMap,
@@ -195,6 +198,8 @@ export default function useFetchAppData(suiClient: SuiClient) {
       lstReserveSendPointsPerDay,
 
       currentEpoch,
+      currentEpochProgressPercent,
+      currentEpochEndMs,
     };
   };
 
