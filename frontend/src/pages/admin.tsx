@@ -101,6 +101,34 @@ export default function Admin() {
     }
   };
 
+  // Collect fees
+  const [isCollectingFees, setIsCollectingFees] = useState<boolean>(false);
+
+  const collectFees = async () => {
+    if (!weightHookAdminCapId)
+      throw new Error("Error: No weight hook admin cap");
+
+    if (isCollectingFees) return;
+    setIsCollectingFees(true);
+
+    const transaction = new Transaction();
+
+    try {
+      lstClient.collectFees(transaction, weightHookAdminCapId);
+
+      const res = await signExecuteAndWaitForTransaction(transaction);
+      const txUrl = explorer.buildTxUrl(res.digest);
+
+      successToast("Collected fees", undefined, txUrl);
+    } catch (err) {
+      errorToast("Failed to collect fees", err as Error);
+      console.error(err);
+    } finally {
+      setIsCollectingFees(false);
+      await refreshAppData();
+    }
+  };
+
   return (
     <>
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-4 md:px-10 md:py-20">
@@ -113,7 +141,7 @@ export default function Admin() {
               <div className="flex w-full flex-col gap-4 p-4">
                 <p className="text-navy-600">Rebalance</p>
                 <button
-                  className="flex h-10 w-[92px] w-max flex-row items-center justify-center gap-2 rounded-sm bg-navy-800 px-3 text-white"
+                  className="flex h-10 w-[92px] w-max flex-row items-center justify-center gap-2 rounded-sm bg-navy-800 px-3 text-white disabled:opacity-50"
                   onClick={rebalance}
                 >
                   {isRebalancing ? (
@@ -164,6 +192,24 @@ export default function Admin() {
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
                     <p className="text-p2">Update fees</p>
+                  )}
+                </button>
+              </div>
+            </Card>
+
+            {/* Collect fees */}
+            <Card>
+              <div className="flex w-full flex-col gap-4 p-4">
+                <p className="text-navy-600">Collect fees</p>
+                <button
+                  className="flex h-10 w-[92px] w-max flex-row items-center justify-center gap-2 rounded-sm bg-navy-800 px-3 text-white disabled:opacity-50"
+                  onClick={collectFees}
+                  disabled={!weightHookAdminCapId}
+                >
+                  {isCollectingFees ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <p className="text-p2">Collect fees</p>
                   )}
                 </button>
               </div>
