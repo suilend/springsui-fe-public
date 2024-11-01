@@ -146,7 +146,10 @@ export default function Home() {
 
   const onInBalanceClick = () => {
     formatAndSetInValue(
-      maxInValue.toFixed(inToken.decimals, BigNumber.ROUND_DOWN),
+      (isStaking ? BigNumber.max(0, inBalance.minus(1)) : inBalance).toFixed(
+        inToken.decimals,
+        BigNumber.ROUND_DOWN,
+      ),
     );
     inInputRef.current?.focus();
   };
