@@ -252,9 +252,11 @@ export default function Explore() {
                       </div>
 
                       {/* SEND Points */}
-                      {opportunity.sendPointsPerDay !== undefined && (
-                        <div className="col-span-2 flex min-w-20 flex-col gap-1.5">
-                          <p className="text-p2 text-navy-500">SEND Points</p>
+                      <div className="flex min-w-40 flex-col gap-1.5">
+                        <p className="text-p2 text-navy-500">SEND points</p>
+                        {opportunity.sendPointsPerDay === undefined ? (
+                          <p className="text-p2">--</p>
+                        ) : (
                           <div className="flex flex-row gap-1.5">
                             <TokenLogo
                               className="my-0.5"
@@ -274,8 +276,8 @@ export default function Explore() {
                               {" / day"}
                             </p>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </Link>
                 ))}
