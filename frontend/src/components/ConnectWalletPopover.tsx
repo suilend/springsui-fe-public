@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
+import { WalletType } from "@suiet/wallet-sdk";
 import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
 
 import Popover from "@/components/Popover";
@@ -20,33 +21,35 @@ function WalletItem({ wallet }: WalletItemProps) {
   const isiOS = useIsiOS();
   const isAndroid = useIsAndroid();
 
-  const platform: keyof Wallet["downloadUrls"] = isiOS
-    ? "iOS"
-    : isAndroid
-      ? "android"
-      : "browserExtension";
-  const downloadUrl = wallet.downloadUrls[platform];
+  const downloadUrl = (() => {
+    if (isiOS) return wallet.downloadUrls.iOS;
+    if (isAndroid) return wallet.downloadUrls.android;
+    if (wallet.type !== WalletType.WEB)
+      return wallet.downloadUrls.browserExtension;
+  })();
 
   const onClick = () => {
-    if (!wallet.isInstalled) {
-      window.open(downloadUrl, "_blank");
-      return;
-    }
+    if (wallet.type === WalletType.WEB) connectWallet(wallet);
+    else {
+      if (!wallet.isInstalled) {
+        if (downloadUrl) window.open(downloadUrl, "_blank");
+        return;
+      }
 
-    connectWallet(wallet);
+      connectWallet(wallet);
+    }
   };
 
-  if (!wallet.isInstalled && !downloadUrl) return null;
   return (
     <button
       className="group flex h-12 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3"
       onClick={onClick}
     >
       <div className="flex flex-row items-center gap-2">
-        {wallet.logoUrl ? (
+        {wallet.iconUrl ? (
           <Image
             className="h-6 w-6"
-            src={wallet.logoUrl}
+            src={wallet.iconUrl}
             alt={`${wallet.name} logo`}
             width={24}
             height={24}

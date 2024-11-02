@@ -60,10 +60,10 @@ export default function ConnectedWalletPopover() {
         >
           {isImpersonating ? (
             <VenetianMask className="h-4 w-4 shrink-0" />
-          ) : wallet?.logoUrl ? (
+          ) : wallet?.iconUrl ? (
             <Image
               className="h-4 w-4 min-w-4 shrink-0"
-              src={wallet.logoUrl}
+              src={wallet.iconUrl}
               alt={`${wallet.name} logo`}
               width={16}
               height={16}
