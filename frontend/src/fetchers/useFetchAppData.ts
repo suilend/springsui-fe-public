@@ -160,7 +160,7 @@ export default function useFetchAppData(suiClient: SuiClient) {
     const lstRewards = rewardsMap[NORMALIZED_LST_COINTYPE] ?? suiRewards;
 
     const suiPrice = suiReserve.price;
-    const lstPrice = lstReserve.price.times(
+    const lstPrice = lstReserve.price.div(
       liquidStakingInfo.suiToLstExchangeRate,
     );
 
