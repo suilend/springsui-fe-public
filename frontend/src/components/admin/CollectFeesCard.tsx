@@ -15,7 +15,7 @@ export default function CollectFeesCard() {
   const { explorer, ...restRootContext } = useRootContext();
   const lstClient = restRootContext.lstClient as LstClient;
   const { refreshAppData } = useAppDataContext();
-  const { signExecuteAndWaitForTransaction, weightHookAdminCapId } =
+  const { signExecuteAndWaitForTransaction, weightHookAdminCapId, address } =
     useWalletContext();
 
   // Submit
@@ -25,13 +25,16 @@ export default function CollectFeesCard() {
     if (!weightHookAdminCapId)
       throw new Error("Error: No weight hook admin cap");
 
+    if (!address) throw new Error("Error: No address");
+
     if (isSubmitting) return;
     setIsSubmitting(true);
 
     const transaction = new Transaction();
 
     try {
-      lstClient.collectFees(transaction, weightHookAdminCapId);
+      const sui = lstClient.collectFees(transaction, weightHookAdminCapId);
+      transaction.transferObjects([sui], address);
 
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
