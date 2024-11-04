@@ -18,6 +18,7 @@ import { WeightHook } from "./_generated/liquid_staking/weight/structs";
 export interface LiquidStakingObjectInfo {
   id: string;
   type: string;
+  weightHookId: string;
 }
 
 const SUI_SYSTEM_STATE_ID =
@@ -57,6 +58,40 @@ export class LstClient {
     console.log(`Initialized LstClient with package ID: ${publishedAt}`);
 
     return new LstClient(liquidStakingObjectInfo, client);
+  }
+
+  static createNewLst(
+    tx: Transaction,
+    treasuryCap: string,
+    coinType: string,
+  ): TransactionObjectInput {
+    const [feeConfigBuilder] = newBuilder(tx);
+    const [feeConfig] = toFeeConfig(tx, feeConfigBuilder);
+
+    const [adminCap, liquidStakingInfo] = generated.createLst(tx, coinType, {
+      feeConfig,
+      lstTreasuryCap: treasuryCap,
+    });
+
+    tx.moveCall({
+      target: `0x2::transfer::public_share_object`,
+      typeArguments: [`${LiquidStakingInfo.$typeName}<${coinType}>`],
+      arguments: [liquidStakingInfo],
+    });
+
+    const [weightHook, weightHookAdminCap] = weightHookGenerated.new_(
+      tx,
+      coinType,
+      adminCap,
+    );
+
+    tx.moveCall({
+      target: `0x2::transfer::public_share_object`,
+      typeArguments: [`${WeightHook.$typeName}<${coinType}>`],
+      arguments: [weightHook],
+    });
+
+    return weightHookAdminCap;
   }
 
   constructor(liquidStakingObject: LiquidStakingObjectInfo, client: SuiClient) {
@@ -123,7 +158,6 @@ export class LstClient {
   }
 
   // admin functions
-
   increaseValidatorStake(
     tx: Transaction,
     adminCapId: TransactionObjectInput,
@@ -143,30 +177,35 @@ export class LstClient {
     tx: Transaction,
     adminCapId: TransactionObjectInput,
     validatorAddress: string,
-    maxSuiAmount: number,
+    targetUnstakeSuiAmount: bigint,
   ) {
     generated.decreaseValidatorStake(tx, this.liquidStakingObject.type, {
       self: this.liquidStakingObject.id,
       adminCap: adminCapId,
       systemState: SUI_SYSTEM_STATE_ID,
       validatorAddress,
-      maxSuiAmount: BigInt(maxSuiAmount),
+      targetUnstakeSuiAmount,
     });
   }
 
-  collectFees(tx: Transaction, adminCapId: TransactionObjectInput) {
-    const [sui] = generated.collectFees(tx, this.liquidStakingObject.type, {
-      self: this.liquidStakingObject.id,
-      systemState: SUI_SYSTEM_STATE_ID,
-      adminCap: adminCapId,
-    });
+  collectFees(tx: Transaction, weightHookAdminCapId: TransactionObjectInput) {
+    const [sui] = weightHookGenerated.collectFees(
+      tx,
+      this.liquidStakingObject.type,
+      {
+        self: this.liquidStakingObject.weightHookId,
+        liquidStakingInfo: this.liquidStakingObject.id,
+        systemState: SUI_SYSTEM_STATE_ID,
+        weightHookAdminCap: weightHookAdminCapId,
+      },
+    );
 
     return sui;
   }
 
   updateFees(
     tx: Transaction,
-    adminCapId: TransactionObjectInput,
+    weightHookAdminCapId: TransactionObjectInput,
     feeConfigArgs: FeeConfigArgs,
   ) {
     let [builder] = newBuilder(tx);
@@ -188,19 +227,20 @@ export class LstClient {
       })[0];
     }
 
-    if (feeConfigArgs.spreadFee != null) {
-      console.log(`Setting spread fee bps to ${feeConfigArgs.spreadFee}`);
+    if (feeConfigArgs.spreadFeeBps != null) {
+      console.log(`Setting spread fee bps to ${feeConfigArgs.spreadFeeBps}`);
       builder = setSpreadFeeBps(tx, {
         self: builder,
-        fee: BigInt(feeConfigArgs.spreadFee),
+        fee: BigInt(feeConfigArgs.spreadFeeBps),
       })[0];
     }
 
     const [feeConfig] = toFeeConfig(tx, builder);
 
-    generated.updateFees(tx, this.liquidStakingObject.type, {
-      self: this.liquidStakingObject.id,
-      adminCap: adminCapId,
+    weightHookGenerated.updateFees(tx, this.liquidStakingObject.type, {
+      self: this.liquidStakingObject.weightHookId,
+      liquidStakingInfo: this.liquidStakingObject.id,
+      weightHookAdminCap: weightHookAdminCapId,
       feeConfig,
     });
   }
@@ -228,7 +268,7 @@ export class LstClient {
     tx: Transaction,
     weightHookId: TransactionObjectInput,
     weightHookAdminCap: TransactionObjectInput,
-    validatorAddressesAndWeights: Map<string, number>,
+    validatorAddressesAndWeights: Record<string, number>,
   ) {
     const [vecMap] = tx.moveCall({
       target: `0x2::vec_map::empty`,
@@ -236,10 +276,9 @@ export class LstClient {
       arguments: [],
     });
 
-    for (const [
-      validatorAddress,
-      weight,
-    ] of validatorAddressesAndWeights.entries()) {
+    for (const [validatorAddress, weight] of Object.entries(
+      validatorAddressesAndWeights,
+    )) {
       tx.moveCall({
         target: `0x2::vec_map::insert`,
         typeArguments: ["address", "u64"],
@@ -279,10 +318,10 @@ export async function fetchLiquidStakingInfo(
   return LiquidStakingInfo.fetch(client, phantom(info.type), info.id);
 }
 
-interface FeeConfigArgs {
+export interface FeeConfigArgs {
   mintFeeBps?: number;
   redeemFeeBps?: number;
-  spreadFee?: number;
+  spreadFeeBps?: number;
 }
 
 // only works for sSui

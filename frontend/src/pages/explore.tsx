@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import BigNumber from "bignumber.js";
+
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
 import TokenLogo from "@/components/TokenLogo";
@@ -91,7 +93,7 @@ export default function Explore() {
   return (
     <>
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-4 md:px-10 md:py-20">
-        <div className="flex w-full max-w-3xl flex-col items-center gap-8">
+        <div className="flex w-full max-w-4xl flex-col items-center gap-8">
           {/* Title */}
           <div className="flex w-full flex-col items-center gap-2">
             <p className="text-center text-h1">Explore DeFi</p>
