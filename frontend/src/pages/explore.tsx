@@ -7,7 +7,7 @@ import BigNumber from "bignumber.js";
 
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
-import Skeleton from "@/components/skeleton";
+import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
 import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
 import {
