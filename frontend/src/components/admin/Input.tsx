@@ -8,7 +8,7 @@ interface InputProps {
   className?: ClassValue;
   type?: InputHTMLAttributes<HTMLInputElement>["type"];
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
 }
 
 export default function Input({
@@ -25,7 +25,8 @@ export default function Input({
         className,
       )}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+      readOnly={!onChange}
       onWheel={(e) => e.currentTarget.blur()}
     />
   );

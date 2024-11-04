@@ -16,6 +16,7 @@ import { useAppDataContext } from "@/contexts/AppDataContext";
 import { useRootContext } from "@/contexts/RootContext";
 import { useWalletContext } from "@/contexts/WalletContext";
 import { LIQUID_STAKING_INFO } from "@/lib/coinType";
+import { formatInteger } from "@/lib/format";
 import { errorToast, successToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
@@ -145,9 +146,7 @@ export default function ValidatorAddressesAndWeightsCard() {
 
               {/* Weight */}
               <div className="flex w-[80px] flex-col gap-1.5 md:w-[120px]">
-                {index === 0 && (
-                  <p className="text-p2 text-navy-600">Weight (%)</p>
-                )}
+                {index === 0 && <p className="text-p2 text-navy-600">Weight</p>}
                 <Input
                   type="number"
                   value={row.weight}
@@ -168,6 +167,25 @@ export default function ValidatorAddressesAndWeightsCard() {
               </div>
             </div>
           ))}
+
+          {/* Total row */}
+          {vaw.length > 0 && (
+            <div className="flex flex-row items-center gap-4">
+              <div className="flex flex-1 flex-col gap-1.5">
+                <p className="text-right !text-p2 text-navy-600">Total</p>
+              </div>
+              <div className="flex w-[80px] flex-col gap-1.5 md:w-[120px]">
+                <p className="px-4">
+                  {formatInteger(
+                    vaw.reduce((acc, row) => acc + +row.weight, 0),
+                  )}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="w-10" />
+              </div>
+            </div>
+          )}
 
           <Button className="mr-12 w-auto" onClick={addRow}>
             Add row
