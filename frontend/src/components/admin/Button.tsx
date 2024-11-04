@@ -28,12 +28,21 @@ export default function Button({
       onClick={onClick}
       disabled={isDisabled}
     >
-      {isSubmitting && (
-        <div className="absolute inset-0">
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </div>
-      )}
-      <p className={cn("text-p2", isSubmitting && "hidden")}>
+      <div
+        className={cn(
+          "absolute inset-0 z-[2] flex flex-row items-center justify-center transition-opacity ",
+          isSubmitting ? "opacity-100" : "opacity-0",
+        )}
+      >
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+
+      <p
+        className={cn(
+          "relative z-[1] text-p2 transition-opacity",
+          isSubmitting && "opacity-0",
+        )}
+      >
         {children ?? "Submit"}
       </p>
     </button>
