@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 import BigNumber from "bignumber.js";
 
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
+import Skeleton from "@/components/skeleton";
 import TokenLogo from "@/components/TokenLogo";
 import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
 import {
@@ -60,6 +62,29 @@ export default function Explore() {
   };
 
   // Opportunities
+  const [cetusPools, setCetusPools] = useState<any | undefined>(undefined);
+  useEffect(() => {
+    try {
+      (async () => {
+        const url = "https://api-sui.cetus.zone/v2/sui/swap/count";
+        const res = await fetch(url);
+        const json = await res.json();
+
+        setCetusPools(json.data.pools);
+      })();
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
+  const cetusPoolAddresses = {
+    aaaSsui:
+      "0x474ce7b61b0ae75cad36aa9c59aa5ca8485c00b98fd1890db33b40ef2a5ba604",
+  };
+  const aaaSsuiCetusPool = cetusPools?.find(
+    (pool: any) => pool.swap_account === cetusPoolAddresses.aaaSsui,
+  );
+
   const opportunities = [
     {
       protocol: {
@@ -81,11 +106,17 @@ export default function Explore() {
           "https://assets.coingecko.com/coins/images/30256/standard/cetus.png",
       },
       title: "Provide liquidity on Cetus",
-      url: "https://app.cetus.zone/liquidity/deposit/?poolAddress=0x474ce7b61b0ae75cad36aa9c59aa5ca8485c00b98fd1890db33b40ef2a5ba604",
+      url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddresses.aaaSsui}`,
       assets: [
         { coinType: NORMALIZED_AAA_COINTYPE },
         { coinType: NORMALIZED_LST_COINTYPE },
       ],
+      aprPercent: aaaSsuiCetusPool
+        ? new BigNumber(+aaaSsuiCetusPool.total_apr * 100)
+        : null,
+      tvlUsd: aaaSsuiCetusPool
+        ? new BigNumber(aaaSsuiCetusPool.tvl_in_usd)
+        : null,
       category: Category.AMM,
     },
   ];
@@ -223,9 +254,13 @@ export default function Explore() {
                       <div className="flex min-w-20 flex-col gap-1.5">
                         <p className="text-p2 text-navy-500">APR</p>
                         <p className="text-p2">
-                          {opportunity.aprPercent === undefined
-                            ? "--"
-                            : formatPercent(opportunity.aprPercent)}
+                          {opportunity.aprPercent === undefined ? (
+                            "--"
+                          ) : opportunity.aprPercent === null ? (
+                            <Skeleton className="h-4 w-10" />
+                          ) : (
+                            formatPercent(opportunity.aprPercent)
+                          )}
                         </p>
                       </div>
 
@@ -233,9 +268,13 @@ export default function Explore() {
                       <div className="flex min-w-20 flex-col gap-1.5">
                         <p className="text-p2 text-navy-500">TVL</p>
                         <p className="text-p2">
-                          {opportunity.tvlUsd === undefined
-                            ? "--"
-                            : formatUsd(opportunity.tvlUsd)}
+                          {opportunity.tvlUsd === undefined ? (
+                            "--"
+                          ) : opportunity.tvlUsd === null ? (
+                            <Skeleton className="h-4 w-10" />
+                          ) : (
+                            formatUsd(opportunity.tvlUsd)
+                          )}
                         </p>
                       </div>
 
