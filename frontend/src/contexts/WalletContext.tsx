@@ -180,10 +180,10 @@ export function WalletContextProvider({ children }: PropsWithChildren) {
       // NO ADDRESS SET - set to first account's address
       setWalletAccountAddress(_walletAccounts[0].address);
     } else {
-      const account = _walletAccounts.find(
+      const _walletAccount = _walletAccounts.find(
         (a) => a.address === walletAccountAddress,
       );
-      if (account) {
+      if (_walletAccount) {
         // ADDRESS SET + ACCOUNT FOUND - do nothing
         return;
       }

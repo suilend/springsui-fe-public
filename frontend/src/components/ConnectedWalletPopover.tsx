@@ -32,7 +32,6 @@ export default function ConnectedWalletPopover() {
 
   const hasDisconnect = !isImpersonating;
   const hasWallets = !isImpersonating && walletAccounts.length > 1;
-  const hasContent = hasDisconnect || hasWallets;
 
   // State
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -41,23 +40,14 @@ export default function ConnectedWalletPopover() {
 
   return (
     <Popover
-      rootProps={
-        !hasContent
-          ? { open: false }
-          : { open: isOpen, onOpenChange: setIsOpen }
-      }
+      rootProps={{ open: isOpen, onOpenChange: setIsOpen }}
       contentProps={{
         className: "p-4",
         align: "end",
         maxWidth: 280,
       }}
       trigger={
-        <button
-          className={cn(
-            "flex h-10 min-w-0 max-w-40 flex-row items-center justify-center gap-2 rounded-sm border border-navy-400/25 px-3",
-            !hasContent && "cursor-default",
-          )}
-        >
+        <button className="flex h-10 min-w-0 max-w-40 flex-row items-center justify-center gap-2 rounded-sm border border-navy-400/25 px-3">
           {isImpersonating ? (
             <VenetianMask className="h-4 w-4 shrink-0" />
           ) : wallet?.iconUrl ? (
@@ -69,7 +59,7 @@ export default function ConnectedWalletPopover() {
               height={16}
               quality={100}
             />
-          ) : null}
+          ) : undefined}
 
           <p className="overflow-hidden text-ellipsis text-nowrap !text-p2">
             {(!isImpersonating ? walletAccount?.label : undefined) ??
