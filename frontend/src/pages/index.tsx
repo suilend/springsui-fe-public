@@ -146,7 +146,10 @@ export default function Home() {
 
   const onInBalanceClick = () => {
     formatAndSetInValue(
-      maxInValue.toFixed(inToken.decimals, BigNumber.ROUND_DOWN),
+      (isStaking ? BigNumber.max(0, inBalance.minus(1)) : inBalance).toFixed(
+        inToken.decimals,
+        BigNumber.ROUND_DOWN,
+      ),
     );
     inInputRef.current?.focus();
   };
@@ -314,41 +317,17 @@ export default function Home() {
     valueEndDecorator?: ReactNode;
   };
 
-  const parameters: Parameter[] = [
-    {
-      label: "Exchange rate",
-      value: `1 ${inToken.symbol} ≈ ${formatToken(new BigNumber(inToOutExchangeRate), { dp: 3 })} ${outToken.symbol}`,
-    },
-    {
-      label: isStaking ? "Staking fee" : "Unstaking fee",
-      value: formatPercent(
-        isStaking
-          ? appData.liquidStakingInfo.mintFeePercent
-          : appData.liquidStakingInfo.redeemFeePercent,
-      ),
-    },
-    // {
-    //   label: "Spread fee",
-    //   value: formatPercent(appData.liquidStakingInfo.spreadFeePercent),
-    // },
-  ];
-  if (isStaking)
+  const parameters: Parameter[] = [];
+  if (isStaking) {
+    if (appData.liquidStakingInfo.mintFeePercent.gt(0))
+      parameters.push({
+        label: "Staking fee",
+        value: formatPercent(appData.liquidStakingInfo.mintFeePercent),
+      });
     parameters.push(
       {
         label: "APR",
         value: formatPercent(appData.liquidStakingInfo.aprPercent),
-      },
-      {
-        label: "Est. yearly earnings",
-        value: `${
-          inValue === ""
-            ? "--"
-            : formatToken(
-                new BigNumber(BigNumber.max(0, inValue || 0)).times(
-                  appData.liquidStakingInfo.aprPercent.div(100),
-                ),
-              )
-        } ${inToken.symbol}`,
       },
       {
         label: "SEND Points",
@@ -368,6 +347,13 @@ export default function Home() {
         value: `${outValue === "" ? "--" : formatPoints(new BigNumber(outValue || 0).times(appData.lstReserveSendPointsPerDay), { dp: 3 })} / day`,
       },
     );
+  } else {
+    if (appData.liquidStakingInfo.redeemFeePercent.gt(0))
+      parameters.push({
+        label: "Unstaking fee",
+        value: formatPercent(appData.liquidStakingInfo.redeemFeePercent),
+      });
+  }
 
   return (
     <>

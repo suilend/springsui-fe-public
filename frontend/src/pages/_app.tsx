@@ -3,7 +3,11 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useEffect } from "react";
 
-import { WalletProvider as SuietWalletProvider } from "@suiet/wallet-kit";
+import {
+  AllDefaultWallets,
+  WalletProvider as SuietWalletProvider,
+  defineStashedWallet,
+} from "@suiet/wallet-kit";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import mixpanel from "mixpanel-browser";
@@ -46,7 +50,14 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main id="__app_main" className={cn(fontClassNames)}>
-        <SuietWalletProvider>
+        <SuietWalletProvider
+          defaultWallets={[
+            ...AllDefaultWallets,
+            defineStashedWallet({
+              appName: "Suilend",
+            }),
+          ]}
+        >
           <TooltipProvider>
             <RootContextProvider>
               <AppDataContextProvider>

@@ -23,6 +23,8 @@ export interface AppData {
   lstReserveSendPointsPerDay: BigNumber;
 
   currentEpoch: number;
+  currentEpochProgressPercent: number;
+  currentEpochEndMs: number;
 }
 
 export interface AppDataContext {

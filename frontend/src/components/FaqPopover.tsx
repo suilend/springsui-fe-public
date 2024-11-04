@@ -32,11 +32,7 @@ function QuestionAnswer({
         </p>
         <Chevron className="h-4 w-4 text-navy-600 transition-colors group-hover:text-foreground" />
       </button>
-      {isExpanded && (
-        <p className="!border-l-[2px] border-l border-l-white/75 pl-3 text-p2 md:border-l-navy-100">
-          {answer}
-        </p>
-      )}
+      {isExpanded && <p className="text-p2">{answer}</p>}
     </div>
   );
 }

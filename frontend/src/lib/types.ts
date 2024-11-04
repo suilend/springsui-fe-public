@@ -1,5 +1,6 @@
 import { ReactElement } from "react";
 
+import { RegisterWalletCallback, WalletType } from "@suiet/wallet-sdk";
 import BigNumber from "bignumber.js";
 
 export type ParsedLiquidStakingInfo = {
@@ -36,10 +37,12 @@ export type Wallet = {
   id: string;
   name: string;
   isInstalled: boolean;
-  logoUrl?: string;
+  iconUrl?: string;
+  type: WalletType;
   downloadUrls: {
-    browserExtension?: string;
     iOS?: string;
     android?: string;
+    browserExtension?: string;
+    registerWebWallet?: RegisterWalletCallback;
   };
 };
