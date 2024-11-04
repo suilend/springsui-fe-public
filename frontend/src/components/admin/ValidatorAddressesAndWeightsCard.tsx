@@ -162,11 +162,7 @@ export default function ValidatorAddressesAndWeightsCard() {
                   index === 0 && "pt-[26px]",
                 )}
               >
-                <Button
-                  className="w-10"
-                  onClick={() => removeRow(row.id)}
-                  isDisabled={index === 0}
-                >
+                <Button className="w-10" onClick={() => removeRow(row.id)}>
                   <Minus className="h-5 w-5" />
                 </Button>
               </div>
