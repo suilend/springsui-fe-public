@@ -257,7 +257,7 @@ export default function Explore() {
                           {opportunity.aprPercent === undefined ? (
                             "--"
                           ) : opportunity.aprPercent === null ? (
-                            <Skeleton className="h-4 w-10" />
+                            <Skeleton className="h-5 w-10" />
                           ) : (
                             formatPercent(opportunity.aprPercent)
                           )}
@@ -271,7 +271,7 @@ export default function Explore() {
                           {opportunity.tvlUsd === undefined ? (
                             "--"
                           ) : opportunity.tvlUsd === null ? (
-                            <Skeleton className="h-4 w-10" />
+                            <Skeleton className="h-5 w-10" />
                           ) : (
                             formatUsd(opportunity.tvlUsd)
                           )}
