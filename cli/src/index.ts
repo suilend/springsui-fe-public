@@ -207,12 +207,11 @@ async function setValidatorAddressesAndWeights(options: any) {
     throw new Error("Validators and weights arrays must be of the same length");
   }
 
-  const validatorAddressesAndWeights = new Map();
+  const validatorAddressesAndWeights: Record<string, number> = {};
   for (let i = 0; i < options.validators.length; i++) {
-    validatorAddressesAndWeights.set(
-      options.validators[i],
-      options.weights[i] as number,
-    );
+    validatorAddressesAndWeights[options.validators[i]] = options.weights[
+      i
+    ] as number;
   }
 
   console.log(validatorAddressesAndWeights);
