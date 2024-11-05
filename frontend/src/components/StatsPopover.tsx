@@ -49,7 +49,7 @@ export function StatsContent() {
           </div>
         </div>
       ),
-      subValue: `Ends in ${currentEpochEndsDuration.hours}h ${currentEpochEndsDuration.minutes}m`,
+      subValue: `Ends in ${currentEpochEndsDuration.hours ?? 0}h ${currentEpochEndsDuration.minutes ?? 0}m`,
     },
   ];
 
