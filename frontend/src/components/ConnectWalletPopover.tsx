@@ -21,25 +21,23 @@ function WalletItem({ wallet }: WalletItemProps) {
   const isiOS = useIsiOS();
   const isAndroid = useIsAndroid();
 
-  const downloadUrl = (() => {
-    if (isiOS) return wallet.downloadUrls.iOS;
-    if (isAndroid) return wallet.downloadUrls.android;
-    if (wallet.type !== WalletType.WEB)
-      return wallet.downloadUrls.browserExtension;
-  })();
+  const downloadUrl = isiOS
+    ? wallet.downloadUrls?.iOS
+    : isAndroid
+      ? wallet.downloadUrls?.android
+      : wallet.downloadUrls?.browserExtension;
 
   const onClick = () => {
-    if (wallet.type === WalletType.WEB) connectWallet(wallet);
-    else {
-      if (!wallet.isInstalled) {
-        if (downloadUrl) window.open(downloadUrl, "_blank");
-        return;
-      }
-
+    if (wallet.type === WalletType.WEB || wallet.isInstalled) {
       connectWallet(wallet);
+      return;
     }
+
+    if (downloadUrl) window.open(downloadUrl, "_blank");
   };
 
+  if (!(wallet.type === WalletType.WEB || wallet.isInstalled) && !downloadUrl)
+    return null;
   return (
     <button
       className="group flex h-12 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3"
