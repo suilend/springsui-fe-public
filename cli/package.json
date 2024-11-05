@@ -1,6 +1,6 @@
 {
   "name": "@suilend/springsui-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "A CLI for interacting with the SpringSui program",
   "author": "Suilend",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@mysten/bcs": "1.1.0",
-    "@mysten/sui": "1.12.0",
+    "@mysten/sui": "1.14.1",
     "commander": "^12.1.0",
     "uuid": "^9.0.1"
   },
