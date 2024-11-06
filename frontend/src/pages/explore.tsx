@@ -14,6 +14,7 @@ import {
   NORMALIZED_AAA_COINTYPE,
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SEND_POINTS_COINTYPE,
+  NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
@@ -63,6 +64,10 @@ export default function Explore() {
 
   // Opportunities
   const [cetusPools, setCetusPools] = useState<any | undefined>(undefined);
+
+  const getCetusPool = (address: string) =>
+    cetusPools?.find((pool: any) => pool.swap_account === address);
+
   useEffect(() => {
     try {
       (async () => {
@@ -77,20 +82,40 @@ export default function Explore() {
     }
   }, []);
 
-  const cetusPoolAddresses = {
-    aaaSsui:
+  enum CetusPool {
+    SSUI_SUI = "ssuiSui",
+    AAA_SSUI = "aaaSsui",
+  }
+  const cetusPoolAddresses: Record<CetusPool, string> = {
+    [CetusPool.SSUI_SUI]:
+      "0x5c5e87f0adf458b77cc48e17a7b81a0e7bc2e9c6c609b67c0851ef059a866f3a",
+    [CetusPool.AAA_SSUI]:
       "0x474ce7b61b0ae75cad36aa9c59aa5ca8485c00b98fd1890db33b40ef2a5ba604",
   };
-  const aaaSsuiCetusPool = cetusPools?.find(
-    (pool: any) => pool.swap_account === cetusPoolAddresses.aaaSsui,
-  );
+  const cetusPoolMap: Record<CetusPool, any> = {
+    [CetusPool.SSUI_SUI]: getCetusPool(cetusPoolAddresses[CetusPool.SSUI_SUI]),
+    [CetusPool.AAA_SSUI]: getCetusPool(cetusPoolAddresses[CetusPool.AAA_SSUI]),
+  };
+
+  enum Protocol {
+    SUILEND = "suilend",
+    CETUS = "cetus",
+  }
+  const protocolMap: Record<Protocol, { name: string; logoUrl: string }> = {
+    [Protocol.SUILEND]: {
+      name: "Suilend",
+      logoUrl: "https://suilend.fi/assets/suilend.svg",
+    },
+    [Protocol.CETUS]: {
+      name: "Cetus",
+      logoUrl:
+        "https://assets.coingecko.com/coins/images/30256/standard/cetus.png",
+    },
+  };
 
   const opportunities = [
     {
-      protocol: {
-        name: "Suilend",
-        logoUrl: "https://suilend.fi/assets/suilend.svg",
-      },
+      protocol: protocolMap[Protocol.SUILEND],
       title: "Lend on Suilend",
       url: `https://suilend.fi/dashboard?asset=${lstToken.symbol}`,
       assets: [{ coinType: NORMALIZED_LST_COINTYPE }],
@@ -100,22 +125,34 @@ export default function Explore() {
       sendPointsPerDay: appData.lstReserveSendPointsPerDay,
     },
     {
-      protocol: {
-        name: "Cetus",
-        logoUrl:
-          "https://assets.coingecko.com/coins/images/30256/standard/cetus.png",
-      },
+      protocol: protocolMap[Protocol.CETUS],
       title: "Provide liquidity on Cetus",
-      url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddresses.aaaSsui}`,
+      url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddresses[CetusPool.SSUI_SUI]}`,
+      assets: [
+        { coinType: NORMALIZED_LST_COINTYPE },
+        { coinType: NORMALIZED_SUI_COINTYPE },
+      ],
+      aprPercent: cetusPoolMap[CetusPool.SSUI_SUI]
+        ? new BigNumber(+cetusPoolMap[CetusPool.SSUI_SUI].total_apr * 100)
+        : null,
+      tvlUsd: cetusPoolMap[CetusPool.SSUI_SUI]
+        ? new BigNumber(cetusPoolMap[CetusPool.SSUI_SUI].tvl_in_usd)
+        : null,
+      category: Category.AMM,
+    },
+    {
+      protocol: protocolMap[Protocol.CETUS],
+      title: "Provide liquidity on Cetus",
+      url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddresses[CetusPool.AAA_SSUI]}`,
       assets: [
         { coinType: NORMALIZED_AAA_COINTYPE },
         { coinType: NORMALIZED_LST_COINTYPE },
       ],
-      aprPercent: aaaSsuiCetusPool
-        ? new BigNumber(+aaaSsuiCetusPool.total_apr * 100)
+      aprPercent: cetusPoolMap[CetusPool.AAA_SSUI]
+        ? new BigNumber(+cetusPoolMap[CetusPool.AAA_SSUI].total_apr * 100)
         : null,
-      tvlUsd: aaaSsuiCetusPool
-        ? new BigNumber(aaaSsuiCetusPool.tvl_in_usd)
+      tvlUsd: cetusPoolMap[CetusPool.AAA_SSUI]
+        ? new BigNumber(cetusPoolMap[CetusPool.AAA_SSUI].tvl_in_usd)
         : null,
       category: Category.AMM,
     },
