@@ -4,6 +4,7 @@ import fs from "fs";
 import packageJson from "./package.json";
 const newPackageJson = Object.assign({}, packageJson);
 
+newPackageJson["name"] = "@suilend/springsui-cli";
 newPackageJson["private"] = false;
 newPackageJson["main"] = "./index.js";
 
