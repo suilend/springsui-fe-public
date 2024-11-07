@@ -7,12 +7,10 @@ import { FooterMd } from "@/components/Footer";
 import ImpersonationModeBanner from "@/components/ImpersonationModeBanner";
 import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
-import { useAppDataContext } from "@/contexts/AppDataContext";
-import { useRootContext } from "@/contexts/RootContext";
+import { useAppContext } from "@/contexts/AppContext";
 
 export default function Layout({ children }: PropsWithChildren) {
-  const { lstClient } = useRootContext();
-  const { appData } = useAppDataContext();
+  const { lstClient, appData } = useAppContext();
 
   return (
     <>

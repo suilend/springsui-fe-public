@@ -1,27 +1,37 @@
 import "@/lib/abortSignalPolyfill";
-
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useEffect } from "react";
+import { PropsWithChildren, useEffect } from "react";
 
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import mixpanel from "mixpanel-browser";
 
+import {
+  SettingsContextProvider,
+  WalletContextProvider,
+  useSettingsContext,
+} from "@suilend/frontend-sui";
+
 import Layout from "@/components/Layout";
 import Toaster from "@/components/Toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import WalletProvider from "@/components/WalletProvider";
-import { AppDataContextProvider } from "@/contexts/AppDataContext";
-import { RootContextProvider } from "@/contexts/RootContext";
-import { WalletContextProvider } from "@/contexts/WalletContext";
+import { AppContextProvider } from "@/contexts/AppContext";
 import { TITLE } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
-import "@suiet/wallet-kit/style.css";
 import "@/styles/globals.scss";
 
+function WalletContextProviderWrapper({ children }: PropsWithChildren) {
+  const { suiClient } = useSettingsContext();
+
+  return (
+    <WalletContextProvider appName="Suilend" suiClient={suiClient}>
+      {children}
+    </WalletContextProvider>
+  );
+}
 export default function App({ Component, pageProps }: AppProps) {
   // Mixpanel
   useEffect(() => {
@@ -47,20 +57,18 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main id="__app_main" className={cn(fontClassNames)}>
-        <RootContextProvider>
-          <WalletProvider>
-            <TooltipProvider>
-              <AppDataContextProvider>
-                <WalletContextProvider>
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
-                </WalletContextProvider>
-              </AppDataContextProvider>
-              <Toaster />
-            </TooltipProvider>
-          </WalletProvider>
-        </RootContextProvider>
+        <SettingsContextProvider>
+          <WalletContextProviderWrapper>
+            <AppContextProvider>
+              <TooltipProvider>
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+                <Toaster />
+              </TooltipProvider>
+            </AppContextProvider>
+          </WalletContextProviderWrapper>
+        </SettingsContextProvider>
       </main>
     </>
   );

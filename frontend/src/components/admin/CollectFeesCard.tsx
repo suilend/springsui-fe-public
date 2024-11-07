@@ -2,21 +2,24 @@ import { useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 
+import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
 import { LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
-import { useAppDataContext } from "@/contexts/AppDataContext";
-import { useRootContext } from "@/contexts/RootContext";
-import { useWalletContext } from "@/contexts/WalletContext";
+import { useAppContext } from "@/contexts/AppContext";
 import { errorToast, successToast } from "@/lib/toasts";
 
 export default function CollectFeesCard() {
-  const { explorer, ...restRootContext } = useRootContext();
-  const lstClient = restRootContext.lstClient as LstClient;
-  const { refreshAppData } = useAppDataContext();
-  const { signExecuteAndWaitForTransaction, weightHookAdminCapId, address } =
-    useWalletContext();
+  const { explorer } = useSettingsContext();
+  const { address, signExecuteAndWaitForTransaction } = useWalletContext();
+  const {
+    refreshAppData,
+    refreshBalances,
+    weightHookAdminCapId,
+    ...restAppContext
+  } = useAppContext();
+  const lstClient = restAppContext.lstClient as LstClient;
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -46,6 +49,7 @@ export default function CollectFeesCard() {
     } finally {
       setIsSubmitting(false);
       await refreshAppData();
+      await refreshBalances();
     }
   };
 

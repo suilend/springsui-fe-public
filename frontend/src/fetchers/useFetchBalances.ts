@@ -2,11 +2,13 @@ import { normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
-import { useRootContext } from "@/contexts/RootContext";
+import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+
 import { errorToast } from "@/lib/toasts";
 
-export default function useFetchBalances(address: string | undefined) {
-  const { suiClient } = useRootContext();
+export default function useFetchBalances() {
+  const { suiClient } = useSettingsContext();
+  const { address } = useWalletContext();
 
   const dataFetcher = async () => {
     // Balances
@@ -46,5 +48,5 @@ export default function useFetchBalances(address: string | undefined) {
     },
   );
 
-  return { balancesData: data, mutateBalancesData: mutate };
+  return { data, mutateData: mutate };
 }

@@ -9,29 +9,29 @@ import {
   VenetianMask,
 } from "lucide-react";
 
+import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+
 import CopyToClipboardButton from "@/components/CopyToClipboardButton";
 import Popover from "@/components/Popover";
 import Tooltip from "@/components/Tooltip";
-import { useRootContext } from "@/contexts/RootContext";
-import { useWalletContext } from "@/contexts/WalletContext";
 import { formatAddress } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export default function ConnectedWalletPopover() {
-  const { explorer } = useRootContext();
+  const { explorer } = useSettingsContext();
   const {
     isImpersonating,
     wallet,
     disconnectWallet,
-    walletAccounts,
-    walletAccount,
-    selectWalletAccount,
+    accounts,
+    account,
+    switchAccount,
     ...restWalletContext
   } = useWalletContext();
   const address = restWalletContext.address as string;
 
   const hasDisconnect = !isImpersonating;
-  const hasWallets = !isImpersonating && walletAccounts.length > 1;
+  const hasWallets = !isImpersonating && accounts.length > 1;
 
   // State
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -62,7 +62,7 @@ export default function ConnectedWalletPopover() {
           ) : undefined}
 
           <p className="overflow-hidden text-ellipsis text-nowrap !text-p2">
-            {(!isImpersonating ? walletAccount?.label : undefined) ??
+            {(!isImpersonating ? account?.label : undefined) ??
               formatAddress(address)}
           </p>
 
@@ -73,7 +73,7 @@ export default function ConnectedWalletPopover() {
       <div className="flex w-full flex-col gap-3">
         <div className="flex w-full flex-col">
           <p>
-            {(!isImpersonating ? walletAccount?.label : "Impersonating") ??
+            {(!isImpersonating ? account?.label : "Impersonating") ??
               "Connected"}
           </p>
 
@@ -105,7 +105,7 @@ export default function ConnectedWalletPopover() {
         )}
         {hasWallets && (
           <div className="flex w-full flex-col gap-1">
-            {walletAccounts.map((a) => (
+            {accounts.map((a) => (
               <button
                 key={a.address}
                 className={cn(
@@ -113,9 +113,7 @@ export default function ConnectedWalletPopover() {
                   a.address === address ? "cursor-default bg-light-blue" : "",
                 )}
                 onClick={
-                  a.address === address
-                    ? undefined
-                    : () => selectWalletAccount(a.address)
+                  a.address === address ? undefined : () => switchAccount(a)
                 }
               >
                 <p

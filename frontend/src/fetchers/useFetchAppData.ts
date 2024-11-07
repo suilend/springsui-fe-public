@@ -1,9 +1,9 @@
-import { SuiClient } from "@mysten/sui/client";
 import { normalizeStructTag } from "@mysten/sui/utils";
 import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
+import { useSettingsContext } from "@suilend/frontend-sui";
 import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
@@ -14,7 +14,7 @@ import {
   getSpringSuiApy,
 } from "@suilend/springsui-sdk";
 
-import { AppDataContext } from "@/contexts/AppDataContext";
+import { AppData } from "@/contexts/AppContext";
 import { getCoinMetadataMap } from "@/lib/coinMetadata";
 import {
   LIQUID_STAKING_INFO,
@@ -34,7 +34,9 @@ import {
 import { errorToast } from "@/lib/toasts";
 import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
-export default function useFetchAppData(suiClient: SuiClient) {
+export default function useFetchAppData() {
+  const { suiClient } = useSettingsContext();
+
   const dataFetcher = async () => {
     const now = Math.floor(Date.now() / 1000);
     const rawLendingMarket = await LendingMarket.fetch(
@@ -207,20 +209,16 @@ export default function useFetchAppData(suiClient: SuiClient) {
     };
   };
 
-  const { data, mutate } = useSWR<AppDataContext["appData"]>(
-    "appData",
-    dataFetcher,
-    {
-      refreshInterval: 30 * 1000,
-      onSuccess: (data) => {
-        console.log("Refreshed app data", data);
-      },
-      onError: (err) => {
-        errorToast("Failed to refresh app data", err);
-        console.error(err);
-      },
+  const { data, mutate } = useSWR<AppData>("appData", dataFetcher, {
+    refreshInterval: 30 * 1000,
+    onSuccess: (data) => {
+      console.log("Refreshed app data", data);
     },
-  );
+    onError: (err) => {
+      errorToast("Failed to refresh app data", err);
+      console.error(err);
+    },
+  });
 
-  return { appData: data, mutateAppData: mutate };
+  return { data, mutateData: mutate };
 }

@@ -9,7 +9,7 @@ import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
-import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
+import { AppData, useAppContext } from "@/contexts/AppContext";
 import {
   NORMALIZED_AAA_COINTYPE,
   NORMALIZED_LST_COINTYPE,
@@ -32,8 +32,8 @@ export default function Explore() {
       | undefined,
   };
 
-  const appDataContext = useAppDataContext();
-  const appData = appDataContext.appData as AppData;
+  const appContext = useAppContext();
+  const appData = appContext.appData as AppData;
 
   const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
 

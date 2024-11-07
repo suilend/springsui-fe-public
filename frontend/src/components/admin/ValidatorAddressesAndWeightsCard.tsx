@@ -5,6 +5,7 @@ import { Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
+import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LstClient } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
@@ -12,20 +13,22 @@ import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/wei
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { useAppDataContext } from "@/contexts/AppDataContext";
-import { useRootContext } from "@/contexts/RootContext";
-import { useWalletContext } from "@/contexts/WalletContext";
+import { useAppContext } from "@/contexts/AppContext";
 import { LIQUID_STAKING_INFO } from "@/lib/coinType";
 import { formatInteger } from "@/lib/format";
 import { errorToast, successToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
 export default function ValidatorAddressesAndWeightsCard() {
-  const { suiClient, explorer, ...restRootContext } = useRootContext();
-  const lstClient = restRootContext.lstClient as LstClient;
-  const { refreshAppData } = useAppDataContext();
-  const { signExecuteAndWaitForTransaction, weightHookAdminCapId } =
-    useWalletContext();
+  const { explorer, suiClient } = useSettingsContext();
+  const { signExecuteAndWaitForTransaction } = useWalletContext();
+  const {
+    refreshAppData,
+    refreshBalances,
+    weightHookAdminCapId,
+    ...restAppContext
+  } = useAppContext();
+  const lstClient = restAppContext.lstClient as LstClient;
 
   // Weight hook
   const fetchedWeightHookRef = useRef<boolean>(false);
@@ -117,6 +120,7 @@ export default function ValidatorAddressesAndWeightsCard() {
     } finally {
       setIsSubmitting(false);
       await refreshAppData();
+      await refreshBalances();
     }
   };
 

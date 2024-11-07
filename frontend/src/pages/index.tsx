@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
+import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
 import { LstClient } from "@suilend/springsui-sdk";
 
 import Card from "@/components/Card";
@@ -19,9 +20,7 @@ import Tooltip from "@/components/Tooltip";
 import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
-import { AppData, useAppDataContext } from "@/contexts/AppDataContext";
-import { useRootContext } from "@/contexts/RootContext";
-import { useWalletContext } from "@/contexts/WalletContext";
+import { AppData, useAppContext } from "@/contexts/AppContext";
 import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SEND_POINTS_COINTYPE,
@@ -51,17 +50,16 @@ export default function Home() {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
   };
 
-  const { suiClient, explorer, ...restRootContext } = useRootContext();
-  const lstClient = restRootContext.lstClient as LstClient;
-  const { refreshAppData, ...restAppDataContext } = useAppDataContext();
-  const appData = restAppDataContext.appData as AppData;
+  const { explorer, suiClient } = useSettingsContext();
   const {
     setIsConnectWalletDropdownOpen,
     address,
     signExecuteAndWaitForTransaction,
-    refreshBalancesData,
-    getAccountBalance,
   } = useWalletContext();
+  const { refreshAppData, getBalance, refreshBalances, ...restAppContext } =
+    useAppContext();
+  const lstClient = restAppContext.lstClient as LstClient;
+  const appData = restAppContext.appData as AppData;
 
   const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
   const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
@@ -101,8 +99,8 @@ export default function Home() {
     : appData.liquidStakingInfo.lstToSuiExchangeRate;
 
   // Balance
-  const suiBalance = getAccountBalance(suiToken.coinType);
-  const lstBalance = getAccountBalance(lstToken.coinType);
+  const suiBalance = getBalance(suiToken.coinType);
+  const lstBalance = getBalance(lstToken.coinType);
 
   const inBalance = isStaking ? suiBalance : lstBalance;
   const outBalance = isStaking ? lstBalance : suiBalance;
@@ -303,7 +301,7 @@ export default function Home() {
 
       inInputRef.current?.focus();
       await refreshAppData();
-      await refreshBalancesData();
+      await refreshBalances();
     }
   };
 

@@ -6,7 +6,8 @@ import { VenetianMask } from "lucide-react";
 import {
   QueryParams as WalletContextQueryParams,
   useWalletContext,
-} from "@/contexts/WalletContext";
+} from "@suilend/frontend-sui";
+
 import { formatAddress } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
 

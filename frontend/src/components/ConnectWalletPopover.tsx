@@ -1,15 +1,18 @@
 import Image from "next/image";
 import React from "react";
 
-import { WalletType } from "@suiet/wallet-sdk";
 import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
 
+import {
+  Wallet,
+  WalletType,
+  isInMsafeApp,
+  useWalletContext,
+} from "@suilend/frontend-sui";
+
 import Popover from "@/components/Popover";
-import { useWalletContext } from "@/contexts/WalletContext";
 import useIsAndroid from "@/hooks/useIsAndroid";
 import useIsiOS from "@/hooks/useIsiOS";
-import { Wallet } from "@/lib/types";
-import { useListWallets } from "@/lib/wallets";
 
 interface WalletItemProps {
   wallet: Wallet;
@@ -25,7 +28,7 @@ function WalletItem({ wallet }: WalletItemProps) {
     ? wallet.downloadUrls?.iOS
     : isAndroid
       ? wallet.downloadUrls?.android
-      : wallet.downloadUrls?.browserExtension;
+      : wallet.downloadUrls?.extension;
 
   const onClick = () => {
     if (wallet.type === WalletType.WEB || wallet.isInstalled) {
@@ -72,10 +75,11 @@ function WalletItem({ wallet }: WalletItemProps) {
 }
 
 export default function ConnectWalletPopover() {
-  const { isConnectWalletDropdownOpen, setIsConnectWalletDropdownOpen } =
-    useWalletContext();
-
-  const wallets = useListWallets();
+  const {
+    isConnectWalletDropdownOpen,
+    setIsConnectWalletDropdownOpen,
+    wallets,
+  } = useWalletContext();
 
   const Chevron = isConnectWalletDropdownOpen ? ChevronUp : ChevronDown;
 
@@ -105,11 +109,13 @@ export default function ConnectWalletPopover() {
           ))}
         </div>
 
-        <p className="text-p2 text-navy-600">
-          {
-            "Don't have a Sui wallet? Get started by trying one of the wallets above."
-          }
-        </p>
+        {!isInMsafeApp() && (
+          <p className="text-p2 text-navy-600">
+            {
+              "Don't have a Sui wallet? Get started by trying one of the wallets above."
+            }
+          </p>
+        )}
       </div>
     </Popover>
   );
