@@ -6,9 +6,9 @@ import { Transaction } from "@mysten/sui/transactions";
 import { fromBase64, fromHex } from "@mysten/sui/utils";
 import { program } from "commander";
 
-import * as sdk from "../../sdk/src";
-import { LstClient } from "../../sdk/src";
-import { PACKAGE_ID } from "../../sdk/src/_generated/liquid_staking";
+import { LstClient } from "@suilend/springsui-sdk";
+import * as sdk from "@suilend/springsui-sdk";
+import { PACKAGE_ID } from "@suilend/springsui-sdk/_generated/liquid_staking";
 
 const LIQUID_STAKING_INFO = {
   id: "0x15eda7330c8f99c30e430b4d82fd7ab2af3ead4ae17046fcb224aa9bad394f6b",
