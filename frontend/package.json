@@ -35,7 +35,7 @@
     "clsx": "^2.1.0",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.451.0",
+    "lucide-react": "^0.454.0",
     "mixpanel-browser": "^2.49.0",
     "next": "^15.0.1",
     "next-themes": "^0.3.0",
