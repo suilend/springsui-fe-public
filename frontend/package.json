@@ -52,6 +52,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@tsconfig/next": "^2.0.3",
     "@types/lodash": "^4.14.202",
     "@types/mixpanel-browser": "^2.49.0",
     "@types/react": "^18.2.55",
