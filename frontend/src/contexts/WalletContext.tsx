@@ -1,3 +1,10 @@
+import { CoinBalance, SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { Transaction } from "@mysten/sui/transactions";
+import { IdentifierString, WalletAccount } from "@mysten/wallet-standard";
+import * as Sentry from "@sentry/react";
+import { useWallet } from "@suiet/wallet-kit";
+import BigNumber from "bignumber.js";
+import { isEqual } from "lodash";
 import { useRouter } from "next/router";
 import {
   Dispatch,
@@ -11,14 +18,6 @@ import {
   useRef,
   useState,
 } from "react";
-
-import { CoinBalance, SuiTransactionBlockResponse } from "@mysten/sui/client";
-import { Transaction } from "@mysten/sui/transactions";
-import { IdentifierString, WalletAccount } from "@mysten/wallet-standard";
-import * as Sentry from "@sentry/react";
-import { useWallet } from "@suiet/wallet-kit";
-import BigNumber from "bignumber.js";
-import { isEqual } from "lodash";
 
 import { useAppDataContext } from "@/contexts/AppDataContext";
 import { useRootContext } from "@/contexts/RootContext";

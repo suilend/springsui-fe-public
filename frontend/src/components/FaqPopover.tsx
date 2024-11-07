@@ -1,6 +1,5 @@
-import { ReactNode, useState } from "react";
-
 import { ChevronDown, ChevronUp, MessageCircleQuestion } from "lucide-react";
+import { ReactNode, useState } from "react";
 
 import Popover from "@/components/Popover";
 import useBreakpoint from "@/hooks/useBreakpoint";

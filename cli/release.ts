@@ -1,10 +1,12 @@
 import fs from "fs";
 
+const NAME = "@suilend/springsui-cli";
+
 // 1. Update package.json
 import packageJson from "./package.json";
 const newPackageJson = Object.assign({}, packageJson);
 
-newPackageJson["name"] = "@suilend/springsui-cli";
+newPackageJson["name"] = NAME;
 newPackageJson["private"] = false;
 newPackageJson["main"] = "./index.js";
 
@@ -28,3 +30,6 @@ newPackageJson["exports"] = exportsMap as any;
 newPackageJson["types"] = "./index.js";
 
 fs.writeFileSync("./dist/package.json", JSON.stringify(newPackageJson), "utf8");
+
+// 2. Copy README.md
+fs.cpSync("./README.md", "./dist/README.md");

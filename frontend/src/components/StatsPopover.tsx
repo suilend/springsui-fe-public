@@ -1,7 +1,6 @@
-import { ReactNode, useState } from "react";
-
 import { intervalToDuration } from "date-fns";
 import { ChartBar } from "lucide-react";
+import { ReactNode, useState } from "react";
 
 import Popover from "@/components/Popover";
 import { AppData, useAppDataContext } from "@/contexts/AppDataContext";

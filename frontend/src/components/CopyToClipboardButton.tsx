@@ -1,6 +1,5 @@
-import { MouseEvent } from "react";
-
 import { Copy } from "lucide-react";
+import { MouseEvent } from "react";
 
 import { errorToast, infoToast } from "@/lib/toasts";
 

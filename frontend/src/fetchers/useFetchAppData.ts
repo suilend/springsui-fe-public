@@ -6,13 +6,12 @@ import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 import { LENDING_MARKET_ID, LENDING_MARKET_TYPE } from "@suilend/sdk/client";
 import * as simulate from "@suilend/sdk/utils/simulate";
-import BigNumber from "bignumber.js";
-import useSWR from "swr";
-
 import {
   fetchLiquidStakingInfo,
   getSpringSuiApy,
 } from "@suilend/springsui-sdk";
+import BigNumber from "bignumber.js";
+import useSWR from "swr";
 
 import { AppDataContext } from "@/contexts/AppDataContext";
 import { getCoinMetadataMap } from "@/lib/coinMetadata";

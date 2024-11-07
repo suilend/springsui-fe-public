@@ -1,7 +1,6 @@
-import { PropsWithChildren } from "react";
-
 import { ClassValue } from "clsx";
 import { Loader2 } from "lucide-react";
+import { PropsWithChildren } from "react";
 
 import { cn } from "@/lib/utils";
 

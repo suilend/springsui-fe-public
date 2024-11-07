@@ -1,6 +1,5 @@
-import { InputHTMLAttributes } from "react";
-
 import { ClassValue } from "clsx";
+import { InputHTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 

@@ -1,8 +1,7 @@
+import { Compass } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactElement, cloneElement } from "react";
-
-import { Compass } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";

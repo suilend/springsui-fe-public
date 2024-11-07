@@ -1,6 +1,5 @@
-import Image from "next/image";
-
 import { ClassValue } from "clsx";
+import Image from "next/image";
 
 import { Token } from "@/lib/types";
 import { cn } from "@/lib/utils";

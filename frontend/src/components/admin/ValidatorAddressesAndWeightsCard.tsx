@@ -1,13 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-
 import { Transaction } from "@mysten/sui/transactions";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
-import { Minus } from "lucide-react";
-import TextareaAutosize from "react-textarea-autosize";
-import { v4 as uuidv4 } from "uuid";
-
 import { LstClient } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
+import { Minus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
+import { v4 as uuidv4 } from "uuid";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";

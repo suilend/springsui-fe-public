@@ -1,9 +1,8 @@
+import BigNumber from "bignumber.js";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-
-import BigNumber from "bignumber.js";
 
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";

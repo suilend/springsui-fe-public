@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import {
   PropsWithChildren,
   createContext,
@@ -5,8 +6,6 @@ import {
   useContext,
   useMemo,
 } from "react";
-
-import BigNumber from "bignumber.js";
 
 import { useRootContext } from "@/contexts/RootContext";
 import useFetchAppData from "@/fetchers/useFetchAppData";
