@@ -18,7 +18,7 @@
     "paths": {
       "@/public/*": ["./public/*"],
       "@/*": ["./src/*"],
-      "@suilend/springsui-sdk": ["../sdk/src/index"],
+      "@suilend/springsui-sdk": ["../sdk/src"],
       "@suilend/springsui-sdk/*": ["../sdk/src/*"]
     },
     "plugins": [{ "name": "next" }]

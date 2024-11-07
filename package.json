@@ -1,8 +1,4 @@
 {
-  "dependencies": {
-    "@mysten/sui": "1.14.1",
-    "uuid": "^9.0.1"
-  },
   "devDependencies": {
     "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
