@@ -4,6 +4,7 @@ module.exports = {
   experimental: {
     externalDir: true,
   },
+  transpilePackages: ["@suilend/frontend-sui"],
   images: {
     remotePatterns: [
       {
