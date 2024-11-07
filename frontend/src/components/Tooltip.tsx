@@ -1,11 +1,4 @@
 import {
-  TooltipContentProps,
-  TooltipPortal,
-  TooltipProps as TooltipRootProps,
-  TooltipTriggerProps,
-} from "@radix-ui/react-tooltip";
-import { merge } from "lodash";
-import {
   Dispatch,
   ElementRef,
   PropsWithChildren,
@@ -17,6 +10,14 @@ import {
   useMemo,
   useState,
 } from "react";
+
+import {
+  TooltipContentProps,
+  TooltipPortal,
+  TooltipProps as TooltipRootProps,
+  TooltipTriggerProps,
+} from "@radix-ui/react-tooltip";
+import { merge } from "lodash";
 
 import {
   TooltipContent,

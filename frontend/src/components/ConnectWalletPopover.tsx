@@ -1,7 +1,8 @@
-import { WalletType } from "@suiet/wallet-sdk";
-import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+
+import { WalletType } from "@suiet/wallet-sdk";
+import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
 
 import Popover from "@/components/Popover";
 import { useWalletContext } from "@/contexts/WalletContext";

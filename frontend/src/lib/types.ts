@@ -1,6 +1,7 @@
+import { ReactElement } from "react";
+
 import { RegisterWalletCallback, WalletType } from "@suiet/wallet-sdk";
 import BigNumber from "bignumber.js";
-import { ReactElement } from "react";
 
 export type ParsedLiquidStakingInfo = {
   totalSuiSupply: BigNumber;

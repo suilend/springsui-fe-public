@@ -1,5 +1,6 @@
-import { Loader2 } from "lucide-react";
 import { PropsWithChildren } from "react";
+
+import { Loader2 } from "lucide-react";
 
 import BottomNav from "@/components/BottomNav";
 import { FooterMd } from "@/components/Footer";

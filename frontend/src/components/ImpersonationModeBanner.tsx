@@ -1,6 +1,7 @@
+import { useRouter } from "next/router";
+
 import { cloneDeep } from "lodash";
 import { VenetianMask } from "lucide-react";
-import { useRouter } from "next/router";
 
 import {
   QueryParams as WalletContextQueryParams,

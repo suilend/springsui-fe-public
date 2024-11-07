@@ -1,5 +1,6 @@
-import { AlertTriangle, Check, Info } from "lucide-react";
 import { CSSProperties } from "react";
+
+import { AlertTriangle, Check, Info } from "lucide-react";
 
 import { BOTTOM_NAV_BOTTOM_HEIGHT } from "@/components/BottomNav";
 import { FOOTER_MD_HEIGHT } from "@/components/Footer";

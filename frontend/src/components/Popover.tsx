@@ -1,8 +1,9 @@
+import { PropsWithChildren, ReactNode } from "react";
+
 import {
   PopoverContentProps,
   PopoverProps as PopoverRootProps,
 } from "@radix-ui/react-popover";
-import { PropsWithChildren, ReactNode } from "react";
 
 import {
   PopoverContent,

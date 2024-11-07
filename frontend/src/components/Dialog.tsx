@@ -1,5 +1,6 @@
-import { DialogProps as DialogRootProps } from "@radix-ui/react-dialog";
 import { PropsWithChildren, ReactNode } from "react";
+
+import { DialogProps as DialogRootProps } from "@radix-ui/react-dialog";
 
 import {
   DialogContent,

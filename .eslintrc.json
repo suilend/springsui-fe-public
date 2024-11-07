@@ -17,11 +17,24 @@
       {
         "pathGroups": [
           {
+            "pattern": "*(react|next)/**",
+            "patternOptions": { "partial": true },
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "@suilend/**",
+            "patternOptions": { "partial": true },
+            "group": "internal",
+            "position": "before"
+          },
+          {
             "pattern": "@/*/**",
             "group": "internal",
             "position": "before"
           }
         ],
+        "pathGroupsExcludedImportTypes": [],
         "newlines-between": "always",
         "alphabetize": { "order": "asc", "caseInsensitive": true }
       }

@@ -1,9 +1,10 @@
+import { PropsWithChildren } from "react";
+
 import {
   AllDefaultWallets,
   WalletProvider as SuietWalletProvider,
   defineStashedWallet,
 } from "@suiet/wallet-kit";
-import { PropsWithChildren } from "react";
 
 export default function WalletProvider({ children }: PropsWithChildren) {
   return (

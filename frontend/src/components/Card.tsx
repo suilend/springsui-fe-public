@@ -1,5 +1,6 @@
-import { ClassValue } from "clsx";
 import { PropsWithChildren } from "react";
+
+import { ClassValue } from "clsx";
 
 import { cn } from "@/lib/utils";
 

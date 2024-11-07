@@ -1,5 +1,6 @@
-import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+
+import { ExternalLink } from "lucide-react";
 import { ExternalToast, toast } from "sonner";
 
 import { TOAST_DURATION_MS, TX_TOAST_DURATION_MS } from "@/lib/constants";

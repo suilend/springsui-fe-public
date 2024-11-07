@@ -1,6 +1,9 @@
 import { SuiClient } from "@mysten/sui/client";
 import { normalizeStructTag } from "@mysten/sui/utils";
 import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
+import BigNumber from "bignumber.js";
+import useSWR from "swr";
+
 import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
@@ -10,8 +13,6 @@ import {
   fetchLiquidStakingInfo,
   getSpringSuiApy,
 } from "@suilend/springsui-sdk";
-import BigNumber from "bignumber.js";
-import useSWR from "swr";
 
 import { AppDataContext } from "@/contexts/AppDataContext";
 import { getCoinMetadataMap } from "@/lib/coinMetadata";

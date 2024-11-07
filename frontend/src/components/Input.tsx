@@ -1,5 +1,6 @@
-import BigNumber from "bignumber.js";
 import { forwardRef } from "react";
+
+import BigNumber from "bignumber.js";
 
 import BalanceLabel from "@/components/BalanceLabel";
 import TokenLogo from "@/components/TokenLogo";
