@@ -7,7 +7,6 @@ import { FOOTER_MD_HEIGHT } from "@/components/Footer";
 import styles from "@/components/Toaster.module.scss";
 import { Toaster as ToasterComponent } from "@/components/ui/sonner";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import { TOAST_DURATION_MS } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +44,6 @@ export default function Toaster() {
         info: <Info className="text-navy-600" />,
         error: <AlertTriangle className="text-error" />,
       }}
-      duration={TOAST_DURATION_MS}
       style={{
         right: md ? 8 + 24 : 16,
         bottom: md ? FOOTER_MD_HEIGHT + 24 : BOTTOM_NAV_BOTTOM_HEIGHT + 16,

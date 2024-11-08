@@ -2,14 +2,18 @@ import { useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 
-import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+import {
+  showErrorToast,
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/frontend-sui";
 import { FeeConfigArgs, LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
 import { AppData, useAppContext } from "@/contexts/AppContext";
-import { errorToast, successToast } from "@/lib/toasts";
+import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function UpdateFeesCard() {
   const { explorer } = useSettingsContext();
@@ -66,9 +70,9 @@ export default function UpdateFeesCard() {
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
 
-      successToast("Updated fees", undefined, txUrl);
+      showSuccessTxnToast("Updated fees", txUrl);
     } catch (err) {
-      errorToast("Failed to update fees", err as Error);
+      showErrorToast("Failed to update fees", err as Error);
       console.error(err);
     } finally {
       setIsSubmitting(false);

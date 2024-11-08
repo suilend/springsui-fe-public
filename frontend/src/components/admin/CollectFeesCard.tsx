@@ -2,13 +2,17 @@ import { useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 
-import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+import {
+  showErrorToast,
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/frontend-sui";
 import { LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
 import { useAppContext } from "@/contexts/AppContext";
-import { errorToast, successToast } from "@/lib/toasts";
+import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function CollectFeesCard() {
   const { explorer } = useSettingsContext();
@@ -42,9 +46,9 @@ export default function CollectFeesCard() {
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
 
-      successToast("Collected fees", undefined, txUrl);
+      showSuccessTxnToast("Collected fees", txUrl);
     } catch (err) {
-      errorToast("Failed to collect fees", err as Error);
+      showErrorToast("Failed to collect fees", err as Error);
       console.error(err);
     } finally {
       setIsSubmitting(false);

@@ -6,7 +6,12 @@ import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
-import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+import {
+  SUI_GAS_MIN,
+  showErrorToast,
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/frontend-sui";
 import { LstClient } from "@suilend/springsui-sdk";
 
 import Card from "@/components/Card";
@@ -26,7 +31,6 @@ import {
   NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
-import { SUI_GAS_MIN } from "@/lib/constants";
 import {
   formatInteger,
   formatPercent,
@@ -34,7 +38,7 @@ import {
   formatToken,
 } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";
-import { errorToast, successToast } from "@/lib/toasts";
+import { showSuccessTxnToast } from "@/lib/toasts";
 import track from "@/lib/track";
 import { getBalanceChange, mint, redeem } from "@/lib/transactions";
 import { SubmitButtonState } from "@/lib/types";
@@ -257,7 +261,7 @@ export default function Home() {
       const balanceChangeIn = getBalanceChange(res, address!, inToken, -1);
       const balanceChangeOut = getBalanceChange(res, address!, outToken);
 
-      successToast(
+      showSuccessTxnToast(
         [
           isStaking ? "Staked" : "Unstaked",
           formatToken(
@@ -268,17 +272,19 @@ export default function Home() {
           ),
           inToken.symbol,
         ].join(" "),
-        [
-          "Received",
-          formatToken(
-            balanceChangeOut !== undefined
-              ? balanceChangeOut
-              : new BigNumber(outValue),
-            { dp: outToken.decimals },
-          ),
-          outToken.symbol,
-        ].join(" "),
         txUrl,
+        {
+          description: [
+            "Received",
+            formatToken(
+              balanceChangeOut !== undefined
+                ? balanceChangeOut
+                : new BigNumber(outValue),
+              { dp: outToken.decimals },
+            ),
+            outToken.symbol,
+          ].join(" "),
+        },
       );
       formatAndSetInValue("");
 
@@ -289,10 +295,9 @@ export default function Home() {
         amountOutUsd: outValueUsd.toFixed(2, BigNumber.ROUND_DOWN),
       });
     } catch (err) {
-      errorToast(
+      showErrorToast(
         `Failed to ${isStaking ? "stake" : "unstake"}`,
         err as Error,
-        true,
       );
       console.error(err);
     } finally {

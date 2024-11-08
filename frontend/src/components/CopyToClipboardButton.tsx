@@ -2,7 +2,7 @@ import { MouseEvent } from "react";
 
 import { Copy } from "lucide-react";
 
-import { errorToast, infoToast } from "@/lib/toasts";
+import { showErrorToast, showInfoToast } from "@suilend/frontend-sui";
 
 interface CopyToClipboardButtonProps {
   value: string;
@@ -16,12 +16,12 @@ export default function CopyToClipboardButton({
 
     try {
       await navigator.clipboard.writeText(value.toString());
-      infoToast("Copied to clipboard", {
+      showInfoToast("Copied to clipboard", {
         icon: <Copy className="text-navy-600" />,
         description: value,
       });
     } catch (err) {
-      errorToast(`Failed to copy to clipboard`, err as Error);
+      showErrorToast("Failed to copy to clipboard", err as Error);
       console.error(err);
     }
   };

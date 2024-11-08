@@ -3,7 +3,7 @@ import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
-import { useSettingsContext } from "@suilend/frontend-sui";
+import { showErrorToast, useSettingsContext } from "@suilend/frontend-sui";
 import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
@@ -31,7 +31,6 @@ import {
   getFilteredRewards,
   getTotalAprPercent,
 } from "@/lib/liquidityMining";
-import { errorToast } from "@/lib/toasts";
 import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
 export default function useFetchAppData() {
@@ -215,7 +214,7 @@ export default function useFetchAppData() {
       console.log("Refreshed app data", data);
     },
     onError: (err) => {
-      errorToast("Failed to refresh app data", err);
+      showErrorToast("Failed to refresh app data", err);
       console.error(err);
     },
   });

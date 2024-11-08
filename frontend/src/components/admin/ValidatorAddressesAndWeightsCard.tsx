@@ -5,7 +5,11 @@ import { Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
-import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+import {
+  showErrorToast,
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/frontend-sui";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LstClient } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
@@ -16,7 +20,7 @@ import Card from "@/components/Card";
 import { useAppContext } from "@/contexts/AppContext";
 import { LIQUID_STAKING_INFO } from "@/lib/coinType";
 import { formatInteger } from "@/lib/format";
-import { errorToast, successToast } from "@/lib/toasts";
+import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
 export default function ValidatorAddressesAndWeightsCard() {
@@ -113,9 +117,12 @@ export default function ValidatorAddressesAndWeightsCard() {
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
 
-      successToast("Set validator addresses and weights", undefined, txUrl);
+      showSuccessTxnToast("Set validator addresses and weights", txUrl);
     } catch (err) {
-      errorToast("Failed to set validator addresses and weights", err as Error);
+      showErrorToast(
+        "Failed to set validator addresses and weights",
+        err as Error,
+      );
       console.error(err);
     } finally {
       setIsSubmitting(false);
