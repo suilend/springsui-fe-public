@@ -88,7 +88,7 @@ export default function useFetchAppData() {
       {},
     ) as Record<string, ParsedReserve>;
 
-    const rewardsMap = formatRewards(reservesMap, coinMetadataMap);
+    const rewardMap = formatRewards(reservesMap, coinMetadataMap);
 
     // Token map
     const tokenMap = Object.entries(coinMetadataMap).reduce(
@@ -161,8 +161,8 @@ export default function useFetchAppData() {
     const suiReserve = reservesMap[NORMALIZED_SUI_COINTYPE];
     const lstReserve = reservesMap[NORMALIZED_LST_COINTYPE] ?? suiReserve;
 
-    const suiRewards = rewardsMap[NORMALIZED_SUI_COINTYPE];
-    const lstRewards = rewardsMap[NORMALIZED_LST_COINTYPE] ?? suiRewards;
+    const suiRewards = rewardMap[NORMALIZED_SUI_COINTYPE];
+    const lstRewards = rewardMap[NORMALIZED_LST_COINTYPE] ?? suiRewards;
 
     const suiPrice = suiReserve.price;
     const lstPrice = lstReserve.price.div(
@@ -193,6 +193,7 @@ export default function useFetchAppData() {
       +latestSuiSystemState.epochDurationMs;
 
     return {
+      coinMetadataMap,
       tokenMap,
       liquidStakingInfo,
 

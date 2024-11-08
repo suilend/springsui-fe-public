@@ -4,15 +4,14 @@ import { intervalToDuration } from "date-fns";
 import { ChartBar } from "lucide-react";
 
 import Popover from "@/components/Popover";
-import { AppData, useAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { NORMALIZED_SUI_COINTYPE } from "@/lib/coinType";
 import { formatToken, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function StatsContent() {
-  const appContext = useAppContext();
-  const appData = appContext.appData as AppData;
+  const { appData } = useLoadedAppContext();
 
   const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
 

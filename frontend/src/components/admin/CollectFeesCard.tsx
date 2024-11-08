@@ -7,18 +7,16 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui";
-import { LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
-import { useAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function CollectFeesCard() {
   const { explorer } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refresh, weightHookAdminCapId, ...restAppContext } = useAppContext();
-  const lstClient = restAppContext.lstClient as LstClient;
+  const { lstClient, refresh, weightHookAdminCapId } = useLoadedAppContext();
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

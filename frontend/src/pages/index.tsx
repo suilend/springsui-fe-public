@@ -12,7 +12,6 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui";
-import { LstClient } from "@suilend/springsui-sdk";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
@@ -25,7 +24,7 @@ import Tooltip from "@/components/Tooltip";
 import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
-import { AppData, useAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import {
   NORMALIZED_LST_COINTYPE,
   NORMALIZED_SEND_POINTS_COINTYPE,
@@ -60,9 +59,7 @@ export default function Home() {
     address,
     signExecuteAndWaitForTransaction,
   } = useWalletContext();
-  const { getBalance, refresh, ...restAppContext } = useAppContext();
-  const lstClient = restAppContext.lstClient as LstClient;
-  const appData = restAppContext.appData as AppData;
+  const { lstClient, appData, getBalance, refresh } = useLoadedAppContext();
 
   const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
   const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];

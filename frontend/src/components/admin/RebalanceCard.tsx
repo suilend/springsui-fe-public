@@ -7,19 +7,17 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui";
-import { LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
-import { useAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { LIQUID_STAKING_INFO } from "@/lib/coinType";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function RebalanceCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refresh, ...restAppContext } = useAppContext();
-  const lstClient = restAppContext.lstClient as LstClient;
+  const { lstClient, refresh } = useLoadedAppContext();
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

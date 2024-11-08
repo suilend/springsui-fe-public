@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 
+import { CoinMetadata } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 
 import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
@@ -20,6 +21,7 @@ import { LIQUID_STAKING_INFO } from "@/lib/coinType";
 import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
 export interface AppData {
+  coinMetadataMap: Record<string, CoinMetadata>;
   tokenMap: Record<string, Token>;
   liquidStakingInfo: ParsedLiquidStakingInfo;
 
@@ -34,20 +36,26 @@ export interface AppData {
   currentEpochEndMs: number;
 }
 
-export interface AppContext {
+interface AppContext {
   lstClient: LstClient | undefined;
 
   appData: AppData | undefined;
+  rawBalances: Record<string, BigNumber> | undefined;
   getBalance: (coinType: string) => BigNumber;
   refresh: () => Promise<void>;
 
   weightHookAdminCapId: string | undefined;
 }
+type LoadedAppContext = AppContext & {
+  lstClient: LstClient;
+  appData: AppData;
+};
 
 const AppContext = createContext<AppContext>({
   lstClient: undefined,
 
   appData: undefined,
+  rawBalances: undefined,
   getBalance: () => {
     throw Error("AppContextProvider not initialized");
   },
@@ -59,6 +67,7 @@ const AppContext = createContext<AppContext>({
 });
 
 export const useAppContext = () => useContext(AppContext);
+export const useLoadedAppContext = () => useAppContext() as LoadedAppContext;
 
 export function AppContextProvider({ children }: PropsWithChildren) {
   const { suiClient } = useSettingsContext();
@@ -80,14 +89,14 @@ export function AppContextProvider({ children }: PropsWithChildren) {
 
   // App data and balances
   const { data: appData, mutateData: mutateAppData } = useFetchAppData();
-  const { data: balances, mutateData: mutateBalances } = useFetchBalances();
+  const { data: rawBalances, mutateData: mutateBalances } = useFetchBalances();
 
   const getBalance = useCallback(
     (coinType: string) =>
-      new BigNumber(balances?.[coinType] ?? new BigNumber(0)).div(
-        10 ** (appData?.tokenMap[coinType]?.decimals ?? 0),
+      new BigNumber(rawBalances?.[coinType] ?? new BigNumber(0)).div(
+        10 ** (appData?.coinMetadataMap[coinType]?.decimals ?? 0),
       ),
-    [balances, appData?.tokenMap],
+    [rawBalances, appData?.coinMetadataMap],
   );
 
   const refresh = useCallback(async () => {
@@ -121,12 +130,20 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       lstClient,
 
       appData,
+      rawBalances,
       getBalance,
       refresh,
 
       weightHookAdminCapId,
     }),
-    [lstClient, appData, getBalance, refresh, weightHookAdminCapId],
+    [
+      lstClient,
+      appData,
+      rawBalances,
+      getBalance,
+      refresh,
+      weightHookAdminCapId,
+    ],
   );
 
   return (

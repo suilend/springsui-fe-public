@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { cloneElement } from "react";
 
 import { NAV_ITEMS } from "@/components/Nav";
-import { useAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { ADMIN_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ export const BOTTOM_NAV_BOTTOM_HEIGHT = 78; // px
 export default function BottomNav() {
   const router = useRouter();
 
-  const { weightHookAdminCapId } = useAppContext();
+  const { weightHookAdminCapId } = useLoadedAppContext();
 
   // Items
   const navItems = [...NAV_ITEMS];

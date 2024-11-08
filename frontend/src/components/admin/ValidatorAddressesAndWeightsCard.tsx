@@ -11,13 +11,12 @@ import {
   useWalletContext,
 } from "@suilend/frontend-sui";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
-import { LstClient } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { useAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { LIQUID_STAKING_INFO } from "@/lib/coinType";
 import { formatInteger } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
@@ -26,8 +25,7 @@ import { cn } from "@/lib/utils";
 export default function ValidatorAddressesAndWeightsCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refresh, weightHookAdminCapId, ...restAppContext } = useAppContext();
-  const lstClient = restAppContext.lstClient as LstClient;
+  const { lstClient, refresh, weightHookAdminCapId } = useLoadedAppContext();
 
   // Weight hook
   const fetchedWeightHookRef = useRef<boolean>(false);

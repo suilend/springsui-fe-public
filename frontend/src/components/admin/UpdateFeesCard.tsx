@@ -7,20 +7,19 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui";
-import { FeeConfigArgs, LstClient } from "@suilend/springsui-sdk";
+import { FeeConfigArgs } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { AppData, useAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function UpdateFeesCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refresh, weightHookAdminCapId, ...restAppContext } = useAppContext();
-  const lstClient = restAppContext.lstClient as LstClient;
-  const appData = restAppContext.appData as AppData;
+  const { lstClient, appData, refresh, weightHookAdminCapId } =
+    useLoadedAppContext();
 
   // State
   const [feeConfigArgs, setFeeConfigArgs] = useState<
