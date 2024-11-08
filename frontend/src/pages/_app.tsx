@@ -27,11 +27,12 @@ function WalletContextProviderWrapper({ children }: PropsWithChildren) {
   const { suiClient } = useSettingsContext();
 
   return (
-    <WalletContextProvider appName="Suilend" suiClient={suiClient}>
+    <WalletContextProvider appName="SpringSui" suiClient={suiClient}>
       {children}
     </WalletContextProvider>
   );
 }
+
 export default function App({ Component, pageProps }: AppProps) {
   // Mixpanel
   useEffect(() => {
