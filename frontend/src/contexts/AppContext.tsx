@@ -5,16 +5,14 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 
-import { CoinBalance } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
-import { isEqual } from "lodash";
 
 import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
+import useRefreshOnBalancesChange from "@suilend/frontend-sui/hooks/useRefreshOnBalancesChange";
 import { LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
@@ -75,6 +73,7 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   // Lst client
   const [lstClient, setLstClient] =
     useState<AppContext["lstClient"]>(undefined);
+
   useEffect(() => {
     (async () => {
       const _lstClient = await LstClient.initialize(
@@ -107,43 +106,20 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     [balances, appData?.tokenMap],
   );
 
-  // Poll for balance changes
-  const previousBalancesRef = useRef<CoinBalance[] | undefined>(undefined);
-  useEffect(() => {
-    if (!address) return;
-
-    previousBalancesRef.current = undefined;
-    const interval = setInterval(async () => {
-      try {
-        const balances = await suiClient.getAllBalances({
-          owner: address,
-        });
-
-        if (
-          previousBalancesRef.current !== undefined &&
-          !isEqual(balances, previousBalancesRef.current)
-        ) {
-          await refreshAppData();
-          await refreshBalances();
-        }
-        previousBalancesRef.current = balances;
-      } catch (err) {
-        console.error(err);
-      }
-    }, 1000 * 5);
-
-    return () => {
-      if (interval !== undefined) clearInterval(interval);
-    };
-  }, [address, suiClient, refreshAppData, refreshBalances]);
+  // Balances - refresh on change
+  const refresh = useCallback(async () => {
+    await refreshBalances();
+    await refreshAppData();
+  }, [refreshBalances, refreshAppData]);
+  useRefreshOnBalancesChange(suiClient, refresh);
 
   // Admin
   const [weightHookAdminCapId, setWeightHookAdminCapId] =
     useState<AppContext["weightHookAdminCapId"]>(undefined);
 
   useEffect(() => {
-    if (!lstClient) return;
     if (!address) return;
+    if (!lstClient) return;
 
     (async () => {
       try {
@@ -154,7 +130,7 @@ export function AppContextProvider({ children }: PropsWithChildren) {
         console.error(err);
       }
     })();
-  }, [lstClient, address]);
+  }, [address, lstClient]);
 
   // Context
   const contextValue: AppContext = useMemo(
