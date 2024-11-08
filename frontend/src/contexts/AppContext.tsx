@@ -14,10 +14,10 @@ import BigNumber from "bignumber.js";
 import { isEqual } from "lodash";
 
 import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
 import { LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
-import useFetchBalances from "@/fetchers/useFetchBalances";
 import { LIQUID_STAKING_INFO } from "@/lib/coinType";
 import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
 
