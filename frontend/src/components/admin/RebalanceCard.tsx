@@ -18,8 +18,7 @@ import { showSuccessTxnToast } from "@/lib/toasts";
 export default function RebalanceCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refreshAppData, refreshBalances, ...restAppContext } =
-    useAppContext();
+  const { refresh, ...restAppContext } = useAppContext();
   const lstClient = restAppContext.lstClient as LstClient;
 
   // Submit
@@ -43,8 +42,7 @@ export default function RebalanceCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      await refreshAppData();
-      await refreshBalances();
+      await refresh();
     }
   };
 

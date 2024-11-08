@@ -38,10 +38,8 @@ export interface AppContext {
   lstClient: LstClient | undefined;
 
   appData: AppData | undefined;
-  refreshAppData: () => Promise<void>;
-
   getBalance: (coinType: string) => BigNumber;
-  refreshBalances: () => Promise<void>;
+  refresh: () => Promise<void>;
 
   weightHookAdminCapId: string | undefined;
 }
@@ -50,14 +48,10 @@ const AppContext = createContext<AppContext>({
   lstClient: undefined,
 
   appData: undefined,
-  refreshAppData: async () => {
-    throw Error("AppContextProvider not initialized");
-  },
-
   getBalance: () => {
     throw Error("AppContextProvider not initialized");
   },
-  refreshBalances: async () => {
+  refresh: async () => {
     throw Error("AppContextProvider not initialized");
   },
 
@@ -84,19 +78,9 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     })();
   }, [suiClient]);
 
-  // App data
+  // App data and balances
   const { data: appData, mutateData: mutateAppData } = useFetchAppData();
-
-  const refreshAppData = useCallback(async () => {
-    await mutateAppData();
-  }, [mutateAppData]);
-
-  // Balances
   const { data: balances, mutateData: mutateBalances } = useFetchBalances();
-
-  const refreshBalances = useCallback(async () => {
-    await mutateBalances();
-  }, [mutateBalances]);
 
   const getBalance = useCallback(
     (coinType: string) =>
@@ -106,11 +90,10 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     [balances, appData?.tokenMap],
   );
 
-  // Balances - refresh on change
   const refresh = useCallback(async () => {
-    await refreshBalances();
-    await refreshAppData();
-  }, [refreshBalances, refreshAppData]);
+    await mutateAppData();
+    await mutateBalances();
+  }, [mutateAppData, mutateBalances]);
   useRefreshOnBalancesChange(suiClient, refresh);
 
   // Admin
@@ -138,21 +121,12 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       lstClient,
 
       appData,
-      refreshAppData,
-
       getBalance,
-      refreshBalances,
+      refresh,
 
       weightHookAdminCapId,
     }),
-    [
-      lstClient,
-      appData,
-      refreshAppData,
-      getBalance,
-      refreshBalances,
-      weightHookAdminCapId,
-    ],
+    [lstClient, appData, getBalance, refresh, weightHookAdminCapId],
   );
 
   return (

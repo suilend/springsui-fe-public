@@ -60,8 +60,7 @@ export default function Home() {
     address,
     signExecuteAndWaitForTransaction,
   } = useWalletContext();
-  const { refreshAppData, getBalance, refreshBalances, ...restAppContext } =
-    useAppContext();
+  const { getBalance, refresh, ...restAppContext } = useAppContext();
   const lstClient = restAppContext.lstClient as LstClient;
   const appData = restAppContext.appData as AppData;
 
@@ -305,8 +304,7 @@ export default function Home() {
       setIsTransactionConfirmationDialogOpen(false);
 
       inInputRef.current?.focus();
-      await refreshAppData();
-      await refreshBalances();
+      await refresh();
     }
   };
 

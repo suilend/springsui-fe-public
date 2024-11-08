@@ -26,12 +26,7 @@ import { cn } from "@/lib/utils";
 export default function ValidatorAddressesAndWeightsCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const {
-    refreshAppData,
-    refreshBalances,
-    weightHookAdminCapId,
-    ...restAppContext
-  } = useAppContext();
+  const { refresh, weightHookAdminCapId, ...restAppContext } = useAppContext();
   const lstClient = restAppContext.lstClient as LstClient;
 
   // Weight hook
@@ -126,8 +121,7 @@ export default function ValidatorAddressesAndWeightsCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      await refreshAppData();
-      await refreshBalances();
+      await refresh();
     }
   };
 

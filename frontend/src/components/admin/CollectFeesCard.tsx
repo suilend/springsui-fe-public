@@ -17,12 +17,7 @@ import { showSuccessTxnToast } from "@/lib/toasts";
 export default function CollectFeesCard() {
   const { explorer } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
-  const {
-    refreshAppData,
-    refreshBalances,
-    weightHookAdminCapId,
-    ...restAppContext
-  } = useAppContext();
+  const { refresh, weightHookAdminCapId, ...restAppContext } = useAppContext();
   const lstClient = restAppContext.lstClient as LstClient;
 
   // Submit
@@ -52,8 +47,7 @@ export default function CollectFeesCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      await refreshAppData();
-      await refreshBalances();
+      await refresh();
     }
   };
 

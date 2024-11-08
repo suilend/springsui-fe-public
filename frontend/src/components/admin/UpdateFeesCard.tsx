@@ -18,12 +18,7 @@ import { showSuccessTxnToast } from "@/lib/toasts";
 export default function UpdateFeesCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const {
-    refreshAppData,
-    refreshBalances,
-    weightHookAdminCapId,
-    ...restAppContext
-  } = useAppContext();
+  const { refresh, weightHookAdminCapId, ...restAppContext } = useAppContext();
   const lstClient = restAppContext.lstClient as LstClient;
   const appData = restAppContext.appData as AppData;
 
@@ -76,8 +71,7 @@ export default function UpdateFeesCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      await refreshAppData();
-      await refreshBalances();
+      await refresh();
     }
   };
 
