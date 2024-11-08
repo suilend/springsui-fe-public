@@ -14,7 +14,7 @@
     "lint": "bun eslint && bun prettier && bun tsc --noEmit"
   },
   "dependencies": {
-    "@msafe/sui-app-store": "^0.0.157",
+    "@msafe/sui-app-store": "^0.0.158",
     "@msafe/sui-wallet": "^0.0.77",
     "@msafe/sui3-utils": "^5.0.2",
     "@mysten/sui": "1.14.2",
