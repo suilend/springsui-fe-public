@@ -1,7 +1,7 @@
 import "@/lib/abortSignalPolyfill";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { PropsWithChildren, useEffect } from "react";
+import { useEffect } from "react";
 
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -10,7 +10,6 @@ import mixpanel from "mixpanel-browser";
 import {
   SettingsContextProvider,
   WalletContextProvider,
-  useSettingsContext,
 } from "@suilend/frontend-sui";
 
 import Layout from "@/components/Layout";
@@ -22,16 +21,6 @@ import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
 import "@/styles/globals.scss";
-
-function WalletContextProviderWrapper({ children }: PropsWithChildren) {
-  const { suiClient } = useSettingsContext();
-
-  return (
-    <WalletContextProvider appName="SpringSui" suiClient={suiClient}>
-      {children}
-    </WalletContextProvider>
-  );
-}
 
 export default function App({ Component, pageProps }: AppProps) {
   // Mixpanel
@@ -59,7 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <main id="__app_main" className={cn(fontClassNames)}>
         <SettingsContextProvider>
-          <WalletContextProviderWrapper>
+          <WalletContextProvider appName="SpringSui">
             <AppContextProvider>
               <TooltipProvider>
                 <Layout>
@@ -68,7 +57,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 <Toaster />
               </TooltipProvider>
             </AppContextProvider>
-          </WalletContextProviderWrapper>
+          </WalletContextProvider>
         </SettingsContextProvider>
       </main>
     </>

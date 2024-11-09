@@ -7,6 +7,8 @@ import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
 import {
+  NORMALIZED_SEND_POINTS_COINTYPE,
+  NORMALIZED_SUI_COINTYPE,
   SUI_GAS_MIN,
   showErrorToast,
   useSettingsContext,
@@ -25,11 +27,7 @@ import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import {
-  NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SEND_POINTS_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
-} from "@/lib/coinType";
+import { NORMALIZED_LST_COINTYPE } from "@/lib/coinType";
 import {
   formatInteger,
   formatPercent,
@@ -342,7 +340,10 @@ export default function Home() {
             size={16}
           />
         ),
-        value: `${outValue === "" ? "--" : formatPoints(new BigNumber(outValue || 0).times(appData.lstReserveSendPointsPerDay), { dp: 3 })} / day`,
+        value:
+          outValue === ""
+            ? `${formatPoints(new BigNumber(1).times(appData.lstReserveSendPointsPerDay), { dp: 3 })} / ${lstToken.symbol} / day`
+            : `${formatPoints(new BigNumber(outValue || 0).times(appData.lstReserveSendPointsPerDay), { dp: 3 })} / day`,
       },
     );
   } else {

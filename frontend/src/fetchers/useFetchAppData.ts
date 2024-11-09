@@ -3,7 +3,14 @@ import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
-import { showErrorToast, useSettingsContext } from "@suilend/frontend-sui";
+import {
+  NORMALIZED_SUI_COINTYPE,
+  getCoinMetadataMap,
+  isSendPoints,
+  isSui,
+  showErrorToast,
+  useSettingsContext,
+} from "@suilend/frontend-sui";
 import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
@@ -15,15 +22,11 @@ import {
 } from "@suilend/springsui-sdk";
 
 import { AppData } from "@/contexts/AppContext";
-import { getCoinMetadataMap } from "@/lib/coinMetadata";
 import {
   LIQUID_STAKING_INFO,
   NORMALIZED_AAA_COINTYPE,
   NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
   isLst,
-  isSendPoints,
-  isSui,
 } from "@/lib/coinType";
 import {
   formatRewards,

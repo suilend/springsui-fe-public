@@ -13,6 +13,7 @@ import BigNumber from "bignumber.js";
 
 import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
+import useBalancesCoinMetadataMap from "@suilend/frontend-sui/hooks/useBalancesCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui/hooks/useRefreshOnBalancesChange";
 import { LstClient } from "@suilend/springsui-sdk";
 
@@ -40,7 +41,7 @@ interface AppContext {
   lstClient: LstClient | undefined;
 
   appData: AppData | undefined;
-  rawBalances: Record<string, BigNumber> | undefined;
+  balancesCoinMetadataMap: Record<string, CoinMetadata> | undefined;
   getBalance: (coinType: string) => BigNumber;
   refresh: () => Promise<void>;
 
@@ -55,7 +56,7 @@ const AppContext = createContext<AppContext>({
   lstClient: undefined,
 
   appData: undefined,
-  rawBalances: undefined,
+  balancesCoinMetadataMap: undefined,
   getBalance: () => {
     throw Error("AppContextProvider not initialized");
   },
@@ -89,21 +90,33 @@ export function AppContextProvider({ children }: PropsWithChildren) {
 
   // App data and balances
   const { data: appData, mutateData: mutateAppData } = useFetchAppData();
-  const { data: rawBalances, mutateData: mutateBalances } = useFetchBalances();
+  const { data: rawBalancesMap, mutateData: mutateRawBalancesMap } =
+    useFetchBalances();
+
+  const balancesCoinMetadataMap = useBalancesCoinMetadataMap(rawBalancesMap);
 
   const getBalance = useCallback(
-    (coinType: string) =>
-      new BigNumber(rawBalances?.[coinType] ?? new BigNumber(0)).div(
-        10 ** (appData?.coinMetadataMap[coinType]?.decimals ?? 0),
-      ),
-    [rawBalances, appData?.coinMetadataMap],
+    (coinType: string) => {
+      if (rawBalancesMap?.[coinType] === undefined) return new BigNumber(0);
+
+      const coinMetadata =
+        appData?.coinMetadataMap?.[coinType] ??
+        balancesCoinMetadataMap?.[coinType];
+      if (!coinMetadata) return new BigNumber(0);
+
+      return new BigNumber(rawBalancesMap[coinType]).div(
+        10 ** coinMetadata.decimals,
+      );
+    },
+    [rawBalancesMap, appData?.coinMetadataMap, balancesCoinMetadataMap],
   );
 
   const refresh = useCallback(async () => {
     await mutateAppData();
-    await mutateBalances();
-  }, [mutateAppData, mutateBalances]);
-  useRefreshOnBalancesChange(suiClient, refresh);
+    await mutateRawBalancesMap();
+  }, [mutateAppData, mutateRawBalancesMap]);
+
+  useRefreshOnBalancesChange(refresh);
 
   // Admin
   const [weightHookAdminCapId, setWeightHookAdminCapId] =
@@ -130,7 +143,7 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       lstClient,
 
       appData,
-      rawBalances,
+      balancesCoinMetadataMap,
       getBalance,
       refresh,
 
@@ -139,7 +152,7 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     [
       lstClient,
       appData,
-      rawBalances,
+      balancesCoinMetadataMap,
       getBalance,
       refresh,
       weightHookAdminCapId,

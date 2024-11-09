@@ -5,6 +5,11 @@ import { useEffect, useState } from "react";
 
 import BigNumber from "bignumber.js";
 
+import {
+  NORMALIZED_SEND_POINTS_COINTYPE,
+  NORMALIZED_SUI_COINTYPE,
+} from "@suilend/frontend-sui";
+
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
@@ -13,8 +18,6 @@ import { useLoadedAppContext } from "@/contexts/AppContext";
 import {
   NORMALIZED_AAA_COINTYPE,
   NORMALIZED_LST_COINTYPE,
-  NORMALIZED_SEND_POINTS_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
 } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { shallowPushQuery } from "@/lib/router";

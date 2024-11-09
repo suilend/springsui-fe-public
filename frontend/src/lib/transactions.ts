@@ -3,13 +3,10 @@ import { Transaction } from "@mysten/sui/transactions";
 import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
+import { isSui } from "@suilend/frontend-sui";
 import { LstClient } from "@suilend/springsui-sdk";
 
-import {
-  LIQUID_STAKING_INFO,
-  NORMALIZED_LST_COINTYPE,
-  isSui,
-} from "@/lib/coinType";
+import { LIQUID_STAKING_INFO, NORMALIZED_LST_COINTYPE } from "@/lib/coinType";
 import { Token } from "@/lib/types";
 
 export const getTotalGasFee = (res: SuiTransactionBlockResponse) =>

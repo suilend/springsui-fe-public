@@ -3,10 +3,11 @@ import { ReactNode, useState } from "react";
 import { intervalToDuration } from "date-fns";
 import { ChartBar } from "lucide-react";
 
+import { NORMALIZED_SUI_COINTYPE } from "@suilend/frontend-sui";
+
 import Popover from "@/components/Popover";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import { NORMALIZED_SUI_COINTYPE } from "@/lib/coinType";
 import { formatToken, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
