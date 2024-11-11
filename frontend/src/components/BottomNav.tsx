@@ -2,9 +2,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { cloneElement } from "react";
 
-import { NAV_ITEMS } from "@/components/Nav";
+import { ADMIN_NAV_ITEM, NAV_ITEMS } from "@/components/Nav";
 import { useLoadedLstContext } from "@/contexts/LstContext";
-import { ADMIN_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export const BOTTOM_NAV_BOTTOM_HEIGHT = 78; // px
@@ -16,8 +15,7 @@ export default function BottomNav() {
 
   // Items
   const navItems = [...NAV_ITEMS];
-  if (admin.weightHookAdminCapId)
-    navItems.push({ url: ADMIN_URL, title: "Admin" });
+  if (admin.weightHookAdminCapId) navItems.push(ADMIN_NAV_ITEM);
 
   return (
     <>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactElement, cloneElement } from "react";
 
-import { Compass } from "lucide-react";
+import { Bolt, Compass } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
@@ -15,14 +15,21 @@ import { cn } from "@/lib/utils";
 const SM_NAV_HEIGHT = 60; // px
 export const MD_NAV_HEIGHT = 72; // px
 
-export const NAV_ITEMS: {
+type NavItem = {
   url: string;
   icon?: ReactElement;
   title: string;
-}[] = [
+};
+
+export const NAV_ITEMS: NavItem[] = [
   { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
   { url: EXPLORE_URL, icon: <Compass />, title: "Explore" },
 ];
+export const ADMIN_NAV_ITEM: NavItem = {
+  url: ADMIN_URL,
+  icon: <Bolt />,
+  title: "Admin",
+};
 
 export default function Nav() {
   const router = useRouter();
@@ -33,8 +40,7 @@ export default function Nav() {
 
   // Items
   const navItems = [...NAV_ITEMS];
-  if (admin.weightHookAdminCapId)
-    navItems.push({ url: ADMIN_URL, title: "Admin" });
+  if (admin.weightHookAdminCapId) navItems.push(ADMIN_NAV_ITEM);
 
   return (
     <>
