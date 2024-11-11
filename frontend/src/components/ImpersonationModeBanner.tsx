@@ -5,11 +5,11 @@ import { VenetianMask } from "lucide-react";
 
 import {
   QueryParams as WalletContextQueryParams,
+  shallowPushQuery,
   useWalletContext,
 } from "@suilend/frontend-sui";
 
 import { formatAddress } from "@/lib/format";
-import { shallowPushQuery } from "@/lib/router";
 
 export default function ImpersonationModeBanner() {
   const router = useRouter();

@@ -7,7 +7,7 @@ import { Compass } from "lucide-react";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
-import { useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { ADMIN_URL, EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -27,13 +27,14 @@ export const NAV_ITEMS: {
 export default function Nav() {
   const router = useRouter();
 
-  const { weightHookAdminCapId } = useLoadedAppContext();
+  const { admin } = useLoadedLstContext();
 
   const { md } = useBreakpoint();
 
   // Items
   const navItems = [...NAV_ITEMS];
-  if (weightHookAdminCapId) navItems.push({ url: ADMIN_URL, title: "Admin" });
+  if (admin.weightHookAdminCapId)
+    navItems.push({ url: ADMIN_URL, title: "Admin" });
 
   return (
     <>

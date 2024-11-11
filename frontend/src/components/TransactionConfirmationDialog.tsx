@@ -1,11 +1,12 @@
 import BigNumber from "bignumber.js";
 
+import { Token } from "@suilend/frontend-sui";
+
 import Card from "@/components/Card";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { formatToken } from "@/lib/format";
-import { Token } from "@/lib/types";
 
 export type TransactionConfirmationDialogConfig = {
   isStaking: boolean;

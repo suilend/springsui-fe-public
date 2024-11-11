@@ -3,18 +3,16 @@ import { ReactNode, useState } from "react";
 import { intervalToDuration } from "date-fns";
 import { ChartBar } from "lucide-react";
 
-import { NORMALIZED_SUI_COINTYPE } from "@suilend/frontend-sui";
-
 import Popover from "@/components/Popover";
 import { useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { formatToken, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function StatsContent() {
   const { appData } = useLoadedAppContext();
-
-  const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
+  const { lstData } = useLoadedLstContext();
 
   const currentEpochEndsDuration = intervalToDuration({
     start: new Date(),
@@ -29,10 +27,8 @@ export function StatsContent() {
   }[] = [
     {
       label: "Total value locked (TVL)",
-      value: `${formatToken(appData.liquidStakingInfo.totalSuiSupply)} ${suiToken.symbol}`,
-      subValue: formatUsd(
-        appData.liquidStakingInfo.totalSuiSupply.times(appData.suiPrice),
-      ),
+      value: `${formatToken(lstData.totalSuiSupply)} ${appData.suiToken.symbol}`,
+      subValue: formatUsd(lstData.totalSuiSupply.times(appData.suiPrice)),
     },
     {
       label: "Current epoch",

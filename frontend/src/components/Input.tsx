@@ -2,10 +2,11 @@ import { forwardRef } from "react";
 
 import BigNumber from "bignumber.js";
 
+import { Token } from "@suilend/frontend-sui";
+
 import BalanceLabel from "@/components/BalanceLabel";
 import TokenLogo from "@/components/TokenLogo";
 import { formatUsd } from "@/lib/format";
-import { Token } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface InputProps {

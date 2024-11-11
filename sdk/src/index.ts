@@ -366,11 +366,11 @@ export interface FeeConfigArgs {
   spreadFeeBps?: number;
 }
 
-// only works for sSui
-export async function getSpringSuiApy(client: SuiClient) {
+// only works for sSUI and mSUI
+export async function getSpringSuiApy(
+  client: SuiClient,
+  validatorAddress: string = SUILEND_VALIDATOR_ADDRESS,
+) {
   const res = await client.getValidatorsApy();
-  const validatorApy = res.apys.find(
-    (apy) => apy.address == SUILEND_VALIDATOR_ADDRESS,
-  );
-  return validatorApy?.apy;
+  return res.apys.find((apy) => apy.address == validatorAddress)?.apy;
 }

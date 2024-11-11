@@ -16,6 +16,7 @@ import Layout from "@/components/Layout";
 import Toaster from "@/components/Toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppContextProvider } from "@/contexts/AppContext";
+import { LstContextProvider } from "@/contexts/LstContext";
 import { TITLE } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
@@ -50,12 +51,14 @@ export default function App({ Component, pageProps }: AppProps) {
         <SettingsContextProvider>
           <WalletContextProvider appName="SpringSui">
             <AppContextProvider>
-              <TooltipProvider>
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
-                <Toaster />
-              </TooltipProvider>
+              <LstContextProvider>
+                <TooltipProvider>
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
+                  <Toaster />
+                </TooltipProvider>
+              </LstContextProvider>
             </AppContextProvider>
           </WalletContextProvider>
         </SettingsContextProvider>

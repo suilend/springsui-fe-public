@@ -11,13 +11,14 @@ import {
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import { LIQUID_STAKING_INFO } from "@/lib/coinType";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function RebalanceCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { lstClient, refresh } = useLoadedAppContext();
+  const { refresh } = useLoadedAppContext();
+  const { admin } = useLoadedLstContext();
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -29,7 +30,10 @@ export default function RebalanceCard() {
     const transaction = new Transaction();
 
     try {
-      lstClient.rebalance(transaction, LIQUID_STAKING_INFO.weightHookId);
+      admin.lstClient.rebalance(
+        transaction,
+        admin.lstClient.liquidStakingObject.weightHookId,
+      );
 
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
