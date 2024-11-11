@@ -1,19 +1,25 @@
+import { useRouter } from "next/router";
 import {
   PropsWithChildren,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
-import { useWalletContext } from "@suilend/frontend-sui";
+import { shallowPushQuery, useWalletContext } from "@suilend/frontend-sui";
 import { LstClient } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import { LstData, LstId, useAppContext } from "@/contexts/AppContext";
 import useFetchWeightHookAdminCapIdMap from "@/fetchers/useFetchWeightHookAdminCapIdMap";
 import useFetchWeightHookMap from "@/fetchers/useFetchWeightHookMap";
+
+enum QueryParams {
+  LST = "lst",
+}
 
 export interface LstContext {
   lstId: LstId;
@@ -62,11 +68,26 @@ export const useLstContext = () => useContext(LstContext);
 export const useLoadedLstContext = () => useLstContext() as LoadedLstContext;
 
 export function LstContextProvider({ children }: PropsWithChildren) {
+  const router = useRouter();
+  const queryParams = {
+    [QueryParams.LST]: router.query[QueryParams.LST] as LstId | undefined,
+  };
+
   const { address } = useWalletContext();
   const { appData } = useAppContext();
 
   // Lst id, client, and data
-  const [lstId, setLstId] = useState<LstId>(LstId.sSUI); // TODO: Use query params to set lstId
+  const lstId =
+    queryParams[QueryParams.LST] &&
+    Object.values(LstId).includes(queryParams[QueryParams.LST])
+      ? queryParams[QueryParams.LST]
+      : LstId.sSUI;
+  const setLstId = useCallback(
+    (_lstId: LstId) => {
+      shallowPushQuery(router, { ...router.query, [QueryParams.LST]: _lstId });
+    },
+    [router],
+  );
 
   const lstClient = useMemo(
     () => appData?.lstClientMap[lstId],
