@@ -3,34 +3,85 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
 } from "react";
 
 import { CoinMetadata } from "@mysten/sui/client";
+import { normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
-import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+import { Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
 import useBalancesCoinMetadataMap from "@suilend/frontend-sui/hooks/useBalancesCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui/hooks/useRefreshOnBalancesChange";
-import { LstClient } from "@suilend/springsui-sdk";
+import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
-import { LIQUID_STAKING_INFO } from "@/lib/coinType";
-import { ParsedLiquidStakingInfo, Token } from "@/lib/types";
+
+export enum LstId {
+  sSUI = "sSUI",
+  ripleysSUI = "ripleysSUI",
+}
+
+export type LiquidStakingInfo = LiquidStakingObjectInfo;
+
+export const LIQUID_STAKING_INFO_MAP: Record<LstId, LiquidStakingInfo> = {
+  [LstId.sSUI]: {
+    id: "0x15eda7330c8f99c30e430b4d82fd7ab2af3ead4ae17046fcb224aa9bad394f6b",
+    type: normalizeStructTag(
+      "0x83556891f4a0f233ce7b05cfe7f957d4020492a34f5405b2cb9377d060bef4bf::spring_sui::SPRING_SUI",
+    ),
+    weightHookId:
+      "0xbbafcb2d7399c0846f8185da3f273ad5b26b3b35993050affa44cfa890f1f144",
+  },
+  [LstId.ripleysSUI]: {
+    id: "0x50f983c5257f578a2340ff45f6c82f3d6fc358a3e7a8bc57dd112d280badbfd6",
+    type: normalizeStructTag(
+      "0xdc0c8026236f1be172ba03d7d689bfd663497cc5a730bf367bfb2e2c72ec6df8::ripleys::RIPLEYS",
+    ),
+    weightHookId:
+      "0xfee25aa74038036cb1548a27a6824213c6a263c3aa45dc37b1c3fbe6037be7d2",
+  },
+};
+
+export const NORMALIZED_LST_COINTYPES = Object.values(
+  LIQUID_STAKING_INFO_MAP,
+).map((info) => info.type);
+
+export interface LstData {
+  totalSuiSupply: BigNumber;
+  totalLstSupply: BigNumber;
+  suiToLstExchangeRate: BigNumber;
+  lstToSuiExchangeRate: BigNumber;
+
+  mintFeePercent: BigNumber;
+  redeemFeePercent: BigNumber;
+  spreadFeePercent: BigNumber;
+  aprPercent: BigNumber;
+
+  fees: BigNumber;
+  accruedSpreadFees: BigNumber;
+
+  token: Token;
+  price: BigNumber;
+
+  suilendReserveStats:
+    | {
+        aprPercent: BigNumber;
+        tvlUsd: BigNumber;
+        sendPointsPerDay: BigNumber;
+      }
+    | undefined;
+}
 
 export interface AppData {
-  coinMetadataMap: Record<string, CoinMetadata>;
-  tokenMap: Record<string, Token>;
-  liquidStakingInfo: ParsedLiquidStakingInfo;
+  sendPointsToken: Token;
 
+  suiToken: Token;
   suiPrice: BigNumber;
-  lstPrice: BigNumber;
-  lstReserveAprPercent: BigNumber;
-  lstReserveTvlUsd: BigNumber;
-  lstReserveSendPointsPerDay: BigNumber;
+
+  lstClientMap: Record<LstId, LstClient>;
+  lstDataMap: Record<LstId, LstData>;
 
   currentEpoch: number;
   currentEpochProgressPercent: number;
@@ -38,23 +89,16 @@ export interface AppData {
 }
 
 interface AppContext {
-  lstClient: LstClient | undefined;
-
   appData: AppData | undefined;
   balancesCoinMetadataMap: Record<string, CoinMetadata> | undefined;
   getBalance: (coinType: string) => BigNumber;
   refresh: () => Promise<void>;
-
-  weightHookAdminCapId: string | undefined;
 }
 type LoadedAppContext = AppContext & {
-  lstClient: LstClient;
   appData: AppData;
 };
 
 const AppContext = createContext<AppContext>({
-  lstClient: undefined,
-
   appData: undefined,
   balancesCoinMetadataMap: undefined,
   getBalance: () => {
@@ -63,33 +107,16 @@ const AppContext = createContext<AppContext>({
   refresh: async () => {
     throw Error("AppContextProvider not initialized");
   },
-
-  weightHookAdminCapId: undefined,
 });
 
 export const useAppContext = () => useContext(AppContext);
 export const useLoadedAppContext = () => useAppContext() as LoadedAppContext;
 
 export function AppContextProvider({ children }: PropsWithChildren) {
-  const { suiClient } = useSettingsContext();
-  const { address } = useWalletContext();
-
-  // Lst client
-  const [lstClient, setLstClient] =
-    useState<AppContext["lstClient"]>(undefined);
-
-  useEffect(() => {
-    (async () => {
-      const _lstClient = await LstClient.initialize(
-        suiClient,
-        LIQUID_STAKING_INFO,
-      );
-      setLstClient(_lstClient);
-    })();
-  }, [suiClient]);
-
-  // App data and balances
+  // App data
   const { data: appData, mutateData: mutateAppData } = useFetchAppData();
+
+  // Balances
   const { data: rawBalancesMap, mutateData: mutateRawBalancesMap } =
     useFetchBalances();
 
@@ -99,18 +126,17 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     (coinType: string) => {
       if (rawBalancesMap?.[coinType] === undefined) return new BigNumber(0);
 
-      const coinMetadata =
-        appData?.coinMetadataMap?.[coinType] ??
-        balancesCoinMetadataMap?.[coinType];
+      const coinMetadata = balancesCoinMetadataMap?.[coinType];
       if (!coinMetadata) return new BigNumber(0);
 
       return new BigNumber(rawBalancesMap[coinType]).div(
         10 ** coinMetadata.decimals,
       );
     },
-    [rawBalancesMap, appData?.coinMetadataMap, balancesCoinMetadataMap],
+    [rawBalancesMap, balancesCoinMetadataMap],
   );
 
+  // Refresh
   const refresh = useCallback(async () => {
     await mutateAppData();
     await mutateRawBalancesMap();
@@ -118,45 +144,15 @@ export function AppContextProvider({ children }: PropsWithChildren) {
 
   useRefreshOnBalancesChange(refresh);
 
-  // Admin
-  const [weightHookAdminCapId, setWeightHookAdminCapId] =
-    useState<AppContext["weightHookAdminCapId"]>(undefined);
-
-  useEffect(() => {
-    if (!address) return;
-    if (!lstClient) return;
-
-    (async () => {
-      try {
-        const _weightHookAdminCapId =
-          await lstClient.getWeightHookAdminCapId(address);
-        setWeightHookAdminCapId(_weightHookAdminCapId ?? undefined);
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  }, [address, lstClient]);
-
   // Context
   const contextValue: AppContext = useMemo(
     () => ({
-      lstClient,
-
       appData,
       balancesCoinMetadataMap,
       getBalance,
       refresh,
-
-      weightHookAdminCapId,
     }),
-    [
-      lstClient,
-      appData,
-      balancesCoinMetadataMap,
-      getBalance,
-      refresh,
-      weightHookAdminCapId,
-    ],
+    [appData, balancesCoinMetadataMap, getBalance, refresh],
   );
 
   return (

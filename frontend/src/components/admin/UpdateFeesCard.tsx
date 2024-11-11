@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 
@@ -12,33 +12,39 @@ import { FeeConfigArgs } from "@suilend/springsui-sdk";
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { useLoadedAppContext } from "@/contexts/AppContext";
+import { LstData, useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function UpdateFeesCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { lstClient, appData, refresh, weightHookAdminCapId } =
-    useLoadedAppContext();
+  const { refresh } = useLoadedAppContext();
+  const { admin } = useLoadedLstContext();
 
   // State
+  const getFeeConfigArgs = useCallback(
+    (_lstData: LstData) => ({
+      mintFeeBps: _lstData.mintFeePercent.times(100).toString(),
+      redeemFeeBps: _lstData.redeemFeePercent.times(100).toString(),
+      spreadFeeBps: _lstData.spreadFeePercent.times(100).toString(),
+    }),
+    [],
+  );
+
   const [feeConfigArgs, setFeeConfigArgs] = useState<
     Record<keyof FeeConfigArgs, string>
-  >({
-    mintFeeBps: appData.liquidStakingInfo.mintFeePercent.times(100).toString(),
-    redeemFeeBps: appData.liquidStakingInfo.redeemFeePercent
-      .times(100)
-      .toString(),
-    spreadFeeBps: appData.liquidStakingInfo.spreadFeePercent
-      .times(100)
-      .toString(),
-  });
+  >(getFeeConfigArgs(admin.lstData));
+
+  useEffect(() => {
+    setFeeConfigArgs(getFeeConfigArgs(admin.lstData));
+  }, [getFeeConfigArgs, admin.lstData]);
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const submit = async () => {
-    if (!weightHookAdminCapId)
+    if (!admin.weightHookAdminCapId)
       throw new Error("Error: No weight hook admin cap");
 
     if (isSubmitting) return;
@@ -52,9 +58,9 @@ export default function UpdateFeesCard() {
       );
       if (hasMissingValues) throw new Error("Missing values");
 
-      lstClient.updateFees(
+      admin.lstClient.updateFees(
         transaction,
-        weightHookAdminCapId,
+        admin.weightHookAdminCapId,
         Object.entries(feeConfigArgs).reduce(
           (acc, [key, value]) => ({ ...acc, [key]: +value }),
           {},
@@ -102,7 +108,7 @@ export default function UpdateFeesCard() {
 
         <Button
           onClick={submit}
-          isDisabled={!weightHookAdminCapId}
+          isDisabled={!admin.weightHookAdminCapId}
           isSubmitting={isSubmitting}
         />
       </div>

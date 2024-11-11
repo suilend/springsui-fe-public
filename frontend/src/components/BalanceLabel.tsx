@@ -1,10 +1,9 @@
 import { Wallet } from "lucide-react";
 
-import { useWalletContext } from "@suilend/frontend-sui";
+import { Token, useWalletContext } from "@suilend/frontend-sui";
 
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { formatToken } from "@/lib/format";
-import { Token } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface BalanceLabelProps {

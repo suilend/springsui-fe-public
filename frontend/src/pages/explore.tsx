@@ -1,13 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { CoinMetadata } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 
 import {
-  NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
+  Token,
+  getCoinMetadataMap,
+  getToken,
+  issSui,
+  shallowPushQuery,
+  useSettingsContext,
 } from "@suilend/frontend-sui";
 
 import Card from "@/components/Card";
@@ -15,16 +21,36 @@ import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import {
-  NORMALIZED_AAA_COINTYPE,
-  NORMALIZED_LST_COINTYPE,
-} from "@/lib/coinType";
+import { useLoadedLstContext } from "@/contexts/LstContext";
+import { NORMALIZED_AAA_COINTYPE } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
-import { shallowPushQuery } from "@/lib/router";
 import { cn } from "@/lib/utils";
 
 enum QueryParams {
   CATEGORY = "category",
+}
+
+enum Category {
+  ALL = "all",
+  LENDING = "lending",
+  AMM = "amm",
+}
+
+type CetusPool = any;
+
+enum CetusPoolId {
+  SSUI_SUI = "ssuiSui",
+  AAA_SSUI = "aaaSsui",
+}
+
+type Protocol = {
+  name: string;
+  logoUrl: string;
+};
+
+enum ProtocolId {
+  SUILEND = "suilend",
+  CETUS = "cetus",
 }
 
 export default function Explore() {
@@ -35,22 +61,19 @@ export default function Explore() {
       | undefined,
   };
 
+  const { suiClient } = useSettingsContext();
   const { appData } = useLoadedAppContext();
-
-  const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
+  const { lstClient, lstData } = useLoadedLstContext();
 
   // Categories
-  enum Category {
-    ALL = "all",
-    LENDING = "lending",
-    AMM = "amm",
-  }
-
-  const categories = [
-    { id: Category.ALL, title: "All" },
-    { id: Category.LENDING, title: "Lending" },
-    { id: Category.AMM, title: "AMM" },
-  ];
+  const categories = useMemo(
+    () => [
+      { id: Category.ALL, title: "All" },
+      { id: Category.LENDING, title: "Lending" },
+      { id: Category.AMM, title: "AMM" },
+    ],
+    [],
+  );
 
   const selectedCategory =
     queryParams[QueryParams.CATEGORY] &&
@@ -64,11 +87,16 @@ export default function Explore() {
     });
   };
 
-  // Opportunities
-  const [cetusPools, setCetusPools] = useState<any | undefined>(undefined);
+  // Pools
+  const [cetusPools, setCetusPools] = useState<CetusPool[] | undefined>(
+    undefined,
+  );
 
-  const getCetusPool = (address: string) =>
-    cetusPools?.find((pool: any) => pool.swap_account === address);
+  const getCetusPool = useCallback(
+    (address: string) =>
+      cetusPools?.find((pool: CetusPool) => pool.swap_account === address),
+    [cetusPools],
+  );
 
   useEffect(() => {
     try {
@@ -84,81 +112,140 @@ export default function Explore() {
     }
   }, []);
 
-  enum CetusPool {
-    SSUI_SUI = "ssuiSui",
-    AAA_SSUI = "aaaSsui",
-  }
-  const cetusPoolAddresses: Record<CetusPool, string> = {
-    [CetusPool.SSUI_SUI]:
-      "0x5c5e87f0adf458b77cc48e17a7b81a0e7bc2e9c6c609b67c0851ef059a866f3a",
-    [CetusPool.AAA_SSUI]:
-      "0x474ce7b61b0ae75cad36aa9c59aa5ca8485c00b98fd1890db33b40ef2a5ba604",
-  };
-  const cetusPoolMap: Record<CetusPool, any> = {
-    [CetusPool.SSUI_SUI]: getCetusPool(cetusPoolAddresses[CetusPool.SSUI_SUI]),
-    [CetusPool.AAA_SSUI]: getCetusPool(cetusPoolAddresses[CetusPool.AAA_SSUI]),
+  const cetusPoolAddressMap: Record<CetusPoolId, string> = useMemo(
+    () => ({
+      [CetusPoolId.SSUI_SUI]:
+        "0x5c5e87f0adf458b77cc48e17a7b81a0e7bc2e9c6c609b67c0851ef059a866f3a",
+      [CetusPoolId.AAA_SSUI]:
+        "0x474ce7b61b0ae75cad36aa9c59aa5ca8485c00b98fd1890db33b40ef2a5ba604",
+    }),
+    [],
+  );
+
+  const cetusPoolMap: Record<CetusPoolId, CetusPool> = useMemo(
+    () => ({
+      [CetusPoolId.SSUI_SUI]: getCetusPool(
+        cetusPoolAddressMap[CetusPoolId.SSUI_SUI],
+      ),
+      [CetusPoolId.AAA_SSUI]: getCetusPool(
+        cetusPoolAddressMap[CetusPoolId.AAA_SSUI],
+      ),
+    }),
+    [getCetusPool, cetusPoolAddressMap],
+  );
+
+  // Protocols
+  const protocolMap: Record<ProtocolId, Protocol> = useMemo(
+    () => ({
+      [ProtocolId.SUILEND]: {
+        name: "Suilend",
+        logoUrl: "https://suilend.fi/assets/suilend.svg",
+      },
+      [ProtocolId.CETUS]: {
+        name: "Cetus",
+        logoUrl:
+          "https://assets.coingecko.com/coins/images/30256/standard/cetus.png",
+      },
+    }),
+    [],
+  );
+
+  // Opportunities
+  type Opportunity = {
+    protocol: Protocol;
+    title: string;
+    url: string;
+    coinTypes: string[];
+    aprPercent: BigNumber | null;
+    tvlUsd: BigNumber | null;
+    category: Category;
+    sendPointsPerDay?: BigNumber;
   };
 
-  enum Protocol {
-    SUILEND = "suilend",
-    CETUS = "cetus",
-  }
-  const protocolMap: Record<Protocol, { name: string; logoUrl: string }> = {
-    [Protocol.SUILEND]: {
-      name: "Suilend",
-      logoUrl: "https://suilend.fi/assets/suilend.svg",
-    },
-    [Protocol.CETUS]: {
-      name: "Cetus",
-      logoUrl:
-        "https://assets.coingecko.com/coins/images/30256/standard/cetus.png",
-    },
-  };
+  const opportunities: Opportunity[] = useMemo(() => {
+    const result = [];
 
-  const opportunities = [
-    {
-      protocol: protocolMap[Protocol.SUILEND],
-      title: "Lend on Suilend",
-      url: `https://suilend.fi/dashboard?asset=${lstToken.symbol}`,
-      assets: [{ coinType: NORMALIZED_LST_COINTYPE }],
-      aprPercent: appData.lstReserveAprPercent,
-      tvlUsd: appData.lstReserveTvlUsd,
-      category: Category.LENDING,
-      sendPointsPerDay: appData.lstReserveSendPointsPerDay,
-    },
-    {
-      protocol: protocolMap[Protocol.CETUS],
-      title: "Provide liquidity on Cetus",
-      url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddresses[CetusPool.SSUI_SUI]}`,
-      assets: [
-        { coinType: NORMALIZED_LST_COINTYPE },
-        { coinType: NORMALIZED_SUI_COINTYPE },
-      ],
-      aprPercent: cetusPoolMap[CetusPool.SSUI_SUI]
-        ? new BigNumber(+cetusPoolMap[CetusPool.SSUI_SUI].total_apr * 100)
-        : null,
-      tvlUsd: cetusPoolMap[CetusPool.SSUI_SUI]
-        ? new BigNumber(cetusPoolMap[CetusPool.SSUI_SUI].tvl_in_usd)
-        : null,
-      category: Category.AMM,
-    },
-    {
-      protocol: protocolMap[Protocol.CETUS],
-      title: "Provide liquidity on Cetus",
-      url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddresses[CetusPool.AAA_SSUI]}`,
-      assets: [
-        { coinType: NORMALIZED_AAA_COINTYPE },
-        { coinType: NORMALIZED_LST_COINTYPE },
-      ],
-      aprPercent: cetusPoolMap[CetusPool.AAA_SSUI]
-        ? new BigNumber(+cetusPoolMap[CetusPool.AAA_SSUI].total_apr * 100)
-        : null,
-      tvlUsd: cetusPoolMap[CetusPool.AAA_SSUI]
-        ? new BigNumber(cetusPoolMap[CetusPool.AAA_SSUI].tvl_in_usd)
-        : null,
-      category: Category.AMM,
-    },
-  ];
+    if (lstData.suilendReserveStats !== undefined)
+      result.push({
+        protocol: protocolMap[ProtocolId.SUILEND],
+        title: "Lend on Suilend",
+        url: `https://suilend.fi/dashboard?asset=${lstData.token.symbol}`,
+        coinTypes: [lstData.token.coinType],
+        aprPercent: lstData.suilendReserveStats.aprPercent,
+        tvlUsd: lstData.suilendReserveStats.tvlUsd,
+        category: Category.LENDING,
+        sendPointsPerDay: lstData.suilendReserveStats.sendPointsPerDay,
+      });
+    if (issSui(lstData.token.coinType)) {
+      result.push(
+        {
+          protocol: protocolMap[ProtocolId.CETUS],
+          title: "Provide liquidity on Cetus",
+          url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddressMap[CetusPoolId.SSUI_SUI]}`,
+          coinTypes: [lstData.token.coinType, NORMALIZED_SUI_COINTYPE],
+          aprPercent: cetusPoolMap[CetusPoolId.SSUI_SUI]
+            ? new BigNumber(+cetusPoolMap[CetusPoolId.SSUI_SUI].total_apr * 100)
+            : null,
+          tvlUsd: cetusPoolMap[CetusPoolId.SSUI_SUI]
+            ? new BigNumber(cetusPoolMap[CetusPoolId.SSUI_SUI].tvl_in_usd)
+            : null,
+          category: Category.AMM,
+        },
+        {
+          protocol: protocolMap[ProtocolId.CETUS],
+          title: "Provide liquidity on Cetus",
+          url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddressMap[CetusPoolId.AAA_SSUI]}`,
+          coinTypes: [NORMALIZED_AAA_COINTYPE, lstData.token.coinType],
+          aprPercent: cetusPoolMap[CetusPoolId.AAA_SSUI]
+            ? new BigNumber(+cetusPoolMap[CetusPoolId.AAA_SSUI].total_apr * 100)
+            : null,
+          tvlUsd: cetusPoolMap[CetusPoolId.AAA_SSUI]
+            ? new BigNumber(cetusPoolMap[CetusPoolId.AAA_SSUI].tvl_in_usd)
+            : null,
+          category: Category.AMM,
+        },
+      );
+    }
+
+    return result;
+  }, [
+    lstData.suilendReserveStats,
+    protocolMap,
+    lstData.token.symbol,
+    lstData.token.coinType,
+    cetusPoolAddressMap,
+    cetusPoolMap,
+  ]);
+
+  // CoinMetadata
+  const coinTypesBeingFetchesRef = useRef<string[]>([]);
+  const [coinMetadataMap, setCoinMetadataMap] = useState<
+    Record<string, CoinMetadata> | undefined
+  >(undefined);
+
+  useEffect(() => {
+    (async () => {
+      const coinTypes = Array.from(
+        new Set(
+          opportunities.reduce(
+            (acc, opportunity) => [...acc, ...opportunity.coinTypes],
+            [] as string[],
+          ),
+        ),
+      ).filter(
+        (coinType) => !coinTypesBeingFetchesRef.current.includes(coinType),
+      );
+      if (coinTypes.length === 0) return;
+
+      coinTypesBeingFetchesRef.current.push(...coinTypes);
+
+      const _coinMetadataMap = await getCoinMetadataMap(suiClient, coinTypes);
+      setCoinMetadataMap((prev) => ({
+        ...(prev ?? {}),
+        ..._coinMetadataMap,
+      }));
+    })();
+  }, [opportunities, suiClient]);
 
   return (
     <>
@@ -172,7 +259,7 @@ export default function Explore() {
                 Discover rewards and DeFi
               </span>{" "}
               <span className="whitespace-nowrap">
-                opportunities with your {lstToken.symbol}
+                opportunities with your {lstData.token.symbol}
               </span>
             </p>
           </div>
@@ -239,126 +326,140 @@ export default function Explore() {
                     selectedCategory === Category.ALL ||
                     opportunity.category === selectedCategory,
                 )
-                .map((opportunity, index) => (
-                  <Link
-                    key={index}
-                    className="block flex w-full flex-col gap-4 rounded-md bg-white p-4"
-                    href={opportunity.url}
-                    target="_blank"
-                  >
-                    <div className="flex flex-row items-center gap-2">
-                      {opportunity.protocol.logoUrl ? (
-                        <Image
-                          className="h-6 w-6"
-                          src={opportunity.protocol.logoUrl}
-                          alt={`${opportunity.protocol.name} logo`}
-                          width={24}
-                          height={24}
-                          quality={100}
-                        />
-                      ) : (
-                        <div className="h-6 w-6 rounded-[50%] bg-navy-100" />
-                      )}
-                      <p className="text-h3">{opportunity.title}</p>
-                    </div>
+                .map((opportunity, index) => {
+                  const tokens = opportunity.coinTypes.map((coinType) =>
+                    coinMetadataMap?.[coinType]
+                      ? getToken(coinType, coinMetadataMap[coinType])
+                      : null,
+                  );
 
-                    <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
-                      {/* Assets */}
-                      <div className="flex min-w-20 flex-col gap-1.5">
-                        <p className="text-p2 text-navy-500">Assets</p>
-                        <div className="flex w-full flex-row items-center gap-1.5">
-                          <div className="flex flex-row">
-                            {opportunity.assets.map((a, index) => (
-                              <TokenLogo
-                                key={a.coinType}
-                                className={cn(
-                                  index !== 0 &&
-                                    "outline-px -ml-2 outline outline-white",
-                                )}
-                                token={appData.tokenMap[a.coinType]}
-                                size={20}
-                              />
-                            ))}
-                          </div>
-
-                          <p className="text-p2">
-                            {opportunity.assets
-                              .map((a) => appData.tokenMap[a.coinType].symbol)
-                              .join("-")}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* APR */}
-                      <div className="flex min-w-20 flex-col gap-1.5">
-                        <p className="text-p2 text-navy-500">APR</p>
-                        <p className="text-p2">
-                          {opportunity.aprPercent === undefined ? (
-                            "--"
-                          ) : opportunity.aprPercent === null ? (
-                            <Skeleton className="h-5 w-10" />
-                          ) : (
-                            formatPercent(opportunity.aprPercent)
-                          )}
-                        </p>
-                      </div>
-
-                      {/* TVL */}
-                      <div className="flex min-w-20 flex-col gap-1.5">
-                        <p className="text-p2 text-navy-500">TVL</p>
-                        <p className="text-p2">
-                          {opportunity.tvlUsd === undefined ? (
-                            "--"
-                          ) : opportunity.tvlUsd === null ? (
-                            <Skeleton className="h-5 w-10" />
-                          ) : (
-                            formatUsd(opportunity.tvlUsd)
-                          )}
-                        </p>
-                      </div>
-
-                      {/* Category */}
-                      <div className="flex min-w-20 flex-col gap-1.5">
-                        <p className="text-p2 text-navy-500">Category</p>
-                        <p className="text-p2">
-                          {
-                            categories.find(
-                              (c) => c.id === opportunity.category,
-                            )?.title
-                          }
-                        </p>
-                      </div>
-
-                      {/* SEND Points */}
-                      <div className="flex min-w-40 flex-col gap-1.5">
-                        <p className="text-p2 text-navy-500">SEND points</p>
-                        {opportunity.sendPointsPerDay === undefined ? (
-                          <p className="text-p2">--</p>
+                  return (
+                    <Link
+                      key={index}
+                      className="block flex w-full flex-col gap-4 rounded-md bg-white p-4"
+                      href={opportunity.url}
+                      target="_blank"
+                    >
+                      <div className="flex flex-row items-center gap-2">
+                        {opportunity.protocol.logoUrl ? (
+                          <Image
+                            className="h-6 w-6"
+                            src={opportunity.protocol.logoUrl}
+                            alt={`${opportunity.protocol.name} logo`}
+                            width={24}
+                            height={24}
+                            quality={100}
+                          />
                         ) : (
-                          <div className="flex flex-row gap-1.5">
-                            <TokenLogo
-                              className="my-0.5"
-                              token={
-                                appData.tokenMap[
-                                  NORMALIZED_SEND_POINTS_COINTYPE
-                                ]
-                              }
-                              size={16}
-                            />
+                          <div className="h-6 w-6 rounded-[50%] bg-navy-100" />
+                        )}
+                        <p className="text-h3">{opportunity.title}</p>
+                      </div>
+
+                      <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
+                        {/* Assets */}
+                        <div className="flex min-w-28 flex-col gap-1.5">
+                          <p className="text-p2 text-navy-500">Assets</p>
+                          <div className="flex w-full flex-row items-center gap-1.5">
+                            <div className="flex flex-row">
+                              {tokens.map((token, index) => (
+                                <TokenLogo
+                                  key={index}
+                                  className={cn(
+                                    index !== 0 &&
+                                      "outline-px -ml-2 outline outline-white",
+                                  )}
+                                  token={token}
+                                  size={20}
+                                />
+                              ))}
+                            </div>
+
                             <p className="text-p2">
-                              {formatPoints(opportunity.sendPointsPerDay, {
-                                dp: 3,
-                              })}
-                              {" / "}
-                              {lstToken.symbol}
-                              {" / day"}
+                              {tokens.some((token) => token === null) ? (
+                                <Skeleton
+                                  key={index}
+                                  className={cn(
+                                    "h-5",
+                                    tokens.length === 1 ? "w-10" : "w-16",
+                                  )}
+                                />
+                              ) : (
+                                tokens
+                                  .map((token) => (token as Token).symbol)
+                                  .join("-")
+                              )}
                             </p>
                           </div>
-                        )}
+                        </div>
+
+                        {/* APR */}
+                        <div className="flex min-w-20 flex-col gap-1.5">
+                          <p className="text-p2 text-navy-500">APR</p>
+                          <p className="text-p2">
+                            {opportunity.aprPercent === undefined ? (
+                              "--"
+                            ) : opportunity.aprPercent === null ? (
+                              <Skeleton className="h-5 w-10" />
+                            ) : (
+                              formatPercent(opportunity.aprPercent)
+                            )}
+                          </p>
+                        </div>
+
+                        {/* TVL */}
+                        <div className="flex min-w-20 flex-col gap-1.5">
+                          <p className="text-p2 text-navy-500">TVL</p>
+                          <p className="text-p2">
+                            {opportunity.tvlUsd === undefined ? (
+                              "--"
+                            ) : opportunity.tvlUsd === null ? (
+                              <Skeleton className="h-5 w-10" />
+                            ) : (
+                              formatUsd(opportunity.tvlUsd)
+                            )}
+                          </p>
+                        </div>
+
+                        {/* Category */}
+                        <div className="flex min-w-20 flex-col gap-1.5">
+                          <p className="text-p2 text-navy-500">Category</p>
+                          <p className="text-p2">
+                            {
+                              categories.find(
+                                (c) => c.id === opportunity.category,
+                              )?.title
+                            }
+                          </p>
+                        </div>
+
+                        {/* SEND Points */}
+                        <div className="flex min-w-40 flex-col gap-1.5">
+                          <p className="text-p2 text-navy-500">SEND points</p>
+                          {opportunity.sendPointsPerDay === undefined ? (
+                            <p className="text-p2">--</p>
+                          ) : (
+                            <div className="flex flex-row gap-1.5">
+                              <TokenLogo
+                                className="my-0.5"
+                                token={appData.sendPointsToken}
+                                size={16}
+                              />
+                              <p className="text-p2">
+                                {formatPoints(opportunity.sendPointsPerDay, {
+                                  dp: 3,
+                                })}
+                                {" / "}
+                                {lstData.token.symbol}
+                                {" / day"}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
             </div>
           </Card>
 

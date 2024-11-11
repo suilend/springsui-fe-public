@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 import { Minus } from "lucide-react";
@@ -10,57 +10,44 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui";
-import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import { LIQUID_STAKING_INFO } from "@/lib/coinType";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import { formatInteger } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
 export default function ValidatorAddressesAndWeightsCard() {
-  const { explorer, suiClient } = useSettingsContext();
+  const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { lstClient, refresh, weightHookAdminCapId } = useLoadedAppContext();
-
-  // Weight hook
-  const fetchedWeightHookRef = useRef<boolean>(false);
-  const [weightHook, setWeightHook] = useState<WeightHook<string> | undefined>(
-    undefined,
-  );
-  useEffect(() => {
-    if (fetchedWeightHookRef.current) return;
-    fetchedWeightHookRef.current = true;
-
-    (async () => {
-      const _weightHook = await WeightHook.fetch(
-        suiClient,
-        phantom(LIQUID_STAKING_INFO.type),
-        LIQUID_STAKING_INFO.weightHookId,
-      );
-      setWeightHook(_weightHook);
-    })();
-  }, [suiClient]);
+  const { refresh } = useLoadedAppContext();
+  const { admin } = useLoadedLstContext();
 
   // State
-  const [vaw, setVaw] = useState<
-    { id: string; validatorAddress: string; weight: string }[]
-  >([]);
-  useEffect(() => {
-    if (!weightHook) return;
-
-    setVaw(
-      weightHook.validatorAddressesAndWeights.contents.map((c) => ({
+  const getVaw = useCallback(
+    (_weightHook: WeightHook<string> | undefined) =>
+      (_weightHook
+        ? _weightHook.validatorAddressesAndWeights.contents
+        : []
+      ).map((c) => ({
         id: uuidv4(),
         validatorAddress: c.key,
         weight: c.value.toString(),
       })),
-    );
-  }, [weightHook]);
+    [],
+  );
+
+  const [vaw, setVaw] = useState<
+    { id: string; validatorAddress: string; weight: string }[]
+  >(getVaw(admin.weightHook));
+
+  useEffect(() => {
+    setVaw(getVaw(admin.weightHook));
+  }, [getVaw, admin.weightHook]);
 
   const onChange = (id: string, key: string, value: string) =>
     setVaw((vaw) =>
@@ -83,7 +70,7 @@ export default function ValidatorAddressesAndWeightsCard() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const submit = async () => {
-    if (!weightHookAdminCapId)
+    if (!admin.weightHookAdminCapId)
       throw new Error("Error: No weight hook admin cap");
 
     if (isSubmitting) return;
@@ -97,10 +84,10 @@ export default function ValidatorAddressesAndWeightsCard() {
       );
       if (hasMissingValues) throw new Error("Missing values");
 
-      lstClient.setValidatorAddressesAndWeights(
+      admin.lstClient.setValidatorAddressesAndWeights(
         transaction,
-        LIQUID_STAKING_INFO.weightHookId,
-        weightHookAdminCapId,
+        admin.lstClient.liquidStakingObject.weightHookId,
+        admin.weightHookAdminCapId,
         vaw.reduce(
           (acc, row) => ({ ...acc, [row.validatorAddress]: +row.weight }),
           {},
@@ -197,7 +184,7 @@ export default function ValidatorAddressesAndWeightsCard() {
 
         <Button
           onClick={submit}
-          isDisabled={!weightHookAdminCapId}
+          isDisabled={!admin.weightHookAdminCapId}
           isSubmitting={isSubmitting}
         />
       </div>

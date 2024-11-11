@@ -11,18 +11,20 @@ import {
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
 import { useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function CollectFeesCard() {
   const { explorer } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
-  const { lstClient, refresh, weightHookAdminCapId } = useLoadedAppContext();
+  const { refresh } = useLoadedAppContext();
+  const { admin } = useLoadedLstContext();
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const submit = async () => {
-    if (!weightHookAdminCapId)
+    if (!admin.weightHookAdminCapId)
       throw new Error("Error: No weight hook admin cap");
 
     if (!address) throw new Error("Error: No address");
@@ -33,8 +35,11 @@ export default function CollectFeesCard() {
     const transaction = new Transaction();
 
     try {
-      const sui = lstClient.collectFees(transaction, weightHookAdminCapId);
-      transaction.transferObjects([sui], address);
+      admin.lstClient.collectFeesAndSendToUser(
+        transaction,
+        admin.weightHookAdminCapId,
+        address,
+      );
 
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
@@ -56,7 +61,7 @@ export default function CollectFeesCard() {
 
         <Button
           onClick={submit}
-          isDisabled={!weightHookAdminCapId}
+          isDisabled={!admin.weightHookAdminCapId}
           isSubmitting={isSubmitting}
         />
       </div>

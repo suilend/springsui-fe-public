@@ -1,9 +1,16 @@
-import { cloneElement } from "react";
+import { ReactElement, cloneElement } from "react";
 
 import { Loader2 } from "lucide-react";
 
-import { SubmitButtonState } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+export type SubmitButtonState = {
+  icon?: ReactElement;
+  title?: string;
+  isLoading?: boolean;
+  isDisabled?: boolean;
+  onClick?: () => void;
+};
 
 interface SubmitButtonProps {
   state: SubmitButtonState;

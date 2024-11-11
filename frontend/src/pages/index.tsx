@@ -7,38 +7,35 @@ import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
 import {
-  NORMALIZED_SEND_POINTS_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
   SUI_GAS_MIN,
+  getBalanceChange,
+  shallowPushQuery,
   showErrorToast,
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui";
+import track from "@suilend/frontend-sui/lib/track";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
 import { FOOTER_MD_HEIGHT, FooterSm } from "@/components/Footer";
 import StakeInput from "@/components/Input";
 import StatsPopover, { StatsContent } from "@/components/StatsPopover";
-import SubmitButton from "@/components/SubmitButton";
+import SubmitButton, { SubmitButtonState } from "@/components/SubmitButton";
 import TokenLogo from "@/components/TokenLogo";
 import Tooltip from "@/components/Tooltip";
 import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import { NORMALIZED_LST_COINTYPE } from "@/lib/coinType";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import {
   formatInteger,
   formatPercent,
   formatPoints,
   formatToken,
 } from "@/lib/format";
-import { shallowPushQuery } from "@/lib/router";
 import { showSuccessTxnToast } from "@/lib/toasts";
-import track from "@/lib/track";
-import { getBalanceChange, mint, redeem } from "@/lib/transactions";
-import { SubmitButtonState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 enum QueryParams {
@@ -51,16 +48,14 @@ export default function Home() {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
   };
 
-  const { explorer, suiClient } = useSettingsContext();
+  const { explorer } = useSettingsContext();
   const {
     setIsConnectWalletDropdownOpen,
     address,
     signExecuteAndWaitForTransaction,
   } = useWalletContext();
-  const { lstClient, appData, getBalance, refresh } = useLoadedAppContext();
-
-  const suiToken = appData.tokenMap[NORMALIZED_SUI_COINTYPE];
-  const lstToken = appData.tokenMap[NORMALIZED_LST_COINTYPE];
+  const { appData, getBalance, refresh } = useLoadedAppContext();
+  const { lstClient, lstData } = useLoadedLstContext();
 
   // Ref
   const inInputRef = useRef<HTMLInputElement>(null);
@@ -93,20 +88,20 @@ export default function Home() {
 
   // Stats
   const inToOutExchangeRate = isStaking
-    ? appData.liquidStakingInfo.suiToLstExchangeRate
-    : appData.liquidStakingInfo.lstToSuiExchangeRate;
+    ? lstData.suiToLstExchangeRate
+    : lstData.lstToSuiExchangeRate;
 
   // Balance
-  const suiBalance = getBalance(suiToken.coinType);
-  const lstBalance = getBalance(lstToken.coinType);
+  const suiBalance = getBalance(appData.suiToken.coinType);
+  const lstBalance = getBalance(lstData.token.coinType);
 
   const inBalance = isStaking ? suiBalance : lstBalance;
   const outBalance = isStaking ? lstBalance : suiBalance;
 
   // In
   const inTitle = isStaking ? "Stake" : "Unstake";
-  const inToken = isStaking ? suiToken : lstToken;
-  const inPrice = isStaking ? appData.suiPrice : appData.lstPrice;
+  const inToken = isStaking ? appData.suiToken : lstData.token;
+  const inPrice = isStaking ? appData.suiPrice : lstData.price;
 
   const [inValue, setInValue] = useState<string>("");
   const inValueUsd = new BigNumber(BigNumber.max(0, inValue || 0)).times(
@@ -151,8 +146,8 @@ export default function Home() {
   };
 
   // Out
-  const outToken = isStaking ? lstToken : suiToken;
-  const outPrice = isStaking ? appData.lstPrice : appData.suiPrice;
+  const outToken = isStaking ? lstData.token : appData.suiToken;
+  const outPrice = isStaking ? lstData.price : appData.suiPrice;
 
   const outValue =
     inValue === ""
@@ -163,8 +158,8 @@ export default function Home() {
             .times(
               new BigNumber(1).minus(
                 (isStaking
-                  ? appData.liquidStakingInfo.mintFeePercent
-                  : appData.liquidStakingInfo.redeemFeePercent
+                  ? lstData.mintFeePercent
+                  : lstData.redeemFeePercent
                 ).div(100),
               ),
             ),
@@ -237,9 +232,18 @@ export default function Home() {
 
     const transaction = new Transaction();
     try {
-      if (isStaking) mint(lstClient, transaction, address!, submitAmount);
+      if (isStaking)
+        lstClient.mintAndRebalanceAndSendToUser(
+          transaction,
+          address!,
+          submitAmount,
+        );
       else
-        await redeem(suiClient, lstClient, transaction, address!, submitAmount);
+        await lstClient.redeemAndSendToUser(
+          transaction,
+          address!,
+          submitAmount,
+        );
     } catch (err) {
       Sentry.captureException(err);
       console.error(err);
@@ -315,42 +319,40 @@ export default function Home() {
 
   const parameters: Parameter[] = [];
   if (isStaking) {
-    if (appData.liquidStakingInfo.mintFeePercent.gt(0))
+    if (lstData.mintFeePercent.gt(0))
       parameters.push({
         label: "Staking fee",
-        value: formatPercent(appData.liquidStakingInfo.mintFeePercent),
+        value: formatPercent(lstData.mintFeePercent),
       });
-    parameters.push(
-      {
-        label: "APR",
-        value: formatPercent(appData.liquidStakingInfo.aprPercent),
-      },
-      {
+
+    parameters.push({
+      label: "APR",
+      value: formatPercent(lstData.aprPercent),
+    });
+
+    if (lstData.suilendReserveStats !== undefined)
+      parameters.push({
         label: "SEND Points",
         labelEndDecorator: (
           <Tooltip
-            title={`SEND Points are earned by depositing ${lstToken.symbol} in Suilend`}
+            title={`SEND Points are earned by depositing ${lstData.token.symbol} in Suilend`}
           >
             <Info className="h-4 w-4 text-navy-600" />
           </Tooltip>
         ),
         valueStartDecorator: (
-          <TokenLogo
-            token={appData.tokenMap[NORMALIZED_SEND_POINTS_COINTYPE]}
-            size={16}
-          />
+          <TokenLogo token={appData.sendPointsToken} size={16} />
         ),
         value:
           outValue === ""
-            ? `${formatPoints(new BigNumber(1).times(appData.lstReserveSendPointsPerDay), { dp: 3 })} / ${lstToken.symbol} / day`
-            : `${formatPoints(new BigNumber(outValue || 0).times(appData.lstReserveSendPointsPerDay), { dp: 3 })} / day`,
-      },
-    );
+            ? `${formatPoints(new BigNumber(1).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / ${lstData.token.symbol} / day`
+            : `${formatPoints(new BigNumber(outValue || 0).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / day`,
+      });
   } else {
-    if (appData.liquidStakingInfo.redeemFeePercent.gt(0))
+    if (lstData.redeemFeePercent.gt(0))
       parameters.push({
         label: "Unstaking fee",
-        value: formatPercent(appData.liquidStakingInfo.redeemFeePercent),
+        value: formatPercent(lstData.redeemFeePercent),
       });
   }
 
