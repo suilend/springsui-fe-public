@@ -11,7 +11,6 @@ import {
   Token,
   getCoinMetadataMap,
   getToken,
-  issSui,
   shallowPushQuery,
   useSettingsContext,
 } from "@suilend/frontend-sui";
@@ -20,8 +19,7 @@ import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
-import { useLoadedAppContext } from "@/contexts/AppContext";
-import { useLoadedLstContext } from "@/contexts/LstContext";
+import { LstId, useLoadedAppContext } from "@/contexts/AppContext";
 import { NORMALIZED_AAA_COINTYPE } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -63,7 +61,7 @@ export default function Explore() {
 
   const { suiClient } = useSettingsContext();
   const { appData } = useLoadedAppContext();
-  const { lstClient, lstData } = useLoadedLstContext();
+  const lstData = appData.lstDataMap[LstId.sSUI];
 
   // Categories
   const categories = useMemo(
@@ -176,36 +174,35 @@ export default function Explore() {
         category: Category.LENDING,
         sendPointsPerDay: lstData.suilendReserveStats.sendPointsPerDay,
       });
-    if (issSui(lstData.token.coinType)) {
-      result.push(
-        {
-          protocol: protocolMap[ProtocolId.CETUS],
-          title: "Provide liquidity on Cetus",
-          url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddressMap[CetusPoolId.SSUI_SUI]}`,
-          coinTypes: [lstData.token.coinType, NORMALIZED_SUI_COINTYPE],
-          aprPercent: cetusPoolMap[CetusPoolId.SSUI_SUI]
-            ? new BigNumber(+cetusPoolMap[CetusPoolId.SSUI_SUI].total_apr * 100)
-            : null,
-          tvlUsd: cetusPoolMap[CetusPoolId.SSUI_SUI]
-            ? new BigNumber(cetusPoolMap[CetusPoolId.SSUI_SUI].tvl_in_usd)
-            : null,
-          category: Category.AMM,
-        },
-        {
-          protocol: protocolMap[ProtocolId.CETUS],
-          title: "Provide liquidity on Cetus",
-          url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddressMap[CetusPoolId.AAA_SSUI]}`,
-          coinTypes: [NORMALIZED_AAA_COINTYPE, lstData.token.coinType],
-          aprPercent: cetusPoolMap[CetusPoolId.AAA_SSUI]
-            ? new BigNumber(+cetusPoolMap[CetusPoolId.AAA_SSUI].total_apr * 100)
-            : null,
-          tvlUsd: cetusPoolMap[CetusPoolId.AAA_SSUI]
-            ? new BigNumber(cetusPoolMap[CetusPoolId.AAA_SSUI].tvl_in_usd)
-            : null,
-          category: Category.AMM,
-        },
-      );
-    }
+
+    result.push(
+      {
+        protocol: protocolMap[ProtocolId.CETUS],
+        title: "Provide liquidity on Cetus",
+        url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddressMap[CetusPoolId.SSUI_SUI]}`,
+        coinTypes: [lstData.token.coinType, NORMALIZED_SUI_COINTYPE],
+        aprPercent: cetusPoolMap[CetusPoolId.SSUI_SUI]
+          ? new BigNumber(+cetusPoolMap[CetusPoolId.SSUI_SUI].total_apr * 100)
+          : null,
+        tvlUsd: cetusPoolMap[CetusPoolId.SSUI_SUI]
+          ? new BigNumber(cetusPoolMap[CetusPoolId.SSUI_SUI].tvl_in_usd)
+          : null,
+        category: Category.AMM,
+      },
+      {
+        protocol: protocolMap[ProtocolId.CETUS],
+        title: "Provide liquidity on Cetus",
+        url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${cetusPoolAddressMap[CetusPoolId.AAA_SSUI]}`,
+        coinTypes: [NORMALIZED_AAA_COINTYPE, lstData.token.coinType],
+        aprPercent: cetusPoolMap[CetusPoolId.AAA_SSUI]
+          ? new BigNumber(+cetusPoolMap[CetusPoolId.AAA_SSUI].total_apr * 100)
+          : null,
+        tvlUsd: cetusPoolMap[CetusPoolId.AAA_SSUI]
+          ? new BigNumber(cetusPoolMap[CetusPoolId.AAA_SSUI].tvl_in_usd)
+          : null,
+        category: Category.AMM,
+      },
+    );
 
     return result;
   }, [
