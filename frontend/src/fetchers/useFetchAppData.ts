@@ -38,6 +38,9 @@ import {
   getTotalAprPercent,
 } from "@/lib/liquidityMining";
 
+const MIRAI_SUI_VALIDATOR_ADDRESS =
+  "0x56f4ec3046f1055a9d75d202d167f49a3748b259801315c74895cb0f330b4b7d";
+
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
 
