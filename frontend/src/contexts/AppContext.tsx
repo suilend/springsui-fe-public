@@ -10,9 +10,9 @@ import { CoinMetadata } from "@mysten/sui/client";
 import { normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
-import { Token } from "@suilend/frontend-sui";
+import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
-import useBalancesCoinMetadataMap from "@suilend/frontend-sui/hooks/useBalancesCoinMetadataMap";
+import useCoinMetadataMap from "@suilend/frontend-sui/hooks/useCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui/hooks/useRefreshOnBalancesChange";
 import {
   LiquidStakingObjectInfo,
@@ -132,7 +132,11 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   const { data: rawBalancesMap, mutateData: mutateRawBalancesMap } =
     useFetchBalances();
 
-  const balancesCoinMetadataMap = useBalancesCoinMetadataMap(rawBalancesMap);
+  const balancesCoinTypes = useMemo(
+    () => [NORMALIZED_SUI_COINTYPE, ...NORMALIZED_LST_COINTYPES],
+    [],
+  );
+  const balancesCoinMetadataMap = useCoinMetadataMap(balancesCoinTypes);
 
   const getBalance = useCallback(
     (coinType: string) => {

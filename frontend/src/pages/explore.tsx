@@ -1,19 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { CoinMetadata } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 
 import {
   NORMALIZED_SUI_COINTYPE,
   Token,
-  getCoinMetadataMap,
   getToken,
   shallowPushQuery,
   useSettingsContext,
 } from "@suilend/frontend-sui";
+import useCoinMetadataMap from "@suilend/frontend-sui/hooks/useCoinMetadataMap";
 
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
@@ -214,35 +213,16 @@ export default function Explore() {
     cetusPoolMap,
   ]);
 
-  // CoinMetadata
-  const coinTypesBeingFetchesRef = useRef<string[]>([]);
-  const [coinMetadataMap, setCoinMetadataMap] = useState<
-    Record<string, CoinMetadata> | undefined
-  >(undefined);
-
-  useEffect(() => {
-    (async () => {
-      const coinTypes = Array.from(
-        new Set(
-          opportunities.reduce(
-            (acc, opportunity) => [...acc, ...opportunity.coinTypes],
-            [] as string[],
-          ),
-        ),
-      ).filter(
-        (coinType) => !coinTypesBeingFetchesRef.current.includes(coinType),
-      );
-      if (coinTypes.length === 0) return;
-
-      coinTypesBeingFetchesRef.current.push(...coinTypes);
-
-      const _coinMetadataMap = await getCoinMetadataMap(suiClient, coinTypes);
-      setCoinMetadataMap((prev) => ({
-        ...(prev ?? {}),
-        ..._coinMetadataMap,
-      }));
-    })();
-  }, [opportunities, suiClient]);
+  const opportunitiesCoinTypes = useMemo(
+    () =>
+      opportunities.reduce(
+        (acc, opportunity) =>
+          Array.from(new Set([...acc, ...opportunity.coinTypes])),
+        [] as string[],
+      ),
+    [opportunities],
+  );
+  const coinMetadataMap = useCoinMetadataMap(opportunitiesCoinTypes);
 
   return (
     <>
