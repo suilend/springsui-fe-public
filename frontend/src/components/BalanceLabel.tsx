@@ -40,7 +40,7 @@ export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
             "underline decoration-dotted decoration-1 underline-offset-2 transition-colors group-hover:text-foreground group-hover:decoration-solid",
         )}
       >
-        {address ? formatToken(getBalance(token.coinType)) : "-"}
+        {address ? formatToken(getBalance(token.coinType)) : "--"}
       </p>
     </button>
   );
