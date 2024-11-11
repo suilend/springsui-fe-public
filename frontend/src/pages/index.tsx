@@ -327,7 +327,10 @@ export default function Home() {
 
     parameters.push({
       label: "APR",
-      value: formatPercent(lstData.aprPercent),
+      value:
+        lstData.aprPercent === undefined
+          ? "--"
+          : formatPercent(lstData.aprPercent),
     });
 
     if (lstData.suilendReserveStats !== undefined)

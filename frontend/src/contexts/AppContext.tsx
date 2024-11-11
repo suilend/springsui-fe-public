@@ -14,16 +14,28 @@ import { Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
 import useBalancesCoinMetadataMap from "@suilend/frontend-sui/hooks/useBalancesCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui/hooks/useRefreshOnBalancesChange";
-import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
+import {
+  LiquidStakingObjectInfo,
+  LstClient,
+  SUILEND_VALIDATOR_ADDRESS,
+} from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
 
 export enum LstId {
   sSUI = "sSUI",
   ripleysSUI = "ripleysSUI",
+  // mSUI = "mSUI",
 }
 
 export type LiquidStakingInfo = LiquidStakingObjectInfo;
+
+export const VALIDATOR_MAP: Record<LstId, string | undefined> = {
+  [LstId.sSUI]: SUILEND_VALIDATOR_ADDRESS,
+  [LstId.ripleysSUI]: undefined,
+  // [LstId.mSUI]:
+  //   "0x56f4ec3046f1055a9d75d202d167f49a3748b259801315c74895cb0f330b4b7d",
+};
 
 export const LIQUID_STAKING_INFO_MAP: Record<LstId, LiquidStakingInfo> = {
   [LstId.sSUI]: {
@@ -57,7 +69,7 @@ export interface LstData {
   mintFeePercent: BigNumber;
   redeemFeePercent: BigNumber;
   spreadFeePercent: BigNumber;
-  aprPercent: BigNumber;
+  aprPercent?: BigNumber;
 
   fees: BigNumber;
   accruedSpreadFees: BigNumber;

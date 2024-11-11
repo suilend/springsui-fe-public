@@ -9,7 +9,6 @@ import {
   getCoinMetadataMap,
   getToken,
   isSendPoints,
-  issSui,
   showErrorToast,
   useSettingsContext,
 } from "@suilend/frontend-sui";
@@ -30,6 +29,7 @@ import {
   LstData,
   LstId,
   NORMALIZED_LST_COINTYPES,
+  VALIDATOR_MAP,
 } from "@/contexts/AppContext";
 import {
   formatRewards,
@@ -37,9 +37,6 @@ import {
   getFilteredRewards,
   getTotalAprPercent,
 } from "@/lib/liquidityMining";
-
-const MIRAI_SUI_VALIDATOR_ADDRESS =
-  "0x56f4ec3046f1055a9d75d202d167f49a3748b259801315c74895cb0f330b4b7d";
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
@@ -138,6 +135,7 @@ export default function useFetchAppData() {
 
     for (const _lstId of Object.values(LstId)) {
       const LIQUID_STAKING_INFO = LIQUID_STAKING_INFO_MAP[_lstId];
+      const validatorAddress = VALIDATOR_MAP[_lstId];
 
       // Client
       const lstClient = await LstClient.initialize(
@@ -178,10 +176,9 @@ export default function useFetchAppData() {
       ).div(100);
       // customRedeemFeeBps
 
-      const apr = issSui(LIQUID_STAKING_INFO.type)
-        ? await getSpringSuiApy(suiClient) // TODO: Use APR
-        : new BigNumber(0); // TODO
-      const aprPercent = new BigNumber(apr ?? 0).times(100);
+      const apr = await getSpringSuiApy(suiClient, validatorAddress); // TODO: Use APR
+      const aprPercent =
+        apr !== undefined ? new BigNumber(apr).times(100) : undefined;
 
       const fees = new BigNumber(
         rawLiquidStakingInfo.fees.value.toString(),

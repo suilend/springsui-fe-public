@@ -1,10 +1,11 @@
 import BigNumber from "bignumber.js";
 
-import { Token } from "@suilend/frontend-sui";
+import { NORMALIZED_mSUI_COINTYPE, Token, issSui } from "@suilend/frontend-sui";
 
 import Card from "@/components/Card";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { formatToken } from "@/lib/format";
 
@@ -25,6 +26,8 @@ export default function TransactionConfirmationDialog({
   isOpen,
   config,
 }: TransactionConfirmationDialogProps) {
+  const { lstData } = useLoadedLstContext();
+
   const { isStaking, inToken, outToken, inValue, outValue } = config;
 
   const { md } = useBreakpoint();
@@ -38,20 +41,32 @@ export default function TransactionConfirmationDialog({
             Confirm transaction in your wallet
           </p>
 
-          <video
-            className="h-40 w-40"
-            autoPlay
-            controls={false}
-            loop
-            muted
-            preload="auto"
-            playsInline
-          >
-            <source
-              src="/assets/transaction-confirmation.webm"
-              type="video/webm"
+          {issSui(lstData.token.coinType) ? (
+            <video
+              className="h-40 w-40"
+              autoPlay
+              controls={false}
+              loop
+              muted
+              preload="auto"
+              playsInline
+            >
+              <source
+                src="/assets/sSUI-transaction-confirmation.webm"
+                type="video/webm"
+              />
+            </video>
+          ) : (
+            <TokenLogo
+              token={{
+                ...lstData.token,
+                iconUrl: { [NORMALIZED_mSUI_COINTYPE]: "/assets/mSUI.jpg" }[
+                  lstData.token.coinType
+                ],
+              }}
+              size={160}
             />
-          </video>
+          )}
 
           <div className="flex w-full flex-col rounded-md border border-navy-100">
             <div className="flex w-full flex-row items-center justify-between p-3">
