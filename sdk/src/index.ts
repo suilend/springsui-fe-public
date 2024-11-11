@@ -94,6 +94,27 @@ export class LstClient {
     return weightHookAdminCap;
   }
 
+  static async getWeightHookAdminCapId(
+    client: SuiClient,
+    address: string,
+    weightHookAdminCapId: string,
+  ): Promise<string | null | undefined> {
+    const res = (
+      await client.getOwnedObjects({
+        owner: address,
+        filter: {
+          StructType: `${PACKAGE_ID}::weight::WeightHookAdminCap<${weightHookAdminCapId}>`,
+        },
+      })
+    ).data;
+
+    if (res.length == 0) {
+      return null;
+    }
+
+    return res[0].data?.objectId;
+  }
+
   constructor(liquidStakingObject: LiquidStakingObjectInfo, client: SuiClient) {
     this.liquidStakingObject = liquidStakingObject;
     this.client = client;
@@ -116,25 +137,6 @@ export class LstClient {
     return res[0].data?.objectId;
   }
 
-  async getWeightHookAdminCapId(
-    address: string,
-  ): Promise<string | null | undefined> {
-    const res = (
-      await this.client.getOwnedObjects({
-        owner: address,
-        filter: {
-          StructType: `${PACKAGE_ID}::weight::WeightHookAdminCap<${this.liquidStakingObject.type}>`,
-        },
-      })
-    ).data;
-
-    if (res.length == 0) {
-      return null;
-    }
-
-    return res[0].data?.objectId;
-  }
-
   // returns the lst object
   mint(tx: Transaction, suiCoinId: TransactionObjectInput) {
     const [rSui] = generated.mint(tx, this.liquidStakingObject.type, {
@@ -145,6 +147,17 @@ export class LstClient {
 
     return rSui;
   }
+  mintAndRebalanceAndSendToUser = (
+    tx: Transaction,
+    address: string,
+    amount: string,
+  ) => {
+    const [sui] = tx.splitCoins(tx.gas, [BigInt(amount)]);
+    const rSui = this.mint(tx, sui);
+    tx.transferObjects([rSui], address);
+
+    this.rebalance(tx, this.liquidStakingObject.weightHookId);
+  };
 
   // returns the sui coin
   redeemLst(tx: Transaction, lstId: TransactionObjectInput) {
@@ -155,6 +168,27 @@ export class LstClient {
     });
 
     return sui;
+  }
+  async redeemAndSendToUser(tx: Transaction, address: string, amount: string) {
+    const coins = (
+      await this.client.getCoins({
+        owner: address,
+        coinType: this.liquidStakingObject.type,
+      })
+    ).data;
+
+    if (coins.length > 1) {
+      tx.mergeCoins(
+        tx.object(coins[0].coinObjectId),
+        coins.map((c) => tx.object(c.coinObjectId)).slice(1),
+      );
+    }
+
+    const [lst] = tx.splitCoins(tx.object(coins[0].coinObjectId), [
+      BigInt(amount),
+    ]);
+    const sui = this.redeemLst(tx, lst);
+    tx.transferObjects([sui], address);
   }
 
   // admin functions
@@ -201,6 +235,14 @@ export class LstClient {
     );
 
     return sui;
+  }
+  collectFeesAndSendToUser(
+    tx: Transaction,
+    weightHookAdminCapId: TransactionObjectInput,
+    address: string,
+  ) {
+    const sui = this.collectFees(tx, weightHookAdminCapId);
+    tx.transferObjects([sui], address);
   }
 
   updateFees(

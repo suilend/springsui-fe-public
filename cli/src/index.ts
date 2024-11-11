@@ -216,8 +216,10 @@ async function setValidatorAddressesAndWeights(options: any) {
 
   console.log(validatorAddressesAndWeights);
 
-  const weightHookAdminCapId = await lstClient.getWeightHookAdminCapId(
+  const weightHookAdminCapId = await LstClient.getWeightHookAdminCapId(
+    client,
     keypair.toSuiAddress(),
+    LIQUID_STAKING_INFO.type,
   );
   if (!weightHookAdminCapId) return;
 
