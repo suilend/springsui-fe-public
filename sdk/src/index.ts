@@ -97,13 +97,13 @@ export class LstClient {
   static async getWeightHookAdminCapId(
     client: SuiClient,
     address: string,
-    getWeightHookAdminCapId: string,
+    weightHookAdminCapId: string,
   ): Promise<string | null | undefined> {
     const res = (
       await client.getOwnedObjects({
         owner: address,
         filter: {
-          StructType: `${PACKAGE_ID}::weight::WeightHookAdminCap<${getWeightHookAdminCapId}>`,
+          StructType: `${PACKAGE_ID}::weight::WeightHookAdminCap<${weightHookAdminCapId}>`,
         },
       })
     ).data;
