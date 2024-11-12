@@ -46,7 +46,7 @@ export default function LstPopover({ onChange }: LstPopoverProps) {
     >
       <div className="flex w-full flex-col gap-3">
         {Object.values(LstId)
-          .filter((_lstId) => _lstId !== LstId.ripleysSUI)
+          .filter((_lstId) => ![LstId.ripleysSUI, LstId.mSUI].includes(_lstId))
           .map((_lstId) => {
             const _lstData = appData.lstDataMap[_lstId];
 
