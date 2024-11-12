@@ -46,13 +46,18 @@ export default function LstPopover({ onChange }: LstPopoverProps) {
     >
       <div className="flex w-full flex-col gap-3">
         {Object.values(LstId)
-          .filter((_lstId) => ![LstId.ripleysSUI, LstId.mSUI].includes(_lstId))
+          .filter((_lstId) => _lstId !== LstId.ripleysSUI)
+          .filter(
+            (_lstId) =>
+              _lstId !== LstId.mSUI ||
+              (_lstId === LstId.mSUI && Date.now() >= 1731492000000), // 2024-11-13 19:00:00 JST
+          )
           .map((_lstId) => {
             const _lstData = appData.lstDataMap[_lstId];
 
             return (
               <button
-                key={_lstData.token.coinType}
+                key={_lstId}
                 className="group -my-1 py-1"
                 onClick={() => onChangeWrapper(_lstId)}
               >
