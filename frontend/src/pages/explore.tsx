@@ -265,20 +265,20 @@ export default function Explore() {
                   >
                     <p
                       className={cn(
-                        "!text-p2 transition-colors",
+                        "!text-p2",
                         selectedCategory === category.id
                           ? "text-foreground"
-                          : "text-navy-600 group-hover:text-foreground",
+                          : "text-navy-600 transition-colors group-hover:text-foreground",
                       )}
                     >
                       {category.title}
                     </p>
                     <p
                       className={cn(
-                        "!text-p3 transition-colors",
+                        "!text-p3",
                         selectedCategory === category.id
                           ? "text-foreground"
-                          : "text-navy-600 group-hover:text-foreground",
+                          : "text-navy-600 transition-colors group-hover:text-foreground",
                       )}
                     >
                       {category.id === Category.ALL
