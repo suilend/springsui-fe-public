@@ -25,7 +25,7 @@ import useFetchAppData from "@/fetchers/useFetchAppData";
 export enum LstId {
   sSUI = "sSUI",
   ripleysSUI = "ripleysSUI",
-  // mSUI = "mSUI",
+  mSUI = "mSUI",
 }
 
 export type LiquidStakingInfo = LiquidStakingObjectInfo;
@@ -33,8 +33,8 @@ export type LiquidStakingInfo = LiquidStakingObjectInfo;
 export const VALIDATOR_MAP: Record<LstId, string | undefined> = {
   [LstId.sSUI]: SUILEND_VALIDATOR_ADDRESS,
   [LstId.ripleysSUI]: undefined,
-  // [LstId.mSUI]:
-  //   "0x56f4ec3046f1055a9d75d202d167f49a3748b259801315c74895cb0f330b4b7d",
+  [LstId.mSUI]:
+    "0x56f4ec3046f1055a9d75d202d167f49a3748b259801315c74895cb0f330b4b7d",
 };
 
 export const LIQUID_STAKING_INFO_MAP: Record<LstId, LiquidStakingInfo> = {
@@ -53,6 +53,14 @@ export const LIQUID_STAKING_INFO_MAP: Record<LstId, LiquidStakingInfo> = {
     ),
     weightHookId:
       "0xfee25aa74038036cb1548a27a6824213c6a263c3aa45dc37b1c3fbe6037be7d2",
+  },
+  [LstId.mSUI]: {
+    id: "0x985dd33bc2a8b5390f2c30a18d32e9a63a993a5b52750c6fe2e6ac8baeb69f48",
+    type: normalizeStructTag(
+      "0x922d15d7f55c13fd790f6e54397470ec592caa2b508df292a2e8553f3d3b274f::msui::MSUI",
+    ),
+    weightHookId:
+      "0x887d03877df512e7ed72ca96821dc9cc1715ff7abd204d7cfa41b36a7d61d737",
   },
 };
 
