@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 import { Minus } from "lucide-react";
@@ -15,7 +15,7 @@ import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/wei
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { useLoadedAppContext } from "@/contexts/AppContext";
+import { LstId, useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { formatInteger } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
@@ -45,9 +45,13 @@ export default function ValidatorAddressesAndWeightsCard() {
     { id: string; validatorAddress: string; weight: string }[]
   >(getVaw(admin.weightHook));
 
+  const prevLstIdRef = useRef<LstId>(admin.lstId);
   useEffect(() => {
+    if (admin.lstId === prevLstIdRef.current) return;
+    prevLstIdRef.current = admin.lstId;
+
     setVaw(getVaw(admin.weightHook));
-  }, [getVaw, admin.weightHook]);
+  }, [admin.lstId, getVaw, admin.weightHook]);
 
   const onChange = (id: string, key: string, value: string) =>
     setVaw((vaw) =>

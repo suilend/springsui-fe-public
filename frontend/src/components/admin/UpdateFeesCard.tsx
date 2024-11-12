@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
+import BigNumber from "bignumber.js";
 
 import {
   showErrorToast,
@@ -12,7 +13,7 @@ import { FeeConfigArgs } from "@suilend/springsui-sdk";
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { LstData, useLoadedAppContext } from "@/contexts/AppContext";
+import { LstData, LstId, useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
@@ -36,9 +37,13 @@ export default function UpdateFeesCard() {
     Record<keyof FeeConfigArgs, string>
   >(getFeeConfigArgs(admin.lstData));
 
+  const prevLstIdRef = useRef<LstId>(admin.lstId);
   useEffect(() => {
+    if (admin.lstId === prevLstIdRef.current) return;
+    prevLstIdRef.current = admin.lstId;
+
     setFeeConfigArgs(getFeeConfigArgs(admin.lstData));
-  }, [getFeeConfigArgs, admin.lstData]);
+  }, [admin.lstId, getFeeConfigArgs, admin.lstData]);
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -57,6 +62,9 @@ export default function UpdateFeesCard() {
         ([key, value]) => value === "",
       );
       if (hasMissingValues) throw new Error("Missing values");
+
+      if (new BigNumber(feeConfigArgs.mintFeeBps).lt(2))
+        throw new Error("Mint fee must be at least 2 bps");
 
       admin.lstClient.updateFees(
         transaction,
