@@ -5,12 +5,16 @@ import BigNumber from "bignumber.js";
 import { Token } from "@suilend/frontend-sui";
 
 import BalanceLabel from "@/components/BalanceLabel";
+import LstPopover from "@/components/LstPopover";
 import TokenLogo from "@/components/TokenLogo";
+import { LstId } from "@/contexts/AppContext";
 import { formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-interface InputProps {
+interface StakeInputProps {
   token: Token;
+  isLst?: boolean;
+  onLstChange?: (lstId: LstId) => void;
   title: string;
   value: string;
   onChange?: (value: string) => void;
@@ -18,8 +22,20 @@ interface InputProps {
   onBalanceClick?: () => void;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ token, title, value, onChange, usdValue, onBalanceClick }, ref) => {
+const StakeInput = forwardRef<HTMLInputElement, StakeInputProps>(
+  (
+    {
+      token,
+      isLst,
+      onLstChange,
+      title,
+      value,
+      onChange,
+      usdValue,
+      onBalanceClick,
+    },
+    ref,
+  ) => {
     const isReadOnly = !onChange;
 
     return (
@@ -49,10 +65,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             />
           </div>
 
-          <div className="flex flex-row items-center gap-2 pl-px">
-            <TokenLogo token={token} size={28} />
-            <p className="text-h3">{token.symbol}</p>
-          </div>
+          {isLst ? (
+            <LstPopover onChange={onLstChange} />
+          ) : (
+            <div className="flex flex-row items-center gap-2">
+              <TokenLogo token={token} size={28} />
+              <p className="text-h3">{token.symbol}</p>
+            </div>
+          )}
         </div>
 
         <div className="flex w-full flex-row items-center justify-between">
@@ -64,6 +84,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     );
   },
 );
-Input.displayName = "Input";
+StakeInput.displayName = "StakeInput";
 
-export default Input;
+export default StakeInput;

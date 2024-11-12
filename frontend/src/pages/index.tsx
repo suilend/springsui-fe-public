@@ -19,7 +19,7 @@ import track from "@suilend/frontend-sui/lib/track";
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
 import { FOOTER_MD_HEIGHT, FooterSm } from "@/components/Footer";
-import StakeInput from "@/components/Input";
+import StakeInput from "@/components/StakeInput";
 import StatsPopover, { StatsContent } from "@/components/StatsPopover";
 import SubmitButton, { SubmitButtonState } from "@/components/SubmitButton";
 import TokenLogo from "@/components/TokenLogo";
@@ -406,6 +406,8 @@ export default function Home() {
                 <StakeInput
                   ref={inInputRef}
                   token={inToken}
+                  isLst={!isStaking}
+                  onLstChange={() => inInputRef.current?.focus()}
                   title={inTitle}
                   value={inValue}
                   onChange={formatAndSetInValue}
@@ -415,6 +417,7 @@ export default function Home() {
 
                 <StakeInput
                   token={outToken}
+                  isLst={isStaking}
                   title="Receive"
                   value={outValue}
                   usdValue={outValueUsd}

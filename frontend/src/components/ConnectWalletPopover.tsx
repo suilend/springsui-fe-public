@@ -98,7 +98,7 @@ export default function ConnectWalletPopover() {
         <button className="flex h-10 flex-row items-center justify-center gap-2 rounded-sm bg-navy-800 px-3 text-white">
           <WalletIcon size={16} />
           <p className="text-p2">Connect</p>
-          <Chevron className="h-4 w-4" />
+          <Chevron className="-ml-0.5 h-4 w-4" />
         </button>
       }
     >
