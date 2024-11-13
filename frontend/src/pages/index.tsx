@@ -1,5 +1,12 @@
 import { useRouter } from "next/router";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 import * as Sentry from "@sentry/react";
@@ -246,6 +253,11 @@ export default function Home() {
   const submitButtonState_stakeAndDeposit =
     getSubmitButtonState_stakeAndDeposit();
 
+  const hasStakeAndDepositButton = useMemo(
+    () => address && isStaking && lstData.suilendReserveStats !== undefined,
+    [address, isStaking, lstData.suilendReserveStats],
+  );
+
   // Submit - send transaction
   const submit = async (isDepositing: boolean) => {
     if (isDepositing) {
@@ -485,20 +497,30 @@ export default function Home() {
 
                 <div className="flex w-full flex-col gap-px">
                   <SubmitButton
+                    style={
+                      hasStakeAndDepositButton
+                        ? {
+                            borderBottomLeftRadius: 0,
+                            borderBottomRightRadius: 0,
+                          }
+                        : undefined
+                    }
                     state={submitButtonState_stakeOrUnstake}
                     submit={() => submit(false)}
                   />
-                  {address &&
-                    isStaking &&
-                    lstData.suilendReserveStats !== undefined && (
-                      <SubmitButton
-                        className="min-h-12"
-                        labelClassName="text-p2"
-                        loadingClassName="h-5 w-5"
-                        state={submitButtonState_stakeAndDeposit}
-                        submit={() => submit(true)}
-                      />
-                    )}
+                  {hasStakeAndDepositButton && (
+                    <SubmitButton
+                      className="min-h-9 bg-navy-600 py-2"
+                      style={{
+                        borderTopLeftRadius: 0,
+                        borderTopRightRadius: 0,
+                      }}
+                      labelClassName="text-p2"
+                      loadingClassName="h-5 w-5"
+                      state={submitButtonState_stakeAndDeposit}
+                      submit={() => submit(true)}
+                    />
+                  )}
                 </div>
               </div>
             </Card>

@@ -1,4 +1,4 @@
-import { ReactElement, cloneElement } from "react";
+import { CSSProperties, ReactElement, cloneElement } from "react";
 
 import { ClassValue } from "clsx";
 import { Loader2 } from "lucide-react";
@@ -15,6 +15,7 @@ export type SubmitButtonState = {
 
 interface SubmitButtonProps {
   className?: ClassValue;
+  style?: CSSProperties;
   labelClassName?: ClassValue;
   loadingClassName?: ClassValue;
   state: SubmitButtonState;
@@ -23,6 +24,7 @@ interface SubmitButtonProps {
 
 export default function SubmitButton({
   className,
+  style,
   labelClassName,
   loadingClassName,
   state,
@@ -38,6 +40,7 @@ export default function SubmitButton({
       )}
       disabled={isLoading || isDisabled}
       onClick={onClick ?? submit}
+      style={style}
     >
       <div
         className={cn(
