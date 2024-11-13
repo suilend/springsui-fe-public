@@ -17,7 +17,7 @@ export default function TokenLogo({ className, token, size }: TokenLogoProps) {
   if (token === null)
     return (
       <Skeleton
-        className="rounded-[50%]"
+        className={cn("rounded-[50%]", className)}
         style={{ width: size, height: size }}
       />
     );

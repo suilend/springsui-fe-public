@@ -338,7 +338,13 @@ export default function Explore() {
                         <div className="flex min-w-28 flex-col gap-1.5">
                           <p className="text-p2 text-navy-500">Assets</p>
                           <div className="flex w-full flex-row items-center gap-1.5">
-                            <div className="flex flex-row">
+                            <div
+                              className={cn(
+                                "flex flex-row",
+                                tokens.some((token) => token === null) &&
+                                  "animate-pulse",
+                              )}
+                            >
                               {tokens.map((token, index) => (
                                 <TokenLogo
                                   key={index}
@@ -346,7 +352,14 @@ export default function Explore() {
                                     index !== 0 &&
                                       "outline-px -ml-2 outline outline-white",
                                   )}
-                                  token={token}
+                                  token={
+                                    token === null
+                                      ? {
+                                          ...appData.suiToken,
+                                          iconUrl: undefined,
+                                        }
+                                      : token
+                                  }
                                   size={20}
                                 />
                               ))}
