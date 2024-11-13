@@ -116,8 +116,8 @@ export default function UpdateFeesCard() {
 
         <Button
           onClick={submit}
+          isLoading={isSubmitting}
           isDisabled={!admin.weightHookAdminCapId}
-          isSubmitting={isSubmitting}
         />
       </div>
     </Card>

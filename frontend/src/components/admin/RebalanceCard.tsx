@@ -53,7 +53,7 @@ export default function RebalanceCard() {
       <div className="flex w-full flex-col gap-4 p-4">
         <p className="text-navy-600">Rebalance</p>
 
-        <Button onClick={submit} isSubmitting={isSubmitting} />
+        <Button onClick={submit} isLoading={isSubmitting} />
       </div>
     </Card>
   );

@@ -188,8 +188,8 @@ export default function ValidatorAddressesAndWeightsCard() {
 
         <Button
           onClick={submit}
+          isLoading={isSubmitting}
           isDisabled={!admin.weightHookAdminCapId}
-          isSubmitting={isSubmitting}
         />
       </div>
     </Card>

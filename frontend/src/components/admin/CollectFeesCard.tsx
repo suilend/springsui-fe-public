@@ -61,8 +61,8 @@ export default function CollectFeesCard() {
 
         <Button
           onClick={submit}
+          isLoading={isSubmitting}
           isDisabled={!admin.weightHookAdminCapId}
-          isSubmitting={isSubmitting}
         />
       </div>
     </Card>
