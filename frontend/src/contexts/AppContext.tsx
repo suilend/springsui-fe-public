@@ -14,6 +14,7 @@ import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
 import useCoinMetadataMap from "@suilend/frontend-sui/hooks/useCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui/hooks/useRefreshOnBalancesChange";
+import { SuilendClient } from "@suilend/sdk";
 import {
   LiquidStakingObjectInfo,
   LstClient,
@@ -95,8 +96,9 @@ export interface LstData {
 }
 
 export interface AppData {
-  sendPointsToken: Token;
+  suilendClient: SuilendClient;
 
+  sendPointsToken: Token;
   suiToken: Token;
   suiPrice: BigNumber;
 

@@ -15,7 +15,11 @@ import {
 import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
 import { phantom } from "@suilend/sdk/_generated/_framework/reified";
 import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
-import { LENDING_MARKET_ID, LENDING_MARKET_TYPE } from "@suilend/sdk/client";
+import {
+  LENDING_MARKET_ID,
+  LENDING_MARKET_TYPE,
+  SuilendClient,
+} from "@suilend/sdk/client";
 import * as simulate from "@suilend/sdk/utils/simulate";
 import {
   LstClient,
@@ -48,6 +52,11 @@ export default function useFetchAppData() {
       suiClient,
       phantom(LENDING_MARKET_TYPE),
       LENDING_MARKET_ID,
+    );
+
+    const suilendClient = await SuilendClient.initializeWithLendingMarket(
+      rawLendingMarket,
+      suiClient,
     );
 
     const refreshedRawReserves = await simulate.refreshReservePrice(
@@ -238,8 +247,9 @@ export default function useFetchAppData() {
     }
 
     return {
-      sendPointsToken,
+      suilendClient,
 
+      sendPointsToken,
       suiToken,
       suiPrice,
 
