@@ -139,24 +139,29 @@ export class LstClient {
 
   // returns the lst object
   mint(tx: Transaction, suiCoinId: TransactionObjectInput) {
-    const [rSui] = generated.mint(tx, this.liquidStakingObject.type, {
+    const [lst] = generated.mint(tx, this.liquidStakingObject.type, {
       self: this.liquidStakingObject.id,
       sui: suiCoinId,
       systemState: SUI_SYSTEM_STATE_ID,
     });
 
-    return rSui;
+    return lst;
   }
+  mintAndRebalance = (tx: Transaction, amount: string) => {
+    const [sui] = tx.splitCoins(tx.gas, [BigInt(amount)]);
+    const lst = this.mint(tx, sui);
+
+    this.rebalance(tx, this.liquidStakingObject.weightHookId);
+
+    return lst;
+  };
   mintAndRebalanceAndSendToUser = (
     tx: Transaction,
     address: string,
     amount: string,
   ) => {
-    const [sui] = tx.splitCoins(tx.gas, [BigInt(amount)]);
-    const rSui = this.mint(tx, sui);
-    tx.transferObjects([rSui], address);
-
-    this.rebalance(tx, this.liquidStakingObject.weightHookId);
+    const lst = this.mintAndRebalance(tx, amount);
+    tx.transferObjects([lst], address);
   };
 
   // returns the sui coin
