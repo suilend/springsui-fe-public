@@ -10,6 +10,7 @@ import useBreakpoint from "@/hooks/useBreakpoint";
 import { formatToken } from "@/lib/format";
 
 export type TransactionConfirmationDialogConfig = {
+  isDepositing: boolean;
   isStaking: boolean;
   inToken: Token;
   outToken: Token;
@@ -28,7 +29,8 @@ export default function TransactionConfirmationDialog({
 }: TransactionConfirmationDialogProps) {
   const { lstData } = useLoadedLstContext();
 
-  const { isStaking, inToken, outToken, inValue, outValue } = config;
+  const { isDepositing, isStaking, inToken, outToken, inValue, outValue } =
+    config;
 
   const { md } = useBreakpoint();
 
@@ -86,7 +88,9 @@ export default function TransactionConfirmationDialog({
             </div>
             <div className="h-px w-full bg-navy-100" />
             <div className="flex w-full flex-row items-center justify-between p-3">
-              <p className="text-p2 text-navy-600">Receiving</p>
+              <p className="text-p2 text-navy-600">
+                {isDepositing ? "Depositing" : "Receiving"}
+              </p>
 
               <div className="flex flex-row items-center">
                 <p className="mr-2">

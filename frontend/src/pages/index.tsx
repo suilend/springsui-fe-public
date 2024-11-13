@@ -15,6 +15,7 @@ import {
   useWalletContext,
 } from "@suilend/frontend-sui";
 import track from "@suilend/frontend-sui/lib/track";
+import { SuilendClient } from "@suilend/sdk";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
@@ -48,7 +49,7 @@ export default function Home() {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
   };
 
-  const { explorer } = useSettingsContext();
+  const { explorer, suiClient } = useSettingsContext();
   const {
     setIsConnectWalletDropdownOpen,
     address,
@@ -172,32 +173,45 @@ export default function Home() {
   const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
 
   // Submit
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
+  // Submit - transaction confirmation dialog
   const [
     isTransactionConfirmationDialogOpen,
     setIsTransactionConfirmationDialogOpen,
   ] = useState<boolean>(false);
 
-  const getTransactionConfirmationDialogConfig =
-    (): TransactionConfirmationDialogConfig => {
-      return { isStaking, inToken, outToken, inValue, outValue };
-    };
+  const getTransactionConfirmationDialogConfig = (
+    isDepositing: boolean,
+  ): TransactionConfirmationDialogConfig => ({
+    isDepositing,
+    isStaking,
+    inToken,
+    outToken,
+    inValue,
+    outValue,
+  });
+
   const [
     transactionConfirmationDialogConfig,
     setTransactionConfirmationDialogConfig,
   ] = useState<TransactionConfirmationDialogConfig>(
-    getTransactionConfirmationDialogConfig,
+    getTransactionConfirmationDialogConfig(false),
   );
 
-  const getSubmitButtonState = (): SubmitButtonState => {
+  // Submit - button state
+  const [isSubmitting_stakeOrUnstake, setIsSubmitting_stakeOrUnstake] =
+    useState<boolean>(false);
+  const [isSubmitting_stakeAndDeposit, setIsSubmitting_stakeAndDeposit] =
+    useState<boolean>(false);
+
+  const getSubmitButtonState_stakeOrUnstake = (): SubmitButtonState => {
     if (!address)
       return {
         icon: <Wallet />,
         title: "Connect wallet",
         onClick: () => setIsConnectWalletDropdownOpen(true),
       };
-    if (isSubmitting) return { isLoading: true, isDisabled: true };
+    if (isSubmitting_stakeOrUnstake)
+      return { isLoading: true, isDisabled: true };
 
     if (new BigNumber(inValue || 0).lte(0))
       return { title: "Enter an amount", isDisabled: true };
@@ -215,15 +229,40 @@ export default function Home() {
       title: `${inTitle} ${formatToken(new BigNumber(inValue), { dp: inToken.decimals })} ${inToken.symbol}`,
     };
   };
-  const submitButtonState = getSubmitButtonState();
+  const submitButtonState_stakeOrUnstake =
+    getSubmitButtonState_stakeOrUnstake();
 
-  const submit = async () => {
-    if (submitButtonState.isDisabled) return;
+  const getSubmitButtonState_stakeAndDeposit = (): SubmitButtonState => {
+    if (isSubmitting_stakeAndDeposit)
+      return { isLoading: true, isDisabled: true };
 
+    return {
+      title: "Stake and deposit in Suilend",
+      isDisabled:
+        submitButtonState_stakeOrUnstake.isDisabled ||
+        isSubmitting_stakeOrUnstake,
+    };
+  };
+  const submitButtonState_stakeAndDeposit =
+    getSubmitButtonState_stakeAndDeposit();
+
+  // Submit - send transaction
+  const submit = async (isDepositing: boolean) => {
+    if (isDepositing) {
+      if (submitButtonState_stakeAndDeposit.isDisabled) return;
+    } else {
+      if (submitButtonState_stakeOrUnstake.isDisabled) return;
+    }
+
+    const setIsSubmitting = isDepositing
+      ? setIsSubmitting_stakeAndDeposit
+      : setIsSubmitting_stakeOrUnstake;
     setIsSubmitting(true);
+
     setTransactionConfirmationDialogConfig(
-      getTransactionConfirmationDialogConfig(),
+      getTransactionConfirmationDialogConfig(isDepositing),
     );
+    setTimeout(() => setIsTransactionConfirmationDialogOpen(true));
 
     const submitAmount = new BigNumber(inValue)
       .times(10 ** inToken.decimals)
@@ -232,18 +271,35 @@ export default function Home() {
 
     const transaction = new Transaction();
     try {
-      if (isStaking)
-        lstClient.mintAndRebalanceAndSendToUser(
-          transaction,
+      if (isDepositing) {
+        const obligationOwnerCaps = await SuilendClient.getObligationOwnerCaps(
           address!,
-          submitAmount,
+          appData.suilendClient.lendingMarket.$typeArgs,
+          suiClient,
         );
-      else
-        await lstClient.redeemAndSendToUser(
-          transaction,
+
+        const lst = lstClient.mintAndRebalance(transaction, submitAmount);
+        await appData.suilendClient.depositCoin(
           address!,
-          submitAmount,
+          lst,
+          lstData.token.coinType,
+          transaction,
+          obligationOwnerCaps[0]?.id,
         );
+      } else {
+        if (isStaking)
+          lstClient.mintAndRebalanceAndSendToUser(
+            transaction,
+            address!,
+            submitAmount,
+          );
+        else
+          await lstClient.redeemAndSendToUser(
+            transaction,
+            address!,
+            submitAmount,
+          );
+      }
     } catch (err) {
       Sentry.captureException(err);
       console.error(err);
@@ -251,8 +307,6 @@ export default function Home() {
     }
 
     try {
-      setIsTransactionConfirmationDialogOpen(true);
-
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
 
@@ -273,15 +327,18 @@ export default function Home() {
         txUrl,
         {
           description: [
-            "Received",
+            isDepositing ? "Deposited" : "Received",
             formatToken(
-              balanceChangeOut !== undefined
+              !isDepositing && balanceChangeOut !== undefined
                 ? balanceChangeOut
                 : new BigNumber(outValue),
               { dp: outToken.decimals },
             ),
             outToken.symbol,
-          ].join(" "),
+            isDepositing ? "in Suilend" : false,
+          ]
+            .filter(Boolean)
+            .join(" "),
         },
       );
       formatAndSetInValue("");
@@ -426,7 +483,23 @@ export default function Home() {
                   usdValue={outValueUsd}
                 />
 
-                <SubmitButton state={submitButtonState} submit={submit} />
+                <div className="flex w-full flex-col gap-px">
+                  <SubmitButton
+                    state={submitButtonState_stakeOrUnstake}
+                    submit={() => submit(false)}
+                  />
+                  {address &&
+                    isStaking &&
+                    lstData.suilendReserveStats !== undefined && (
+                      <SubmitButton
+                        className="min-h-12"
+                        labelClassName="text-p2"
+                        loadingClassName="h-5 w-5"
+                        state={submitButtonState_stakeAndDeposit}
+                        submit={() => submit(true)}
+                      />
+                    )}
+                </div>
               </div>
             </Card>
 
