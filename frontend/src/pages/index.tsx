@@ -333,7 +333,10 @@ export default function Home() {
           : formatPercent(lstData.aprPercent),
     });
 
-    if (lstData.suilendReserveStats !== undefined)
+    if (
+      lstData.suilendReserveStats !== undefined &&
+      lstData.suilendReserveStats.sendPointsPerDay.gt(0)
+    )
       parameters.push({
         label: "SEND Points",
         labelEndDecorator: (
