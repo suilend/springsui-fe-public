@@ -50,6 +50,20 @@ export function FaqContent() {
         "Spring Staked SUI (sSUI) is the first LST built using the SpringSui Standard.",
     },
     {
+      question: "What are Ecosystem LSTs?",
+      answer: (
+        <>
+          Other LSTs created via the SpringSui Standard are operated by
+          independent third-party teams rather than Suilend and are referred to
+          as Ecosystem LSTs. Launching these Ecosystem LSTs via SpringSui will
+          soon become a permissionless process.
+          <br />
+          <br />
+          For example, Mirai Staked SUI (mSUI) is an Ecosystem LST.
+        </>
+      ),
+    },
+    {
       question: "What is the SpringSui Standard?",
       answer:
         "SpringSui is an open source LST standard that offers infinite liquidity through instant unstaking, thereby reducing depegging risks. It also enables the creation of custom LSTs.",
