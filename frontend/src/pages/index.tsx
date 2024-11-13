@@ -386,22 +386,32 @@ export default function Home() {
     valueEndDecorator?: ReactNode;
   };
 
-  const parameters: Parameter[] = [];
-  if (isStaking) {
-    if (lstData.mintFeePercent.gt(0))
-      parameters.push({
-        label: "Staking fee",
-        value: formatPercent(lstData.mintFeePercent),
-      });
-
-    parameters.push({
+  const parameters: Parameter[] = [
+    {
       label: "APR",
       value:
         lstData.aprPercent === undefined
           ? "--"
           : formatPercent(lstData.aprPercent),
+    },
+  ];
+  if (lstData.mintFeePercent.gt(0))
+    parameters.push({
+      label: "Staking fee",
+      value: formatPercent(lstData.mintFeePercent),
+    });
+  if (lstData.redeemFeePercent.gt(0))
+    parameters.push({
+      label: "Unstaking fee",
+      value: formatPercent(lstData.redeemFeePercent),
+    });
+  if (lstData.spreadFeePercent.gt(0))
+    parameters.push({
+      label: "Spread fee",
+      value: formatPercent(lstData.spreadFeePercent),
     });
 
+  if (isStaking) {
     if (
       lstData.suilendReserveStats !== undefined &&
       lstData.suilendReserveStats.sendPointsPerDay.gt(0)
@@ -422,12 +432,6 @@ export default function Home() {
           outValue === ""
             ? `${formatPoints(new BigNumber(1).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / ${lstData.token.symbol} / day`
             : `${formatPoints(new BigNumber(outValue || 0).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / day`,
-      });
-  } else {
-    if (lstData.redeemFeePercent.gt(0))
-      parameters.push({
-        label: "Unstaking fee",
-        value: formatPercent(lstData.redeemFeePercent),
       });
   }
 
