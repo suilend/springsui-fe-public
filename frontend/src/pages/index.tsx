@@ -290,10 +290,9 @@ export default function Home() {
           suiClient,
         );
 
-        const lst = lstClient.mintAndRebalance(transaction, submitAmount);
         await appData.suilendClient.depositCoin(
           address!,
-          lst,
+          lstClient.mintAndRebalance(transaction, submitAmount),
           lstData.token.coinType,
           transaction,
           obligationOwnerCaps[0]?.id,
