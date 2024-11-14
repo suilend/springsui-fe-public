@@ -6,11 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import BigNumber from "bignumber.js";
 
 import {
+  LstId,
   NORMALIZED_SUI_COINTYPE,
   Token,
   getToken,
   shallowPushQuery,
-  useSettingsContext,
 } from "@suilend/frontend-sui";
 import useCoinMetadataMap from "@suilend/frontend-sui/hooks/useCoinMetadataMap";
 
@@ -18,7 +18,7 @@ import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
-import { LstId, useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { NORMALIZED_AAA_COINTYPE } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,6 @@ export default function Explore() {
       | undefined,
   };
 
-  const { suiClient } = useSettingsContext();
   const { appData } = useLoadedAppContext();
   const lstData = appData.lstDataMap[LstId.sSUI];
 

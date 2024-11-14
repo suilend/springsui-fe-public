@@ -2,12 +2,11 @@ import { forwardRef } from "react";
 
 import BigNumber from "bignumber.js";
 
-import { Token } from "@suilend/frontend-sui";
+import { LstId, Token } from "@suilend/frontend-sui";
 
 import BalanceLabel from "@/components/BalanceLabel";
 import LstPopover from "@/components/LstPopover";
 import TokenLogo from "@/components/TokenLogo";
-import { LstId } from "@/contexts/AppContext";
 import { formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 

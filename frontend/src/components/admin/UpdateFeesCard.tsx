@@ -4,6 +4,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
 
 import {
+  LstId,
   showErrorToast,
   useSettingsContext,
   useWalletContext,
@@ -13,7 +14,7 @@ import { FeeConfigArgs } from "@suilend/springsui-sdk";
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { LstData, LstId, useLoadedAppContext } from "@/contexts/AppContext";
+import { LstData, useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 

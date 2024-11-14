@@ -6,6 +6,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
 import {
+  LstId,
   showErrorToast,
   useSettingsContext,
   useWalletContext,
@@ -15,7 +16,7 @@ import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/wei
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import { LstId, useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { formatInteger } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";

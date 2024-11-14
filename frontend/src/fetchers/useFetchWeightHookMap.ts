@@ -1,10 +1,12 @@
 import useSWR from "swr";
 
-import { useSettingsContext } from "@suilend/frontend-sui";
+import {
+  LIQUID_STAKING_INFO_MAP,
+  LstId,
+  useSettingsContext,
+} from "@suilend/frontend-sui";
 import { phantom } from "@suilend/springsui-sdk/_generated/_framework/reified";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
-
-import { LIQUID_STAKING_INFO_MAP, LstId } from "@/contexts/AppContext";
 
 export default function useFetchWeightHookMap() {
   const { suiClient } = useSettingsContext();

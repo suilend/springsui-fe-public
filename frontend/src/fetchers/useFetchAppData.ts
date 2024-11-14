@@ -4,6 +4,9 @@ import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
 import {
+  LIQUID_STAKING_INFO_MAP,
+  LstId,
+  NORMALIZED_LST_COINTYPES,
   NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
   getCoinMetadataMap,
@@ -21,20 +24,9 @@ import {
   SuilendClient,
 } from "@suilend/sdk/client";
 import * as simulate from "@suilend/sdk/utils/simulate";
-import {
-  LstClient,
-  fetchLiquidStakingInfo,
-  getSpringSuiApy,
-} from "@suilend/springsui-sdk";
+import { LstClient, fetchLiquidStakingInfo } from "@suilend/springsui-sdk";
 
-import {
-  AppData,
-  LIQUID_STAKING_INFO_MAP,
-  LstData,
-  LstId,
-  NORMALIZED_LST_COINTYPES,
-  VALIDATOR_MAP,
-} from "@/contexts/AppContext";
+import { AppData, LstData } from "@/contexts/AppContext";
 import {
   formatRewards,
   getDedupedPerDayRewards,
@@ -144,7 +136,6 @@ export default function useFetchAppData() {
 
     for (const _lstId of Object.values(LstId)) {
       const LIQUID_STAKING_INFO = LIQUID_STAKING_INFO_MAP[_lstId];
-      const validatorAddress = VALIDATOR_MAP[_lstId];
 
       // Client
       const lstClient = await LstClient.initialize(
@@ -185,9 +176,8 @@ export default function useFetchAppData() {
       ).div(100);
       // customRedeemFeeBps
 
-      const apr = await getSpringSuiApy(suiClient, validatorAddress); // TODO: Use APR
-      const aprPercent =
-        apr !== undefined ? new BigNumber(apr).times(100) : undefined;
+      const apr = await lstClient.getSpringSuiApy(); // TODO: Use APR
+      const aprPercent = new BigNumber(apr).times(100);
 
       const fees = new BigNumber(
         rawLiquidStakingInfo.fees.value.toString(),

@@ -9,11 +9,15 @@ import {
   useState,
 } from "react";
 
-import { shallowPushQuery, useWalletContext } from "@suilend/frontend-sui";
+import {
+  LstId,
+  shallowPushQuery,
+  useWalletContext,
+} from "@suilend/frontend-sui";
 import { LstClient } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
-import { LstData, LstId, useAppContext } from "@/contexts/AppContext";
+import { LstData, useAppContext } from "@/contexts/AppContext";
 import useFetchWeightHookAdminCapIdMap from "@/fetchers/useFetchWeightHookAdminCapIdMap";
 import useFetchWeightHookMap from "@/fetchers/useFetchWeightHookMap";
 

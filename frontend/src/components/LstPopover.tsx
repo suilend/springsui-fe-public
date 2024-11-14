@@ -2,9 +2,11 @@ import { useState } from "react";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 
+import { LstId } from "@suilend/frontend-sui";
+
 import Popover from "@/components/Popover";
 import TokenLogo from "@/components/TokenLogo";
-import { LstId, useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { cn } from "@/lib/utils";
 
