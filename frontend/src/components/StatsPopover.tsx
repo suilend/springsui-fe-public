@@ -62,6 +62,8 @@ export function StatsContent() {
   ));
 }
 export default function StatsPopover() {
+  const { lstData } = useLoadedLstContext();
+
   const { md } = useBreakpoint();
 
   // State
@@ -89,7 +91,7 @@ export default function StatsPopover() {
                   : "text-navy-600 transition-colors group-hover:text-foreground",
               )}
             >
-              Stats
+              {lstData.token.symbol} stats
             </p>
           </div>
         </button>
