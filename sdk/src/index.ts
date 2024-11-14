@@ -1,5 +1,7 @@
 import { SuiClient } from "@mysten/sui/client";
 import { Transaction, TransactionObjectInput } from "@mysten/sui/transactions";
+import { SUI_DECIMALS } from "@mysten/sui/utils";
+import BigNumber from "bignumber.js";
 
 import { phantom } from "./_generated/_framework/reified";
 import { PACKAGE_ID, setPublishedAt } from "./_generated/liquid_staking";
@@ -355,27 +357,46 @@ export class LstClient {
       liquidStakingInfo: this.liquidStakingObject.id,
     });
   }
+
+  async getSpringSuiApy() {
+    const validatorApys = (await this.client.getValidatorsApy()).apys;
+
+    const liquidStakingInfo = await fetchLiquidStakingInfo(
+      this.liquidStakingObject,
+      this.client,
+    );
+
+    const totalSuiSupply = new BigNumber(
+      liquidStakingInfo.storage.totalSuiSupply.toString(),
+    ).div(10 ** SUI_DECIMALS);
+
+    return liquidStakingInfo.storage.validatorInfos
+      .reduce((acc, validatorInfo) => {
+        const validatorApy = new BigNumber(
+          validatorApys.find(
+            (_apy) => _apy.address === validatorInfo.validatorAddress,
+          )?.apy ?? 0,
+        );
+
+        const validatorTotalSuiAmount = new BigNumber(
+          validatorInfo.totalSuiAmount.toString(),
+        ).div(10 ** SUI_DECIMALS);
+
+        return acc.plus(validatorApy.times(validatorTotalSuiAmount));
+      }, new BigNumber(0))
+      .div(totalSuiSupply);
+  }
 }
 
 // user functions
-export async function fetchLiquidStakingInfo(
+export const fetchLiquidStakingInfo = (
   info: LiquidStakingObjectInfo,
   client: SuiClient,
-): Promise<LiquidStakingInfo<any>> {
-  return LiquidStakingInfo.fetch(client, phantom(info.type), info.id);
-}
+): Promise<LiquidStakingInfo<any>> =>
+  LiquidStakingInfo.fetch(client, phantom(info.type), info.id);
 
 export interface FeeConfigArgs {
   mintFeeBps?: number;
   redeemFeeBps?: number;
   spreadFeeBps?: number;
-}
-
-// only works for sSUI and mSUI
-export async function getSpringSuiApy(
-  client: SuiClient,
-  validatorAddress: string = SUILEND_VALIDATOR_ADDRESS,
-) {
-  const res = await client.getValidatorsApy();
-  return res.apys.find((apy) => apy.address == validatorAddress)?.apy;
 }

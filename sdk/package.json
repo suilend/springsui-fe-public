@@ -1,6 +1,6 @@
 {
   "name": "@suilend/springsui-sdk-local",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": true,
   "description": "A TypeScript SDK for interacting with the SpringSui program",
   "author": "Suilend",
@@ -27,6 +27,7 @@
   "dependencies": {
     "@mysten/bcs": "1.1.0",
     "@mysten/sui": "1.14.2",
+    "bignumber.js": "^9.1.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
