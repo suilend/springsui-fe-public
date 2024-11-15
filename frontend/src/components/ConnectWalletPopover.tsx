@@ -9,10 +9,10 @@ import {
   isInMsafeApp,
   useWalletContext,
 } from "@suilend/frontend-sui";
+import useIsAndroid from "@suilend/frontend-sui/hooks/useIsAndroid";
+import useIsiOS from "@suilend/frontend-sui/hooks/useIsiOS";
 
 import Popover from "@/components/Popover";
-import useIsAndroid from "@/hooks/useIsAndroid";
-import useIsiOS from "@/hooks/useIsiOS";
 
 interface WalletItemProps {
   wallet: Wallet;
