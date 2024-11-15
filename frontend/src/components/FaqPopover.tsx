@@ -172,7 +172,7 @@ export default function FaqPopover() {
               className={cn(
                 isOpen
                   ? "text-foreground"
-                  : "text-navy-600 text-navy-600 transition-colors group-hover:text-foreground",
+                  : "text-navy-600 transition-colors group-hover:text-foreground",
               )}
             />
             <p

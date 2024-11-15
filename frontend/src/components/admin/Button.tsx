@@ -30,7 +30,7 @@ export default function Button({
     >
       <div
         className={cn(
-          "absolute inset-0 z-[2] flex flex-row items-center justify-center transition-opacity ",
+          "absolute inset-0 z-[2] flex flex-row items-center justify-center transition-opacity",
           !isLoading && "opacity-0",
         )}
       >
