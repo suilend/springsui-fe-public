@@ -70,6 +70,7 @@ const getBorrowShareUsd = (reserve: ParsedReserve, share: BigNumber) =>
 export const formatRewards = (
   parsedReserveMap: Record<string, ParsedReserve>,
   coinMetadataMap: Record<string, CoinMetadata>,
+  birdeyePriceMap?: Record<string, BigNumber | undefined>,
   obligations?: ParsedObligation[],
 ) => {
   const currentTime = new Date().getTime();
@@ -82,14 +83,17 @@ export const formatRewards = (
   ) => {
     const rewardReserve = parsedReserveMap[poolReward.coinType];
     const rewardCoinMetadata = coinMetadataMap[poolReward.coinType];
+    const rewardBirdeyePrice = birdeyePriceMap?.[poolReward.coinType];
+
+    const rewardPrice = rewardReserve?.price ?? rewardBirdeyePrice;
 
     const isActive =
       currentTime >= poolReward.startTimeMs &&
       currentTime < poolReward.endTimeMs;
 
-    const aprPercent = rewardReserve
+    const aprPercent = rewardPrice
       ? poolReward.totalRewards
-          .times(rewardReserve.price)
+          .times(rewardPrice)
           .times(
             new BigNumber(msPerYear).div(
               poolReward.endTimeMs - poolReward.startTimeMs,
@@ -112,7 +116,7 @@ export const formatRewards = (
           )
           .times(100)
       : undefined;
-    const perDay = rewardReserve
+    const perDay = rewardPrice
       ? undefined
       : poolReward.totalRewards
           .times(
@@ -145,7 +149,7 @@ export const formatRewards = (
         reserve,
         rewardCoinType: poolReward.coinType,
         mintDecimals: poolReward.mintDecimals,
-        price: rewardReserve?.price,
+        price: rewardPrice,
         symbol: rewardCoinMetadata.symbol,
         iconUrl: rewardCoinMetadata.iconUrl,
         aprPercent,
@@ -168,7 +172,7 @@ export const formatRewards = (
             }
             return [ob.id, claim];
           })
-          .filter(Boolean) as Array<[string, ObligationClaim]>) ?? [],
+          .filter(Boolean) as [string, ObligationClaim][]) ?? [],
       ),
     };
   };
@@ -273,21 +277,40 @@ const getRewardsAprPercent = (side: Side, filteredRewards: RewardSummary[]) =>
     new BigNumber(0),
   );
 
+export const getStakingYieldAprPercent = (
+  side: Side,
+  reserve: ParsedReserve,
+  lstAprPercentMap: Record<string, BigNumber>,
+) => (side === Side.DEPOSIT ? lstAprPercentMap[reserve.coinType] : undefined);
+
 export const getTotalAprPercent = (
   side: Side,
   aprPercent: BigNumber,
   filteredRewards: RewardSummary[],
-) => aprPercent.plus(getRewardsAprPercent(side, filteredRewards));
+  stakingYieldAprPercent?: BigNumber,
+) =>
+  aprPercent
+    .plus(getRewardsAprPercent(side, filteredRewards))
+    .plus(stakingYieldAprPercent ?? 0);
 
 export const getNetAprPercent = (
   obligation: ParsedObligation,
   rewardMap: RewardMap,
+  lstAprPercentMap: Record<string, BigNumber>,
 ) => {
-  const aprPercentWeightedDepositedAmountUsd = obligation.deposits.reduce(
+  const weightedDepositedAmountUsd_aprPercent = obligation.deposits.reduce(
     (acc, deposit) => {
-      const baseAprPercentWeightedDepositedAmountUsd =
+      const weightedDepositedAmountUsd_baseAprPercent =
         deposit.reserve.depositAprPercent.times(deposit.depositedAmountUsd);
-      const rewardsAprPercentWeightedDepositedAmountUsd = getRewardsAprPercent(
+      const weightedDepositedAmountUsd_stakingYieldAprPercent = new BigNumber(
+        getStakingYieldAprPercent(
+          Side.DEPOSIT,
+          deposit.reserve,
+          lstAprPercentMap,
+        ) ?? 0,
+      ).times(deposit.depositedAmountUsd);
+
+      const weightedDepositedAmountUsd_rewardsAprPercent = getRewardsAprPercent(
         Side.DEPOSIT,
         getFilteredRewards(rewardMap[deposit.reserve.coinType].deposit),
       ).times(
@@ -298,17 +321,19 @@ export const getNetAprPercent = (
       );
 
       return acc
-        .plus(baseAprPercentWeightedDepositedAmountUsd)
-        .plus(rewardsAprPercentWeightedDepositedAmountUsd);
+        .plus(weightedDepositedAmountUsd_baseAprPercent)
+        .plus(weightedDepositedAmountUsd_stakingYieldAprPercent)
+        .plus(weightedDepositedAmountUsd_rewardsAprPercent);
     },
     new BigNumber(0),
   );
 
-  const aprPercentWeightedBorrowedAmountUsd = obligation.borrows.reduce(
+  const weightedBorrowedAmountUsd_aprPercent = obligation.borrows.reduce(
     (acc, borrow) => {
-      const baseAprPercentWeightedBorrowedAmountUsd =
+      const weightedBorrowedAmountUsd_baseAprPercent =
         borrow.reserve.borrowAprPercent.times(borrow.borrowedAmountUsd);
-      const rewardsAprPercentWeightedBorrowedAmountUsd = getRewardsAprPercent(
+
+      const weightedBorrowedAmountUsd_rewardsAprPercent = getRewardsAprPercent(
         Side.BORROW,
         getFilteredRewards(rewardMap[borrow.reserve.coinType].borrow),
       ).times(
@@ -319,15 +344,15 @@ export const getNetAprPercent = (
       );
 
       return acc
-        .plus(baseAprPercentWeightedBorrowedAmountUsd)
-        .plus(rewardsAprPercentWeightedBorrowedAmountUsd);
+        .plus(weightedBorrowedAmountUsd_baseAprPercent)
+        .plus(weightedBorrowedAmountUsd_rewardsAprPercent);
     },
     new BigNumber(0),
   );
 
   const aprPercentWeightedNetValueUsd =
-    aprPercentWeightedDepositedAmountUsd.minus(
-      aprPercentWeightedBorrowedAmountUsd,
+    weightedDepositedAmountUsd_aprPercent.minus(
+      weightedBorrowedAmountUsd_aprPercent,
     );
   return !obligation.netValueUsd.eq(0)
     ? aprPercentWeightedNetValueUsd.div(obligation.netValueUsd)

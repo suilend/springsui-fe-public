@@ -97,7 +97,7 @@ export default function useFetchAppData() {
       {},
     ) as Record<string, ParsedReserve>;
 
-    const rewardMap = formatRewards(reserveMap, coinMetadataMap);
+    const rewardMap = formatRewards(reserveMap, coinMetadataMap, {});
 
     // SEND Points
     const sendPointsToken = getToken(

@@ -17,7 +17,6 @@
     "@msafe/sui-app-store": "^0.0.161",
     "@msafe/sui-wallet": "^0.0.77",
     "@msafe/sui3-utils": "^5.0.2",
-    "@mysten/bcs": "1.1.0",
     "@mysten/sui": "1.14.3",
     "@pythnetwork/pyth-sui-js": "^2.1.0",
     "@radix-ui/react-dialog": "^1.1.2",
