@@ -19,7 +19,7 @@ function QuestionAnswer({
 }: QuestionAnswerProps) {
   const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
 
-  const Chevron = isExpanded ? ChevronDown : ChevronUp;
+  const Chevron = isExpanded ? ChevronUp : ChevronDown;
 
   return (
     <div className="flex w-full flex-col gap-2">
