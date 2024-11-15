@@ -9,8 +9,12 @@ import {
   NORMALIZED_LST_COINTYPES,
   NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
+  formatRewards,
   getCoinMetadataMap,
+  getDedupedPerDayRewards,
+  getFilteredRewards,
   getToken,
+  getTotalAprPercent,
   isSendPoints,
   showErrorToast,
   useSettingsContext,
@@ -27,12 +31,6 @@ import * as simulate from "@suilend/sdk/utils/simulate";
 import { LstClient, fetchLiquidStakingInfo } from "@suilend/springsui-sdk";
 
 import { AppData, LstData } from "@/contexts/AppContext";
-import {
-  formatRewards,
-  getDedupedPerDayRewards,
-  getFilteredRewards,
-  getTotalAprPercent,
-} from "@/lib/liquidityMining";
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
