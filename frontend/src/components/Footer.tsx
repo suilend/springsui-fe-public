@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { getMsafeAppStoreUrl, isInMsafeApp } from "@suilend/frontend-sui";
+
 import DiscordIcon from "@/components/icons/DiscordIcon";
 import XIcon from "@/components/icons/XIcon";
 import {
@@ -27,7 +29,7 @@ function FooterContent() {
         />
         <Link
           className="text-p2 text-navy-600 transition-colors hover:text-foreground"
-          href={SUILEND_URL}
+          href={!isInMsafeApp() ? SUILEND_URL : getMsafeAppStoreUrl("Suilend")}
           target="_blank"
         >
           Powered by Suilend
