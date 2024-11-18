@@ -4,7 +4,7 @@ import { cloneDeep } from "lodash";
 import { VenetianMask } from "lucide-react";
 
 import {
-  QueryParams as WalletContextQueryParams,
+  WalletContextQueryParams,
   shallowPushQuery,
   useWalletContext,
 } from "@suilend/frontend-sui";
