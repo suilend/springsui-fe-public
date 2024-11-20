@@ -19,7 +19,10 @@ import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import { NORMALIZED_AAA_COINTYPE } from "@/lib/coinType";
+import {
+  NORMALIZED_AAA_COINTYPE,
+  NORMALIZED_BUCK_COINTYPE,
+} from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -27,10 +30,15 @@ enum QueryParams {
   CATEGORY = "category",
 }
 
-enum Category {
+type Category = {
+  name: string;
+};
+
+enum CategoryId {
   ALL = "all",
   LENDING = "lending",
   AMM = "amm",
+  SWAP = "swap",
 }
 
 type CetusPool = any;
@@ -48,13 +56,14 @@ type Protocol = {
 enum ProtocolId {
   SUILEND = "suilend",
   CETUS = "cetus",
+  BUCKET = "bucket",
 }
 
 export default function Explore() {
   const router = useRouter();
   const queryParams = {
     [QueryParams.CATEGORY]: router.query[QueryParams.CATEGORY] as
-      | Category
+      | CategoryId
       | undefined,
   };
 
@@ -62,24 +71,33 @@ export default function Explore() {
   const lstData = appData.lstDataMap[LstId.sSUI];
 
   // Categories
-  const categories = useMemo(
-    () => [
-      { id: Category.ALL, title: "All" },
-      { id: Category.LENDING, title: "Lending" },
-      { id: Category.AMM, title: "AMM" },
-    ],
+  const categoryMap: Record<CategoryId, Category> = useMemo(
+    () => ({
+      [CategoryId.ALL]: {
+        name: "All",
+      },
+      [CategoryId.LENDING]: {
+        name: "Lending",
+      },
+      [CategoryId.AMM]: {
+        name: "AMM",
+      },
+      [CategoryId.SWAP]: {
+        name: "Swap",
+      },
+    }),
     [],
   );
 
-  const selectedCategory =
+  const selectedCategoryId =
     queryParams[QueryParams.CATEGORY] &&
-    Object.values(Category).includes(queryParams[QueryParams.CATEGORY])
+    Object.values(CategoryId).includes(queryParams[QueryParams.CATEGORY])
       ? queryParams[QueryParams.CATEGORY]
-      : Category.ALL;
-  const onSelectedCategoryChange = (category: Category) => {
+      : CategoryId.ALL;
+  const onSelectedCategoryIdChange = (id: CategoryId) => {
     shallowPushQuery(router, {
       ...router.query,
-      [QueryParams.CATEGORY]: category,
+      [QueryParams.CATEGORY]: id,
     });
   };
 
@@ -142,6 +160,11 @@ export default function Explore() {
         logoUrl:
           "https://assets.coingecko.com/coins/images/30256/standard/cetus.png",
       },
+      [ProtocolId.BUCKET]: {
+        name: "Bucket",
+        logoUrl:
+          "https://pbs.twimg.com/profile_images/1767340794422140928/K8Wph9va_400x400.jpg",
+      },
     }),
     [],
   );
@@ -152,9 +175,9 @@ export default function Explore() {
     title: string;
     url: string;
     coinTypes: string[];
-    aprPercent: BigNumber | null;
-    tvlUsd: BigNumber | null;
-    category: Category;
+    aprPercent?: BigNumber | null;
+    tvlUsd?: BigNumber | null;
+    categoryId: CategoryId;
     sendPointsPerDay?: BigNumber;
   };
 
@@ -169,7 +192,7 @@ export default function Explore() {
         coinTypes: [lstData.token.coinType],
         aprPercent: lstData.suilendReserveStats.aprPercent,
         tvlUsd: lstData.suilendReserveStats.tvlUsd,
-        category: Category.LENDING,
+        categoryId: CategoryId.LENDING,
         sendPointsPerDay: lstData.suilendReserveStats.sendPointsPerDay,
       });
 
@@ -185,7 +208,7 @@ export default function Explore() {
         tvlUsd: cetusPoolMap[CetusPoolId.SSUI_SUI]
           ? new BigNumber(cetusPoolMap[CetusPoolId.SSUI_SUI].tvl_in_usd)
           : null,
-        category: Category.AMM,
+        categoryId: CategoryId.AMM,
       },
       {
         protocol: protocolMap[ProtocolId.CETUS],
@@ -198,7 +221,16 @@ export default function Explore() {
         tvlUsd: cetusPoolMap[CetusPoolId.AAA_SSUI]
           ? new BigNumber(cetusPoolMap[CetusPoolId.AAA_SSUI].tvl_in_usd)
           : null,
-        category: Category.AMM,
+        categoryId: CategoryId.AMM,
+      },
+      {
+        protocol: protocolMap[ProtocolId.BUCKET],
+        title: "Issue BUCK on Bucket",
+        url: `https://app.bucketprotocol.io/?tab=swap&from=${lstData.token.coinType}&to=BUCK`,
+        coinTypes: [lstData.token.coinType, NORMALIZED_BUCK_COINTYPE],
+        aprPercent: undefined,
+        tvlUsd: undefined,
+        categoryId: CategoryId.SWAP,
       },
     );
 
@@ -243,48 +275,50 @@ export default function Explore() {
           <Card>
             {/* Categories */}
             <div className="flex w-full flex-row flex-nowrap gap-2 overflow-x-auto p-2 md:px-4 md:py-3.5">
-              {categories
+              {Object.values(CategoryId)
                 .filter(
-                  (category) =>
-                    category.id === Category.ALL ||
+                  (categoryId) =>
+                    categoryId === CategoryId.ALL ||
                     opportunities.filter(
-                      (opportunity) => opportunity.category === category.id,
+                      (opportunity) => opportunity.categoryId === categoryId,
                     ).length > 0,
                 )
-                .map((category) => (
+                .map((categoryId) => (
                   <button
-                    key={category.id}
+                    key={categoryId}
                     className={cn(
                       "group flex h-10 flex-row items-center gap-2 rounded-[20px] px-4 transition-colors",
-                      selectedCategory === category.id
+                      selectedCategoryId === categoryId
                         ? "bg-white"
                         : "bg-white/25",
                     )}
-                    onClick={() => onSelectedCategoryChange(category.id)}
+                    onClick={() =>
+                      onSelectedCategoryIdChange(categoryId as CategoryId)
+                    }
                   >
                     <p
                       className={cn(
                         "!text-p2",
-                        selectedCategory === category.id
+                        selectedCategoryId === categoryId
                           ? "text-foreground"
                           : "text-navy-600 transition-colors group-hover:text-foreground",
                       )}
                     >
-                      {category.title}
+                      {categoryMap[categoryId].name}
                     </p>
                     <p
                       className={cn(
                         "!text-p3",
-                        selectedCategory === category.id
+                        selectedCategoryId === categoryId
                           ? "text-foreground"
                           : "text-navy-600 transition-colors group-hover:text-foreground",
                       )}
                     >
-                      {category.id === Category.ALL
+                      {categoryId === CategoryId.ALL
                         ? opportunities.length
                         : opportunities.filter(
                             (opportunity) =>
-                              opportunity.category === category.id,
+                              opportunity.categoryId === categoryId,
                           ).length}
                     </p>
                   </button>
@@ -299,8 +333,8 @@ export default function Explore() {
               {opportunities
                 .filter(
                   (opportunity) =>
-                    selectedCategory === Category.ALL ||
-                    opportunity.category === selectedCategory,
+                    selectedCategoryId === CategoryId.ALL ||
+                    opportunity.categoryId === selectedCategoryId,
                 )
                 .map((opportunity, index) => {
                   const tokens = opportunity.coinTypes.map((coinType) =>
@@ -349,7 +383,7 @@ export default function Explore() {
                                   key={index}
                                   className={cn(
                                     index !== 0 &&
-                                      "outline-px -ml-2 outline outline-white",
+                                      "outline-px -ml-2 bg-white outline outline-white",
                                   )}
                                   token={
                                     token === null
@@ -414,11 +448,7 @@ export default function Explore() {
                         <div className="flex min-w-20 flex-col gap-1.5">
                           <p className="text-p2 text-navy-500">Category</p>
                           <p className="text-p2">
-                            {
-                              categories.find(
-                                (c) => c.id === opportunity.category,
-                              )?.title
-                            }
+                            {categoryMap[opportunity.categoryId].name}
                           </p>
                         </div>
 
