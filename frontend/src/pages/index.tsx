@@ -290,7 +290,7 @@ export default function Home() {
           suiClient,
         );
 
-        await appData.suilendClient.depositCoin(
+        appData.suilendClient.depositCoin(
           address!,
           lstClient.mintAndRebalance(transaction, submitAmount),
           lstData.token.coinType,
