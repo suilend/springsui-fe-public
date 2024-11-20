@@ -163,7 +163,7 @@ export default function Explore() {
       [ProtocolId.BUCKET]: {
         name: "Bucket",
         logoUrl:
-          "https://pbs.twimg.com/profile_images/1767340794422140928/K8Wph9va_400x400.jpg",
+          "https://miro.medium.com/v2/resize:fit:720/format:webp/1*45HP3AttugJDoqTQFh20MA.png",
       },
     }),
     [],
