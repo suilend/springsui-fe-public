@@ -19,10 +19,7 @@ import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import {
-  NORMALIZED_AAA_COINTYPE,
-  NORMALIZED_BUCK_COINTYPE,
-} from "@/lib/coinType";
+import { NORMALIZED_AAA_COINTYPE } from "@/lib/coinType";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +35,7 @@ enum CategoryId {
   ALL = "all",
   LENDING = "lending",
   AMM = "amm",
-  SWAP = "swap",
+  CDP = "cdp",
 }
 
 type CetusPool = any;
@@ -82,8 +79,8 @@ export default function Explore() {
       [CategoryId.AMM]: {
         name: "AMM",
       },
-      [CategoryId.SWAP]: {
-        name: "Swap",
+      [CategoryId.CDP]: {
+        name: "CDP",
       },
     }),
     [],
@@ -174,6 +171,7 @@ export default function Explore() {
     protocol: Protocol;
     title: string;
     url: string;
+    coinTypesTitle?: string;
     coinTypes: string[];
     aprPercent?: BigNumber | null;
     tvlUsd?: BigNumber | null;
@@ -225,12 +223,13 @@ export default function Explore() {
       },
       {
         protocol: protocolMap[ProtocolId.BUCKET],
-        title: "Issue BUCK on Bucket",
-        url: `https://app.bucketprotocol.io/?tab=swap&from=${lstData.token.coinType}&to=BUCK`,
-        coinTypes: [lstData.token.coinType, NORMALIZED_BUCK_COINTYPE],
+        title: "Borrow BUCK and Earn on Bucket",
+        url: "https://app.bucketprotocol.io/?tab=borrow&token=spSUI",
+        coinTypesTitle: "Collateral",
+        coinTypes: [lstData.token.coinType],
         aprPercent: undefined,
         tvlUsd: undefined,
-        categoryId: CategoryId.SWAP,
+        categoryId: CategoryId.CDP,
       },
     );
 
@@ -369,7 +368,9 @@ export default function Explore() {
                       <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
                         {/* Assets */}
                         <div className="flex min-w-28 flex-col gap-1.5">
-                          <p className="text-p2 text-navy-500">Assets</p>
+                          <p className="text-p2 text-navy-500">
+                            {opportunity.coinTypesTitle ?? "Assets"}
+                          </p>
                           <div className="flex w-full flex-row items-center gap-1.5">
                             <div
                               className={cn(
