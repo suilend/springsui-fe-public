@@ -1,6 +1,11 @@
 import BigNumber from "bignumber.js";
 
-import { NORMALIZED_mSUI_COINTYPE, Token, issSui } from "@suilend/frontend-sui";
+import {
+  NORMALIZED_fudSUI_COINTYPE,
+  NORMALIZED_mSUI_COINTYPE,
+  Token,
+  issSui,
+} from "@suilend/frontend-sui";
 
 import Card from "@/components/Card";
 import Dialog from "@/components/Dialog";
@@ -62,9 +67,10 @@ export default function TransactionConfirmationDialog({
             <TokenLogo
               token={{
                 ...lstData.token,
-                iconUrl: { [NORMALIZED_mSUI_COINTYPE]: "/assets/mSUI.jpg" }[
-                  lstData.token.coinType
-                ],
+                iconUrl: {
+                  [NORMALIZED_mSUI_COINTYPE]: "/assets/mSUI.jpg",
+                  [NORMALIZED_fudSUI_COINTYPE]: "/assets/fudSUI.png",
+                }[lstData.token.coinType],
               }}
               size={160}
             />

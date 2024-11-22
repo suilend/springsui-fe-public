@@ -1,4 +1,4 @@
-import { normalizeStructTag } from "@mysten/sui/utils";
+import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
 import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
@@ -149,7 +149,7 @@ export default function useFetchAppData() {
 
       const totalSuiSupply = new BigNumber(
         rawLiquidStakingInfo.storage.totalSuiSupply.toString(),
-      ).div(10 ** coinMetadataMap[NORMALIZED_SUI_COINTYPE].decimals);
+      ).div(10 ** SUI_DECIMALS);
       const totalLstSupply = new BigNumber(
         rawLiquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
       ).div(10 ** coinMetadataMap[LIQUID_STAKING_INFO.type].decimals);
@@ -179,7 +179,7 @@ export default function useFetchAppData() {
 
       const fees = new BigNumber(
         rawLiquidStakingInfo.fees.value.toString(),
-      ).div(10 ** coinMetadataMap[NORMALIZED_SUI_COINTYPE].decimals);
+      ).div(10 ** SUI_DECIMALS);
       const accruedSpreadFees = new BigNumber(
         rawLiquidStakingInfo.accruedSpreadFees.toString(),
       ).div(10 ** coinMetadataMap[LIQUID_STAKING_INFO.type].decimals);
