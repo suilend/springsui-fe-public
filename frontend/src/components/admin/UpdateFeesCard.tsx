@@ -64,8 +64,8 @@ export default function UpdateFeesCard() {
       );
       if (hasMissingValues) throw new Error("Missing values");
 
-      if (new BigNumber(feeConfigArgs.mintFeeBps).lt(2))
-        throw new Error("Mint fee must be at least 2 bps");
+      if (new BigNumber(feeConfigArgs.redeemFeeBps).lt(2))
+        throw new Error("Redeem fee must be at least 2 bps");
 
       admin.lstClient.updateFees(
         transaction,
