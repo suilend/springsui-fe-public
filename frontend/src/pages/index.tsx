@@ -406,9 +406,9 @@ export default function Home() {
     });
   if (lstData.spreadFeePercent.gt(0))
     parameters.push({
-      label: "Spread fee",
+      label: "Performance fee",
       labelEndDecorator: (
-        <Tooltip title="Spread fee is calculated as a % of the yield">
+        <Tooltip title="Performance fee is calculated as a % of the yield">
           <Info className="h-4 w-4 text-navy-600" />
         </Tooltip>
       ),
