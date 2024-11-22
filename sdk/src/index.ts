@@ -370,21 +370,27 @@ export class LstClient {
       liquidStakingInfo.storage.totalSuiSupply.toString(),
     ).div(10 ** SUI_DECIMALS);
 
-    return liquidStakingInfo.storage.validatorInfos
-      .reduce((acc, validatorInfo) => {
-        const validatorApy = new BigNumber(
-          validatorApys.find(
-            (_apy) => _apy.address === validatorInfo.validatorAddress,
-          )?.apy ?? 0,
-        );
+    const spreadFeePercent = new BigNumber(
+      liquidStakingInfo.feeConfig.element?.spreadFeeBps.toString() ?? 0,
+    ).div(100);
 
-        const validatorTotalSuiAmount = new BigNumber(
-          validatorInfo.totalSuiAmount.toString(),
-        ).div(10 ** SUI_DECIMALS);
+    return new BigNumber(
+      liquidStakingInfo.storage.validatorInfos
+        .reduce((acc, validatorInfo) => {
+          const validatorApy = new BigNumber(
+            validatorApys.find(
+              (_apy) => _apy.address === validatorInfo.validatorAddress,
+            )?.apy ?? 0,
+          );
 
-        return acc.plus(validatorApy.times(validatorTotalSuiAmount));
-      }, new BigNumber(0))
-      .div(totalSuiSupply);
+          const validatorTotalSuiAmount = new BigNumber(
+            validatorInfo.totalSuiAmount.toString(),
+          ).div(10 ** SUI_DECIMALS);
+
+          return acc.plus(validatorApy.times(validatorTotalSuiAmount));
+        }, new BigNumber(0))
+        .div(totalSuiSupply),
+    ).times(new BigNumber(1).minus(spreadFeePercent.div(100)));
   }
 }
 
