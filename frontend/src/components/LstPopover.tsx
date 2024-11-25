@@ -46,7 +46,7 @@ export default function LstPopover({ onChange }: LstPopoverProps) {
         maxWidth: 150,
       }}
     >
-      <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-4">
         {Object.values(LstId)
           .filter((_lstId) => _lstId !== LstId.ripleysSUI)
           .filter(
