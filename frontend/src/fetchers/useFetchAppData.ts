@@ -38,7 +38,6 @@ export default function useFetchAppData() {
       reserveMap,
       rewardCoinTypes,
       rewardCoinMetadataMap,
-      [],
     );
 
     // CoinMetadata
