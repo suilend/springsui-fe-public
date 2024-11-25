@@ -1,5 +1,4 @@
-import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
-import { SuiPriceServiceConnection } from "@pythnetwork/pyth-sui-js";
+import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
@@ -9,25 +8,17 @@ import {
   NORMALIZED_LST_COINTYPES,
   NORMALIZED_SEND_POINTS_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
-  formatRewards,
   getCoinMetadataMap,
   getDedupedPerDayRewards,
   getFilteredRewards,
   getToken,
   getTotalAprPercent,
+  initializeSuilendSdk,
   isSendPoints,
   showErrorToast,
   useSettingsContext,
 } from "@suilend/frontend-sui";
-import { ParsedReserve, Side, parseLendingMarket } from "@suilend/sdk";
-import { phantom } from "@suilend/sdk/_generated/_framework/reified";
-import { LendingMarket } from "@suilend/sdk/_generated/suilend/lending-market/structs";
-import {
-  LENDING_MARKET_ID,
-  LENDING_MARKET_TYPE,
-  SuilendClient,
-} from "@suilend/sdk/client";
-import * as simulate from "@suilend/sdk/utils/simulate";
+import { Side } from "@suilend/sdk";
 import { LstClient, fetchLiquidStakingInfo } from "@suilend/springsui-sdk";
 
 import { AppData, LstData } from "@/contexts/AppContext";
@@ -36,66 +27,21 @@ export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
 
   const dataFetcher = async () => {
-    // Reserves
-    const now = Math.floor(Date.now() / 1000);
-    const rawLendingMarket = await LendingMarket.fetch(
-      suiClient,
-      phantom(LENDING_MARKET_TYPE),
-      LENDING_MARKET_ID,
-    );
+    const { suilendClient, reserveMap, rewardMap } =
+      await initializeSuilendSdk(suiClient);
 
-    const suilendClient = await SuilendClient.initializeWithLendingMarket(
-      rawLendingMarket,
-      suiClient,
-    );
-
-    const refreshedRawReserves = await simulate.refreshReservePrice(
-      rawLendingMarket.reserves
-        .filter((r) =>
-          [NORMALIZED_SUI_COINTYPE, ...NORMALIZED_LST_COINTYPES].includes(
-            normalizeStructTag(r.coinType.name),
-          ),
-        )
-        .map((r) => simulate.compoundReserveInterest(r, now)),
-      new SuiPriceServiceConnection("https://hermes.pyth.network"),
-    );
-
+    // CoinMetadata
     const coinTypes: string[] = [
       NORMALIZED_SUI_COINTYPE,
       ...NORMALIZED_LST_COINTYPES,
       NORMALIZED_SEND_POINTS_COINTYPE,
     ];
-    refreshedRawReserves.forEach((r) => {
-      coinTypes.push(normalizeStructTag(r.coinType.name));
-
-      [
-        ...r.depositsPoolRewardManager.poolRewards,
-        ...r.borrowsPoolRewardManager.poolRewards,
-      ].forEach((pr) => {
-        if (!pr) return;
-        coinTypes.push(normalizeStructTag(pr.coinType.name));
-      });
-    });
     const uniqueCoinTypes = Array.from(new Set(coinTypes));
 
     const coinMetadataMap = await getCoinMetadataMap(
       suiClient,
       uniqueCoinTypes,
     );
-
-    const lendingMarket = parseLendingMarket(
-      rawLendingMarket,
-      refreshedRawReserves,
-      coinMetadataMap,
-      now,
-    );
-
-    const reserveMap = lendingMarket.reserves.reduce(
-      (acc, reserve) => ({ ...acc, [reserve.coinType]: reserve }),
-      {},
-    ) as Record<string, ParsedReserve>;
-
-    const rewardMap = formatRewards(reserveMap, coinMetadataMap, {});
 
     // SEND Points
     const sendPointsToken = getToken(
