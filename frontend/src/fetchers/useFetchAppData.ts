@@ -13,6 +13,7 @@ import {
   getFilteredRewards,
   getToken,
   getTotalAprPercent,
+  initializeSuilendRewards,
   initializeSuilendSdk,
   isSendPoints,
   showErrorToast,
@@ -27,8 +28,18 @@ export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
 
   const dataFetcher = async () => {
-    const { suilendClient, reserveMap, rewardMap } =
-      await initializeSuilendSdk(suiClient);
+    const {
+      suilendClient,
+      reserveMap,
+      rewardCoinTypes,
+      rewardCoinMetadataMap,
+    } = await initializeSuilendSdk(suiClient);
+    const { rewardMap } = await initializeSuilendRewards(
+      reserveMap,
+      rewardCoinTypes,
+      rewardCoinMetadataMap,
+      [],
+    );
 
     // CoinMetadata
     const coinTypes: string[] = [
