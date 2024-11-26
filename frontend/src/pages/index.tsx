@@ -248,14 +248,17 @@ export default function Home() {
       isDisabled:
         submitButtonState_stakeOrUnstake.isDisabled ||
         isSubmitting_stakeOrUnstake,
+      onClick: !address
+        ? () => setIsConnectWalletDropdownOpen(true)
+        : undefined,
     };
   };
   const submitButtonState_stakeAndDeposit =
     getSubmitButtonState_stakeAndDeposit();
 
   const hasStakeAndDepositButton = useMemo(
-    () => address && isStaking && lstData.suilendReserveStats !== undefined,
-    [address, isStaking, lstData.suilendReserveStats],
+    () => isStaking && lstData.suilendReserveStats !== undefined,
+    [isStaking, lstData.suilendReserveStats],
   );
 
   // Submit - send transaction
