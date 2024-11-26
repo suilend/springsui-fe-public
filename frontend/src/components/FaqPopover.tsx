@@ -113,10 +113,10 @@ export function FaqContent() {
           result in a 1 SUI fee.
           <br />
           <br />
-          <span className="font-semibold">Spread Fee</span>: The difference
-          between minting and redeeming prices, ensuring liquidity. For example,
-          if redeeming 1 sSUI yields 0.995 SUI, the 0.005 SUI difference is the
-          spread fee.
+          <span className="font-semibold">Performance Fee</span>: The
+          performance fee is the percentage of staking rewards kept as a fee by
+          the LST pool operator or owner. This is deducted on every epoch change
+          (~1 day).
           <br />
           <br />
           <span className="font-semibold">Redemption Fee</span>: A fee (minimum
