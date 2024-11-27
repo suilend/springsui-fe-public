@@ -51,8 +51,8 @@ export default function LstPopover({ onChange }: LstPopoverProps) {
           .filter((_lstId) => _lstId !== LstId.ripleysSUI)
           .filter(
             (_lstId) =>
-              _lstId !== LstId.fudSUI ||
-              (_lstId === LstId.fudSUI && Date.now() >= 1732269600000), // 2024-11-22 19:00:00 JST
+              _lstId !== LstId.kSUI ||
+              (_lstId === LstId.kSUI && Date.now() >= 1732708800000), // 2024-11-27 12:00:00 UTC
           )
           .map((_lstId) => {
             const _lstData = appData.lstDataMap[_lstId];

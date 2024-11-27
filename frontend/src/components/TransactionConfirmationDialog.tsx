@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 
 import {
   NORMALIZED_fudSUI_COINTYPE,
+  NORMALIZED_kSUI_COINTYPE,
   NORMALIZED_mSUI_COINTYPE,
   Token,
   issSui,
@@ -70,6 +71,7 @@ export default function TransactionConfirmationDialog({
                 iconUrl: {
                   [NORMALIZED_mSUI_COINTYPE]: "/assets/mSUI.jpg",
                   [NORMALIZED_fudSUI_COINTYPE]: "/assets/fudSUI.png",
+                  [NORMALIZED_kSUI_COINTYPE]: "/assets/kSUI.png",
                 }[lstData.token.coinType],
               }}
               size={160}
