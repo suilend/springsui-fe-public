@@ -6,7 +6,7 @@ import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
-} from "@suilend/frontend-sui";
+} from "@suilend/frontend-sui-next";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";

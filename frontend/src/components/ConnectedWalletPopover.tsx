@@ -9,7 +9,10 @@ import {
   VenetianMask,
 } from "lucide-react";
 
-import { useSettingsContext, useWalletContext } from "@suilend/frontend-sui";
+import {
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/frontend-sui-next";
 
 import CopyToClipboardButton from "@/components/CopyToClipboardButton";
 import Popover from "@/components/Popover";

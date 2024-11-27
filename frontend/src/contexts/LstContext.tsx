@@ -9,11 +9,8 @@ import {
   useState,
 } from "react";
 
-import {
-  LstId,
-  shallowPushQuery,
-  useWalletContext,
-} from "@suilend/frontend-sui";
+import { LstId } from "@suilend/frontend-sui";
+import { shallowPushQuery, useWalletContext } from "@suilend/frontend-sui-next";
 import { LstClient } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 

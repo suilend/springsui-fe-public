@@ -7,7 +7,7 @@ import {
   WalletContextQueryParams,
   shallowPushQuery,
   useWalletContext,
-} from "@suilend/frontend-sui";
+} from "@suilend/frontend-sui-next";
 
 import { formatAddress } from "@/lib/format";
 

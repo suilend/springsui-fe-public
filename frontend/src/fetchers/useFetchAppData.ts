@@ -16,9 +16,8 @@ import {
   initializeSuilendRewards,
   initializeSuilendSdk,
   isSendPoints,
-  showErrorToast,
-  useSettingsContext,
 } from "@suilend/frontend-sui";
+import { showErrorToast, useSettingsContext } from "@suilend/frontend-sui-next";
 import { Side } from "@suilend/sdk";
 import { LstClient, fetchLiquidStakingInfo } from "@suilend/springsui-sdk";
 

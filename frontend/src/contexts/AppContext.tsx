@@ -15,9 +15,9 @@ import {
   NORMALIZED_SUI_COINTYPE,
   Token,
 } from "@suilend/frontend-sui";
-import useFetchBalances from "@suilend/frontend-sui/fetchers/useFetchBalances";
-import useCoinMetadataMap from "@suilend/frontend-sui/hooks/useCoinMetadataMap";
-import useRefreshOnBalancesChange from "@suilend/frontend-sui/hooks/useRefreshOnBalancesChange";
+import useFetchBalances from "@suilend/frontend-sui-next/fetchers/useFetchBalances";
+import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
+import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
 import { SuilendClient } from "@suilend/sdk";
 import { LstClient } from "@suilend/springsui-sdk";
 

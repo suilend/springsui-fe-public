@@ -2,7 +2,7 @@ import { MouseEvent } from "react";
 
 import { Copy } from "lucide-react";
 
-import { showErrorToast, showInfoToast } from "@suilend/frontend-sui";
+import { showErrorToast, showInfoToast } from "@suilend/frontend-sui-next";
 
 interface CopyToClipboardButtonProps {
   value: string;

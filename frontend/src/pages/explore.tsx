@@ -10,9 +10,9 @@ import {
   NORMALIZED_SUI_COINTYPE,
   Token,
   getToken,
-  shallowPushQuery,
 } from "@suilend/frontend-sui";
-import useCoinMetadataMap from "@suilend/frontend-sui/hooks/useCoinMetadataMap";
+import { shallowPushQuery } from "@suilend/frontend-sui-next";
+import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
 
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";

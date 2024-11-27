@@ -13,15 +13,14 @@ import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
+import { SUI_GAS_MIN, getBalanceChange } from "@suilend/frontend-sui";
+import track from "@suilend/frontend-sui/lib/track";
 import {
-  SUI_GAS_MIN,
-  getBalanceChange,
   shallowPushQuery,
   showErrorToast,
   useSettingsContext,
   useWalletContext,
-} from "@suilend/frontend-sui";
-import track from "@suilend/frontend-sui/lib/track";
+} from "@suilend/frontend-sui-next";
 import { SuilendClient } from "@suilend/sdk";
 
 import Card from "@/components/Card";

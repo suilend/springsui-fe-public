@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { ExternalToast } from "sonner";
 
-import { showSuccessToast } from "@suilend/frontend-sui";
+import { showSuccessToast } from "@suilend/frontend-sui-next";
 
 export const showSuccessTxnToast = (
   title: string,
