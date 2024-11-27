@@ -245,11 +245,9 @@ export default function Home() {
     return {
       title: "Stake and deposit in Suilend",
       isDisabled:
+        !address ||
         submitButtonState_stakeOrUnstake.isDisabled ||
         isSubmitting_stakeOrUnstake,
-      onClick: !address
-        ? () => setIsConnectWalletDropdownOpen(true)
-        : undefined,
     };
   };
   const submitButtonState_stakeAndDeposit =
