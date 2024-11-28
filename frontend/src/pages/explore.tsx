@@ -352,7 +352,7 @@ export default function Explore() {
                       <div className="flex flex-row items-center gap-2">
                         {opportunity.protocol.logoUrl ? (
                           <Image
-                            className="h-6 w-6"
+                            className="h-6 w-6 shrink-0"
                             src={opportunity.protocol.logoUrl}
                             alt={`${opportunity.protocol.name} logo`}
                             width={24}
@@ -362,7 +362,7 @@ export default function Explore() {
                         ) : (
                           <div className="h-6 w-6 rounded-[50%] bg-navy-100" />
                         )}
-                        <p className="text-h3">{opportunity.title}</p>
+                        <p className="flex-1 text-h3">{opportunity.title}</p>
                       </div>
 
                       <div className="grid w-full grid-cols-2 justify-between gap-4 md:flex md:flex-row md:gap-0">
