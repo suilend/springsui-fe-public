@@ -113,15 +113,18 @@ export function FaqContent() {
           result in a 1 SUI fee.
           <br />
           <br />
-          <span className="font-semibold">Performance Fee</span>: The
-          performance fee is the percentage of staking rewards kept as a fee by
-          the LST pool operator or owner. This is deducted on every epoch change
-          (~1 day).
+          <span className="font-semibold">
+            Performance Fee
+          </span>: The performance fee is the percentage of staking rewards kept
+          as a fee by the LST pool operator or owner. This is deducted on every
+          epoch change (~1 day).
           <br />
           <br />
-          <span className="font-semibold">Redemption Fee</span>: A fee (minimum
-          1 bp) charged when converting sSUI back to SUI, covering unstaking
-          costs. Redeeming 1,000 sSUI at 1 bp would result in a 0.1 SUI fee.
+          <span className="font-semibold">
+            Redemption Fee
+          </span>: A fee (minimum 1 bp) charged when converting sSUI back to
+          SUI, covering unstaking costs. Redeeming 1,000 sSUI at 1 bp would
+          result in a 0.1 SUI fee.
         </>
       ),
     },
@@ -137,9 +140,11 @@ export function FaqContent() {
           audits.
           <br />
           <br />
-          <span className="font-semibold">Validator Risk</span>: Rewards depend
-          on validator performance. Poor performance or slashing (penalties for
-          misbehavior) can reduce rewards or lead to loss of staked assets.
+          <span className="font-semibold">
+            Validator Risk
+          </span>: Rewards depend on validator performance. Poor performance or
+          slashing (penalties for misbehavior) can reduce rewards or lead to
+          loss of staked assets.
         </>
       ),
     },
