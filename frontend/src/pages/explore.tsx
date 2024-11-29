@@ -150,7 +150,7 @@ export default function Explore() {
     () => ({
       [ProtocolId.SUILEND]: {
         name: "Suilend",
-        logoUrl: "https://suilend.fi/assets/suilend.svg",
+        logoUrl: "https://suilend.fi/assets/send.svg",
       },
       [ProtocolId.CETUS]: {
         name: "Cetus",

@@ -21,7 +21,7 @@ function FooterContent() {
       <div className="flex flex-row items-center gap-2">
         <Image
           className="h-4 w-4"
-          src="https://suilend.fi/assets/suilend.svg"
+          src="https://suilend.fi/assets/send.svg"
           alt="Suilend logo"
           width={16}
           height={16}
