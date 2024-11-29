@@ -404,11 +404,6 @@ export default function Home() {
       label: "Unstaking fee",
       value: formatPercent(lstData.redeemFeePercent),
     });
-  if (lstData.spreadFeePercent.gt(0))
-    parameters.push({
-      label: "Performance fee",
-      value: formatPercent(lstData.spreadFeePercent),
-    });
 
   if (isStaking) {
     if (
