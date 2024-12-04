@@ -18,7 +18,7 @@ import {
   isSendPoints,
 } from "@suilend/frontend-sui";
 import { showErrorToast, useSettingsContext } from "@suilend/frontend-sui-next";
-import { Side } from "@suilend/sdk";
+import { LENDING_MARKET_ID, LENDING_MARKET_TYPE, Side } from "@suilend/sdk";
 import { LstClient, fetchLiquidStakingInfo } from "@suilend/springsui-sdk";
 
 import { AppData, LstData } from "@/contexts/AppContext";
@@ -32,7 +32,11 @@ export default function useFetchAppData() {
       reserveMap,
       rewardCoinTypes,
       rewardCoinMetadataMap,
-    } = await initializeSuilendSdk(suiClient);
+    } = await initializeSuilendSdk(
+      LENDING_MARKET_ID,
+      LENDING_MARKET_TYPE,
+      suiClient,
+    );
     const { rewardMap } = await initializeSuilendRewards(
       reserveMap,
       rewardCoinTypes,
