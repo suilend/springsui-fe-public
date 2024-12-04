@@ -4,6 +4,7 @@ import {
   NORMALIZED_fudSUI_COINTYPE,
   NORMALIZED_kSUI_COINTYPE,
   NORMALIZED_mSUI_COINTYPE,
+  NORMALIZED_trevinSUI_COINTYPE,
   Token,
   issSui,
 } from "@suilend/frontend-sui";
@@ -72,6 +73,7 @@ export default function TransactionConfirmationDialog({
                   [NORMALIZED_mSUI_COINTYPE]: "/assets/mSUI.jpg",
                   [NORMALIZED_fudSUI_COINTYPE]: "/assets/fudSUI.png",
                   [NORMALIZED_kSUI_COINTYPE]: "/assets/kSUI.png",
+                  [NORMALIZED_trevinSUI_COINTYPE]: "/assets/trevinSUI.png",
                 }[lstData.token.coinType],
               }}
               size={160}
