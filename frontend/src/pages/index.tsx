@@ -13,7 +13,11 @@ import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
 import { Info, Wallet } from "lucide-react";
 
-import { SUI_GAS_MIN, getBalanceChange } from "@suilend/frontend-sui";
+import {
+  SUI_GAS_MIN,
+  getBalanceChange,
+  initializeSuilendSdk,
+} from "@suilend/frontend-sui";
 import track from "@suilend/frontend-sui/lib/track";
 import {
   shallowPushQuery,
@@ -21,7 +25,7 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import { SuilendClient } from "@suilend/sdk";
+import { LENDING_MARKET_ID, LENDING_MARKET_TYPE } from "@suilend/sdk";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
@@ -284,10 +288,16 @@ export default function Home() {
     const transaction = new Transaction();
     try {
       if (isDepositing) {
-        const obligationOwnerCaps = await SuilendClient.getObligationOwnerCaps(
-          address!,
-          appData.suilendClient.lendingMarket.$typeArgs,
+        const { obligationOwnerCaps, obligations } = await initializeSuilendSdk(
+          LENDING_MARKET_ID,
+          LENDING_MARKET_TYPE,
           suiClient,
+          address!,
+        );
+
+        const obligation = obligations?.[0]; // Obligation with the highest TVL
+        const obligationOwnerCap = obligationOwnerCaps?.find(
+          (o) => o.obligationId === obligation?.id,
         );
 
         appData.suilendClient.depositCoin(
@@ -295,7 +305,7 @@ export default function Home() {
           lstClient.mintAndRebalance(transaction, submitAmount),
           lstData.token.coinType,
           transaction,
-          obligationOwnerCaps[0]?.id,
+          obligationOwnerCap?.id,
         );
       } else {
         if (isStaking)
