@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
 import BigNumber from "bignumber.js";
+import { BucketClient } from "bucket-protocol-sdk";
 
 import {
   LstId,
@@ -11,7 +12,10 @@ import {
   Token,
   getToken,
 } from "@suilend/frontend-sui";
-import { shallowPushQuery } from "@suilend/frontend-sui-next";
+import {
+  shallowPushQuery,
+  useSettingsContext,
+} from "@suilend/frontend-sui-next";
 import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
 
 import Card from "@/components/Card";
@@ -68,10 +72,11 @@ export default function Explore() {
       | undefined,
   };
 
+  const { rpc } = useSettingsContext();
   const { appData } = useLoadedAppContext();
   const lstData = appData.lstDataMap[LstId.sSUI];
 
-  // Cetus
+  // Cetus Pools
   const [cetusPools, setCetusPools] = useState<CetusPool[] | undefined>(
     undefined,
   );
@@ -89,6 +94,29 @@ export default function Explore() {
       console.error(err);
     }
   }, []);
+
+  // sBUCK Savings Pool
+  const [sBuckSavingsPoolStats, setSBuckSavingsPoolStats] = useState<
+    { tvlUsd: BigNumber; aprPercent: BigNumber } | undefined
+  >(undefined);
+
+  useEffect(() => {
+    try {
+      (async () => {
+        const bucketSdk = new BucketClient(rpc.url);
+
+        const tvlUsd = await bucketSdk.getSBUCKTvl();
+        const aprPercent = await bucketSdk.getSavingApr();
+
+        setSBuckSavingsPoolStats({
+          tvlUsd: new BigNumber(tvlUsd),
+          aprPercent: new BigNumber(aprPercent),
+        });
+      })();
+    } catch (err) {
+      console.error(err);
+    }
+  }, [rpc.url]);
 
   // Categories
   const categoryMap: Record<CategoryId, Category> = useMemo(
@@ -224,8 +252,14 @@ export default function Explore() {
             url: "https://app.bucketprotocol.io/?tab=borrow&token=spSUI",
             coinTypesTitle: "Collateral",
             coinTypes: [lstData.token.coinType],
-            aprPercent: undefined,
-            tvlUsd: undefined,
+            aprPercent:
+              sBuckSavingsPoolStats !== undefined
+                ? sBuckSavingsPoolStats.aprPercent
+                : null,
+            tvlUsd:
+              sBuckSavingsPoolStats !== undefined
+                ? sBuckSavingsPoolStats.tvlUsd
+                : null,
           },
         ],
         categoryId: CategoryId.CDP,
@@ -240,6 +274,7 @@ export default function Explore() {
     lstData.token.coinType,
     cetusPoolOpportunityMap,
     cetusPools,
+    sBuckSavingsPoolStats,
   ]);
 
   const opportunitiesCoinTypes = useMemo(
