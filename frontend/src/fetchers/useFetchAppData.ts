@@ -6,7 +6,7 @@ import {
   LIQUID_STAKING_INFO_MAP,
   LstId,
   NORMALIZED_LST_COINTYPES,
-  NORMALIZED_SEND_POINTS_COINTYPE,
+  NORMALIZED_SEND_POINTS_S2_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
   getCoinMetadataMap,
   getDedupedPerDayRewards,
@@ -15,7 +15,7 @@ import {
   getTotalAprPercent,
   initializeSuilendRewards,
   initializeSuilendSdk,
-  isSendPoints,
+  isSendPointsS2,
 } from "@suilend/frontend-sui";
 import { showErrorToast, useSettingsContext } from "@suilend/frontend-sui-next";
 import { LENDING_MARKET_ID, LENDING_MARKET_TYPE, Side } from "@suilend/sdk";
@@ -47,7 +47,7 @@ export default function useFetchAppData() {
     const coinTypes: string[] = [
       NORMALIZED_SUI_COINTYPE,
       ...NORMALIZED_LST_COINTYPES,
-      NORMALIZED_SEND_POINTS_COINTYPE,
+      NORMALIZED_SEND_POINTS_S2_COINTYPE,
     ];
     const uniqueCoinTypes = Array.from(new Set(coinTypes));
 
@@ -58,8 +58,8 @@ export default function useFetchAppData() {
 
     // SEND Points
     const sendPointsToken = getToken(
-      NORMALIZED_SEND_POINTS_COINTYPE,
-      coinMetadataMap[NORMALIZED_SEND_POINTS_COINTYPE],
+      NORMALIZED_SEND_POINTS_S2_COINTYPE,
+      coinMetadataMap[NORMALIZED_SEND_POINTS_S2_COINTYPE],
     );
 
     // SUI
@@ -166,7 +166,7 @@ export default function useFetchAppData() {
               sendPointsPerDay:
                 getDedupedPerDayRewards(
                   getFilteredRewards(suilendLstRewards.deposit),
-                ).find((r) => isSendPoints(r.stats.rewardCoinType))?.stats
+                ).find((r) => isSendPointsS2(r.stats.rewardCoinType))?.stats
                   .perDay ?? new BigNumber(0),
             }
           : undefined;

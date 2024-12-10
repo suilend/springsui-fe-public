@@ -505,7 +505,7 @@ export default function Explore() {
                             {/* SEND Points */}
                             <div className="flex min-w-40 flex-col gap-1.5">
                               <p className="text-p2 text-navy-500">
-                                SEND points
+                                SEND Points
                               </p>
                               {opportunity.sendPointsPerDay === undefined ? (
                                 <p className="text-p2">--</p>
@@ -519,9 +519,7 @@ export default function Explore() {
                                   <p className="text-p2">
                                     {formatPoints(
                                       opportunity.sendPointsPerDay,
-                                      {
-                                        dp: 3,
-                                      },
+                                      { dp: 3 },
                                     )}
                                     {" / "}
                                     {lstData.token.symbol}
