@@ -1,6 +1,6 @@
 {
   "name": "@suilend/springsui-sdk-local",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "private": true,
   "description": "A TypeScript SDK for interacting with the SpringSui program",
   "author": "Suilend",
@@ -25,8 +25,8 @@
     "url": "https://github.com/solendprotocol/liquid-staking/issues"
   },
   "dependencies": {
-    "@mysten/bcs": "1.1.0",
-    "@mysten/sui": "1.14.3",
+    "@mysten/bcs": "1.2.0",
+    "@mysten/sui": "1.17.0",
     "bignumber.js": "^9.1.2"
   },
   "devDependencies": {
