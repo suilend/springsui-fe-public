@@ -107,23 +107,18 @@ export function FaqContent() {
       question: "What fees are there?",
       answer: (
         <>
-          <span className="font-semibold">Mint Fee</span>: A small fee (e.g.,
-          0.10%) charged when minting sSUI by depositing SUI, covering protocol
-          operation costs. For instance, minting 1,000 SUI at 10 bps would
-          result in a 1 SUI fee.
+          Mint Fee: A small fee (e.g. 0.10%) charged when minting sSUI by
+          depositing SUI, covering protocol operation costs. For instance,
+          minting 1,000 SUI at 10 bps would result in a 1 SUI fee.
           <br />
           <br />
-          <span className="font-semibold">
-            Performance Fee
-          </span>: The performance fee is the percentage of staking rewards kept
-          as a fee by the LST pool operator or owner. This is deducted on every
-          epoch change (~1 day).
+          Performance Fee: The performance fee is the percentage of staking
+          rewards kept as a fee by the LST pool operator or owner. This is
+          deducted on every epoch change (~1 day).
           <br />
           <br />
-          <span className="font-semibold">
-            Redemption Fee
-          </span>: A fee (minimum 1 bp) charged when converting sSUI back to
-          SUI, covering unstaking costs. Redeeming 1,000 sSUI at 1 bp would
+          Redemption Fee: A fee (minimum 1 bp) charged when converting sSUI back
+          to SUI, covering unstaking costs. Redeeming 1,000 sSUI at 1 bp would
           result in a 0.1 SUI fee.
         </>
       ),
@@ -132,19 +127,16 @@ export function FaqContent() {
       question: "What are the risks?",
       answer: (
         <>
-          <span className="font-semibold">Smart Contract Risk</span>: LSTs like
-          sSUI are vulnerable to smart contract exploits, potentially leading to
-          loss of funds if hacked. A failure in the unstake mechanism could
-          prevent users from redeeming their tokens, causing depegging and a
-          loss in value. The SpringSui Standard mitigates this with rigorous
-          audits.
+          Smart Contract Risk: LSTs like sSUI are vulnerable to smart contract
+          exploits, potentially leading to loss of funds if hacked. A failure in
+          the unstake mechanism could prevent users from redeeming their tokens,
+          causing depegging and a loss in value. The SpringSui Standard
+          mitigates this with rigorous audits.
           <br />
           <br />
-          <span className="font-semibold">
-            Validator Risk
-          </span>: Rewards depend on validator performance. Poor performance or
-          slashing (penalties for misbehavior) can reduce rewards or lead to
-          loss of staked assets.
+          Validator Risk: Rewards depend on validator performance. Poor
+          performance or slashing (penalties for misbehavior) can reduce rewards
+          or lead to loss of staked assets.
         </>
       ),
     },
