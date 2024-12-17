@@ -51,12 +51,16 @@ import { cn } from "@/lib/utils";
 
 enum QueryParams {
   TAB = "tab",
+  AMOUNT = "amount",
 }
 
 export default function Home() {
   const router = useRouter();
   const queryParams = {
     [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
+    [QueryParams.AMOUNT]: router.query[QueryParams.AMOUNT] as
+      | string
+      | undefined,
   };
 
   const { explorer, suiClient } = useSettingsContext();
@@ -114,7 +118,9 @@ export default function Home() {
   const inToken = isStaking ? appData.suiToken : lstData.token;
   const inPrice = isStaking ? appData.suiPrice : lstData.price;
 
-  const [inValue, setInValue] = useState<string>("");
+  const [inValue, setInValue] = useState<string>(
+    queryParams[QueryParams.AMOUNT] ?? "",
+  );
   const inValueUsd = new BigNumber(BigNumber.max(0, inValue || 0)).times(
     inPrice,
   );

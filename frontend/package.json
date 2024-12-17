@@ -20,7 +20,7 @@
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@sentry/nextjs": "^8.38.0",
-    "@suilend/frontend-sui": "^0.2.12",
+    "@suilend/frontend-sui": "^0.2.13",
     "@suilend/frontend-sui-next": "^0.1.8",
     "@suilend/sdk": "^1.1.25",
     "@tanstack/react-table": "^8.20.5",
