@@ -5,6 +5,7 @@ import { getMsafeAppStoreUrl, isInMsafeApp } from "@suilend/frontend-sui";
 
 import DiscordIcon from "@/components/icons/DiscordIcon";
 import XIcon from "@/components/icons/XIcon";
+import { SUILEND_ASSETS_URL } from "@/lib/constants";
 import {
   DISCORD_URL,
   DOCS_URL,
@@ -21,7 +22,7 @@ function FooterContent() {
       <div className="flex flex-row items-center gap-2">
         <Image
           className="h-4 w-4"
-          src="https://suilend.fi/assets/suilend.svg"
+          src={`${SUILEND_ASSETS_URL}/Suilend.svg`}
           alt="Suilend logo"
           width={16}
           height={16}

@@ -9,6 +9,7 @@ import Mask from "@/components/Mask";
 import Nav from "@/components/Nav";
 import { useAppContext } from "@/contexts/AppContext";
 import { useLstContext } from "@/contexts/LstContext";
+import { ASSETS_URL } from "@/lib/constants";
 
 export default function Layout({ children }: PropsWithChildren) {
   const { appData } = useAppContext();
@@ -18,8 +19,9 @@ export default function Layout({ children }: PropsWithChildren) {
     <>
       {/* Fixed */}
       <div
-        className="fixed inset-0 z-[1] bg-bg"
+        className="fixed inset-0 z-[1]"
         style={{
+          backgroundImage: `url('${ASSETS_URL}/background.png')`,
           backgroundPosition: "center",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
