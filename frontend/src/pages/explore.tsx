@@ -27,6 +27,7 @@ import {
   NORMALIZED_AAA_COINTYPE,
   NORMALIZED_FRATT_COINTYPE,
 } from "@/lib/coinType";
+import { SUILEND_ASSETS_URL } from "@/lib/constants";
 import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -146,7 +147,7 @@ export default function Explore() {
     () => ({
       [ProtocolId.SUILEND]: {
         name: "Suilend",
-        logoUrl: "https://suilend.fi/assets/suilend.svg",
+        logoUrl: `${SUILEND_ASSETS_URL}/Suilend.svg`,
       },
       [ProtocolId.CETUS]: {
         name: "Cetus",

@@ -46,9 +46,6 @@ module.exports = {
     boxShadow: {
       sm: "0 1px 1px 0 hsla(var(--navy-800) / 15%)",
     },
-    backgroundImage: {
-      bg: "url('/assets/bg.png')",
-    },
   },
   plugins: [require("tailwindcss-animate")],
 };

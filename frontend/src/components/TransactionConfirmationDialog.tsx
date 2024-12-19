@@ -5,6 +5,7 @@ import {
   NORMALIZED_kSUI_COINTYPE,
   NORMALIZED_mSUI_COINTYPE,
   NORMALIZED_trevinSUI_COINTYPE,
+  NORMALIZED_upSUI_COINTYPE,
   Token,
   issSui,
 } from "@suilend/frontend-sui";
@@ -14,6 +15,7 @@ import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
+import { ASSETS_URL } from "@/lib/constants";
 import { formatToken } from "@/lib/format";
 
 export type TransactionConfirmationDialogConfig = {
@@ -61,7 +63,7 @@ export default function TransactionConfirmationDialog({
               playsInline
             >
               <source
-                src="/assets/sSUI-transaction-confirmation.webm"
+                src={`${ASSETS_URL}/transaction-modal/sSUI.webm`}
                 type="video/webm"
               />
             </video>
@@ -70,10 +72,11 @@ export default function TransactionConfirmationDialog({
               token={{
                 ...lstData.token,
                 iconUrl: {
-                  [NORMALIZED_mSUI_COINTYPE]: "/assets/mSUI.jpg",
-                  [NORMALIZED_fudSUI_COINTYPE]: "/assets/fudSUI.png",
-                  [NORMALIZED_kSUI_COINTYPE]: "/assets/kSUI.png",
-                  [NORMALIZED_trevinSUI_COINTYPE]: "/assets/trevinSUI.png",
+                  [NORMALIZED_mSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/mSUI.jpg`,
+                  [NORMALIZED_fudSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/fudSUI.png`,
+                  [NORMALIZED_kSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/kSUI.png`,
+                  [NORMALIZED_trevinSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/trevinSUI.png`,
+                  [NORMALIZED_upSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/upSUI.png`,
                 }[lstData.token.coinType],
               }}
               size={160}
