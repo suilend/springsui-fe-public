@@ -15,8 +15,10 @@ import { Info, Wallet } from "lucide-react";
 
 import {
   SUI_GAS_MIN,
+  createObligationIfNoneExists,
   getBalanceChange,
   initializeSuilendSdk,
+  sendObligationToUser,
 } from "@suilend/frontend-sui";
 import track from "@suilend/frontend-sui/lib/track";
 import {
@@ -306,13 +308,20 @@ export default function Home() {
           (o) => o.obligationId === obligation?.id,
         );
 
-        appData.suilendClient.depositCoin(
-          address!,
+        const { obligationOwnerCapId, didCreate } =
+          createObligationIfNoneExists(
+            appData.suilendClient,
+            transaction,
+            obligationOwnerCap,
+          );
+        appData.suilendClient.deposit(
           lstClient.mintAndRebalance(transaction, submitAmount),
           lstData.token.coinType,
+          obligationOwnerCapId,
           transaction,
-          obligationOwnerCap?.id,
         );
+        if (didCreate)
+          sendObligationToUser(obligationOwnerCapId, address!, transaction);
       } else {
         if (isStaking)
           lstClient.mintAndRebalanceAndSendToUser(
