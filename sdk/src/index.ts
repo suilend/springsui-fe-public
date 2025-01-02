@@ -149,25 +149,25 @@ export class LstClient {
 
     return lst;
   }
-  mintAndRebalance = (tx: Transaction, amount: string) => {
+  mintAmountAndRebalance(tx: Transaction, address: string, amount: string) {
     const [sui] = tx.splitCoins(tx.gas, [BigInt(amount)]);
     const lst = this.mint(tx, sui);
 
     this.rebalance(tx, this.liquidStakingObject.weightHookId);
 
     return lst;
-  };
-  mintAndRebalanceAndSendToUser = (
+  }
+  mintAmountAndRebalanceAndSendToUser(
     tx: Transaction,
     address: string,
     amount: string,
-  ) => {
-    const lst = this.mintAndRebalance(tx, amount);
+  ) {
+    const lst = this.mintAmountAndRebalance(tx, address, amount);
     tx.transferObjects([lst], address);
-  };
+  }
 
   // returns the sui coin
-  redeemLst(tx: Transaction, lstId: TransactionObjectInput) {
+  redeem(tx: Transaction, lstId: TransactionObjectInput) {
     const [sui] = generated.redeem(tx, this.liquidStakingObject.type, {
       self: this.liquidStakingObject.id,
       systemState: SUI_SYSTEM_STATE_ID,
@@ -176,7 +176,7 @@ export class LstClient {
 
     return sui;
   }
-  async redeemAndSendToUser(tx: Transaction, address: string, amount: string) {
+  async redeemAmount(tx: Transaction, address: string, amount: string) {
     const coins = (
       await this.client.getCoins({
         owner: address,
@@ -194,7 +194,16 @@ export class LstClient {
     const [lst] = tx.splitCoins(tx.object(coins[0].coinObjectId), [
       BigInt(amount),
     ]);
-    const sui = this.redeemLst(tx, lst);
+    const sui = this.redeem(tx, lst);
+
+    return sui;
+  }
+  async redeemAmountAndSendToUser(
+    tx: Transaction,
+    address: string,
+    amount: string,
+  ) {
+    const sui = await this.redeemAmount(tx, address, amount);
     tx.transferObjects([sui], address);
   }
 

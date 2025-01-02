@@ -11,10 +11,12 @@ import {
 import { Transaction } from "@mysten/sui/transactions";
 import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
-import { Info, Wallet } from "lucide-react";
+import { ArrowUpDown, Info, Wallet } from "lucide-react";
 
 import {
+  LstId,
   SUI_GAS_MIN,
+  Token,
   createObligationIfNoneExists,
   getBalanceChange,
   initializeSuilendSdk,
@@ -22,7 +24,6 @@ import {
 } from "@suilend/frontend-sui";
 import track from "@suilend/frontend-sui/lib/track";
 import {
-  shallowPushQuery,
   showErrorToast,
   useSettingsContext,
   useWalletContext,
@@ -41,7 +42,12 @@ import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
 import { useLoadedAppContext } from "@/contexts/AppContext";
-import { useLoadedLstContext } from "@/contexts/LstContext";
+import {
+  DEFAULT_TOKEN_IN_SYMBOL,
+  DEFAULT_TOKEN_OUT_SYMBOL,
+  Mode,
+  useLoadedLstContext,
+} from "@/contexts/LstContext";
 import {
   formatInteger,
   formatPercent,
@@ -49,17 +55,25 @@ import {
   formatToken,
 } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
-import { cn } from "@/lib/utils";
+import { convertLsts, convertLstsAndSendToUser } from "@/lib/transactions";
+
+const getUrl = (
+  tokenInSymbol: string = DEFAULT_TOKEN_IN_SYMBOL,
+  tokenOutSymbol: string = DEFAULT_TOKEN_OUT_SYMBOL,
+) => `${tokenInSymbol}-${tokenOutSymbol}`;
+
+enum TokenDirection {
+  IN = "in",
+  OUT = "out",
+}
 
 enum QueryParams {
-  TAB = "tab",
   AMOUNT = "amount",
 }
 
 export default function Home() {
   const router = useRouter();
   const queryParams = {
-    [QueryParams.TAB]: router.query[QueryParams.TAB] as Tab | undefined,
     [QueryParams.AMOUNT]: router.query[QueryParams.AMOUNT] as
       | string
       | undefined,
@@ -72,7 +86,10 @@ export default function Home() {
     signExecuteAndWaitForTransaction,
   } = useWalletContext();
   const { appData, getBalance, refresh } = useLoadedAppContext();
-  const { lstClient, lstData } = useLoadedLstContext();
+  const { isSlugValid, tokenInSymbol, tokenOutSymbol, mode, lstIds } =
+    useLoadedLstContext();
+
+  const suiBalance = getBalance(appData.suiToken.coinType);
 
   // Ref
   const inInputRef = useRef<HTMLInputElement>(null);
@@ -80,45 +97,65 @@ export default function Home() {
     inInputRef.current?.focus();
   }, []);
 
-  // Tabs
-  enum Tab {
-    STAKE = "stake",
-    UNSTAKE = "unstake",
-  }
+  // Slug
 
-  const tabs = [
-    { id: Tab.STAKE, title: "Stake" },
-    { id: Tab.UNSTAKE, title: "Unstake" },
-  ];
+  useEffect(() => {
+    if (!isSlugValid())
+      router.replace({ pathname: getUrl() }, undefined, { shallow: true });
+  }, [isSlugValid, router]);
 
-  const selectedTab =
-    queryParams[QueryParams.TAB] &&
-    Object.values(Tab).includes(queryParams[QueryParams.TAB])
-      ? queryParams[QueryParams.TAB]
-      : Tab.STAKE;
-  const onSelectedTabChange = (tab: Tab) => {
-    shallowPushQuery(router, { ...router.query, [QueryParams.TAB]: tab });
-    inInputRef.current?.focus();
-  };
+  const reverseTokens = useCallback(() => {
+    router.push(
+      { pathname: getUrl(tokenOutSymbol, tokenInSymbol) },
+      undefined,
+      { shallow: true },
+    );
+  }, [router, tokenOutSymbol, tokenInSymbol]);
 
-  const isStaking = selectedTab === Tab.STAKE;
+  const onTokenChange = useCallback(
+    (token: Token, direction: TokenDirection) => {
+      if (
+        token.symbol ===
+        (direction === TokenDirection.IN ? tokenOutSymbol : tokenInSymbol)
+      )
+        reverseTokens();
+      else {
+        router.push(
+          {
+            pathname: getUrl(
+              direction === TokenDirection.IN ? token.symbol : tokenInSymbol,
+              direction === TokenDirection.IN ? tokenOutSymbol : token.symbol,
+            ),
+          },
+          undefined,
+          { shallow: true },
+        );
+      }
 
-  // Stats
-  const inToOutExchangeRate = isStaking
-    ? lstData.suiToLstExchangeRate
-    : lstData.lstToSuiExchangeRate;
+      inInputRef.current?.focus();
+    },
+    [tokenOutSymbol, tokenInSymbol, reverseTokens, router],
+  );
 
-  // Balance
-  const suiBalance = getBalance(appData.suiToken.coinType);
-  const lstBalance = getBalance(lstData.token.coinType);
-
-  const inBalance = isStaking ? suiBalance : lstBalance;
-  const outBalance = isStaking ? lstBalance : suiBalance;
+  // Mode
+  const isStaking = useMemo(() => mode === Mode.STAKING, [mode]);
+  const isUnstaking = useMemo(() => mode === Mode.UNSTAKING, [mode]);
+  const isConverting = useMemo(() => mode === Mode.CONVERTING, [mode]);
 
   // In
-  const inTitle = isStaking ? "Stake" : "Unstake";
-  const inToken = isStaking ? appData.suiToken : lstData.token;
-  const inPrice = isStaking ? appData.suiPrice : lstData.price;
+  const inLstData = useMemo(
+    () => (isStaking ? undefined : appData.lstDataMap[tokenInSymbol as LstId]),
+    [isStaking, appData.lstDataMap, tokenInSymbol],
+  );
+  const inLstClient = useMemo(
+    () =>
+      isStaking ? undefined : appData.lstClientMap[tokenInSymbol as LstId],
+    [isStaking, appData.lstClientMap, tokenInSymbol],
+  );
+
+  const inToken = isStaking ? appData.suiToken : inLstData!.token;
+  const inPrice = isStaking ? appData.suiPrice : inLstData!.price;
+  const inBalance = getBalance(inToken.coinType);
 
   const [inValue, setInValue] = useState<string>(
     queryParams[QueryParams.AMOUNT] ?? "",
@@ -150,10 +187,6 @@ export default function Home() {
     [inToken.decimals],
   );
 
-  const maxInValue = isStaking
-    ? BigNumber.max(0, inBalance.minus(SUI_GAS_MIN))
-    : inBalance;
-
   const onInBalanceClick = () => {
     formatAndSetInValue(
       (isStaking ? BigNumber.max(0, inBalance.minus(1)) : inBalance).toFixed(
@@ -165,8 +198,42 @@ export default function Home() {
   };
 
   // Out
-  const outToken = isStaking ? lstData.token : appData.suiToken;
-  const outPrice = isStaking ? lstData.price : appData.suiPrice;
+  const outLstData = useMemo(
+    () =>
+      isUnstaking ? undefined : appData.lstDataMap[tokenOutSymbol as LstId],
+    [isUnstaking, appData.lstDataMap, tokenOutSymbol],
+  );
+  const outLstClient = useMemo(
+    () =>
+      isUnstaking ? undefined : appData.lstClientMap[tokenOutSymbol as LstId],
+    [isUnstaking, appData.lstClientMap, tokenOutSymbol],
+  );
+
+  const outToken = isUnstaking ? appData.suiToken : outLstData!.token;
+  const outPrice = isUnstaking ? appData.suiPrice : outLstData!.price;
+  const outBalance = getBalance(outToken.coinType);
+
+  const inToOutExchangeRate = useMemo(() => {
+    if (isStaking) return outLstData!.suiToLstExchangeRate;
+    if (isUnstaking) return inLstData!.lstToSuiExchangeRate;
+    if (isConverting)
+      return inLstData!.lstToSuiExchangeRate.times(
+        outLstData!.suiToLstExchangeRate,
+      );
+    return new BigNumber(1); // Not possible
+  }, [isStaking, outLstData, isUnstaking, inLstData, isConverting]);
+
+  const outFeeMultiplier = useMemo(() => {
+    if (isStaking)
+      return new BigNumber(1).minus(outLstData!.mintFeePercent.div(100));
+    if (isUnstaking)
+      return new BigNumber(1).minus(inLstData!.redeemFeePercent.div(100));
+    if (isConverting)
+      return new BigNumber(
+        new BigNumber(1).minus(inLstData!.redeemFeePercent.div(100)),
+      ).times(new BigNumber(1).minus(outLstData!.mintFeePercent.div(100)));
+    return new BigNumber(0); // Not possible
+  }, [isStaking, outLstData, isUnstaking, inLstData, isConverting]);
 
   const outValue =
     inValue === ""
@@ -174,14 +241,7 @@ export default function Home() {
       : formatToken(
           BigNumber.max(0, inValue)
             .times(inToOutExchangeRate)
-            .times(
-              new BigNumber(1).minus(
-                (isStaking
-                  ? lstData.mintFeePercent
-                  : lstData.redeemFeePercent
-                ).div(100),
-              ),
-            ),
+            .times(outFeeMultiplier),
           {
             dp: outToken.decimals,
             useGrouping: false,
@@ -201,7 +261,6 @@ export default function Home() {
     isDepositing: boolean,
   ): TransactionConfirmationDialogConfig => ({
     isDepositing,
-    isStaking,
     inToken,
     outToken,
     inValue,
@@ -216,26 +275,27 @@ export default function Home() {
   );
 
   // Submit - button state
-  const [isSubmitting_stakeOrUnstake, setIsSubmitting_stakeOrUnstake] =
-    useState<boolean>(false);
+  const [isSubmitting_main, setIsSubmitting_main] = useState<boolean>(false);
   const [isSubmitting_stakeAndDeposit, setIsSubmitting_stakeAndDeposit] =
     useState<boolean>(false);
 
-  const getSubmitButtonState_stakeOrUnstake = (): SubmitButtonState => {
+  const getSubmitButtonState_main = (): SubmitButtonState => {
     if (!address)
       return {
         icon: <Wallet />,
         title: "Connect wallet",
         onClick: () => setIsConnectWalletDropdownOpen(true),
       };
-    if (isSubmitting_stakeOrUnstake)
-      return { isLoading: true, isDisabled: true };
+    if (isSubmitting_main) return { isLoading: true, isDisabled: true };
 
     if (new BigNumber(inValue || 0).lte(0))
       return { title: "Enter an amount", isDisabled: true };
     if (new BigNumber(inValue).gt(inBalance))
-      return { title: "Insufficient balance", isDisabled: true };
-    if (isStaking && new BigNumber(inValue).gt(maxInValue))
+      return { title: `Insufficient ${inToken.symbol}`, isDisabled: true };
+    if (
+      (isStaking && new BigNumber(inValue).gt(inBalance.minus(SUI_GAS_MIN))) ||
+      suiBalance.lt(SUI_GAS_MIN)
+    )
       return {
         title: `${SUI_GAS_MIN} SUI should be saved for gas`,
         isDisabled: true,
@@ -244,30 +304,30 @@ export default function Home() {
       return { title: "Amount too low", isDisabled: true };
 
     return {
-      title: `${inTitle} ${formatToken(new BigNumber(inValue), { dp: inToken.decimals })} ${inToken.symbol}`,
+      title: `${isStaking ? "Stake" : isUnstaking ? "Unstake" : "Convert"} ${formatToken(new BigNumber(inValue), { dp: inToken.decimals })} ${inToken.symbol}`,
+      isDisabled: isSubmitting_stakeAndDeposit,
     };
   };
-  const submitButtonState_stakeOrUnstake =
-    getSubmitButtonState_stakeOrUnstake();
+  const submitButtonState_main = getSubmitButtonState_main();
 
   const getSubmitButtonState_stakeAndDeposit = (): SubmitButtonState => {
     if (isSubmitting_stakeAndDeposit)
       return { isLoading: true, isDisabled: true };
 
     return {
-      title: "Stake and deposit in Suilend",
+      title: `${isStaking ? "Stake" : "Convert"} and deposit in Suilend`,
       isDisabled:
-        !address ||
-        submitButtonState_stakeOrUnstake.isDisabled ||
-        isSubmitting_stakeOrUnstake,
+        !address || submitButtonState_main.isDisabled || isSubmitting_main,
     };
   };
   const submitButtonState_stakeAndDeposit =
     getSubmitButtonState_stakeAndDeposit();
 
   const hasStakeAndDepositButton = useMemo(
-    () => isStaking && lstData.suilendReserveStats !== undefined,
-    [isStaking, lstData.suilendReserveStats],
+    () =>
+      (isStaking || isConverting) &&
+      outLstData!.suilendReserveStats !== undefined,
+    [isStaking, isConverting, outLstData],
   );
 
   // Submit - send transaction
@@ -275,12 +335,12 @@ export default function Home() {
     if (isDepositing) {
       if (submitButtonState_stakeAndDeposit.isDisabled) return;
     } else {
-      if (submitButtonState_stakeOrUnstake.isDisabled) return;
+      if (submitButtonState_main.isDisabled) return;
     }
 
     const setIsSubmitting = isDepositing
       ? setIsSubmitting_stakeAndDeposit
-      : setIsSubmitting_stakeOrUnstake;
+      : setIsSubmitting_main;
     setIsSubmitting(true);
 
     setTransactionConfirmationDialogConfig(
@@ -296,6 +356,8 @@ export default function Home() {
     const transaction = new Transaction();
     try {
       if (isDepositing) {
+        if (!(isStaking || isConverting)) throw new Error("Unsupported mode");
+
         const { obligationOwnerCaps, obligations } = await initializeSuilendSdk(
           LENDING_MARKET_ID,
           LENDING_MARKET_TYPE,
@@ -314,27 +376,51 @@ export default function Home() {
             transaction,
             obligationOwnerCap,
           );
+
+        const lstCoin = isStaking
+          ? outLstClient!.mintAmountAndRebalance(
+              transaction,
+              address!,
+              submitAmount,
+            )
+          : await convertLsts(
+              inLstClient!,
+              outLstClient!,
+              transaction,
+              address!,
+              submitAmount,
+            );
         appData.suilendClient.deposit(
-          lstClient.mintAndRebalance(transaction, submitAmount),
-          lstData.token.coinType,
+          lstCoin,
+          outLstData!.token.coinType,
           obligationOwnerCapId,
           transaction,
         );
+
         if (didCreate)
           sendObligationToUser(obligationOwnerCapId, address!, transaction);
       } else {
-        if (isStaking)
-          lstClient.mintAndRebalanceAndSendToUser(
+        if (isStaking) {
+          outLstClient!.mintAmountAndRebalanceAndSendToUser(
             transaction,
             address!,
             submitAmount,
           );
-        else
-          await lstClient.redeemAndSendToUser(
+        } else if (isUnstaking) {
+          await inLstClient!.redeemAmountAndSendToUser(
             transaction,
             address!,
             submitAmount,
           );
+        } else if (isConverting) {
+          await convertLstsAndSendToUser(
+            inLstClient!,
+            outLstClient!,
+            transaction,
+            address!,
+            submitAmount,
+          );
+        }
       }
     } catch (err) {
       Sentry.captureException(err);
@@ -351,7 +437,7 @@ export default function Home() {
 
       showSuccessTxnToast(
         [
-          isStaking ? "Staked" : "Unstaked",
+          isStaking ? "Staked" : isUnstaking ? "Unstaked" : "Converted",
           formatToken(
             balanceChangeIn !== undefined
               ? balanceChangeIn
@@ -379,7 +465,7 @@ export default function Home() {
       );
       formatAndSetInValue("");
 
-      track(isStaking ? "stake" : "unstake", {
+      track(isStaking ? "stake" : isUnstaking ? "unstake" : "convert", {
         amountIn: inValue,
         amountInUsd: inValueUsd.toFixed(2, BigNumber.ROUND_DOWN),
         amountOut: outValue,
@@ -387,7 +473,7 @@ export default function Home() {
       });
     } catch (err) {
       showErrorToast(
-        `Failed to ${isStaking ? "stake" : "unstake"}`,
+        `Failed to ${isStaking ? "stake" : isUnstaking ? "unstake" : "convert"}`,
         err as Error,
       );
       console.error(err);
@@ -410,49 +496,81 @@ export default function Home() {
     valueEndDecorator?: ReactNode;
   };
 
-  const parameters: Parameter[] = [
-    {
-      label: "APR",
-      value:
-        lstData.aprPercent === undefined
-          ? "--"
-          : formatPercent(lstData.aprPercent),
-    },
-  ];
-  if (lstData.mintFeePercent.gt(0))
-    parameters.push({
-      label: "Staking fee",
-      value: formatPercent(lstData.mintFeePercent),
-    });
-  if (lstData.redeemFeePercent.gt(0))
-    parameters.push({
-      label: "Unstaking fee",
-      value: formatPercent(lstData.redeemFeePercent),
-    });
+  const parameters = useMemo(() => {
+    const result: Parameter[] = [];
 
-  if (isStaking) {
-    if (
-      lstData.suilendReserveStats !== undefined &&
-      lstData.suilendReserveStats.sendPointsPerDay.gt(0)
-    )
-      parameters.push({
-        label: "SEND Points",
-        labelEndDecorator: (
-          <Tooltip
-            title={`SEND Points are earned by depositing ${lstData.token.symbol} in Suilend`}
-          >
-            <Info className="h-4 w-4 text-navy-600" />
-          </Tooltip>
-        ),
-        valueStartDecorator: (
-          <TokenLogo token={appData.sendPointsToken} size={16} />
-        ),
+    for (const lstId of lstIds) {
+      const lstData = appData.lstDataMap[lstId];
+
+      result.push({
+        label: [lstIds.length > 1 ? lstData.token.symbol : null, "APR"]
+          .filter(Boolean)
+          .join(" "),
         value:
-          outValue === ""
-            ? `${formatPoints(new BigNumber(1).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / ${lstData.token.symbol} / day`
-            : `${formatPoints(new BigNumber(outValue || 0).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / day`,
+          lstData.aprPercent === undefined
+            ? "--"
+            : formatPercent(lstData.aprPercent),
       });
-  }
+      if (lstData.mintFeePercent.gt(0))
+        result.push({
+          label: [
+            lstIds.length > 1 ? lstData.token.symbol : null,
+            "Staking fee",
+          ]
+            .filter(Boolean)
+            .join(" "),
+          value: formatPercent(lstData.mintFeePercent),
+        });
+      if (lstData.redeemFeePercent.gt(0))
+        result.push({
+          label: [
+            lstIds.length > 1 ? lstData.token.symbol : null,
+            "Unstaking fee",
+          ]
+            .filter(Boolean)
+            .join(" "),
+          value: formatPercent(lstData.redeemFeePercent),
+        });
+
+      if (isStaking || isConverting) {
+        if (
+          lstData.suilendReserveStats !== undefined &&
+          lstData.suilendReserveStats.sendPointsPerDay.gt(0)
+        )
+          result.push({
+            label: [
+              lstIds.length > 1 ? lstData.token.symbol : null,
+              "SEND Points",
+            ]
+              .filter(Boolean)
+              .join(" "),
+            labelEndDecorator: (
+              <Tooltip
+                title={`SEND Points are earned by depositing ${lstData.token.symbol} in Suilend`}
+              >
+                <Info className="h-4 w-4 text-navy-600" />
+              </Tooltip>
+            ),
+            valueStartDecorator: (
+              <TokenLogo token={appData.sendPointsToken} size={16} />
+            ),
+            value:
+              outValue === ""
+                ? `${formatPoints(new BigNumber(1).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / ${lstData.token.symbol} / day`
+                : `${formatPoints(new BigNumber(outValue || 0).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / day`,
+          });
+      }
+    }
+
+    return result;
+  }, [
+    lstIds,
+    appData.lstDataMap,
+    isStaking,
+    isConverting,
+    appData.sendPointsToken,
+    outValue,
+  ]);
 
   return (
     <>
@@ -466,57 +584,41 @@ export default function Home() {
         <div className="flex w-full max-w-md flex-col items-center gap-8">
           <div className="flex w-full flex-col gap-4">
             <Card>
-              {/* Tabs */}
-              <div className="w-full p-2 md:px-4 md:py-3.5">
-                <div className="flex w-full flex-row rounded-sm bg-white/25 md:rounded-md">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      className={cn(
-                        "group h-10 flex-1 rounded-sm transition-colors md:rounded-md",
-                        selectedTab === tab.id && "bg-white",
-                      )}
-                      onClick={() => onSelectedTabChange(tab.id)}
-                    >
-                      <p
-                        className={cn(
-                          "!text-p2 transition-colors",
-                          selectedTab === tab.id
-                            ? "text-foreground"
-                            : "text-navy-600 group-hover:text-foreground",
-                        )}
-                      >
-                        {tab.title}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px w-full bg-white/75" />
-
               {/* Form */}
-              <div className="flex w-full flex-col gap-2 p-2 md:gap-4 md:p-4">
-                <StakeInput
-                  ref={inInputRef}
-                  token={inToken}
-                  isLst={!isStaking}
-                  onLstChange={() => inInputRef.current?.focus()}
-                  title={inTitle}
-                  value={inValue}
-                  onChange={formatAndSetInValue}
-                  usdValue={inValueUsd}
-                  onBalanceClick={onInBalanceClick}
-                />
+              <div className="relative flex w-full flex-col items-center gap-2 p-2 md:gap-4 md:p-4">
+                <div className="relative z-[1] w-full">
+                  <StakeInput
+                    ref={inInputRef}
+                    title="In"
+                    token={inToken}
+                    onTokenChange={(_token) =>
+                      onTokenChange(_token, TokenDirection.IN)
+                    }
+                    value={inValue}
+                    onChange={formatAndSetInValue}
+                    usdValue={inValueUsd}
+                    onBalanceClick={onInBalanceClick}
+                  />
+                </div>
 
-                <StakeInput
-                  token={outToken}
-                  isLst={isStaking}
-                  title="Receive"
-                  value={outValue}
-                  usdValue={outValueUsd}
-                />
+                <button
+                  className="group relative z-[2] -my-5 rounded-[50%] bg-navy-100 p-2 md:-my-7"
+                  onClick={reverseTokens}
+                >
+                  <ArrowUpDown className="h-4 w-4 text-navy-600 transition-colors group-hover:text-foreground" />
+                </button>
+
+                <div className="relative z-[1] w-full">
+                  <StakeInput
+                    title="Out"
+                    token={outToken}
+                    onTokenChange={(_token) =>
+                      onTokenChange(_token, TokenDirection.OUT)
+                    }
+                    value={outValue}
+                    usdValue={outValueUsd}
+                  />
+                </div>
 
                 <div className="flex w-full flex-col gap-px">
                   <SubmitButton
@@ -528,7 +630,7 @@ export default function Home() {
                           }
                         : undefined
                     }
-                    state={submitButtonState_stakeOrUnstake}
+                    state={submitButtonState_main}
                     submit={() => submit(false)}
                   />
                   {hasStakeAndDepositButton && (

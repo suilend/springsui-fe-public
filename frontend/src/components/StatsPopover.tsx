@@ -12,24 +12,35 @@ import { cn } from "@/lib/utils";
 
 export function StatsContent() {
   const { appData } = useLoadedAppContext();
-  const { lstData } = useLoadedLstContext();
+  const { lstIds } = useLoadedLstContext();
 
   const currentEpochEndsDuration = intervalToDuration({
     start: new Date(),
     end: new Date(appData.currentEpochEndMs),
   });
 
-  const stats: {
+  type Stat = {
     label: string;
     children?: ReactNode;
     value?: string;
     subValue?: string;
-  }[] = [
-    {
-      label: "Total value locked (TVL)",
-      value: `${formatToken(lstData.totalSuiSupply)} ${appData.suiToken.symbol}`,
-      subValue: formatUsd(lstData.totalSuiSupply.times(appData.suiPrice)),
-    },
+  };
+
+  const stats: Stat[] = [
+    ...lstIds.reduce((acc, lstId) => {
+      const lstData = appData.lstDataMap[lstId];
+
+      return [
+        ...acc,
+        {
+          label: [lstIds.length > 1 ? lstData.token.symbol : null, "TVL"]
+            .filter(Boolean)
+            .join(" "),
+          value: `${formatToken(lstData.totalSuiSupply)} ${appData.suiToken.symbol}`,
+          subValue: formatUsd(lstData.totalSuiSupply.times(appData.suiPrice)),
+        },
+      ];
+    }, [] as Stat[]),
     {
       label: "Current epoch",
       children: (
@@ -62,8 +73,6 @@ export function StatsContent() {
   ));
 }
 export default function StatsPopover() {
-  const { lstData } = useLoadedLstContext();
-
   const { md } = useBreakpoint();
 
   // State
@@ -91,7 +100,7 @@ export default function StatsPopover() {
                   : "text-navy-600 transition-colors group-hover:text-foreground",
               )}
             >
-              {lstData.token.symbol} stats
+              Stats
             </p>
           </div>
         </button>
