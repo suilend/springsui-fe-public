@@ -11,11 +11,10 @@ import {
 import { Transaction } from "@mysten/sui/transactions";
 import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
-import { ArrowUpDown, Info, Wallet } from "lucide-react";
+import { ArrowUpDown, Wallet } from "lucide-react";
 
 import {
   LstId,
-  NORMALIZED_sSUI_COINTYPE,
   SUI_GAS_MIN,
   Token,
   createObligationIfNoneExists,
@@ -37,8 +36,6 @@ import { FOOTER_MD_HEIGHT, FooterSm } from "@/components/Footer";
 import StakeInput from "@/components/StakeInput";
 import StatsPopover, { StatsContent } from "@/components/StatsPopover";
 import SubmitButton, { SubmitButtonState } from "@/components/SubmitButton";
-import TokenLogo from "@/components/TokenLogo";
-import Tooltip from "@/components/Tooltip";
 import TransactionConfirmationDialog, {
   TransactionConfirmationDialogConfig,
 } from "@/components/TransactionConfirmationDialog";
@@ -57,6 +54,7 @@ import {
 } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { convertLsts, convertLstsAndSendToUser } from "@/lib/transactions";
+import { cn } from "@/lib/utils";
 
 const getUrl = (
   tokenInSymbol: string = DEFAULT_TOKEN_IN_SYMBOL,
@@ -535,9 +533,6 @@ export default function Home() {
           (acc, lstData) => [
             ...acc,
             {
-              startDecorator: lstDatas.length > 1 && (
-                <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
-              ),
               value:
                 lstData.aprPercent === undefined
                   ? "--"
@@ -553,9 +548,6 @@ export default function Home() {
           (acc, lstData) => [
             ...acc,
             {
-              startDecorator: lstDatas.length > 1 && (
-                <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
-              ),
               value: formatPercent(lstData.mintFeePercent),
             },
           ],
@@ -568,9 +560,6 @@ export default function Home() {
           (acc, lstData) => [
             ...acc,
             {
-              startDecorator: lstDatas.length > 1 && (
-                <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
-              ),
               value: formatPercent(lstData.redeemFeePercent),
             },
           ],
@@ -579,53 +568,8 @@ export default function Home() {
       },
     ];
 
-    if (isStaking || isConverting) {
-      const sSuiLstData = lstDatas.find(
-        (lstData) => lstData.token.coinType === NORMALIZED_sSUI_COINTYPE,
-      );
-
-      if (
-        sSuiLstData &&
-        sSuiLstData.suilendReserveStats !== undefined &&
-        sSuiLstData.suilendReserveStats.sendPointsPerDay.gt(0)
-      )
-        result.push({
-          label: "SEND Points",
-          labelEndDecorator: (
-            <Tooltip title="SEND Points are earned by depositing sSUI in Suilend">
-              <Info className="h-4 w-4 text-navy-600" />
-            </Tooltip>
-          ),
-          values: [
-            {
-              startDecorator: (
-                <>
-                  {lstDatas.length > 1 && (
-                    <p className="text-p2 text-navy-600">
-                      {sSuiLstData.token.symbol}
-                    </p>
-                  )}
-                  <TokenLogo token={appData.sendPointsToken} size={16} />
-                </>
-              ),
-              value:
-                outValue === ""
-                  ? `${formatPoints(new BigNumber(1).times(sSuiLstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / ${sSuiLstData.token.symbol} / day`
-                  : `${formatPoints(new BigNumber(outValue || 0).times(sSuiLstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / day`,
-            },
-          ],
-        });
-    }
-
     return result;
-  }, [
-    lstIds,
-    appData.lstDataMap,
-    isStaking,
-    isConverting,
-    appData.sendPointsToken,
-    outValue,
-  ]);
+  }, [lstIds, appData.lstDataMap]);
 
   return (
     <>
@@ -675,38 +619,65 @@ export default function Home() {
                   />
                 </div>
 
-                <div className="flex w-full flex-col gap-px">
-                  <SubmitButton
-                    style={
-                      hasStakeAndDepositButton
-                        ? {
-                            borderBottomLeftRadius: 0,
-                            borderBottomRightRadius: 0,
-                          }
-                        : undefined
-                    }
-                    state={submitButtonState_main}
-                    submit={() => submit(false)}
-                  />
-                  {hasStakeAndDepositButton && (
+                <div className="flex w-full flex-col items-center gap-2">
+                  <div className="flex w-full flex-col gap-px">
                     <SubmitButton
-                      className="min-h-9 bg-navy-600 py-2"
-                      style={{
-                        borderTopLeftRadius: 0,
-                        borderTopRightRadius: 0,
-                      }}
-                      labelClassName="text-p2"
-                      loadingClassName="h-5 w-5"
-                      state={submitButtonState_stakeAndDeposit}
-                      submit={() => submit(true)}
+                      style={
+                        hasStakeAndDepositButton
+                          ? {
+                              borderBottomLeftRadius: 0,
+                              borderBottomRightRadius: 0,
+                            }
+                          : undefined
+                      }
+                      state={submitButtonState_main}
+                      submit={() => submit(false)}
                     />
-                  )}
+                    {hasStakeAndDepositButton && (
+                      <SubmitButton
+                        className="min-h-9 bg-navy-600 py-2"
+                        style={{
+                          borderTopLeftRadius: 0,
+                          borderTopRightRadius: 0,
+                        }}
+                        labelClassName="text-p2"
+                        loadingClassName="h-5 w-5"
+                        state={submitButtonState_stakeAndDeposit}
+                        submit={() => submit(true)}
+                      />
+                    )}
+                  </div>
+
+                  {(isStaking || isConverting) &&
+                    outLstData &&
+                    outLstData.suilendReserveStats !== undefined &&
+                    outLstData.suilendReserveStats.sendPointsPerDay.gt(0) && (
+                      <div className="flex flex-row items-center gap-1.5">
+                        <p className="text-p2 text-navy-600">
+                          Deposit to earn{" "}
+                          {outValue === ""
+                            ? `${formatPoints(new BigNumber(1).times(outLstData.suilendReserveStats!.sendPointsPerDay), { dp: 3 })} SEND Points / ${outLstData.token.symbol} / day`
+                            : `${formatPoints(new BigNumber(outValue || 0).times(outLstData.suilendReserveStats!.sendPointsPerDay), { dp: 3 })} SEND Points / day`}
+                        </p>
+                      </div>
+                    )}
                 </div>
               </div>
             </Card>
 
             {/* Parameters */}
             <div className="flex w-full flex-col gap-4 px-2 md:px-4">
+              {lstIds.length > 1 && (
+                <div className="flex w-full flex-row items-center justify-end gap-4">
+                  {lstIds.map((lstId) => (
+                    <div key={lstId} className="flex w-16 flex-col items-end">
+                      <p className="text-p2 text-navy-600">
+                        {appData.lstDataMap[lstId].token.symbol}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
               {parameters.map((param, index) => (
                 <div
                   key={index}
@@ -720,7 +691,13 @@ export default function Home() {
 
                   <div className="flex flex-row items-center gap-4">
                     {param.values.map((value, index2) => (
-                      <div key={index2} className="flex flex-col items-end">
+                      <div
+                        key={index2}
+                        className={cn(
+                          "flex flex-col items-end",
+                          lstIds.length > 1 && "w-16",
+                        )}
+                      >
                         <div className="flex flex-row items-center gap-1.5">
                           {value.startDecorator}
                           <p className="text-p2">{value.value}</p>

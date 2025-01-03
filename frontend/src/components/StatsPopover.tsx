@@ -18,13 +18,11 @@ export function StatsContent() {
     labelStartDecorator?: ReactNode;
     label: string;
     labelEndDecorator?: ReactNode;
-    values: {
-      startDecorator?: ReactNode;
-      children?: ReactNode;
-      value?: string;
-      endDecorator?: ReactNode;
-      subValue?: string;
-    }[];
+    valueStartDecorator?: ReactNode;
+    children?: ReactNode;
+    value?: string;
+    valueEndDecorator?: ReactNode;
+    subValue?: string;
   };
 
   const stats = useMemo(() => {
@@ -36,44 +34,33 @@ export function StatsContent() {
     });
 
     const result: Stat[] = [
-      {
-        label: "TVL",
-        values: lstDatas.reduce(
-          (acc, lstData) => [
-            ...acc,
-            {
-              startDecorator: lstDatas.length > 1 && (
-                <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
-              ),
-              value: `${formatToken(lstData.totalSuiSupply)} ${appData.suiToken.symbol}`,
-              subValue: formatUsd(
-                lstData.totalSuiSupply.times(appData.suiPrice),
-              ),
-            },
-          ],
-          [] as Stat["values"],
-        ),
-      },
-      {
-        label: "Current epoch",
-        values: [
+      ...lstDatas.reduce(
+        (acc, lstData) => [
+          ...acc,
           {
-            children: (
-              <div className="flex flex-row items-center gap-2">
-                <p className="text-p2">{appData.currentEpoch}</p>
-                <div className="h-2 w-[80px] overflow-hidden rounded-[4px] bg-white/75 md:bg-navy-100">
-                  <div
-                    className="h-full w-[80px] rounded-[4px] bg-navy-600 transition-transform"
-                    style={{
-                      transform: `translateX(${-(100 - appData.currentEpochProgressPercent)}%)`,
-                    }}
-                  />
-                </div>
-              </div>
-            ),
-            subValue: `Ends in ${currentEpochEndsDuration.hours ?? 0}h ${currentEpochEndsDuration.minutes ?? 0}m`,
+            label: `${lstData.token.symbol} TVL`,
+            value: `${formatToken(lstData.totalSuiSupply)} ${appData.suiToken.symbol}`,
+            subValue: formatUsd(lstData.totalSuiSupply.times(appData.suiPrice)),
           },
         ],
+        [] as Stat[],
+      ),
+      {
+        label: "Current epoch",
+        children: (
+          <div className="flex flex-row items-center gap-2">
+            <p className="text-p2">{appData.currentEpoch}</p>
+            <div className="h-2 w-[80px] overflow-hidden rounded-[4px] bg-white/75 md:bg-navy-100">
+              <div
+                className="h-full w-[80px] rounded-[4px] bg-navy-600 transition-transform"
+                style={{
+                  transform: `translateX(${-(100 - appData.currentEpochProgressPercent)}%)`,
+                }}
+              />
+            </div>
+          </div>
+        ),
+        subValue: `Ends in ${currentEpochEndsDuration.hours ?? 0}h ${currentEpochEndsDuration.minutes ?? 0}m`,
       },
     ];
 
@@ -96,19 +83,15 @@ export function StatsContent() {
         {stat.labelEndDecorator}
       </div>
 
-      <div className="flex flex-col gap-3">
-        {stat.values.map((value, index2) => (
-          <div key={index2} className="flex flex-col items-end">
-            <div className="flex flex-row items-center gap-1.5">
-              {value.startDecorator}
-              {value.children ?? <p className="text-p2">{value.value}</p>}
-              {value.endDecorator}
-            </div>
-            {value.subValue && (
-              <p className="text-p2 text-navy-500">{value.subValue}</p>
-            )}
-          </div>
-        ))}
+      <div className="flex flex-col items-end">
+        <div className="flex flex-row items-center gap-1.5">
+          {stat.valueStartDecorator}
+          {stat.children ?? <p className="text-p2">{stat.value}</p>}
+          {stat.valueEndDecorator}
+        </div>
+        {stat.subValue && (
+          <p className="text-p2 text-navy-500">{stat.subValue}</p>
+        )}
       </div>
     </div>
   ));
