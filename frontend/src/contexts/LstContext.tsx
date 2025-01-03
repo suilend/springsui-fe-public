@@ -27,6 +27,11 @@ export enum Mode {
 export const DEFAULT_TOKEN_IN_SYMBOL = "SUI";
 export const DEFAULT_TOKEN_OUT_SYMBOL = LstId.sSUI;
 
+export enum QueryParams {
+  LST = "lst",
+  AMOUNT = "amount",
+}
+
 export interface LstContext {
   isSlugValid: () => boolean;
   tokenInSymbol: string;
@@ -74,6 +79,12 @@ export const useLoadedLstContext = () => useLstContext() as LoadedLstContext;
 
 export function LstContextProvider({ children }: PropsWithChildren) {
   const router = useRouter();
+  const queryParams = useMemo(
+    () => ({
+      [QueryParams.LST]: router.query[QueryParams.LST] as LstId | undefined,
+    }),
+    [router.query],
+  );
   const slug = router.query.slug as string[] | undefined;
 
   const { address } = useWalletContext();
@@ -105,8 +116,11 @@ export function LstContextProvider({ children }: PropsWithChildren) {
     () =>
       isSlugValid()
         ? slug![0].split("-")
-        : [DEFAULT_TOKEN_IN_SYMBOL, DEFAULT_TOKEN_OUT_SYMBOL],
-    [isSlugValid, slug],
+        : [
+            DEFAULT_TOKEN_IN_SYMBOL,
+            queryParams[QueryParams.LST] ?? DEFAULT_TOKEN_OUT_SYMBOL,
+          ],
+    [isSlugValid, slug, queryParams],
   );
 
   // Mode

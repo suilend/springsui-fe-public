@@ -11,6 +11,7 @@ import {
 import { Transaction } from "@mysten/sui/transactions";
 import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
+import { cloneDeep } from "lodash";
 import { ArrowUpDown, Wallet } from "lucide-react";
 
 import {
@@ -44,6 +45,7 @@ import {
   DEFAULT_TOKEN_IN_SYMBOL,
   DEFAULT_TOKEN_OUT_SYMBOL,
   Mode,
+  QueryParams,
   useLoadedLstContext,
 } from "@/contexts/LstContext";
 import {
@@ -56,27 +58,25 @@ import { showSuccessTxnToast } from "@/lib/toasts";
 import { convertLsts, convertLstsAndSendToUser } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 
-const getUrl = (
-  tokenInSymbol: string = DEFAULT_TOKEN_IN_SYMBOL,
-  tokenOutSymbol: string = DEFAULT_TOKEN_OUT_SYMBOL,
-) => `${tokenInSymbol}-${tokenOutSymbol}`;
+const getUrl = (tokenInSymbol: string, tokenOutSymbol: string) =>
+  `${tokenInSymbol}-${tokenOutSymbol}`;
 
 enum TokenDirection {
   IN = "in",
   OUT = "out",
 }
 
-enum QueryParams {
-  AMOUNT = "amount",
-}
-
 export default function Home() {
   const router = useRouter();
-  const queryParams = {
-    [QueryParams.AMOUNT]: router.query[QueryParams.AMOUNT] as
-      | string
-      | undefined,
-  };
+  const queryParams = useMemo(
+    () => ({
+      [QueryParams.LST]: router.query[QueryParams.LST] as LstId | undefined,
+      [QueryParams.AMOUNT]: router.query[QueryParams.AMOUNT] as
+        | string
+        | undefined,
+    }),
+    [router.query],
+  );
 
   const { explorer, suiClient } = useSettingsContext();
   const {
@@ -97,11 +97,24 @@ export default function Home() {
   }, []);
 
   // Slug
-
   useEffect(() => {
+    const restQuery = cloneDeep(router.query);
+    delete restQuery.slug;
+    delete restQuery[QueryParams.LST];
+
     if (!isSlugValid())
-      router.replace({ pathname: getUrl() }, undefined, { shallow: true });
-  }, [isSlugValid, router]);
+      router.replace(
+        {
+          pathname: getUrl(
+            DEFAULT_TOKEN_IN_SYMBOL,
+            queryParams[QueryParams.LST] ?? DEFAULT_TOKEN_OUT_SYMBOL,
+          ),
+          query: restQuery,
+        },
+        undefined,
+        { shallow: true },
+      );
+  }, [router, isSlugValid, queryParams]);
 
   const reverseTokens = useCallback(() => {
     router.push(
