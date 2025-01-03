@@ -214,41 +214,66 @@ export default function Home() {
   const outPrice = isUnstaking ? appData.suiPrice : outLstData!.price;
   const outBalance = getBalance(outToken.coinType);
 
-  const inToOutExchangeRate = useMemo(() => {
-    if (isStaking) return outLstData!.suiToLstExchangeRate;
-    if (isUnstaking) return inLstData!.lstToSuiExchangeRate;
-    if (isConverting)
-      return inLstData!.lstToSuiExchangeRate.times(
-        outLstData!.suiToLstExchangeRate,
-      );
-    return new BigNumber(1); // Not possible
-  }, [isStaking, outLstData, isUnstaking, inLstData, isConverting]);
+  const outValue = useMemo(() => {
+    if (inValue === "") return "";
 
-  const outFeeMultiplier = useMemo(() => {
-    if (isStaking)
-      return new BigNumber(1).minus(outLstData!.mintFeePercent.div(100));
-    if (isUnstaking)
-      return new BigNumber(1).minus(inLstData!.redeemFeePercent.div(100));
-    if (isConverting)
-      return new BigNumber(
-        new BigNumber(1).minus(inLstData!.redeemFeePercent.div(100)),
-      ).times(new BigNumber(1).minus(outLstData!.mintFeePercent.div(100)));
-    return new BigNumber(0); // Not possible
-  }, [isStaking, outLstData, isUnstaking, inLstData, isConverting]);
+    const getFee = (amount: BigNumber) => {
+      if (isStaking) {
+        const suiAmount = amount;
+        return suiAmount
+          .times(outLstData!.mintFeePercent.div(100))
+          .decimalPlaces(inToken.decimals, BigNumber.ROUND_UP);
+      }
+      if (isUnstaking) {
+        const lstAmount = amount;
+        return lstAmount
+          .times(inLstData!.redeemFeePercent.div(100))
+          .decimalPlaces(inToken.decimals, BigNumber.ROUND_UP);
+      }
+      if (isConverting) {
+        const inLstAmount = amount;
+        const unstakingFee = inLstAmount
+          .times(inLstData!.redeemFeePercent.div(100))
+          .decimalPlaces(inToken.decimals, BigNumber.ROUND_UP);
 
-  const outValue =
-    inValue === ""
-      ? ""
-      : formatToken(
-          BigNumber.max(0, inValue)
-            .times(inToOutExchangeRate)
-            .times(outFeeMultiplier),
-          {
-            dp: outToken.decimals,
-            useGrouping: false,
-            roundLtMinToZero: true,
-          },
+        const suiAmount = inLstAmount.minus(unstakingFee);
+        const stakingFee = suiAmount
+          .times(outLstData!.mintFeePercent.div(100))
+          .decimalPlaces(inToken.decimals, BigNumber.ROUND_UP);
+
+        return unstakingFee.plus(stakingFee);
+      }
+      return new BigNumber(0); // Not possible
+    };
+
+    const inToOutExchangeRate = (() => {
+      if (isStaking) return outLstData!.suiToLstExchangeRate;
+      if (isUnstaking) return inLstData!.lstToSuiExchangeRate;
+      if (isConverting)
+        return inLstData!.lstToSuiExchangeRate.times(
+          outLstData!.suiToLstExchangeRate,
         );
+      return new BigNumber(1); // Not possible
+    })();
+
+    const _inValue = BigNumber.max(0, inValue);
+    const result = _inValue.minus(getFee(_inValue)).times(inToOutExchangeRate);
+
+    return formatToken(result, {
+      dp: outToken.decimals,
+      useGrouping: false,
+      roundLtMinToZero: true,
+    });
+  }, [
+    inValue,
+    isStaking,
+    outLstData,
+    inToken.decimals,
+    isUnstaking,
+    inLstData,
+    isConverting,
+    outToken.decimals,
+  ]);
   const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
 
   // Submit
