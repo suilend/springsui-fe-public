@@ -15,6 +15,7 @@ import { ArrowUpDown, Info, Wallet } from "lucide-react";
 
 import {
   LstId,
+  NORMALIZED_sSUI_COINTYPE,
   SUI_GAS_MIN,
   Token,
   createObligationIfNoneExists,
@@ -491,75 +492,104 @@ export default function Home() {
     labelStartDecorator?: ReactNode;
     label: string;
     labelEndDecorator?: ReactNode;
-    valueStartDecorator?: ReactNode;
-    value: string;
-    valueEndDecorator?: ReactNode;
+    values: {
+      startDecorator?: ReactNode;
+      value: string;
+      endDecorator?: ReactNode;
+      subValue?: string;
+    }[];
   };
 
   const parameters = useMemo(() => {
-    const result: Parameter[] = [];
+    const lstDatas = lstIds.map((lstId) => appData.lstDataMap[lstId]);
 
-    for (const lstId of lstIds) {
-      const lstData = appData.lstDataMap[lstId];
+    const result: Parameter[] = [
+      {
+        label: "APR",
+        values: lstDatas.reduce(
+          (acc, lstData) => [
+            ...acc,
+            {
+              startDecorator: lstIds.length > 1 && (
+                <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
+              ),
+              value:
+                lstData.aprPercent === undefined
+                  ? "--"
+                  : formatPercent(lstData.aprPercent),
+            },
+          ],
+          [] as Parameter["values"],
+        ),
+      },
+      {
+        label: "Staking fee",
+        values: lstDatas.reduce(
+          (acc, lstData) => [
+            ...acc,
+            {
+              startDecorator: lstIds.length > 1 && (
+                <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
+              ),
+              value: formatPercent(lstData.mintFeePercent),
+            },
+          ],
+          [] as Parameter["values"],
+        ),
+      },
+      {
+        label: "Unstaking fee",
+        values: lstDatas.reduce(
+          (acc, lstData) => [
+            ...acc,
+            {
+              startDecorator: lstIds.length > 1 && (
+                <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
+              ),
+              value: formatPercent(lstData.redeemFeePercent),
+            },
+          ],
+          [] as Parameter["values"],
+        ),
+      },
+    ];
 
-      result.push({
-        label: [lstIds.length > 1 ? lstData.token.symbol : null, "APR"]
-          .filter(Boolean)
-          .join(" "),
-        value:
-          lstData.aprPercent === undefined
-            ? "--"
-            : formatPercent(lstData.aprPercent),
-      });
-      if (lstData.mintFeePercent.gt(0))
+    if (isStaking || isConverting) {
+      const sSuiLstData = lstDatas.find(
+        (lstData) => lstData.token.coinType === NORMALIZED_sSUI_COINTYPE,
+      );
+
+      if (
+        sSuiLstData &&
+        sSuiLstData.suilendReserveStats !== undefined &&
+        sSuiLstData.suilendReserveStats.sendPointsPerDay.gt(0)
+      )
         result.push({
-          label: [
-            lstIds.length > 1 ? lstData.token.symbol : null,
-            "Staking fee",
-          ]
-            .filter(Boolean)
-            .join(" "),
-          value: formatPercent(lstData.mintFeePercent),
+          label: "SEND Points",
+          labelEndDecorator: (
+            <Tooltip title="SEND Points are earned by depositing sSUI in Suilend">
+              <Info className="h-4 w-4 text-navy-600" />
+            </Tooltip>
+          ),
+          values: [
+            {
+              startDecorator: (
+                <>
+                  {lstIds.length > 1 && (
+                    <p className="text-p2 text-navy-600">
+                      {sSuiLstData.token.symbol}
+                    </p>
+                  )}
+                  <TokenLogo token={appData.sendPointsToken} size={16} />
+                </>
+              ),
+              value:
+                outValue === ""
+                  ? `${formatPoints(new BigNumber(1).times(sSuiLstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / ${sSuiLstData.token.symbol} / day`
+                  : `${formatPoints(new BigNumber(outValue || 0).times(sSuiLstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / day`,
+            },
+          ],
         });
-      if (lstData.redeemFeePercent.gt(0))
-        result.push({
-          label: [
-            lstIds.length > 1 ? lstData.token.symbol : null,
-            "Unstaking fee",
-          ]
-            .filter(Boolean)
-            .join(" "),
-          value: formatPercent(lstData.redeemFeePercent),
-        });
-
-      if (isStaking || isConverting) {
-        if (
-          lstData.suilendReserveStats !== undefined &&
-          lstData.suilendReserveStats.sendPointsPerDay.gt(0)
-        )
-          result.push({
-            label: [
-              lstIds.length > 1 ? lstData.token.symbol : null,
-              "SEND Points",
-            ]
-              .filter(Boolean)
-              .join(" "),
-            labelEndDecorator: (
-              <Tooltip
-                title={`SEND Points are earned by depositing ${lstData.token.symbol} in Suilend`}
-              >
-                <Info className="h-4 w-4 text-navy-600" />
-              </Tooltip>
-            ),
-            valueStartDecorator: (
-              <TokenLogo token={appData.sendPointsToken} size={16} />
-            ),
-            value:
-              outValue === ""
-                ? `${formatPoints(new BigNumber(1).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / ${lstData.token.symbol} / day`
-                : `${formatPoints(new BigNumber(outValue || 0).times(lstData.suilendReserveStats.sendPointsPerDay), { dp: 3 })} / day`,
-          });
-      }
     }
 
     return result;
@@ -652,20 +682,32 @@ export default function Home() {
 
             {/* Parameters */}
             <div className="flex w-full flex-col gap-4 px-2 md:px-4">
-              {parameters.map((param) => (
+              {parameters.map((param, index) => (
                 <div
-                  key={param.label}
-                  className="flex w-full flex-row items-center justify-between"
+                  key={index}
+                  className="flex w-full flex-row justify-between"
                 >
                   <div className="flex flex-row items-center gap-1.5">
                     {param.labelStartDecorator}
                     <p className="text-p2 text-navy-600">{param.label}</p>
                     {param.labelEndDecorator}
                   </div>
-                  <div className="flex flex-row items-center gap-1.5">
-                    {param.valueStartDecorator}
-                    <p className="text-p2">{param.value}</p>
-                    {param.valueEndDecorator}
+
+                  <div className="flex flex-row items-center gap-4">
+                    {param.values.map((value, index2) => (
+                      <div key={index2} className="flex flex-col items-end">
+                        <div className="flex flex-row items-center gap-1.5">
+                          {value.startDecorator}
+                          <p className="text-p2">{value.value}</p>
+                          {value.endDecorator}
+                        </div>
+                        {value.subValue && (
+                          <p className="text-p2 text-navy-500">
+                            {value.subValue}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
