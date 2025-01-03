@@ -383,8 +383,8 @@ export default function Explore() {
                     selectedCategoryId === CategoryId.ALL ||
                     og.categoryId === selectedCategoryId,
                 )
-                .map((og, index) => (
-                  <Fragment key={index}>
+                .map((og) => (
+                  <Fragment key={og.title}>
                     {og.opportunities.map((opportunity) => {
                       const tokens = opportunity.coinTypes.map((coinType) =>
                         coinMetadataMap?.[coinType]
@@ -394,7 +394,7 @@ export default function Explore() {
 
                       return (
                         <Link
-                          key={index}
+                          key={opportunity.url}
                           className="block flex w-full flex-col gap-4 rounded-md bg-white p-4"
                           href={opportunity.url}
                           target="_blank"
@@ -452,7 +452,6 @@ export default function Explore() {
                                 <p className="text-p2">
                                   {tokens.some((token) => token === null) ? (
                                     <Skeleton
-                                      key={index}
                                       className={cn(
                                         "h-5",
                                         tokens.length === 1 ? "w-10" : "w-16",

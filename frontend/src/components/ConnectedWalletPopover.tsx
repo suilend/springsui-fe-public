@@ -45,7 +45,6 @@ export default function ConnectedWalletPopover() {
     <Popover
       rootProps={{ open: isOpen, onOpenChange: setIsOpen }}
       contentProps={{
-        className: "p-4",
         align: "end",
         maxWidth: 280,
       }}
@@ -112,8 +111,10 @@ export default function ConnectedWalletPopover() {
               <button
                 key={a.address}
                 className={cn(
-                  "group flex h-10 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3 transition-colors",
-                  a.address === address ? "cursor-default bg-light-blue" : "",
+                  "group flex h-10 w-full flex-row items-center justify-between gap-2 rounded-sm bg-navy-100/50 px-3",
+                  a.address === address
+                    ? "cursor-default bg-light-blue"
+                    : "transition-colors",
                 )}
                 onClick={
                   a.address === address ? undefined : () => switchAccount(a)

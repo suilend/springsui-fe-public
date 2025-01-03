@@ -71,7 +71,7 @@ async function redeem(options: any) {
   const [lst] = tx.splitCoins(lstCoins.data[0].coinObjectId, [
     BigInt(options.amount),
   ]);
-  const sui = lstClient.redeemLst(tx, lst);
+  const sui = lstClient.redeem(tx, lst);
 
   tx.transferObjects([sui], keypair.toSuiAddress());
 

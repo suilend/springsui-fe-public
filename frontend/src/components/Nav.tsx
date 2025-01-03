@@ -45,7 +45,7 @@ export default function Nav() {
   return (
     <>
       <div
-        className="fixed inset-x-0 top-0 z-[2] flex w-full flex-row items-center justify-between px-4 py-2.5 max-md:backdrop-blur-[10px] md:justify-start md:bg-white md:px-10 md:py-4"
+        className="fixed inset-x-0 top-0 z-[2] flex w-full flex-row items-center justify-between bg-[#E0EAF9]/75 px-4 py-2.5 max-md:backdrop-blur-[10px] md:justify-start md:bg-white md:px-10 md:py-4"
         style={{ height: md ? MD_NAV_HEIGHT : SM_NAV_HEIGHT }}
       >
         {/* Logo */}
@@ -57,7 +57,8 @@ export default function Nav() {
         {/* Items, WIDTH >= md */}
         <div className="flex flex-1 flex-row justify-center gap-10 max-md:hidden">
           {navItems.map((item) => {
-            const isSelected = router.pathname === item.url;
+            const isSelected =
+              router.pathname.replace("[[...slug]]", "") === item.url;
             const isDisabled = !item.url;
             const Component = !isDisabled ? Link : "div";
 

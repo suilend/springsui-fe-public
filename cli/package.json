@@ -1,6 +1,6 @@
 {
   "name": "@suilend/springsui-cli-local",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "description": "A CLI for interacting with the SpringSui program",
   "author": "Suilend",

@@ -13,14 +13,13 @@ import {
 import Card from "@/components/Card";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
-import { useLoadedLstContext } from "@/contexts/LstContext";
+import { Mode, useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { ASSETS_URL } from "@/lib/constants";
 import { formatToken } from "@/lib/format";
 
 export type TransactionConfirmationDialogConfig = {
   isDepositing: boolean;
-  isStaking: boolean;
   inToken: Token;
   outToken: Token;
   inValue: string;
@@ -36,12 +35,13 @@ export default function TransactionConfirmationDialog({
   isOpen,
   config,
 }: TransactionConfirmationDialogProps) {
-  const { lstData } = useLoadedLstContext();
+  const { mode } = useLoadedLstContext();
 
-  const { isDepositing, isStaking, inToken, outToken, inValue, outValue } =
-    config;
+  const { isDepositing, inToken, outToken, inValue, outValue } = config;
 
   const { md } = useBreakpoint();
+
+  const token = mode !== Mode.UNSTAKING ? outToken : inToken;
 
   if (!md) return null;
   return (
@@ -52,7 +52,7 @@ export default function TransactionConfirmationDialog({
             Confirm transaction in your wallet
           </p>
 
-          {issSui(lstData.token.coinType) ? (
+          {issSui(token.coinType) ? (
             <video
               className="h-40 w-40"
               autoPlay
@@ -70,14 +70,14 @@ export default function TransactionConfirmationDialog({
           ) : (
             <TokenLogo
               token={{
-                ...lstData.token,
+                ...token,
                 iconUrl: {
                   [NORMALIZED_mSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/mSUI.jpg`,
                   [NORMALIZED_fudSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/fudSUI.png`,
                   [NORMALIZED_kSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/kSUI.png`,
                   [NORMALIZED_trevinSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/trevinSUI.png`,
                   [NORMALIZED_upSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/upSUI.png`,
-                }[lstData.token.coinType],
+                }[token.coinType],
               }}
               size={160}
             />
@@ -85,9 +85,7 @@ export default function TransactionConfirmationDialog({
 
           <div className="flex w-full flex-col rounded-md border border-navy-100">
             <div className="flex w-full flex-row items-center justify-between p-3">
-              <p className="text-p2 text-navy-600">
-                {isStaking ? "Staking" : "Unstaking"}
-              </p>
+              <p className="text-p2 text-navy-600">In</p>
 
               <div className="flex flex-row items-center">
                 <p className="mr-2">
@@ -102,7 +100,7 @@ export default function TransactionConfirmationDialog({
             <div className="h-px w-full bg-navy-100" />
             <div className="flex w-full flex-row items-center justify-between p-3">
               <p className="text-p2 text-navy-600">
-                {isDepositing ? "Depositing" : "Receiving"}
+                {isDepositing ? "Deposit" : "Receive"}
               </p>
 
               <div className="flex flex-row items-center">

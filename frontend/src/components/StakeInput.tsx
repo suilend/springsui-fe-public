@@ -2,19 +2,17 @@ import { forwardRef } from "react";
 
 import BigNumber from "bignumber.js";
 
-import { LstId, Token } from "@suilend/frontend-sui";
+import { Token } from "@suilend/frontend-sui";
 
 import BalanceLabel from "@/components/BalanceLabel";
-import LstPopover from "@/components/LstPopover";
-import TokenLogo from "@/components/TokenLogo";
+import TokenPopover from "@/components/TokenPopover";
 import { formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface StakeInputProps {
-  token: Token;
-  isLst?: boolean;
-  onLstChange?: (lstId: LstId) => void;
   title: string;
+  token: Token;
+  onTokenChange: (token: Token) => void;
   value: string;
   onChange?: (value: string) => void;
   usdValue: BigNumber;
@@ -23,16 +21,7 @@ interface StakeInputProps {
 
 const StakeInput = forwardRef<HTMLInputElement, StakeInputProps>(
   (
-    {
-      token,
-      isLst,
-      onLstChange,
-      title,
-      value,
-      onChange,
-      usdValue,
-      onBalanceClick,
-    },
+    { title, token, onTokenChange, value, onChange, usdValue, onBalanceClick },
     ref,
   ) => {
     const isReadOnly = !onChange;
@@ -64,14 +53,7 @@ const StakeInput = forwardRef<HTMLInputElement, StakeInputProps>(
             />
           </div>
 
-          {isLst ? (
-            <LstPopover onChange={onLstChange} />
-          ) : (
-            <div className="flex flex-row items-center gap-2">
-              <TokenLogo token={token} size={28} />
-              <p className="text-h3">{token.symbol}</p>
-            </div>
-          )}
+          <TokenPopover token={token} onChange={onTokenChange} />
         </div>
 
         <div className="flex w-full flex-row items-center justify-between">
