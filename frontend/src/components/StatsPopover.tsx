@@ -42,7 +42,7 @@ export function StatsContent() {
           (acc, lstData) => [
             ...acc,
             {
-              startDecorator: (
+              startDecorator: lstDatas.length > 1 && (
                 <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
               ),
               value: `${formatToken(lstData.totalSuiSupply)} ${appData.suiToken.symbol}`,

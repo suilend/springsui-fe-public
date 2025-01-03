@@ -535,7 +535,7 @@ export default function Home() {
           (acc, lstData) => [
             ...acc,
             {
-              startDecorator: lstIds.length > 1 && (
+              startDecorator: lstDatas.length > 1 && (
                 <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
               ),
               value:
@@ -553,7 +553,7 @@ export default function Home() {
           (acc, lstData) => [
             ...acc,
             {
-              startDecorator: lstIds.length > 1 && (
+              startDecorator: lstDatas.length > 1 && (
                 <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
               ),
               value: formatPercent(lstData.mintFeePercent),
@@ -568,7 +568,7 @@ export default function Home() {
           (acc, lstData) => [
             ...acc,
             {
-              startDecorator: lstIds.length > 1 && (
+              startDecorator: lstDatas.length > 1 && (
                 <p className="text-p2 text-navy-600">{lstData.token.symbol}</p>
               ),
               value: formatPercent(lstData.redeemFeePercent),
@@ -600,7 +600,7 @@ export default function Home() {
             {
               startDecorator: (
                 <>
-                  {lstIds.length > 1 && (
+                  {lstDatas.length > 1 && (
                     <p className="text-p2 text-navy-600">
                       {sSuiLstData.token.symbol}
                     </p>
