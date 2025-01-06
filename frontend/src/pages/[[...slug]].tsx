@@ -23,6 +23,10 @@ import {
   initializeSuilendSdk,
   sendObligationToUser,
 } from "@suilend/frontend-sui";
+import {
+  convertLsts,
+  convertLstsAndSendToUser,
+} from "@suilend/frontend-sui/lib/springsui";
 import track from "@suilend/frontend-sui/lib/track";
 import {
   showErrorToast,
@@ -60,7 +64,6 @@ import {
   formatToken,
 } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
-import { convertLsts, convertLstsAndSendToUser } from "@/lib/transactions";
 import { cn } from "@/lib/utils";
 
 const getUrl = (tokenInSymbol: string, tokenOutSymbol: string) =>
