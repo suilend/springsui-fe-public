@@ -1,5 +1,9 @@
 import { SuiClient } from "@mysten/sui/client";
-import { Transaction, TransactionObjectInput } from "@mysten/sui/transactions";
+import {
+  Transaction,
+  TransactionObjectInput,
+  coinWithBalance,
+} from "@mysten/sui/transactions";
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
@@ -176,35 +180,20 @@ export class LstClient {
 
     return sui;
   }
-  async redeemAmount(tx: Transaction, address: string, amount: string) {
-    const coins = (
-      await this.client.getCoins({
-        owner: address,
-        coinType: this.liquidStakingObject.type,
-      })
-    ).data;
+  redeemAmount(tx: Transaction, address: string, amount: string) {
+    const lstCoin = coinWithBalance({
+      balance: BigInt(amount),
+      type: this.liquidStakingObject.type,
+      useGasCoin: false,
+    })(tx);
 
-    if (coins.length > 1) {
-      tx.mergeCoins(
-        tx.object(coins[0].coinObjectId),
-        coins.map((c) => tx.object(c.coinObjectId)).slice(1),
-      );
-    }
-
-    const [lst] = tx.splitCoins(tx.object(coins[0].coinObjectId), [
-      BigInt(amount),
-    ]);
-    const sui = this.redeem(tx, lst);
+    const sui = this.redeem(tx, lstCoin);
 
     return sui;
   }
-  async redeemAmountAndSendToUser(
-    tx: Transaction,
-    address: string,
-    amount: string,
-  ) {
-    const sui = await this.redeemAmount(tx, address, amount);
-    tx.transferObjects([sui], address);
+  redeemAmountAndSendToUser(tx: Transaction, address: string, amount: string) {
+    const suiCoin = this.redeemAmount(tx, address, amount);
+    tx.transferObjects([suiCoin], address);
   }
 
   // admin functions

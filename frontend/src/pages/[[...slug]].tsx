@@ -29,7 +29,12 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import { LENDING_MARKET_ID, LENDING_MARKET_TYPE } from "@suilend/sdk";
+import {
+  LENDING_MARKET_ID,
+  LENDING_MARKET_TYPE,
+  ParsedObligation,
+} from "@suilend/sdk";
+import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
@@ -288,6 +293,28 @@ export default function Home() {
   const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
 
   // Submit
+  // Submit - obligations
+  const [obligationOwnerCaps, setObligationOwnerCaps] = useState<
+    ObligationOwnerCap<string>[] | undefined
+  >(undefined);
+  const [obligations, setObligations] = useState<
+    ParsedObligation[] | undefined
+  >(undefined);
+
+  useEffect(() => {
+    (async () => {
+      const result = await initializeSuilendSdk(
+        LENDING_MARKET_ID,
+        LENDING_MARKET_TYPE,
+        suiClient,
+        address!,
+      );
+
+      setObligationOwnerCaps(result.obligationOwnerCaps);
+      setObligations(result.obligations);
+    })();
+  }, [suiClient, address]);
+
   // Submit - transaction confirmation dialog
   const [
     isTransactionConfirmationDialogOpen,
@@ -395,13 +422,6 @@ export default function Home() {
       if (isDepositing) {
         if (!(isStaking || isConverting)) throw new Error("Unsupported mode");
 
-        const { obligationOwnerCaps, obligations } = await initializeSuilendSdk(
-          LENDING_MARKET_ID,
-          LENDING_MARKET_TYPE,
-          suiClient,
-          address!,
-        );
-
         const obligation = obligations?.[0]; // Obligation with the highest TVL
         const obligationOwnerCap = obligationOwnerCaps?.find(
           (o) => o.obligationId === obligation?.id,
@@ -420,7 +440,7 @@ export default function Home() {
               address!,
               submitAmount,
             )
-          : await convertLsts(
+          : convertLsts(
               inLstClient!,
               outLstClient!,
               transaction,
@@ -444,13 +464,13 @@ export default function Home() {
             submitAmount,
           );
         } else if (isUnstaking) {
-          await inLstClient!.redeemAmountAndSendToUser(
+          inLstClient!.redeemAmountAndSendToUser(
             transaction,
             address!,
             submitAmount,
           );
         } else if (isConverting) {
-          await convertLstsAndSendToUser(
+          convertLstsAndSendToUser(
             inLstClient!,
             outLstClient!,
             transaction,

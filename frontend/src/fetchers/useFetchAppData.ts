@@ -32,6 +32,9 @@ export default function useFetchAppData() {
       reserveMap,
       rewardCoinTypes,
       rewardCoinMetadataMap,
+
+      obligationOwnerCaps,
+      obligations,
     } = await initializeSuilendSdk(
       LENDING_MARKET_ID,
       LENDING_MARKET_TYPE,
@@ -195,6 +198,8 @@ export default function useFetchAppData() {
 
     return {
       suilendClient,
+      obligationOwnerCaps,
+      obligations,
 
       sendPointsToken,
       suiToken,

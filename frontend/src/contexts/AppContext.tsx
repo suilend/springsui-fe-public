@@ -18,7 +18,8 @@ import {
 import useFetchBalances from "@suilend/frontend-sui-next/fetchers/useFetchBalances";
 import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
-import { SuilendClient } from "@suilend/sdk";
+import { ParsedObligation, SuilendClient } from "@suilend/sdk";
+import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 import { LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
@@ -51,6 +52,8 @@ export interface LstData {
 
 export interface AppData {
   suilendClient: SuilendClient;
+  obligationOwnerCaps: ObligationOwnerCap<string>[] | undefined;
+  obligations: ParsedObligation[] | undefined;
 
   sendPointsToken: Token;
   suiToken: Token;
