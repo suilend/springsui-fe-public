@@ -41,9 +41,11 @@ export interface LstContext {
 
   admin: {
     weightHook: WeightHook<string> | undefined;
+    weightHookAdminCapIdMap: Record<LstId, string | undefined> | undefined;
     weightHookAdminCapId: string | undefined;
 
     lstId: LstId;
+    setLstId: (lstId: LstId) => void;
     lstClient: LstClient | undefined;
     lstData: LstData | undefined;
   };
@@ -66,9 +68,13 @@ const LstContext = createContext<LstContext>({
 
   admin: {
     weightHook: undefined,
+    weightHookAdminCapIdMap: undefined,
     weightHookAdminCapId: undefined,
 
     lstId: LstId.sSUI,
+    setLstId: () => {
+      throw Error("LstContextProvider not initialized");
+    },
     lstClient: undefined,
     lstData: undefined,
   },
@@ -219,9 +225,11 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
       admin: {
         weightHook,
+        weightHookAdminCapIdMap,
         weightHookAdminCapId,
 
         lstId: adminLstId,
+        setLstId: setAdminLstId,
         lstClient: adminLstClient,
         lstData: adminLstData,
       },
@@ -233,8 +241,10 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       mode,
       lstIds,
       weightHook,
+      weightHookAdminCapIdMap,
       weightHookAdminCapId,
       adminLstId,
+      setAdminLstId,
       adminLstClient,
       adminLstData,
     ],

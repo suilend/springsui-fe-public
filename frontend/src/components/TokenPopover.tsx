@@ -63,10 +63,10 @@ export default function TokenPopover({ token, onChange }: TokenPopoverProps) {
             <button
               key={symbol}
               className={cn(
-                "group h-10 rounded-[20px] bg-navy-100/50 px-2 pr-3",
+                "group h-10 rounded-[20px] px-2 pr-3",
                 _token.symbol === token.symbol
                   ? "cursor-default bg-light-blue"
-                  : "transition-colors",
+                  : "bg-navy-100/50 transition-colors",
               )}
               onClick={() => onChangeWrapper(_token)}
             >

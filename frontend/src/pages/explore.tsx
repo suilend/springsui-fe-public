@@ -302,8 +302,9 @@ export default function Explore() {
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-4 md:px-10 md:py-20">
         <div className="flex w-full max-w-4xl flex-col items-center gap-8">
           {/* Title */}
-          <div className="flex w-full flex-col items-center gap-2">
+          <div className="flex w-full flex-col items-center gap-3">
             <p className="text-center text-h1">Explore DeFi</p>
+
             <p className="text-center text-navy-600">
               <span className="whitespace-nowrap">
                 Discover rewards and DeFi
@@ -329,10 +330,10 @@ export default function Explore() {
                   <button
                     key={categoryId}
                     className={cn(
-                      "group flex h-10 flex-row items-center gap-2 rounded-[20px] px-4 transition-colors",
-                      selectedCategoryId === categoryId
-                        ? "bg-white"
-                        : "bg-white/25",
+                      "group flex h-10 flex-row items-center gap-2 rounded-[20px] px-4",
+                      categoryId === selectedCategoryId
+                        ? "cursor-default bg-white"
+                        : "bg-white/25 transition-colors",
                     )}
                     onClick={() =>
                       onSelectedCategoryIdChange(categoryId as CategoryId)
@@ -341,7 +342,7 @@ export default function Explore() {
                     <p
                       className={cn(
                         "!text-p2",
-                        selectedCategoryId === categoryId
+                        categoryId === selectedCategoryId
                           ? "text-foreground"
                           : "text-navy-600 transition-colors group-hover:text-foreground",
                       )}
@@ -351,7 +352,7 @@ export default function Explore() {
                     <p
                       className={cn(
                         "!text-p3",
-                        selectedCategoryId === categoryId
+                        categoryId === selectedCategoryId
                           ? "text-foreground"
                           : "text-navy-600 transition-colors group-hover:text-foreground",
                       )}
