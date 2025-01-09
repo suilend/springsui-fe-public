@@ -27,7 +27,8 @@
   "dependencies": {
     "@mysten/bcs": "1.2.0",
     "@mysten/sui": "1.17.0",
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "@mysten/move-bytecode-template": "0.1.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"
