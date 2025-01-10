@@ -421,6 +421,7 @@ export default function Home() {
       .toString();
 
     const transaction = new Transaction();
+
     try {
       if (isDepositing) {
         if (!(isStaking || isConverting)) throw new Error("Unsupported mode");

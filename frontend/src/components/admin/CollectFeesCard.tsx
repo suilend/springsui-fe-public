@@ -24,10 +24,9 @@ export default function CollectFeesCard() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const submit = async () => {
+    if (!address) throw new Error("Wallet not connected");
     if (!admin.weightHookAdminCapId)
       throw new Error("Error: No weight hook admin cap");
-
-    if (!address) throw new Error("Error: No address");
 
     if (isSubmitting) return;
     setIsSubmitting(true);

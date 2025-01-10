@@ -47,7 +47,9 @@ export default function TokenPopover({ token, onChange }: TokenPopoverProps) {
         {[
           "SUI",
           ...Object.values(LstId)
-            .filter((lstId) => lstId !== LstId.ripleysSUI)
+            .filter(
+              (lstId) => ![LstId.test1SUI, LstId.ripleysSUI].includes(lstId),
+            )
             .filter(
               (lstId) =>
                 lstId !== LstId.upSUI ||

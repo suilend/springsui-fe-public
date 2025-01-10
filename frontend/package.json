@@ -14,14 +14,15 @@
     "lint": "bun eslint && bun prettier && bun tsc --noEmit"
   },
   "dependencies": {
+    "@mysten/move-bytecode-template": "^0.1.0",
     "@mysten/sui": "1.17.0",
     "@pythnetwork/pyth-sui-js": "^2.1.0",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@sentry/nextjs": "^8.38.0",
-    "@suilend/frontend-sui": "^0.2.21",
-    "@suilend/frontend-sui-next": "^0.1.12",
+    "@suilend/frontend-sui": "^0.2.26",
+    "@suilend/frontend-sui-next": "^0.1.13",
     "@suilend/sdk": "^1.1.29",
     "@tanstack/react-table": "^8.20.5",
     "@vercel/analytics": "^1.4.0",
