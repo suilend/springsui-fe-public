@@ -273,11 +273,7 @@ export default function CreateCard() {
         <div className="flex w-full flex-row gap-4">
           <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
             <p className="text-p2 text-navy-600">image (url or base64)</p>
-            <Input
-              placeholder="https://suilend-assets.s3.us-east-2.amazonaws.com/lst.png"
-              value={imageUrl}
-              onChange={setImageUrl}
-            />
+            <Input value={imageUrl} onChange={setImageUrl} />
           </div>
         </div>
 
