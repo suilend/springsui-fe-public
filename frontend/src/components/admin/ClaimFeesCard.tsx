@@ -12,9 +12,10 @@ import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
+import { formatToken } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
-export default function CollectFeesCard() {
+export default function ClaimFeesCard() {
   const { explorer } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
   const { refresh } = useLoadedAppContext();
@@ -43,9 +44,9 @@ export default function CollectFeesCard() {
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
 
-      showSuccessTxnToast("Collected fees", txUrl);
+      showSuccessTxnToast("Claimed fees", txUrl);
     } catch (err) {
-      showErrorToast("Failed to collect fees", err as Error);
+      showErrorToast("Failed to claim fees", err as Error);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -56,7 +57,16 @@ export default function CollectFeesCard() {
   return (
     <Card>
       <div className="flex w-full flex-col gap-4 p-4">
-        <p className="text-navy-600">Collect fees</p>
+        <div className="flex w-full flex-row items-center gap-2">
+          <p className="text-navy-600">Claim fees</p>
+          <p className="text-p2 text-navy-500">
+            {formatToken(
+              admin.lstData.fees.plus(admin.lstData.accruedSpreadFees),
+              { dp: admin.lstData.token.decimals },
+            )}{" "}
+            {admin.lstData.token.symbol}
+          </p>
+        </div>
 
         <Button
           onClick={submit}

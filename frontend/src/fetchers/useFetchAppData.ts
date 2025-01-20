@@ -13,12 +13,17 @@ import {
   getFilteredRewards,
   getToken,
   getTotalAprPercent,
+  initializeSuilend,
   initializeSuilendRewards,
-  initializeSuilendSdk,
   isSendPointsS2,
 } from "@suilend/frontend-sui";
 import { showErrorToast, useSettingsContext } from "@suilend/frontend-sui-next";
-import { LENDING_MARKET_ID, LENDING_MARKET_TYPE, Side } from "@suilend/sdk";
+import {
+  LENDING_MARKET_ID,
+  LENDING_MARKET_TYPE,
+  Side,
+  SuilendClient,
+} from "@suilend/sdk";
 import { LstClient, fetchLiquidStakingInfo } from "@suilend/springsui-sdk";
 
 import { AppData, LstData } from "@/contexts/AppContext";
@@ -27,19 +32,21 @@ export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
 
   const dataFetcher = async () => {
+    const suilendClient = await SuilendClient.initialize(
+      LENDING_MARKET_ID,
+      LENDING_MARKET_TYPE,
+      suiClient,
+    );
+
     const {
-      suilendClient,
       reserveMap,
       rewardCoinTypes,
       rewardCoinMetadataMap,
 
       obligationOwnerCaps,
       obligations,
-    } = await initializeSuilendSdk(
-      LENDING_MARKET_ID,
-      LENDING_MARKET_TYPE,
-      suiClient,
-    );
+    } = await initializeSuilend(suiClient, suilendClient);
+
     const { rewardMap } = await initializeSuilendRewards(
       reserveMap,
       rewardCoinTypes,

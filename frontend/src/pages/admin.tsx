@@ -1,6 +1,6 @@
 import { LstId } from "@suilend/frontend-sui";
 
-import CollectFeesCard from "@/components/admin/CollectFeesCard";
+import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
 import ValidatorAddressesAndWeightsCard from "@/components/admin/ValidatorAddressesAndWeightsCard";
@@ -66,7 +66,7 @@ export default function Admin() {
           <div className="flex w-full flex-col gap-4">
             <RebalanceCard />
             <UpdateFeesCard />
-            <CollectFeesCard />
+            <ClaimFeesCard />
             <ValidatorAddressesAndWeightsCard />
           </div>
 

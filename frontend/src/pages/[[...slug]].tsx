@@ -20,7 +20,7 @@ import {
   Token,
   createObligationIfNoneExists,
   getBalanceChange,
-  initializeSuilendSdk,
+  initializeSuilend,
   sendObligationToUser,
 } from "@suilend/frontend-sui";
 import {
@@ -37,6 +37,7 @@ import {
   LENDING_MARKET_ID,
   LENDING_MARKET_TYPE,
   ParsedObligation,
+  SuilendClient,
 } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 
@@ -306,17 +307,16 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      const result = await initializeSuilendSdk(
-        LENDING_MARKET_ID,
-        LENDING_MARKET_TYPE,
+      const result = await initializeSuilend(
         suiClient,
+        appData.suilendClient,
         address!,
       );
 
       setObligationOwnerCaps(result.obligationOwnerCaps);
       setObligations(result.obligations);
     })();
-  }, [suiClient, address]);
+  }, [suiClient, appData.suilendClient, address]);
 
   // Submit - transaction confirmation dialog
   const [
