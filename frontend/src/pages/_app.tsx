@@ -1,9 +1,9 @@
 import "@/lib/abortSignalPolyfill";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useEffect, useRef } from "react";
+import { PropsWithChildren, useEffect, useRef } from "react";
 
-import { registerWallet } from "@mysten/wallet-standard";
+// import { registerWallet } from "@mysten/wallet-standard";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import mixpanel from "mixpanel-browser";
@@ -11,6 +11,7 @@ import mixpanel from "mixpanel-browser";
 import {
   SettingsContextProvider,
   WalletContextProvider,
+  useSettingsContext,
 } from "@suilend/frontend-sui-next";
 
 import Layout from "@/components/Layout";
@@ -21,8 +22,26 @@ import { LstContextProvider } from "@/contexts/LstContext";
 import { TITLE } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
-
 import "@/styles/globals.scss";
+
+function WalletContextProviderWrapper({ children }: PropsWithChildren) {
+  const { rpc } = useSettingsContext();
+
+  // MSafe Wallet
+  const didRegisterMsafeWalletRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (didRegisterMsafeWalletRef.current) return;
+
+    // registerWallet(new MSafeWallet("SpringSui", rpc.url, "sui:mainnet"));
+    didRegisterMsafeWalletRef.current = true;
+  }, [rpc.url]);
+
+  return (
+    <WalletContextProvider appName="SpringSui">
+      {children}
+    </WalletContextProvider>
+  );
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   // Mixpanel
@@ -50,7 +69,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <main id="__app_main" className={cn(fontClassNames)}>
         <SettingsContextProvider>
-          <WalletContextProvider appName="SpringSui">
+          <WalletContextProviderWrapper>
             <AppContextProvider>
               <LstContextProvider>
                 <TooltipProvider>
@@ -61,7 +80,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 </TooltipProvider>
               </LstContextProvider>
             </AppContextProvider>
-          </WalletContextProvider>
+          </WalletContextProviderWrapper>
         </SettingsContextProvider>
       </main>
     </>
