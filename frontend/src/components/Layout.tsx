@@ -1,6 +1,9 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect, useRef } from "react";
 
+// import { registerWallet } from "@mysten/wallet-standard";
 import { Loader2 } from "lucide-react";
+
+import { useSettingsContext } from "@suilend/frontend-sui-next";
 
 import BottomNav from "@/components/BottomNav";
 import { FooterMd } from "@/components/Footer";
@@ -11,7 +14,17 @@ import { useAppContext } from "@/contexts/AppContext";
 import { ASSETS_URL } from "@/lib/constants";
 
 export default function Layout({ children }: PropsWithChildren) {
+  const { rpc } = useSettingsContext();
   const { appData } = useAppContext();
+
+  // MSafe Wallet
+  const didRegisterMsafeWalletRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (didRegisterMsafeWalletRef.current) return;
+
+    // registerWallet(new MSafeWallet("SpringSui", rpc.url, "sui:mainnet"));
+    didRegisterMsafeWalletRef.current = true;
+  }, [rpc.url]);
 
   return (
     <>

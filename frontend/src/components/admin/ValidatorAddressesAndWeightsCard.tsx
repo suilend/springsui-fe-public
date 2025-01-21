@@ -5,12 +5,12 @@ import { Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
-import { LstId } from "@suilend/frontend-sui";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
+import { LstId } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import Button from "@/components/admin/Button";

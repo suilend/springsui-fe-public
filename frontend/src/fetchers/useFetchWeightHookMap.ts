@@ -1,7 +1,7 @@
 import useSWR from "swr";
 
-import { LIQUID_STAKING_INFO_MAP, LstId } from "@suilend/frontend-sui";
 import { useSettingsContext } from "@suilend/frontend-sui-next";
+import { LIQUID_STAKING_INFO_MAP, LstId } from "@suilend/springsui-sdk";
 import { phantom } from "@suilend/springsui-sdk/_generated/_framework/reified";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 

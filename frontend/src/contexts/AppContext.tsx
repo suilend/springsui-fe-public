@@ -9,18 +9,17 @@ import {
 import { CoinMetadata } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 
-import {
-  LstId,
-  NORMALIZED_LST_COINTYPES,
-  NORMALIZED_SUI_COINTYPE,
-  Token,
-} from "@suilend/frontend-sui";
+import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui-next/fetchers/useFetchBalances";
 import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
 import { ParsedObligation, SuilendClient } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
-import { LstClient } from "@suilend/springsui-sdk";
+import {
+  LstClient,
+  LstId,
+  NORMALIZED_LST_COINTYPES,
+} from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
 

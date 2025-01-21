@@ -1,5 +1,3 @@
-export const msPerYear = 31556952000; // Approx. 1000 * 60 * 60 * 24 * 365;
-
 export const TWITTER = "@springsui_";
 
 export const TITLE = "SpringSui | Infinitely liquid staking on Sui";

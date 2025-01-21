@@ -1,8 +1,9 @@
 import "@/lib/abortSignalPolyfill";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
+import { registerWallet } from "@mysten/wallet-standard";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import mixpanel from "mixpanel-browser";

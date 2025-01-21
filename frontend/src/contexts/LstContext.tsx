@@ -9,9 +9,8 @@ import {
   useState,
 } from "react";
 
-import { LstId } from "@suilend/frontend-sui";
 import { useWalletContext } from "@suilend/frontend-sui-next";
-import { LstClient } from "@suilend/springsui-sdk";
+import { LstClient, LstId } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import { LstData, useAppContext } from "@/contexts/AppContext";
@@ -24,6 +23,7 @@ export enum Mode {
   CONVERTING = "converting",
 }
 
+console.log("XXX", LstId);
 export const DEFAULT_TOKEN_IN_SYMBOL = "SUI";
 export const DEFAULT_TOKEN_OUT_SYMBOL = LstId.sSUI;
 

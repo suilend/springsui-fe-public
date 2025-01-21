@@ -1,4 +1,4 @@
-import { LstId } from "@suilend/frontend-sui";
+import { LstId } from "@suilend/springsui-sdk";
 
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";

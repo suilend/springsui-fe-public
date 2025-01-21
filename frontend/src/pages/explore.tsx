@@ -7,7 +7,6 @@ import BigNumber from "bignumber.js";
 import { BucketClient } from "bucket-protocol-sdk";
 
 import {
-  LstId,
   NORMALIZED_SUI_COINTYPE,
   Token,
   getToken,
@@ -17,6 +16,7 @@ import {
   useSettingsContext,
 } from "@suilend/frontend-sui-next";
 import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
+import { LstId } from "@suilend/springsui-sdk";
 
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
