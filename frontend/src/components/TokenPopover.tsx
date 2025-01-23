@@ -2,7 +2,8 @@ import { useState } from "react";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-import { LstId, Token } from "@suilend/frontend-sui";
+import { Token } from "@suilend/frontend-sui";
+import { LstId } from "@suilend/springsui-sdk";
 
 import Popover from "@/components/Popover";
 import TokenLogo from "@/components/TokenLogo";

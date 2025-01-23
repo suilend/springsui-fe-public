@@ -14,19 +14,7 @@ import BigNumber from "bignumber.js";
 import { cloneDeep } from "lodash";
 import { ArrowUpDown, Wallet } from "lucide-react";
 
-import {
-  LstId,
-  SUI_GAS_MIN,
-  Token,
-  createObligationIfNoneExists,
-  getBalanceChange,
-  initializeSuilend,
-  sendObligationToUser,
-} from "@suilend/frontend-sui";
-import {
-  convertLsts,
-  convertLstsAndSendToUser,
-} from "@suilend/frontend-sui/lib/springsui";
+import { SUI_GAS_MIN, Token, getBalanceChange } from "@suilend/frontend-sui";
 import track from "@suilend/frontend-sui/lib/track";
 import {
   showErrorToast,
@@ -34,12 +22,17 @@ import {
   useWalletContext,
 } from "@suilend/frontend-sui-next";
 import {
-  LENDING_MARKET_ID,
-  LENDING_MARKET_TYPE,
   ParsedObligation,
-  SuilendClient,
+  createObligationIfNoneExists,
+  initializeSuilend,
+  sendObligationToUser,
 } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
+import {
+  LstId,
+  convertLsts,
+  convertLstsAndSendToUser,
+} from "@suilend/springsui-sdk";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";

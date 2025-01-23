@@ -1,11 +1,14 @@
 import useSWR from "swr";
 
-import { LIQUID_STAKING_INFO_MAP, LstId } from "@suilend/frontend-sui";
 import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import { LstClient } from "@suilend/springsui-sdk";
+import {
+  LIQUID_STAKING_INFO_MAP,
+  LstClient,
+  LstId,
+} from "@suilend/springsui-sdk";
 
 export default function useFetchWeightHookAdminCapIdMap() {
   const { suiClient } = useSettingsContext();
