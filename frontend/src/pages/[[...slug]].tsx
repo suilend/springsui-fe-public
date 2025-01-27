@@ -558,6 +558,23 @@ export default function Home() {
 
     const result: Parameter[] = [
       {
+        label: "1 SUI ≈",
+        values: lstDatas.reduce(
+          (acc, lstData) => [
+            ...acc,
+            {
+              value: [
+                formatToken(lstData.suiToLstExchangeRate, { dp: 3 }),
+                lstDatas.length === 1 ? lstData.token.symbol : null,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            },
+          ],
+          [] as Parameter["values"],
+        ),
+      },
+      {
         label: "APR",
         values: lstDatas.reduce(
           (acc, lstData) => [
