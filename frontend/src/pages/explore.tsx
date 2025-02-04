@@ -9,6 +9,9 @@ import { BucketClient } from "bucket-protocol-sdk";
 import {
   NORMALIZED_SUI_COINTYPE,
   Token,
+  formatPercent,
+  formatPoints,
+  formatUsd,
   getToken,
 } from "@suilend/frontend-sui";
 import {
@@ -28,7 +31,6 @@ import {
   NORMALIZED_FRATT_COINTYPE,
 } from "@/lib/coinType";
 import { SUILEND_ASSETS_URL } from "@/lib/constants";
-import { formatPercent, formatPoints, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 enum QueryParams {

@@ -2,11 +2,10 @@ import { forwardRef } from "react";
 
 import BigNumber from "bignumber.js";
 
-import { Token } from "@suilend/frontend-sui";
+import { Token, formatUsd } from "@suilend/frontend-sui";
 
 import BalanceLabel from "@/components/BalanceLabel";
 import TokenPopover from "@/components/TokenPopover";
-import { formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface StakeInputProps {

@@ -3,13 +3,12 @@ import { useRouter } from "next/router";
 import { cloneDeep } from "lodash";
 import { VenetianMask } from "lucide-react";
 
+import { formatAddress } from "@suilend/frontend-sui";
 import {
   WalletContextQueryParams,
   shallowPushQuery,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-
-import { formatAddress } from "@/lib/format";
 
 export default function ImpersonationModeBanner() {
   const router = useRouter();

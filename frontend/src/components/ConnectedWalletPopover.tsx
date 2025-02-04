@@ -9,6 +9,7 @@ import {
   VenetianMask,
 } from "lucide-react";
 
+import { formatAddress } from "@suilend/frontend-sui";
 import {
   useSettingsContext,
   useWalletContext,
@@ -17,7 +18,6 @@ import {
 import CopyToClipboardButton from "@/components/CopyToClipboardButton";
 import Popover from "@/components/Popover";
 import Tooltip from "@/components/Tooltip";
-import { formatAddress } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export default function ConnectedWalletPopover() {
