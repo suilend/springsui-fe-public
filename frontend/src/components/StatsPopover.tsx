@@ -3,11 +3,12 @@ import { ReactNode, useMemo, useState } from "react";
 import { intervalToDuration } from "date-fns";
 import { ChartBar } from "lucide-react";
 
+import { formatToken, formatUsd } from "@suilend/frontend-sui";
+
 import Popover from "@/components/Popover";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import { formatToken, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function StatsContent() {

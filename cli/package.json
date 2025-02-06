@@ -1,6 +1,6 @@
 {
   "name": "@suilend/springsui-cli-local",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "private": true,
   "description": "A CLI for interacting with the SpringSui program",
   "author": "Suilend",
@@ -25,12 +25,14 @@
     "url": "https://github.com/solendprotocol/liquid-staking/issues"
   },
   "dependencies": {
-    "@mysten/bcs": "1.2.1",
-    "@mysten/sui": "1.20.0",
     "commander": "^12.1.0",
     "@mysten/move-bytecode-template": "0.1.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"
+  },
+  "peerDependencies": {
+    "@mysten/bcs": "1.2.1",
+    "@mysten/sui": "1.20.0"
   }
 }

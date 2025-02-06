@@ -14,7 +14,15 @@ import BigNumber from "bignumber.js";
 import { cloneDeep } from "lodash";
 import { ArrowUpDown, Wallet } from "lucide-react";
 
-import { SUI_GAS_MIN, Token, getBalanceChange } from "@suilend/frontend-sui";
+import {
+  SUI_GAS_MIN,
+  Token,
+  formatInteger,
+  formatPercent,
+  formatPoints,
+  formatToken,
+  getBalanceChange,
+} from "@suilend/frontend-sui";
 import track from "@suilend/frontend-sui/lib/track";
 import {
   showErrorToast,
@@ -51,12 +59,6 @@ import {
   QueryParams,
   useLoadedLstContext,
 } from "@/contexts/LstContext";
-import {
-  formatInteger,
-  formatPercent,
-  formatPoints,
-  formatToken,
-} from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 

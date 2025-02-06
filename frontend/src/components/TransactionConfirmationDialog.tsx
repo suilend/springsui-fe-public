@@ -7,6 +7,7 @@ import {
   NORMALIZED_trevinSUI_COINTYPE,
   NORMALIZED_upSUI_COINTYPE,
   Token,
+  formatToken,
   issSui,
 } from "@suilend/frontend-sui";
 
@@ -16,7 +17,6 @@ import TokenLogo from "@/components/TokenLogo";
 import { Mode, useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { ASSETS_URL } from "@/lib/constants";
-import { formatToken } from "@/lib/format";
 
 export type TransactionConfirmationDialogConfig = {
   isDepositing: boolean;
@@ -77,6 +77,7 @@ export default function TransactionConfirmationDialog({
                   [NORMALIZED_kSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/kSUI.png`,
                   [NORMALIZED_trevinSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/trevinSUI.png`,
                   [NORMALIZED_upSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/upSUI.png`,
+                  // [NORMALIZED_mikeSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/upSUI.png`,
                 }[token.coinType],
               }}
               size={160}

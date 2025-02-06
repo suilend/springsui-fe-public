@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 
+import { formatToken } from "@suilend/frontend-sui";
 import {
   showErrorToast,
   useSettingsContext,
@@ -12,7 +13,6 @@ import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
-import { formatToken } from "@/lib/format";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 export default function ClaimFeesCard() {
