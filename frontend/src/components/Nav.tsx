@@ -5,8 +5,8 @@ import { ReactElement, cloneElement } from "react";
 import { Bolt, Compass } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
-import SpringSuiIcon from "@/components/icons/SpringSuiIcon";
 import StakeIcon from "@/components/icons/StakeIcon";
+import Logo from "@/components/Logo";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { ADMIN_URL, EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
@@ -49,9 +49,8 @@ export default function Nav() {
         style={{ height: md ? MD_NAV_HEIGHT : SM_NAV_HEIGHT }}
       >
         {/* Logo */}
-        <div className="flex flex-row items-center gap-1.5 md:w-40">
-          <SpringSuiIcon />
-          <p className="text-h3">SpringSui</p>
+        <div className="w-max md:w-40">
+          <Logo />
         </div>
 
         {/* Items, WIDTH >= md */}
