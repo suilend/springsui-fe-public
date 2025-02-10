@@ -68,8 +68,11 @@ export interface AppData {
 
 interface AppContext {
   appData: AppData | undefined;
+
+  rawBalancesMap: Record<string, BigNumber> | undefined;
   balancesCoinMetadataMap: Record<string, CoinMetadata> | undefined;
   getBalance: (coinType: string) => BigNumber;
+
   refresh: () => Promise<void>;
 }
 type LoadedAppContext = AppContext & {
@@ -78,10 +81,13 @@ type LoadedAppContext = AppContext & {
 
 const AppContext = createContext<AppContext>({
   appData: undefined,
+
+  rawBalancesMap: undefined,
   balancesCoinMetadataMap: undefined,
   getBalance: () => {
     throw Error("AppContextProvider not initialized");
   },
+
   refresh: async () => {
     throw Error("AppContextProvider not initialized");
   },
@@ -97,6 +103,10 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   // Balances
   const { data: rawBalancesMap, mutateData: mutateRawBalancesMap } =
     useFetchBalances();
+
+  const refreshRawBalancesMap = useCallback(async () => {
+    await mutateRawBalancesMap();
+  }, [mutateRawBalancesMap]);
 
   const balancesCoinTypes = useMemo(
     () => [NORMALIZED_SUI_COINTYPE, ...NORMALIZED_LST_COINTYPES],
@@ -121,8 +131,8 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   // Refresh
   const refresh = useCallback(async () => {
     await mutateAppData();
-    await mutateRawBalancesMap();
-  }, [mutateAppData, mutateRawBalancesMap]);
+    await refreshRawBalancesMap();
+  }, [mutateAppData, refreshRawBalancesMap]);
 
   useRefreshOnBalancesChange(refresh);
 
@@ -130,11 +140,14 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   const contextValue: AppContext = useMemo(
     () => ({
       appData,
+
+      rawBalancesMap,
       balancesCoinMetadataMap,
       getBalance,
+
       refresh,
     }),
-    [appData, balancesCoinMetadataMap, getBalance, refresh],
+    [appData, rawBalancesMap, balancesCoinMetadataMap, getBalance, refresh],
   );
 
   return (
