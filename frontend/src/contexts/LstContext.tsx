@@ -23,7 +23,6 @@ export enum Mode {
   CONVERTING = "converting",
 }
 
-console.log("XXX", LstId);
 export const DEFAULT_TOKEN_IN_SYMBOL = "SUI";
 export const DEFAULT_TOKEN_OUT_SYMBOL = LstId.sSUI;
 

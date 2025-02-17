@@ -9,15 +9,21 @@ import {
   getToken,
   isSendPointsS2,
 } from "@suilend/frontend-sui";
-import { showErrorToast, useSettingsContext } from "@suilend/frontend-sui-next";
+import {
+  showErrorToast,
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/frontend-sui-next";
 import {
   LENDING_MARKET_ID,
   LENDING_MARKET_TYPE,
   Side,
   SuilendClient,
+  formatRewards,
   getDedupedPerDayRewards,
   getFilteredRewards,
   getTotalAprPercent,
+  initializeObligations,
   initializeSuilend,
   initializeSuilendRewards,
 } from "@suilend/sdk";
@@ -33,6 +39,7 @@ import { AppData, LstData } from "@/contexts/AppContext";
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
+  const { address } = useWalletContext();
 
   const dataFetcher = async () => {
     const suilendClient = await SuilendClient.initialize(
@@ -42,18 +49,31 @@ export default function useFetchAppData() {
     );
 
     const {
+      refreshedRawReserves,
       reserveMap,
-      rewardCoinTypes,
-      rewardCoinMetadataMap,
 
-      obligationOwnerCaps,
-      obligations,
+      activeRewardCoinTypes,
+      rewardCoinMetadataMap,
     } = await initializeSuilend(suiClient, suilendClient);
 
-    const { rewardMap } = await initializeSuilendRewards(
+    const { rewardPriceMap } = await initializeSuilendRewards(
       reserveMap,
-      rewardCoinTypes,
+      activeRewardCoinTypes,
+    );
+
+    const { obligationOwnerCaps, obligations } = await initializeObligations(
+      suiClient,
+      suilendClient,
+      refreshedRawReserves,
+      reserveMap,
+      address,
+    );
+
+    const rewardMap = formatRewards(
+      reserveMap,
       rewardCoinMetadataMap,
+      rewardPriceMap,
+      obligations,
     );
 
     // CoinMetadata
@@ -238,7 +258,7 @@ export default function useFetchAppData() {
     };
   };
 
-  const { data, mutate } = useSWR<AppData>("appData", dataFetcher, {
+  const { data, mutate } = useSWR<AppData>(`appData-${address}`, dataFetcher, {
     refreshInterval: 30 * 1000,
     onSuccess: (data) => {
       console.log("Refreshed app data", data);

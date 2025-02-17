@@ -30,12 +30,9 @@ import {
   useWalletContext,
 } from "@suilend/frontend-sui-next";
 import {
-  ParsedObligation,
   createObligationIfNoneExists,
-  initializeSuilend,
   sendObligationToUser,
 } from "@suilend/sdk";
-import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 import {
   LstId,
   convertLsts,
@@ -82,7 +79,7 @@ export default function Home() {
     [router.query],
   );
 
-  const { explorer, suiClient } = useSettingsContext();
+  const { explorer } = useSettingsContext();
   const {
     setIsConnectWalletDropdownOpen,
     address,
@@ -291,28 +288,6 @@ export default function Home() {
   ]);
   const outValueUsd = new BigNumber(outValue || 0).times(outPrice);
 
-  // Submit
-  // Submit - obligations
-  const [obligationOwnerCaps, setObligationOwnerCaps] = useState<
-    ObligationOwnerCap<string>[] | undefined
-  >(undefined);
-  const [obligations, setObligations] = useState<
-    ParsedObligation[] | undefined
-  >(undefined);
-
-  useEffect(() => {
-    (async () => {
-      const result = await initializeSuilend(
-        suiClient,
-        appData.suilendClient,
-        address!,
-      );
-
-      setObligationOwnerCaps(result.obligationOwnerCaps);
-      setObligations(result.obligations);
-    })();
-  }, [suiClient, appData.suilendClient, address]);
-
   // Submit - transaction confirmation dialog
   const [
     isTransactionConfirmationDialogOpen,
@@ -421,8 +396,8 @@ export default function Home() {
       if (isDepositing) {
         if (!(isStaking || isConverting)) throw new Error("Unsupported mode");
 
-        const obligation = obligations?.[0]; // Obligation with the highest TVL
-        const obligationOwnerCap = obligationOwnerCaps?.find(
+        const obligation = appData.obligations?.[0]; // Obligation with the highest TVL
+        const obligationOwnerCap = appData.obligationOwnerCaps?.find(
           (o) => o.obligationId === obligation?.id,
         );
 
