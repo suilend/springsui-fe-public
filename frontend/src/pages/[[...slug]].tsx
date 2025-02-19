@@ -33,11 +33,7 @@ import {
   createObligationIfNoneExists,
   sendObligationToUser,
 } from "@suilend/sdk";
-import {
-  LstId,
-  convertLsts,
-  convertLstsAndSendToUser,
-} from "@suilend/springsui-sdk";
+import { convertLsts, convertLstsAndSendToUser } from "@suilend/springsui-sdk";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
@@ -71,7 +67,7 @@ export default function Home() {
   const router = useRouter();
   const queryParams = useMemo(
     () => ({
-      [QueryParams.LST]: router.query[QueryParams.LST] as LstId | undefined,
+      [QueryParams.LST]: router.query[QueryParams.LST] as string | undefined,
       [QueryParams.AMOUNT]: router.query[QueryParams.AMOUNT] as
         | string
         | undefined,
@@ -157,13 +153,8 @@ export default function Home() {
 
   // In
   const inLstData = useMemo(
-    () => (isStaking ? undefined : appData.lstDataMap[tokenInSymbol as LstId]),
+    () => (isStaking ? undefined : appData.lstDataMap[tokenInSymbol]),
     [isStaking, appData.lstDataMap, tokenInSymbol],
-  );
-  const inLstClient = useMemo(
-    () =>
-      isStaking ? undefined : appData.lstClientMap[tokenInSymbol as LstId],
-    [isStaking, appData.lstClientMap, tokenInSymbol],
   );
 
   const inToken = isStaking ? appData.suiToken : inLstData!.token;
@@ -212,14 +203,8 @@ export default function Home() {
 
   // Out
   const outLstData = useMemo(
-    () =>
-      isUnstaking ? undefined : appData.lstDataMap[tokenOutSymbol as LstId],
+    () => (isUnstaking ? undefined : appData.lstDataMap[tokenOutSymbol]),
     [isUnstaking, appData.lstDataMap, tokenOutSymbol],
-  );
-  const outLstClient = useMemo(
-    () =>
-      isUnstaking ? undefined : appData.lstClientMap[tokenOutSymbol as LstId],
-    [isUnstaking, appData.lstClientMap, tokenOutSymbol],
   );
 
   const outToken = isUnstaking ? appData.suiToken : outLstData!.token;
@@ -409,14 +394,14 @@ export default function Home() {
           );
 
         const lstCoin = isStaking
-          ? outLstClient!.mintAmountAndRebalance(
+          ? outLstData!.lstClient.mintAmountAndRebalance(
               transaction,
               address!,
               submitAmount,
             )
           : convertLsts(
-              inLstClient!,
-              outLstClient!,
+              inLstData!.lstClient,
+              outLstData!.lstClient,
               transaction,
               address!,
               submitAmount,
@@ -432,21 +417,21 @@ export default function Home() {
           sendObligationToUser(obligationOwnerCapId, address!, transaction);
       } else {
         if (isStaking) {
-          outLstClient!.mintAmountAndRebalanceAndSendToUser(
+          outLstData!.lstClient.mintAmountAndRebalanceAndSendToUser(
             transaction,
             address!,
             submitAmount,
           );
         } else if (isUnstaking) {
-          inLstClient!.redeemAmountAndSendToUser(
+          inLstData!.lstClient.redeemAmountAndSendToUser(
             transaction,
             address!,
             submitAmount,
           );
         } else if (isConverting) {
           convertLstsAndSendToUser(
-            inLstClient!,
-            outLstClient!,
+            inLstData!.lstClient,
+            outLstData!.lstClient,
             transaction,
             address!,
             submitAmount,

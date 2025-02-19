@@ -4,28 +4,30 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import {
-  LIQUID_STAKING_INFO_MAP,
-  LstClient,
-  LstId,
-} from "@suilend/springsui-sdk";
+import { LstClient } from "@suilend/springsui-sdk";
+
+import { useAppContext } from "@/contexts/AppContext";
 
 export default function useFetchWeightHookAdminCapIdMap() {
   const { suiClient } = useSettingsContext();
   const { address } = useWalletContext();
+  const { appData } = useAppContext();
 
   const dataFetcher = async () => {
+    if (!appData?.LIQUID_STAKING_INFO_MAP) return undefined; // Won't be reached as the useSWR key is null when appData is undefined
     if (!address) return undefined;
 
-    const weightHookAdminCapIdMap = Object.values(LstId).reduce(
-      (acc, lstId) => ({ ...acc, [lstId]: {} }),
-      {} as Record<LstId, string | undefined>,
+    const weightHookAdminCapIdMap = Object.keys(
+      appData.LIQUID_STAKING_INFO_MAP,
+    ).reduce(
+      (acc, lstId) => ({ ...acc, [lstId]: undefined }),
+      {} as Record<string, string | undefined>,
     );
 
-    for (const _lstId of Object.values(LstId)) {
-      const LIQUID_STAKING_INFO = LIQUID_STAKING_INFO_MAP[_lstId];
-
-      weightHookAdminCapIdMap[_lstId] =
+    for (const [lstId, LIQUID_STAKING_INFO] of Object.entries(
+      appData.LIQUID_STAKING_INFO_MAP,
+    )) {
+      weightHookAdminCapIdMap[lstId] =
         (await LstClient.getWeightHookAdminCapId(
           suiClient,
           address,
@@ -37,8 +39,8 @@ export default function useFetchWeightHookAdminCapIdMap() {
   };
 
   const { data, mutate } = useSWR<
-    Record<LstId, string | undefined> | undefined
-  >(`weightHookAdminCapIdMap-${address}`, dataFetcher, {
+    Record<string, string | undefined> | undefined
+  >(!appData ? null : `weightHookAdminCapIdMap-${address}`, dataFetcher, {
     refreshInterval: 60 * 1000,
     onSuccess: (data) => {
       console.log("Refreshed weightHookAdminCapIdMap", data);

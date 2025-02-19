@@ -19,7 +19,6 @@ import {
   useSettingsContext,
 } from "@suilend/frontend-sui-next";
 import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
-import { LstId } from "@suilend/springsui-sdk";
 
 import Card from "@/components/Card";
 import { FooterSm } from "@/components/Footer";
@@ -77,7 +76,7 @@ export default function Explore() {
 
   const { rpc } = useSettingsContext();
   const { appData } = useLoadedAppContext();
-  const lstData = appData.lstDataMap[LstId.sSUI];
+  const lstData = appData.lstDataMap["sSUI"];
 
   // Cetus Pools
   const [cetusPools, setCetusPools] = useState<CetusPool[] | undefined>(

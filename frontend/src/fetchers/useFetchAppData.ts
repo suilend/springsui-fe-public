@@ -28,14 +28,13 @@ import {
   initializeSuilendRewards,
 } from "@suilend/sdk";
 import {
-  LIQUID_STAKING_INFO_MAP,
+  LiquidStakingObjectInfo,
   LstClient,
-  LstId,
-  NORMALIZED_LST_COINTYPES,
   fetchLiquidStakingInfo,
 } from "@suilend/springsui-sdk";
 
 import { AppData, LstData } from "@/contexts/AppContext";
+import { ASSETS_URL } from "@/lib/constants";
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
@@ -74,6 +73,13 @@ export default function useFetchAppData() {
       rewardCoinMetadataMap,
       rewardPriceMap,
       obligations,
+    );
+
+    // LSTs
+    const LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo> =
+      await (await fetch(`${ASSETS_URL}/liquid-staking-info-map.json`)).json();
+    const NORMALIZED_LST_COINTYPES = Object.values(LIQUID_STAKING_INFO_MAP).map(
+      (LIQUID_STAKING_INFO) => LIQUID_STAKING_INFO.type,
     );
 
     // CoinMetadata
@@ -115,12 +121,10 @@ export default function useFetchAppData() {
       +latestSuiSystemState.epochDurationMs;
 
     // LSTs
-    const lstResults: [string, { client: LstClient; data: LstData }][] =
-      await Promise.all(
-        Object.values(LstId).map((_lstId) =>
+    const lstData: [string, LstData][] = await Promise.all(
+      Object.entries(LIQUID_STAKING_INFO_MAP).map(
+        ([lstId, LIQUID_STAKING_INFO]) =>
           (async () => {
-            const LIQUID_STAKING_INFO = LIQUID_STAKING_INFO_MAP[_lstId];
-
             // Client
             const lstClient = await LstClient.initialize(
               suiClient,
@@ -202,43 +206,34 @@ export default function useFetchAppData() {
                 : undefined;
 
             return [
-              _lstId,
+              lstId,
               {
-                client: lstClient,
-                data: {
-                  totalSuiSupply,
-                  totalLstSupply,
-                  suiToLstExchangeRate,
-                  lstToSuiExchangeRate,
+                LIQUID_STAKING_INFO,
+                lstClient,
 
-                  mintFeePercent,
-                  redeemFeePercent,
-                  spreadFeePercent,
-                  aprPercent,
+                totalSuiSupply,
+                totalLstSupply,
+                suiToLstExchangeRate,
+                lstToSuiExchangeRate,
 
-                  fees,
-                  accruedSpreadFees,
+                mintFeePercent,
+                redeemFeePercent,
+                spreadFeePercent,
+                aprPercent,
 
-                  token: lstToken,
-                  price: lstPrice,
+                fees,
+                accruedSpreadFees,
 
-                  suilendReserveStats,
-                },
+                token: lstToken,
+                price: lstPrice,
+
+                suilendReserveStats,
               },
             ];
           })(),
-        ),
-      );
-    const lstResultsMap = Object.fromEntries(lstResults);
-
-    const lstClientMap = Object.entries(lstResultsMap).reduce(
-      (acc, [lstId, { client }]) => ({ ...acc, [lstId]: client }),
-      {} as Record<LstId, LstClient>,
+      ),
     );
-    const lstDataMap = Object.entries(lstResultsMap).reduce(
-      (acc, [lstId, { data }]) => ({ ...acc, [lstId]: data }),
-      {} as Record<LstId, LstData>,
-    );
+    const lstDataMap = Object.fromEntries(lstData);
 
     return {
       suilendClient,
@@ -249,7 +244,8 @@ export default function useFetchAppData() {
       suiToken,
       suiPrice,
 
-      lstClientMap,
+      LIQUID_STAKING_INFO_MAP,
+      NORMALIZED_LST_COINTYPES,
       lstDataMap,
 
       currentEpoch,

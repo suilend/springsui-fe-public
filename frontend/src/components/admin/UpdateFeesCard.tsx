@@ -8,7 +8,7 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import { FeeConfigArgs, LstId } from "@suilend/springsui-sdk";
+import { FeeConfigArgs } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
@@ -37,7 +37,7 @@ export default function UpdateFeesCard() {
     Record<keyof FeeConfigArgs, string>
   >(getFeeConfigArgs(admin.lstData));
 
-  const prevLstIdRef = useRef<LstId>(admin.lstId);
+  const prevLstIdRef = useRef<string>(admin.lstId);
   useEffect(() => {
     if (admin.lstId === prevLstIdRef.current) return;
     prevLstIdRef.current = admin.lstId;
@@ -66,7 +66,7 @@ export default function UpdateFeesCard() {
       if (new BigNumber(feeConfigArgs.redeemFeeBps).lt(2))
         throw new Error("Redeem fee must be at least 2 bps");
 
-      admin.lstClient.updateFees(
+      admin.lstData.lstClient.updateFees(
         transaction,
         admin.weightHookAdminCapId,
         Object.entries(feeConfigArgs).reduce(

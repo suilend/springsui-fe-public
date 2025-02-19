@@ -1,5 +1,3 @@
-import { LstId } from "@suilend/springsui-sdk";
-
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
@@ -31,9 +29,9 @@ export default function Admin() {
             <div className="flex flex-row items-center gap-2">
               {(detectedWeightHookAdminCapIds.length > 0
                 ? detectedWeightHookAdminCapIds
-                : [LstId.sSUI]
+                : ["sSUI"]
               ).map((lstId) => {
-                const lstData = appData.lstDataMap[lstId as LstId];
+                const lstData = appData.lstDataMap[lstId];
 
                 return (
                   <button
@@ -44,7 +42,7 @@ export default function Admin() {
                         ? "cursor-default bg-white"
                         : "bg-white/25 transition-colors",
                     )}
-                    onClick={() => admin.setLstId(lstId as LstId)}
+                    onClick={() => admin.setLstId(lstId)}
                   >
                     <TokenLogo token={lstData.token} size={24} />
                     <p

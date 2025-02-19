@@ -15,15 +15,14 @@ import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadata
 import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
 import { ParsedObligation, SuilendClient } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
-import {
-  LstClient,
-  LstId,
-  NORMALIZED_LST_COINTYPES,
-} from "@suilend/springsui-sdk";
+import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
 
 export interface LstData {
+  LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
+  lstClient: LstClient;
+
   totalSuiSupply: BigNumber;
   totalLstSupply: BigNumber;
   suiToLstExchangeRate: BigNumber;
@@ -58,8 +57,9 @@ export interface AppData {
   suiToken: Token;
   suiPrice: BigNumber;
 
-  lstClientMap: Record<LstId, LstClient>;
-  lstDataMap: Record<LstId, LstData>;
+  LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo>;
+  NORMALIZED_LST_COINTYPES: string[];
+  lstDataMap: Record<string, LstData>;
 
   currentEpoch: number;
   currentEpochProgressPercent: number;
@@ -109,8 +109,11 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   }, [mutateRawBalancesMap]);
 
   const balancesCoinTypes = useMemo(
-    () => [NORMALIZED_SUI_COINTYPE, ...NORMALIZED_LST_COINTYPES],
-    [],
+    () => [
+      NORMALIZED_SUI_COINTYPE,
+      ...(appData?.NORMALIZED_LST_COINTYPES ?? []),
+    ],
+    [appData?.NORMALIZED_LST_COINTYPES],
   );
   const balancesCoinMetadataMap = useCoinMetadataMap(balancesCoinTypes);
 

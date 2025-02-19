@@ -36,7 +36,7 @@ export default function ClaimFeesCard() {
     const transaction = new Transaction();
 
     try {
-      admin.lstClient.collectFeesAndSendToUser(
+      admin.lstData.lstClient.collectFeesAndSendToUser(
         transaction,
         admin.weightHookAdminCapId,
         address,

@@ -10,7 +10,6 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import { LstId } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import Button from "@/components/admin/Button";
@@ -44,7 +43,7 @@ export default function ValidatorAddressesAndWeightsCard() {
     { id: string; validatorAddress: string; weight: string }[]
   >(getVaw(admin.weightHook));
 
-  const prevLstIdRef = useRef<LstId>(admin.lstId);
+  const prevLstIdRef = useRef<string>(admin.lstId);
   useEffect(() => {
     if (admin.lstId === prevLstIdRef.current) return;
     prevLstIdRef.current = admin.lstId;
@@ -87,9 +86,9 @@ export default function ValidatorAddressesAndWeightsCard() {
       );
       if (hasMissingValues) throw new Error("Missing values");
 
-      admin.lstClient.setValidatorAddressesAndWeights(
+      admin.lstData.lstClient.setValidatorAddressesAndWeights(
         transaction,
-        admin.lstClient.liquidStakingObject.weightHookId,
+        admin.lstData.lstClient.liquidStakingObject.weightHookId,
         admin.weightHookAdminCapId,
         vaw.reduce(
           (acc, row) => ({ ...acc, [row.validatorAddress]: +row.weight }),
