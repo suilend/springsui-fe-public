@@ -3,6 +3,7 @@ import RebalanceCard from "@/components/admin/RebalanceCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
 import ValidatorAddressesAndWeightsCard from "@/components/admin/ValidatorAddressesAndWeightsCard";
 import { FooterSm } from "@/components/Footer";
+import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
@@ -65,7 +66,11 @@ export default function Admin() {
             <RebalanceCard />
             <UpdateFeesCard />
             <ClaimFeesCard />
-            <ValidatorAddressesAndWeightsCard />
+            {admin.weightHook === undefined ? (
+              <Skeleton className="h-40 w-full" />
+            ) : (
+              <ValidatorAddressesAndWeightsCard />
+            )}
           </div>
 
           {/* WIDTH < md */}
