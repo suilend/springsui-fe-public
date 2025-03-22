@@ -10,7 +10,6 @@ import {
 } from "react";
 
 import { useWalletContext } from "@suilend/frontend-sui-next";
-import { LstClient, LstId } from "@suilend/springsui-sdk";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import { LstData, useAppContext } from "@/contexts/AppContext";
@@ -23,9 +22,8 @@ export enum Mode {
   CONVERTING = "converting",
 }
 
-console.log("XXX", LstId);
 export const DEFAULT_TOKEN_IN_SYMBOL = "SUI";
-export const DEFAULT_TOKEN_OUT_SYMBOL = LstId.sSUI;
+export const DEFAULT_TOKEN_OUT_SYMBOL = "sSUI";
 
 export enum QueryParams {
   LST = "lst",
@@ -37,22 +35,20 @@ export interface LstContext {
   tokenInSymbol: string;
   tokenOutSymbol: string;
   mode: Mode;
-  lstIds: LstId[];
+  lstIds: string[];
 
   admin: {
     weightHook: WeightHook<string> | undefined;
-    weightHookAdminCapIdMap: Record<LstId, string | undefined> | undefined;
+    weightHookAdminCapIdMap: Record<string, string | undefined> | undefined;
     weightHookAdminCapId: string | undefined;
 
-    lstId: LstId;
-    setLstId: (lstId: LstId) => void;
-    lstClient: LstClient | undefined;
+    lstId: string;
+    setLstId: (lstId: string) => void;
     lstData: LstData | undefined;
   };
 }
 type LoadedLstContext = LstContext & {
   admin: LstContext["admin"] & {
-    lstClient: LstClient;
     lstData: LstData;
   };
 };
@@ -71,11 +67,10 @@ const LstContext = createContext<LstContext>({
     weightHookAdminCapIdMap: undefined,
     weightHookAdminCapId: undefined,
 
-    lstId: LstId.sSUI,
+    lstId: "sSUI",
     setLstId: () => {
       throw Error("LstContextProvider not initialized");
     },
-    lstClient: undefined,
     lstData: undefined,
   },
 });
@@ -87,7 +82,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   const router = useRouter();
   const queryParams = useMemo(
     () => ({
-      [QueryParams.LST]: router.query[QueryParams.LST] as LstId | undefined,
+      [QueryParams.LST]: router.query[QueryParams.LST] as string | undefined,
     }),
     [router.query],
   );
@@ -98,6 +93,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
   // Slug
   const isSlugValid = useCallback(() => {
+    if (!appData?.LIQUID_STAKING_INFO_MAP) return false;
     if (slug === undefined) return false;
 
     const symbols = slug[0].split("-");
@@ -108,7 +104,10 @@ export function LstContextProvider({ children }: PropsWithChildren) {
     )
       return false;
 
-    const validSymbols = ["SUI", ...Object.values(LstId)];
+    const validSymbols = [
+      "SUI",
+      ...Object.keys(appData.LIQUID_STAKING_INFO_MAP),
+    ];
     if (
       !validSymbols.includes(symbols[0]) ||
       !validSymbols.includes(symbols[1])
@@ -116,7 +115,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       return false;
 
     return true;
-  }, [slug]);
+  }, [appData?.LIQUID_STAKING_INFO_MAP, slug]);
 
   const [tokenInSymbol, tokenOutSymbol] = useMemo(
     () =>
@@ -131,43 +130,39 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
   // Mode
   const mode = useMemo(() => {
+    if (!appData?.LIQUID_STAKING_INFO_MAP) return Mode.STAKING;
     if (
       tokenInSymbol === "SUI" &&
-      Object.values(LstId).includes(tokenOutSymbol as LstId)
+      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenOutSymbol)
     )
       return Mode.STAKING;
     else if (
-      Object.values(LstId).includes(tokenInSymbol as LstId) &&
+      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenInSymbol) &&
       tokenOutSymbol === "SUI"
     )
       return Mode.UNSTAKING;
     else if (
-      Object.values(LstId).includes(tokenInSymbol as LstId) &&
-      Object.values(LstId).includes(tokenOutSymbol as LstId)
+      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenInSymbol) &&
+      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenOutSymbol)
     )
       return Mode.CONVERTING;
 
     return Mode.STAKING; // Not possible
-  }, [tokenInSymbol, tokenOutSymbol]);
+  }, [appData?.LIQUID_STAKING_INFO_MAP, tokenInSymbol, tokenOutSymbol]);
 
   // Lsts
   const lstIds = useMemo(() => {
-    if (mode === Mode.STAKING) return [tokenOutSymbol as LstId];
-    if (mode === Mode.UNSTAKING) return [tokenInSymbol as LstId];
-    if (mode === Mode.CONVERTING)
-      return [tokenInSymbol as LstId, tokenOutSymbol as LstId];
+    if (mode === Mode.STAKING) return [tokenOutSymbol];
+    if (mode === Mode.UNSTAKING) return [tokenInSymbol];
+    if (mode === Mode.CONVERTING) return [tokenInSymbol, tokenOutSymbol];
 
     return [];
   }, [mode, tokenOutSymbol, tokenInSymbol]);
 
   // Admin
   // Admin - lst id, client, and data
-  const [adminLstId, setAdminLstId] = useState<LstId>(LstId.sSUI);
+  const [adminLstId, setAdminLstId] = useState<string>("sSUI");
 
-  const adminLstClient = useMemo(
-    () => appData?.lstClientMap[adminLstId],
-    [appData?.lstClientMap, adminLstId],
-  );
   const adminLstData = useMemo(
     () => appData?.lstDataMap[adminLstId],
     [appData?.lstDataMap, adminLstId],
@@ -197,22 +192,28 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
   // Admin - set adminLstId based on weightHookAdminCapId
   useEffect(() => {
+    if (!appData?.LIQUID_STAKING_INFO_MAP) return;
     if (
       !address ||
       weightHookAdminCapIdMap === undefined ||
       Object.values(weightHookAdminCapIdMap).every((v) => v === undefined)
     ) {
-      setAdminLstId(LstId.sSUI);
+      setAdminLstId("sSUI");
       return;
     }
 
-    for (const _lstId of Object.values(LstId)) {
+    for (const _lstId of Object.keys(appData.LIQUID_STAKING_INFO_MAP)) {
       if (weightHookAdminCapIdMap[_lstId]) {
         setAdminLstId(_lstId);
         break;
       }
     }
-  }, [address, weightHookAdminCapIdMap, setAdminLstId]);
+  }, [
+    appData?.LIQUID_STAKING_INFO_MAP,
+    address,
+    weightHookAdminCapIdMap,
+    setAdminLstId,
+  ]);
 
   // Context
   const contextValue: LstContext = useMemo(
@@ -230,7 +231,6 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
         lstId: adminLstId,
         setLstId: setAdminLstId,
-        lstClient: adminLstClient,
         lstData: adminLstData,
       },
     }),
@@ -245,7 +245,6 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       weightHookAdminCapId,
       adminLstId,
       setAdminLstId,
-      adminLstClient,
       adminLstData,
     ],
   );

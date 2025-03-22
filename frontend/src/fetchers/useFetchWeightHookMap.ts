@@ -1,23 +1,27 @@
 import useSWR from "swr";
 
 import { useSettingsContext } from "@suilend/frontend-sui-next";
-import { LIQUID_STAKING_INFO_MAP, LstId } from "@suilend/springsui-sdk";
 import { phantom } from "@suilend/springsui-sdk/_generated/_framework/reified";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
+import { useAppContext } from "@/contexts/AppContext";
+
 export default function useFetchWeightHookMap() {
   const { suiClient } = useSettingsContext();
+  const { appData } = useAppContext();
 
   const dataFetcher = async () => {
-    const weightHookMap = Object.values(LstId).reduce(
-      (acc, lstId) => ({ ...acc, [lstId]: {} }),
-      {} as Record<LstId, WeightHook<string>>,
+    if (!appData?.LIQUID_STAKING_INFO_MAP) return undefined; // Won't be reached as the useSWR key is null when appData is undefined
+
+    const weightHookMap = Object.keys(appData.LIQUID_STAKING_INFO_MAP).reduce(
+      (acc, lstId) => ({ ...acc, [lstId]: {} as WeightHook<string> }),
+      {} as Record<string, WeightHook<string>>,
     );
 
-    for (const _lstId of Object.values(LstId)) {
-      const LIQUID_STAKING_INFO = LIQUID_STAKING_INFO_MAP[_lstId];
-
-      weightHookMap[_lstId] = await WeightHook.fetch(
+    for (const [lstId, LIQUID_STAKING_INFO] of Object.entries(
+      appData.LIQUID_STAKING_INFO_MAP,
+    )) {
+      weightHookMap[lstId] = await WeightHook.fetch(
         suiClient,
         phantom(LIQUID_STAKING_INFO.type),
         LIQUID_STAKING_INFO.weightHookId,
@@ -28,8 +32,8 @@ export default function useFetchWeightHookMap() {
   };
 
   const { data, mutate } = useSWR<
-    Record<LstId, WeightHook<string>> | undefined
-  >("weightHookMap", dataFetcher, {
+    Record<string, WeightHook<string>> | undefined
+  >(!appData ? null : "weightHookMap", dataFetcher, {
     refreshInterval: 60 * 1000,
     onSuccess: (data) => {
       console.log("Refreshed weightHookMap", data);

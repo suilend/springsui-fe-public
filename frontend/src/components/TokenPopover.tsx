@@ -3,7 +3,6 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { Token } from "@suilend/frontend-sui";
-import { LstId } from "@suilend/springsui-sdk";
 
 import Popover from "@/components/Popover";
 import TokenLogo from "@/components/TokenLogo";
@@ -47,20 +46,18 @@ export default function TokenPopover({ token, onChange }: TokenPopoverProps) {
       <div className="flex w-full flex-row flex-wrap gap-1">
         {[
           "SUI",
-          ...Object.values(LstId)
-            .filter(
-              (lstId) => ![LstId.test1SUI, LstId.ripleysSUI].includes(lstId),
-            )
+          ...Object.keys(appData.LIQUID_STAKING_INFO_MAP)
+            .filter((lstId) => !["test1SUI", "ripleysSUI"].includes(lstId))
             .filter(
               (lstId) =>
-                lstId !== LstId.upSUI ||
-                (lstId === LstId.upSUI && Date.now() >= 1734609600000), // 2024-12-19 12:00:00 UTC
+                lstId !== "upSUI" ||
+                (lstId === "upSUI" && Date.now() >= 1734609600000), // 2024-12-19 12:00:00 UTC
             ),
         ].map((symbol) => {
           const _token =
             symbol === "SUI"
               ? appData.suiToken
-              : appData.lstDataMap[symbol as LstId].token;
+              : appData.lstDataMap[symbol].token;
 
           return (
             <button

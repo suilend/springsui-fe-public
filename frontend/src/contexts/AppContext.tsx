@@ -15,15 +15,14 @@ import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadata
 import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
 import { ParsedObligation, SuilendClient } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
-import {
-  LstClient,
-  LstId,
-  NORMALIZED_LST_COINTYPES,
-} from "@suilend/springsui-sdk";
+import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
 
 export interface LstData {
+  LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
+  lstClient: LstClient;
+
   totalSuiSupply: BigNumber;
   totalLstSupply: BigNumber;
   suiToLstExchangeRate: BigNumber;
@@ -58,8 +57,9 @@ export interface AppData {
   suiToken: Token;
   suiPrice: BigNumber;
 
-  lstClientMap: Record<LstId, LstClient>;
-  lstDataMap: Record<LstId, LstData>;
+  LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo>;
+  NORMALIZED_LST_COINTYPES: string[];
+  lstDataMap: Record<string, LstData>;
 
   currentEpoch: number;
   currentEpochProgressPercent: number;
@@ -68,8 +68,11 @@ export interface AppData {
 
 interface AppContext {
   appData: AppData | undefined;
+
+  rawBalancesMap: Record<string, BigNumber> | undefined;
   balancesCoinMetadataMap: Record<string, CoinMetadata> | undefined;
   getBalance: (coinType: string) => BigNumber;
+
   refresh: () => Promise<void>;
 }
 type LoadedAppContext = AppContext & {
@@ -78,10 +81,13 @@ type LoadedAppContext = AppContext & {
 
 const AppContext = createContext<AppContext>({
   appData: undefined,
+
+  rawBalancesMap: undefined,
   balancesCoinMetadataMap: undefined,
   getBalance: () => {
     throw Error("AppContextProvider not initialized");
   },
+
   refresh: async () => {
     throw Error("AppContextProvider not initialized");
   },
@@ -98,9 +104,16 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   const { data: rawBalancesMap, mutateData: mutateRawBalancesMap } =
     useFetchBalances();
 
+  const refreshRawBalancesMap = useCallback(async () => {
+    await mutateRawBalancesMap();
+  }, [mutateRawBalancesMap]);
+
   const balancesCoinTypes = useMemo(
-    () => [NORMALIZED_SUI_COINTYPE, ...NORMALIZED_LST_COINTYPES],
-    [],
+    () => [
+      NORMALIZED_SUI_COINTYPE,
+      ...(appData?.NORMALIZED_LST_COINTYPES ?? []),
+    ],
+    [appData?.NORMALIZED_LST_COINTYPES],
   );
   const balancesCoinMetadataMap = useCoinMetadataMap(balancesCoinTypes);
 
@@ -121,8 +134,8 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   // Refresh
   const refresh = useCallback(async () => {
     await mutateAppData();
-    await mutateRawBalancesMap();
-  }, [mutateAppData, mutateRawBalancesMap]);
+    await refreshRawBalancesMap();
+  }, [mutateAppData, refreshRawBalancesMap]);
 
   useRefreshOnBalancesChange(refresh);
 
@@ -130,11 +143,14 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   const contextValue: AppContext = useMemo(
     () => ({
       appData,
+
+      rawBalancesMap,
       balancesCoinMetadataMap,
       getBalance,
+
       refresh,
     }),
-    [appData, balancesCoinMetadataMap, getBalance, refresh],
+    [appData, rawBalancesMap, balancesCoinMetadataMap, getBalance, refresh],
   );
 
   return (

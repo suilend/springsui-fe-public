@@ -1,7 +1,7 @@
 {
   "name": "@suilend/springsui-sdk-local",
-  "version": "1.0.19",
-  "private": true,
+  "version": "1.0.20",
+  "private": false,
   "description": "A TypeScript SDK for interacting with the SpringSui program",
   "author": "Suilend",
   "license": "MIT",

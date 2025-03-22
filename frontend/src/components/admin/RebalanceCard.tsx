@@ -30,9 +30,9 @@ export default function RebalanceCard() {
     const transaction = new Transaction();
 
     try {
-      admin.lstClient.rebalance(
+      admin.lstData.lstClient.rebalance(
         transaction,
-        admin.lstClient.liquidStakingObject.weightHookId,
+        admin.lstData.lstClient.liquidStakingObject.weightHookId,
       );
 
       const res = await signExecuteAndWaitForTransaction(transaction);
