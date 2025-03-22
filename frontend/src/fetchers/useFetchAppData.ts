@@ -77,7 +77,11 @@ export default function useFetchAppData() {
 
     // LSTs
     const LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo> =
-      await (await fetch(`${ASSETS_URL}/liquid-staking-info-map.json`)).json();
+      await (
+        await fetch(
+          `${ASSETS_URL}/liquid-staking-info-map.json?timestamp=${Date.now()}`,
+        )
+      ).json();
     const NORMALIZED_LST_COINTYPES = Object.values(LIQUID_STAKING_INFO_MAP).map(
       (LIQUID_STAKING_INFO) => LIQUID_STAKING_INFO.type,
     );
