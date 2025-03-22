@@ -14,6 +14,7 @@
     "lint": "bun eslint && bun prettier && bun tsc --noEmit"
   },
   "dependencies": {
+    "@msafe/sui-wallet": "^0.0.83",
     "@mysten/bcs": "1.2.1",
     "@mysten/dapp-kit": "0.14.47",
     "@mysten/move-bytecode-template": "0.1.0",
