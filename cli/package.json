@@ -25,7 +25,8 @@
     "url": "https://github.com/solendprotocol/liquid-staking/issues"
   },
   "dependencies": {
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "@mysten/move-bytecode-template": "0.1.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"

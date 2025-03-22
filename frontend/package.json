@@ -16,6 +16,7 @@
   "dependencies": {
     "@mysten/bcs": "1.2.1",
     "@mysten/dapp-kit": "0.14.47",
+    "@mysten/move-bytecode-template": "0.1.0",
     "@mysten/sui": "1.20.0",
     "@mysten/wallet-standard": "0.13.23",
     "@pythnetwork/pyth-sui-js": "^2.1.0",
