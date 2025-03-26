@@ -1,5 +1,6 @@
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
+import pLimit from "p-limit";
 import useSWR from "swr";
 
 import {
@@ -41,6 +42,8 @@ export default function useFetchAppData() {
   const { address } = useWalletContext();
 
   const dataFetcher = async () => {
+    const limit10 = pLimit(10);
+
     const suilendClient = await SuilendClient.initialize(
       LENDING_MARKET_ID,
       LENDING_MARKET_TYPE,
@@ -128,7 +131,7 @@ export default function useFetchAppData() {
     const lstData: [string, LstData][] = await Promise.all(
       Object.entries(LIQUID_STAKING_INFO_MAP).map(
         ([lstId, LIQUID_STAKING_INFO]) =>
-          (async () => {
+          limit10<[], [string, LstData]>(async () => {
             // Client
             const lstClient = await LstClient.initialize(
               suiClient,
@@ -234,7 +237,7 @@ export default function useFetchAppData() {
                 suilendReserveStats,
               },
             ];
-          })(),
+          }),
       ),
     );
     const lstDataMap = Object.fromEntries(lstData);
