@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-import { Token } from "@suilend/frontend-sui";
+import { NORMALIZED_SUI_COINTYPE, Token, isSui } from "@suilend/frontend-sui";
 
 import Popover from "@/components/Popover";
 import TokenLogo from "@/components/TokenLogo";
@@ -40,31 +40,39 @@ export default function TokenPopover({ token, onChange }: TokenPopoverProps) {
       }
       contentProps={{
         align: "end",
-        maxWidth: 240,
+        maxWidth: 280,
       }}
     >
       <div className="flex w-full flex-row flex-wrap gap-1">
         {[
-          "SUI",
-          ...Object.keys(appData.LIQUID_STAKING_INFO_MAP)
-            .filter((lstId) => !["test1SUI", "ripleysSUI"].includes(lstId))
+          appData.suiToken,
+          ...Object.entries(appData.lstDataMap)
             .filter(
-              (lstId) =>
-                lstId !== "upSUI" ||
-                (lstId === "upSUI" && Date.now() >= 1734609600000), // 2024-12-19 12:00:00 UTC
-            ),
-        ].map((symbol) => {
-          const _token =
-            symbol === "SUI"
-              ? appData.suiToken
-              : appData.lstDataMap[symbol].token;
-
+              ([coinType]) =>
+                ![
+                  "0xdc0c8026236f1be172ba03d7d689bfd663497cc5a730bf367bfb2e2c72ec6df8::ripleys::RIPLEYS",
+                ].includes(coinType),
+            )
+            .filter(
+              ([coinType]) =>
+                coinType !==
+                  "0xe68fad47384e18cd79040cb8d72b7f64d267eebb73a0b8d54711aa860570f404::upsui::UPSUI" ||
+                (coinType ===
+                  "0xe68fad47384e18cd79040cb8d72b7f64d267eebb73a0b8d54711aa860570f404::upsui::UPSUI" &&
+                  Date.now() >= 1734609600000),
+            ) // 2024-12-19 12:00:00 UTC
+            .sort(
+              ([, lstDataA], [, lstDataB]) =>
+                +lstDataB.totalSuiSupply - +lstDataA.totalSuiSupply,
+            )
+            .map(([, lstData]) => lstData.token),
+        ].map((_token) => {
           return (
             <button
-              key={symbol}
+              key={_token.coinType}
               className={cn(
                 "group h-10 rounded-[20px] px-2 pr-3",
-                _token.symbol === token.symbol
+                _token.coinType === token.coinType
                   ? "cursor-default bg-light-blue"
                   : "bg-navy-100/50 transition-colors",
               )}
@@ -80,7 +88,7 @@ export default function TokenPopover({ token, onChange }: TokenPopoverProps) {
                 <p
                   className={cn(
                     "!text-p2",
-                    _token.symbol === token.symbol
+                    _token.coinType === token.coinType
                       ? "text-foreground"
                       : "text-navy-600 transition-colors group-hover:text-foreground",
                   )}

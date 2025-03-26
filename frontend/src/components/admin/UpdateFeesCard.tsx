@@ -37,13 +37,13 @@ export default function UpdateFeesCard() {
     Record<keyof FeeConfigArgs, string>
   >(getFeeConfigArgs(admin.lstData));
 
-  const prevLstIdRef = useRef<string>(admin.lstId);
+  const prevLstCoinTypeRef = useRef<string>(admin.lstCoinType);
   useEffect(() => {
-    if (admin.lstId === prevLstIdRef.current) return;
-    prevLstIdRef.current = admin.lstId;
+    if (admin.lstCoinType === prevLstCoinTypeRef.current) return;
+    prevLstCoinTypeRef.current = admin.lstCoinType;
 
     setFeeConfigArgs(getFeeConfigArgs(admin.lstData));
-  }, [admin.lstId, getFeeConfigArgs, admin.lstData]);
+  }, [admin.lstCoinType, getFeeConfigArgs, admin.lstData]);
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

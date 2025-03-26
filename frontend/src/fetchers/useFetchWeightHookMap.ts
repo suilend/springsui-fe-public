@@ -14,14 +14,14 @@ export default function useFetchWeightHookMap() {
     if (!appData?.LIQUID_STAKING_INFO_MAP) return undefined; // Won't be reached as the useSWR key is null when appData is undefined
 
     const weightHookMap = Object.keys(appData.LIQUID_STAKING_INFO_MAP).reduce(
-      (acc, lstId) => ({ ...acc, [lstId]: {} as WeightHook<string> }),
+      (acc, coinType) => ({ ...acc, [coinType]: {} as WeightHook<string> }),
       {} as Record<string, WeightHook<string>>,
     );
 
-    for (const [lstId, LIQUID_STAKING_INFO] of Object.entries(
+    for (const [coinType, LIQUID_STAKING_INFO] of Object.entries(
       appData.LIQUID_STAKING_INFO_MAP,
     )) {
-      weightHookMap[lstId] = await WeightHook.fetch(
+      weightHookMap[coinType] = await WeightHook.fetch(
         suiClient,
         phantom(LIQUID_STAKING_INFO.type),
         LIQUID_STAKING_INFO.weightHookId,

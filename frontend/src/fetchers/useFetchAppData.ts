@@ -1,4 +1,4 @@
-import { SUI_DECIMALS } from "@mysten/sui/utils";
+import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import pLimit from "p-limit";
 import useSWR from "swr";
@@ -35,7 +35,6 @@ import {
 } from "@suilend/springsui-sdk";
 
 import { AppData, LstData } from "@/contexts/AppContext";
-import { ASSETS_URL } from "@/lib/constants";
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
@@ -79,15 +78,38 @@ export default function useFetchAppData() {
     );
 
     // LSTs
-    const LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo> =
-      await (
-        await fetch(
-          `${ASSETS_URL}/liquid-staking-info-map.json?timestamp=${Date.now()}`,
-        )
-      ).json();
-    const NORMALIZED_LST_COINTYPES = Object.values(LIQUID_STAKING_INFO_MAP).map(
-      (LIQUID_STAKING_INFO) => LIQUID_STAKING_INFO.type,
+    const REGISTRY_ID =
+      "0x06d6b6881ef14ad1a8cc29d1f97ba3397ecea56af5afa0642093e981b1fda3f4";
+
+    const registryObjectIds = (
+      await suiClient.getDynamicFields({ parentId: REGISTRY_ID })
+    ).data.map((d) => d.objectId);
+    const registryObjects = await Promise.all(
+      registryObjectIds.map((objectId) =>
+        suiClient.getObject({
+          id: objectId,
+          options: {
+            showContent: true,
+          },
+        }),
+      ),
     );
+
+    const LIQUID_STAKING_INFO_MAP = registryObjects.reduce(
+      (acc, obj) => {
+        const fields = (obj.data?.content as any).fields;
+
+        const id = fields.value.fields.liquid_staking_info_id;
+        const coinType = normalizeStructTag(fields.name.fields.name);
+        const weightHookId =
+          fields.value.fields.extra_info.fields.weight_hook_id;
+
+        return { ...acc, [coinType]: { id, type: coinType, weightHookId } };
+      },
+      {} as Record<string, LiquidStakingObjectInfo>,
+    );
+
+    const NORMALIZED_LST_COINTYPES = Object.keys(LIQUID_STAKING_INFO_MAP);
 
     // CoinMetadata
     const coinTypes: string[] = [
@@ -130,7 +152,7 @@ export default function useFetchAppData() {
     // LSTs
     const lstData: [string, LstData][] = await Promise.all(
       Object.entries(LIQUID_STAKING_INFO_MAP).map(
-        ([lstId, LIQUID_STAKING_INFO]) =>
+        ([coinType, LIQUID_STAKING_INFO]) =>
           limit10<[], [string, LstData]>(async () => {
             // Client
             const lstClient = await LstClient.initialize(
@@ -213,7 +235,7 @@ export default function useFetchAppData() {
                 : undefined;
 
             return [
-              lstId,
+              coinType,
               {
                 LIQUID_STAKING_INFO,
                 lstClient,

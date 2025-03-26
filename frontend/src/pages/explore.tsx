@@ -8,6 +8,7 @@ import { BucketClient } from "bucket-protocol-sdk";
 
 import {
   NORMALIZED_SUI_COINTYPE,
+  NORMALIZED_sSUI_COINTYPE,
   Token,
   formatPercent,
   formatPoints,
@@ -76,7 +77,7 @@ export default function Explore() {
 
   const { rpc } = useSettingsContext();
   const { appData } = useLoadedAppContext();
-  const lstData = appData.lstDataMap["sSUI"];
+  const lstData = appData.lstDataMap[NORMALIZED_sSUI_COINTYPE];
 
   // Cetus Pools
   const [cetusPools, setCetusPools] = useState<CetusPool[] | undefined>(

@@ -1,3 +1,5 @@
+import { NORMALIZED_sSUI_COINTYPE } from "@suilend/frontend-sui";
+
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
@@ -17,7 +19,7 @@ export default function Admin() {
     admin.weightHookAdminCapIdMap ?? {},
   )
     .filter(([, value]) => value !== undefined)
-    .map(([lstId]) => lstId);
+    .map(([coinType]) => coinType);
 
   return (
     <>
@@ -30,26 +32,26 @@ export default function Admin() {
             <div className="flex flex-row items-center gap-2">
               {(detectedWeightHookAdminCapIds.length > 0
                 ? detectedWeightHookAdminCapIds
-                : ["sSUI"]
-              ).map((lstId) => {
-                const lstData = appData.lstDataMap[lstId];
+                : [NORMALIZED_sSUI_COINTYPE]
+              ).map((coinType) => {
+                const lstData = appData.lstDataMap[coinType];
 
                 return (
                   <button
-                    key={lstId}
+                    key={coinType}
                     className={cn(
                       "group flex h-10 flex-row items-center gap-2 rounded-[20px] px-2 pr-3",
-                      lstId === admin.lstId
+                      coinType === admin.lstCoinType
                         ? "cursor-default bg-white"
                         : "bg-white/25 transition-colors",
                     )}
-                    onClick={() => admin.setLstId(lstId)}
+                    onClick={() => admin.setLstCoinType(coinType)}
                   >
                     <TokenLogo token={lstData.token} size={24} />
                     <p
                       className={cn(
                         "!text-p2",
-                        lstId === admin.lstId
+                        coinType === admin.lstCoinType
                           ? "text-foreground"
                           : "text-navy-600 transition-colors group-hover:text-foreground",
                       )}

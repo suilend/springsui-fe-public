@@ -9,6 +9,11 @@ import {
   useState,
 } from "react";
 
+import {
+  NORMALIZED_SUI_COINTYPE,
+  NORMALIZED_sSUI_COINTYPE,
+  isSui,
+} from "@suilend/frontend-sui";
 import { useWalletContext } from "@suilend/frontend-sui-next";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
@@ -35,15 +40,15 @@ export interface LstContext {
   tokenInSymbol: string;
   tokenOutSymbol: string;
   mode: Mode;
-  lstIds: string[];
+  lstCoinTypes: string[];
 
   admin: {
     weightHook: WeightHook<string> | undefined;
     weightHookAdminCapIdMap: Record<string, string | undefined> | undefined;
     weightHookAdminCapId: string | undefined;
 
-    lstId: string;
-    setLstId: (lstId: string) => void;
+    lstCoinType: string;
+    setLstCoinType: (coinType: string) => void;
     lstData: LstData | undefined;
   };
 }
@@ -60,15 +65,15 @@ const LstContext = createContext<LstContext>({
   tokenInSymbol: DEFAULT_TOKEN_IN_SYMBOL,
   tokenOutSymbol: DEFAULT_TOKEN_OUT_SYMBOL,
   mode: Mode.STAKING,
-  lstIds: [],
+  lstCoinTypes: [],
 
   admin: {
     weightHook: undefined,
     weightHookAdminCapIdMap: undefined,
     weightHookAdminCapId: undefined,
 
-    lstId: "sSUI",
-    setLstId: () => {
+    lstCoinType: NORMALIZED_sSUI_COINTYPE,
+    setLstCoinType: () => {
       throw Error("LstContextProvider not initialized");
     },
     lstData: undefined,
@@ -93,8 +98,19 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
   // Slug
   const isSlugValid = useCallback(() => {
-    if (!appData?.LIQUID_STAKING_INFO_MAP) return false;
+    if (!appData) return false;
     if (slug === undefined) return false;
+
+    const validSymbols = [
+      NORMALIZED_SUI_COINTYPE,
+      ...Object.keys(appData.LIQUID_STAKING_INFO_MAP),
+    ].map(
+      (coinType) =>
+        (isSui(coinType)
+          ? appData.suiToken
+          : appData.lstDataMap[coinType].token
+        ).symbol,
+    );
 
     const symbols = slug[0].split("-");
     if (
@@ -104,10 +120,6 @@ export function LstContextProvider({ children }: PropsWithChildren) {
     )
       return false;
 
-    const validSymbols = [
-      "SUI",
-      ...Object.keys(appData.LIQUID_STAKING_INFO_MAP),
-    ];
     if (
       !validSymbols.includes(symbols[0]) ||
       !validSymbols.includes(symbols[1])
@@ -115,7 +127,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       return false;
 
     return true;
-  }, [appData?.LIQUID_STAKING_INFO_MAP, slug]);
+  }, [appData, slug]);
 
   const [tokenInSymbol, tokenOutSymbol] = useMemo(
     () =>
@@ -130,50 +142,63 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
   // Mode
   const mode = useMemo(() => {
-    if (!appData?.LIQUID_STAKING_INFO_MAP) return Mode.STAKING;
-    if (
-      tokenInSymbol === "SUI" &&
-      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenOutSymbol)
-    )
+    if (!appData) return Mode.STAKING;
+
+    const validNonSuiSymbols = Object.keys(appData.LIQUID_STAKING_INFO_MAP).map(
+      (coinType) => appData.lstDataMap[coinType].token.symbol,
+    );
+
+    if (tokenInSymbol === "SUI" && validNonSuiSymbols.includes(tokenOutSymbol))
       return Mode.STAKING;
     else if (
-      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenInSymbol) &&
+      validNonSuiSymbols.includes(tokenInSymbol) &&
       tokenOutSymbol === "SUI"
     )
       return Mode.UNSTAKING;
     else if (
-      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenInSymbol) &&
-      Object.keys(appData.LIQUID_STAKING_INFO_MAP).includes(tokenOutSymbol)
+      validNonSuiSymbols.includes(tokenInSymbol) &&
+      validNonSuiSymbols.includes(tokenOutSymbol)
     )
       return Mode.CONVERTING;
 
     return Mode.STAKING; // Not possible
-  }, [appData?.LIQUID_STAKING_INFO_MAP, tokenInSymbol, tokenOutSymbol]);
+  }, [appData, tokenInSymbol, tokenOutSymbol]);
 
-  // Lsts
-  const lstIds = useMemo(() => {
-    if (mode === Mode.STAKING) return [tokenOutSymbol];
-    if (mode === Mode.UNSTAKING) return [tokenInSymbol];
-    if (mode === Mode.CONVERTING) return [tokenInSymbol, tokenOutSymbol];
+  // LSTs
+  const lstCoinTypes = useMemo(() => {
+    if (!appData) return [];
 
-    return [];
-  }, [mode, tokenOutSymbol, tokenInSymbol]);
+    let symbols: string[] = [];
+    if (mode === Mode.STAKING) symbols = [tokenOutSymbol];
+    else if (mode === Mode.UNSTAKING) symbols = [tokenInSymbol];
+    else if (mode === Mode.CONVERTING)
+      symbols = [tokenInSymbol, tokenOutSymbol];
+
+    return symbols.map(
+      (symbol) =>
+        Object.values(appData.lstDataMap).find(
+          (lstData) => lstData.token.symbol === symbol,
+        )!.token.coinType,
+    );
+  }, [appData, mode, tokenOutSymbol, tokenInSymbol]);
 
   // Admin
-  // Admin - lst id, client, and data
-  const [adminLstId, setAdminLstId] = useState<string>("sSUI");
+  // Admin - lst coinType, client, and data
+  const [adminLstCoinType, setAdminLstCoinType] = useState<string>(
+    NORMALIZED_sSUI_COINTYPE,
+  );
 
   const adminLstData = useMemo(
-    () => appData?.lstDataMap[adminLstId],
-    [appData?.lstDataMap, adminLstId],
+    () => appData?.lstDataMap[adminLstCoinType],
+    [appData?.lstDataMap, adminLstCoinType],
   );
 
   // Admin - weightHook
   const { data: weightHookMap } = useFetchWeightHookMap();
 
   const weightHook = useMemo(
-    () => weightHookMap?.[adminLstId],
-    [weightHookMap, adminLstId],
+    () => weightHookMap?.[adminLstCoinType],
+    [weightHookMap, adminLstCoinType],
   );
 
   // Admin - weightHookAdminCapId
@@ -186,11 +211,11 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   }, [address, mutateWeightHookAdminCapIdMap]);
 
   const weightHookAdminCapId = useMemo(
-    () => weightHookAdminCapIdMap?.[adminLstId],
-    [weightHookAdminCapIdMap, adminLstId],
+    () => weightHookAdminCapIdMap?.[adminLstCoinType],
+    [weightHookAdminCapIdMap, adminLstCoinType],
   );
 
-  // Admin - set adminLstId based on weightHookAdminCapId
+  // Admin - set adminLstCoinType based on weightHookAdminCapId
   useEffect(() => {
     if (!appData?.LIQUID_STAKING_INFO_MAP) return;
     if (
@@ -198,13 +223,13 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       weightHookAdminCapIdMap === undefined ||
       Object.values(weightHookAdminCapIdMap).every((v) => v === undefined)
     ) {
-      setAdminLstId("sSUI");
+      setAdminLstCoinType(NORMALIZED_sSUI_COINTYPE);
       return;
     }
 
-    for (const _lstId of Object.keys(appData.LIQUID_STAKING_INFO_MAP)) {
-      if (weightHookAdminCapIdMap[_lstId]) {
-        setAdminLstId(_lstId);
+    for (const _coinType of Object.keys(appData.LIQUID_STAKING_INFO_MAP)) {
+      if (weightHookAdminCapIdMap[_coinType]) {
+        setAdminLstCoinType(_coinType);
         break;
       }
     }
@@ -212,7 +237,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
     appData?.LIQUID_STAKING_INFO_MAP,
     address,
     weightHookAdminCapIdMap,
-    setAdminLstId,
+    setAdminLstCoinType,
   ]);
 
   // Context
@@ -222,15 +247,15 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       tokenInSymbol,
       tokenOutSymbol,
       mode,
-      lstIds,
+      lstCoinTypes,
 
       admin: {
         weightHook,
         weightHookAdminCapIdMap,
         weightHookAdminCapId,
 
-        lstId: adminLstId,
-        setLstId: setAdminLstId,
+        lstCoinType: adminLstCoinType,
+        setLstCoinType: setAdminLstCoinType,
         lstData: adminLstData,
       },
     }),
@@ -239,12 +264,12 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       tokenInSymbol,
       tokenOutSymbol,
       mode,
-      lstIds,
+      lstCoinTypes,
       weightHook,
       weightHookAdminCapIdMap,
       weightHookAdminCapId,
-      adminLstId,
-      setAdminLstId,
+      adminLstCoinType,
+      setAdminLstCoinType,
       adminLstData,
     ],
   );
