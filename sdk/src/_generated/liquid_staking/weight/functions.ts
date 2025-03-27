@@ -69,6 +69,28 @@ export function updateFees(
   });
 }
 
+export interface AddToRegistryArgs {
+  self: TransactionObjectInput;
+  registry: TransactionObjectInput;
+  liquidStakingInfo: TransactionObjectInput;
+}
+
+export function addToRegistry(
+  tx: Transaction,
+  typeArg: string,
+  args: AddToRegistryArgs,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::weight::add_to_registry`,
+    typeArguments: [typeArg],
+    arguments: [
+      obj(tx, args.self),
+      obj(tx, args.registry),
+      obj(tx, args.liquidStakingInfo),
+    ],
+  });
+}
+
 export interface AdminCapArgs {
   self: TransactionObjectInput;
   weightHookAdminCap: TransactionObjectInput;
@@ -136,5 +158,12 @@ export function setValidatorAddressesAndWeights(
       obj(tx, args.weightHookAdminCap),
       obj(tx, args.validatorAddressesAndWeights),
     ],
+  });
+}
+
+export function weightHookId(tx: Transaction, self: TransactionObjectInput) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::weight::weight_hook_id`,
+    arguments: [obj(tx, self)],
   });
 }
