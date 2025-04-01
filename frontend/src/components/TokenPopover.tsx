@@ -49,12 +49,6 @@ export default function TokenPopover({ token, onChange }: TokenPopoverProps) {
           ...Object.entries(appData.lstDataMap)
             .filter(
               ([coinType]) =>
-                ![
-                  "0xdc0c8026236f1be172ba03d7d689bfd663497cc5a730bf367bfb2e2c72ec6df8::ripleys::RIPLEYS",
-                ].includes(coinType),
-            )
-            .filter(
-              ([coinType]) =>
                 coinType !==
                   "0xe68fad47384e18cd79040cb8d72b7f64d267eebb73a0b8d54711aa860570f404::upsui::UPSUI" ||
                 (coinType ===

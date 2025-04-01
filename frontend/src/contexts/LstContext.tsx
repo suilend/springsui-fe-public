@@ -51,6 +51,8 @@ export interface LstContext {
     setLstCoinType: (coinType: string) => void;
     lstData: LstData | undefined;
   };
+
+  refresh: () => Promise<void>;
 }
 type LoadedLstContext = LstContext & {
   admin: LstContext["admin"] & {
@@ -77,6 +79,10 @@ const LstContext = createContext<LstContext>({
       throw Error("LstContextProvider not initialized");
     },
     lstData: undefined,
+  },
+
+  refresh: async () => {
+    throw Error("LstContextProvider not initialized");
   },
 });
 
@@ -194,7 +200,8 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   );
 
   // Admin - weightHook
-  const { data: weightHookMap } = useFetchWeightHookMap();
+  const { data: weightHookMap, mutateData: mutateWeightHookMap } =
+    useFetchWeightHookMap();
 
   const weightHook = useMemo(
     () => weightHookMap?.[adminLstCoinType],
@@ -240,6 +247,12 @@ export function LstContextProvider({ children }: PropsWithChildren) {
     setAdminLstCoinType,
   ]);
 
+  // Refresh
+  const refresh = useCallback(async () => {
+    await mutateWeightHookMap();
+    await mutateWeightHookAdminCapIdMap();
+  }, [mutateWeightHookMap, mutateWeightHookAdminCapIdMap]);
+
   // Context
   const contextValue: LstContext = useMemo(
     () => ({
@@ -258,6 +271,8 @@ export function LstContextProvider({ children }: PropsWithChildren) {
         setLstCoinType: setAdminLstCoinType,
         lstData: adminLstData,
       },
+
+      refresh,
     }),
     [
       isSlugValid,
@@ -271,6 +286,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       adminLstCoinType,
       setAdminLstCoinType,
       adminLstData,
+      refresh,
     ],
   );
 

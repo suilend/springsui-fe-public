@@ -4,7 +4,7 @@ import {
   TransactionObjectInput,
   coinWithBalance,
 } from "@mysten/sui/transactions";
-import { SUI_DECIMALS } from "@mysten/sui/utils";
+import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
 import { phantom } from "./_generated/_framework/reified";
@@ -412,3 +412,50 @@ export const fetchLiquidStakingInfo = (
   client: SuiClient,
 ): Promise<LiquidStakingInfo<any>> =>
   LiquidStakingInfo.fetch(client, phantom(info.type), info.id);
+
+export const fetchRegistryLiquidStakingInfoMap = async (client: SuiClient) => {
+  const REGISTRY_ID =
+    "0x06d6b6881ef14ad1a8cc29d1f97ba3397ecea56af5afa0642093e981b1fda3f4";
+
+  const registryObjectIds = (
+    await client.getDynamicFields({ parentId: REGISTRY_ID })
+  ).data.map((d) => d.objectId);
+
+  const registryObjects = await Promise.all(
+    registryObjectIds.map((objectId) =>
+      client.getObject({
+        id: objectId,
+        options: {
+          showContent: true,
+        },
+      }),
+    ),
+  );
+
+  const LIQUID_STAKING_INFO_MAP = registryObjects.reduce(
+    (acc, obj) => {
+      const fields = (obj.data?.content as any).fields;
+
+      const id = fields.value.fields.liquid_staking_info_id;
+      const coinType = normalizeStructTag(fields.name.fields.name);
+      if (
+        [
+          "0x460c669acd3f294dc4247a6877ec2532340ffde76162ab201e72fe95355830e7::asui::ASUI",
+          "0x752f18582da315f9104bb8b7828188c474e64f23255ed9fd231ed3fa883f27e0::tt_sui::TT_SUI",
+          "0x86097c930d227f32dd2cd2ffd03d92b57504abb2b9c9cb83013c3923fa185341::tt_sui::TT_SUI",
+          "0x86518340cc15853c76bcb63996c6fb36cd566755a870f46bccd3e95f6a0a4993::test_sui::TEST_SUI",
+          "0xbf609bb629a11e7ee7c72bc3d5cf98c1c26cd2e35b2d017be4895d7e0c6be898::temps_sui::TEMPS_SUI",
+          "0x4bf0e1d42f731c19066d910ebf7ba12ffe4025258f50b6cc490af38080a15dfb::t0sui::T0SUI",
+        ].includes(coinType)
+      )
+        return acc;
+
+      const weightHookId = fields.value.fields.extra_info.fields.weight_hook_id;
+
+      return { ...acc, [coinType]: { id, type: coinType, weightHookId } };
+    },
+    {} as Record<string, LiquidStakingObjectInfo>,
+  );
+
+  return LIQUID_STAKING_INFO_MAP;
+};

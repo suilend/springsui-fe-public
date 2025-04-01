@@ -34,6 +34,7 @@ import {
   sendObligationToUser,
 } from "@suilend/sdk";
 import { convertLsts, convertLstsAndSendToUser } from "@suilend/springsui-sdk";
+// import * as weightHookGenerated from "@suilend/springsui-sdk/_generated/liquid_staking/weight/functions";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
@@ -589,6 +590,28 @@ export default function Home() {
 
     return result;
   }, [lstCoinTypes, appData.lstDataMap]);
+
+  // const addToRegistry = async () => {
+  //   const tx = new Transaction();
+  //   const coinType =
+  //     "0x285b49635f4ed253967a2a4a5f0c5aea2cbd9dd0fc427b4086f3fad7ccef2c29::i_sui::I_SUI";
+
+  //   weightHookGenerated.addToRegistry(tx, coinType, {
+  //     self: tx.object(
+  //       "0x0378a02d894cf2ad00c6aa236d43b6c5087eec2885c01ec1a0714162dd69d6c3",
+  //     ),
+  //     registry: tx.object(
+  //       "0x577c5a3b474403aec4629a56bab97b95715d3e87867517650651014cbef23e18",
+  //     ),
+  //     liquidStakingInfo: tx.object(
+  //       "0x4c19387aae1ce9baec9f53d7e7a1dcae348a2fd5614785a7047b0b8cbc5494d7",
+  //     ),
+  //   });
+
+  //   const res = await signExecuteAndWaitForTransaction(tx);
+  //   const txUrl = explorer.buildTxUrl(res.digest);
+  //   console.log("XXX", txUrl);
+  // };
 
   return (
     <>

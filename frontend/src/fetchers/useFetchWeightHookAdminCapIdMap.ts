@@ -41,7 +41,7 @@ export default function useFetchWeightHookAdminCapIdMap() {
   const { data, mutate } = useSWR<
     Record<string, string | undefined> | undefined
   >(!appData ? null : `weightHookAdminCapIdMap-${address}`, dataFetcher, {
-    refreshInterval: 60 * 1000,
+    refreshInterval: 30 * 1000,
     onSuccess: (data) => {
       console.log("Refreshed weightHookAdminCapIdMap", data);
     },
