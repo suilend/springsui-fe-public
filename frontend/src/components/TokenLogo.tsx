@@ -21,7 +21,7 @@ export default function TokenLogo({ className, token, size }: TokenLogoProps) {
         style={{ width: size, height: size }}
       />
     );
-  if (!token.iconUrl)
+  if (!token.iconUrl || ["temp"].includes(token.iconUrl))
     return (
       <div
         className={cn("rounded-[50%] bg-navy-100", className)}

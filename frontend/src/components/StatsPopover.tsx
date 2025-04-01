@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export function StatsContent() {
   const { appData } = useLoadedAppContext();
-  const { lstIds } = useLoadedLstContext();
+  const { lstCoinTypes } = useLoadedLstContext();
 
   type Stat = {
     labelStartDecorator?: ReactNode;
@@ -27,7 +27,9 @@ export function StatsContent() {
   };
 
   const stats = useMemo(() => {
-    const lstDatas = lstIds.map((lstId) => appData.lstDataMap[lstId]);
+    const lstDatas = lstCoinTypes.map(
+      (coinType) => appData.lstDataMap[coinType],
+    );
 
     const currentEpochEndsDuration = intervalToDuration({
       start: new Date(),
@@ -68,7 +70,7 @@ export function StatsContent() {
     return result;
   }, [
     appData.currentEpochEndMs,
-    lstIds,
+    lstCoinTypes,
     appData.lstDataMap,
     appData.suiToken.symbol,
     appData.suiPrice,

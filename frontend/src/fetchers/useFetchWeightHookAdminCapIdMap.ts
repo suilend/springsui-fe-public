@@ -20,14 +20,14 @@ export default function useFetchWeightHookAdminCapIdMap() {
     const weightHookAdminCapIdMap = Object.keys(
       appData.LIQUID_STAKING_INFO_MAP,
     ).reduce(
-      (acc, lstId) => ({ ...acc, [lstId]: undefined }),
+      (acc, coinType) => ({ ...acc, [coinType]: undefined }),
       {} as Record<string, string | undefined>,
     );
 
-    for (const [lstId, LIQUID_STAKING_INFO] of Object.entries(
+    for (const [coinType, LIQUID_STAKING_INFO] of Object.entries(
       appData.LIQUID_STAKING_INFO_MAP,
     )) {
-      weightHookAdminCapIdMap[lstId] =
+      weightHookAdminCapIdMap[coinType] =
         (await LstClient.getWeightHookAdminCapId(
           suiClient,
           address,
@@ -41,7 +41,7 @@ export default function useFetchWeightHookAdminCapIdMap() {
   const { data, mutate } = useSWR<
     Record<string, string | undefined> | undefined
   >(!appData ? null : `weightHookAdminCapIdMap-${address}`, dataFetcher, {
-    refreshInterval: 60 * 1000,
+    refreshInterval: 30 * 1000,
     onSuccess: (data) => {
       console.log("Refreshed weightHookAdminCapIdMap", data);
     },

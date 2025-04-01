@@ -43,13 +43,13 @@ export default function ValidatorAddressesAndWeightsCard() {
     { id: string; validatorAddress: string; weight: string }[]
   >(getVaw(admin.weightHook));
 
-  const prevLstIdRef = useRef<string>(admin.lstId);
+  const prevLstCoinTypeRef = useRef<string>(admin.lstCoinType);
   useEffect(() => {
-    if (admin.lstId === prevLstIdRef.current) return;
-    prevLstIdRef.current = admin.lstId;
+    if (admin.lstCoinType === prevLstCoinTypeRef.current) return;
+    prevLstCoinTypeRef.current = admin.lstCoinType;
 
     setVaw(getVaw(admin.weightHook));
-  }, [admin.lstId, getVaw, admin.weightHook]);
+  }, [admin.lstCoinType, getVaw, admin.weightHook]);
 
   const onChange = (id: string, key: string, value: string) =>
     setVaw((vaw) =>

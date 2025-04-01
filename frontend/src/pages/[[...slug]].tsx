@@ -34,6 +34,7 @@ import {
   sendObligationToUser,
 } from "@suilend/sdk";
 import { convertLsts, convertLstsAndSendToUser } from "@suilend/springsui-sdk";
+// import * as weightHookGenerated from "@suilend/springsui-sdk/_generated/liquid_staking/weight/functions";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
@@ -82,7 +83,7 @@ export default function Home() {
     signExecuteAndWaitForTransaction,
   } = useWalletContext();
   const { appData, getBalance, refresh } = useLoadedAppContext();
-  const { isSlugValid, tokenInSymbol, tokenOutSymbol, mode, lstIds } =
+  const { isSlugValid, tokenInSymbol, tokenOutSymbol, mode, lstCoinTypes } =
     useLoadedLstContext();
 
   const suiBalance = getBalance(appData.suiToken.coinType);
@@ -152,12 +153,16 @@ export default function Home() {
   const isConverting = useMemo(() => mode === Mode.CONVERTING, [mode]);
 
   // In
-  const inLstData = useMemo(
-    () => (isStaking ? undefined : appData.lstDataMap[tokenInSymbol]),
-    [isStaking, appData.lstDataMap, tokenInSymbol],
-  );
+  const inToken = isStaking
+    ? appData.suiToken
+    : Object.values(appData.lstDataMap).find(
+        (lstData) => lstData.token.symbol === tokenInSymbol,
+      )!.token;
 
-  const inToken = isStaking ? appData.suiToken : inLstData!.token;
+  const inLstData = useMemo(
+    () => (isStaking ? undefined : appData.lstDataMap[inToken.coinType]),
+    [isStaking, appData.lstDataMap, inToken.coinType],
+  );
   const inPrice = isStaking ? appData.suiPrice : inLstData!.price;
   const inBalance = getBalance(inToken.coinType);
 
@@ -202,12 +207,16 @@ export default function Home() {
   };
 
   // Out
-  const outLstData = useMemo(
-    () => (isUnstaking ? undefined : appData.lstDataMap[tokenOutSymbol]),
-    [isUnstaking, appData.lstDataMap, tokenOutSymbol],
-  );
+  const outToken = isUnstaking
+    ? appData.suiToken
+    : Object.values(appData.lstDataMap).find(
+        (lstData) => lstData.token.symbol === tokenOutSymbol,
+      )!.token;
 
-  const outToken = isUnstaking ? appData.suiToken : outLstData!.token;
+  const outLstData = useMemo(
+    () => (isUnstaking ? undefined : appData.lstDataMap[outToken.coinType]),
+    [isUnstaking, appData.lstDataMap, outToken.coinType],
+  );
   const outPrice = isUnstaking ? appData.suiPrice : outLstData!.price;
   const outBalance = getBalance(outToken.coinType);
 
@@ -516,7 +525,9 @@ export default function Home() {
   };
 
   const parameters = useMemo(() => {
-    const lstDatas = lstIds.map((lstId) => appData.lstDataMap[lstId]);
+    const lstDatas = lstCoinTypes.map(
+      (coinType) => appData.lstDataMap[coinType],
+    );
 
     const result: Parameter[] = [
       {
@@ -578,7 +589,29 @@ export default function Home() {
     ];
 
     return result;
-  }, [lstIds, appData.lstDataMap]);
+  }, [lstCoinTypes, appData.lstDataMap]);
+
+  // const addToRegistry = async () => {
+  //   const tx = new Transaction();
+  //   const coinType =
+  //     "0x285b49635f4ed253967a2a4a5f0c5aea2cbd9dd0fc427b4086f3fad7ccef2c29::i_sui::I_SUI";
+
+  //   weightHookGenerated.addToRegistry(tx, coinType, {
+  //     self: tx.object(
+  //       "0x0378a02d894cf2ad00c6aa236d43b6c5087eec2885c01ec1a0714162dd69d6c3",
+  //     ),
+  //     registry: tx.object(
+  //       "0x577c5a3b474403aec4629a56bab97b95715d3e87867517650651014cbef23e18",
+  //     ),
+  //     liquidStakingInfo: tx.object(
+  //       "0x4c19387aae1ce9baec9f53d7e7a1dcae348a2fd5614785a7047b0b8cbc5494d7",
+  //     ),
+  //   });
+
+  //   const res = await signExecuteAndWaitForTransaction(tx);
+  //   const txUrl = explorer.buildTxUrl(res.digest);
+  //   console.log("XXX", txUrl);
+  // };
 
   return (
     <>
@@ -676,12 +709,15 @@ export default function Home() {
 
             {/* Parameters */}
             <div className="flex w-full flex-col gap-4 px-2 md:px-4">
-              {lstIds.length > 1 && (
+              {lstCoinTypes.length > 1 && (
                 <div className="flex w-full flex-row items-center justify-end gap-4">
-                  {lstIds.map((lstId) => (
-                    <div key={lstId} className="flex w-16 flex-col items-end">
+                  {lstCoinTypes.map((coinType) => (
+                    <div
+                      key={coinType}
+                      className="flex w-16 flex-col items-end"
+                    >
                       <p className="text-p2 text-navy-600">
-                        {appData.lstDataMap[lstId].token.symbol}
+                        {appData.lstDataMap[coinType].token.symbol}
                       </p>
                     </div>
                   ))}
@@ -704,7 +740,7 @@ export default function Home() {
                         key={index2}
                         className={cn(
                           "flex flex-col items-end",
-                          lstIds.length > 1 && "w-16",
+                          lstCoinTypes.length > 1 && "w-16",
                         )}
                       >
                         <div className="flex flex-row items-center gap-1.5">

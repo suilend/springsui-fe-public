@@ -25,6 +25,8 @@ import {
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
+import { useLoadedAppContext } from "@/contexts/AppContext";
+import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 function generate_bytecode(
@@ -79,6 +81,8 @@ function generate_bytecode(
 export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
+  const { refresh: refreshAppData } = useLoadedAppContext();
+  const { refresh: refreshLstData } = useLoadedLstContext();
 
   // State
   const [module, setModule] = useState<string>("");
@@ -204,7 +208,9 @@ export default function CreateCard() {
     const res = await signExecuteAndWaitForTransaction(transaction);
     const txUrl = explorer.buildTxUrl(res.digest);
 
-    showSuccessTxnToast("Created LST", txUrl);
+    showSuccessTxnToast("Created LST", txUrl, {
+      description: "Please configure validators on the Admin page",
+    });
   };
 
   const submit = async () => {
@@ -214,6 +220,21 @@ export default function CreateCard() {
     setIsSubmitting(true);
 
     try {
+      if (name === "") throw new Error("Missing name");
+      if (symbol === "") throw new Error("Missing symbol");
+      if (name === symbol)
+        throw new Error("Name and symbol cannot be the same");
+
+      if (description === "") throw new Error("Missing description");
+
+      if (module === "") throw new Error("Missing module");
+      if (module.toLowerCase() !== module)
+        throw new Error("Module must be lowercase");
+
+      if (type === "") throw new Error("Missing type");
+      if (type.toUpperCase() !== type)
+        throw new Error("Type must be uppercase");
+
       // Step 1: Create the coin
       const { treasuryCapId, coinType } = await createCoin();
 
@@ -239,6 +260,8 @@ export default function CreateCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
+      refreshAppData();
+      refreshLstData();
     }
   };
 
