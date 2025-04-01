@@ -81,12 +81,12 @@ export default function useFetchAppData() {
     const LIQUID_STAKING_INFO_MAP =
       await fetchRegistryLiquidStakingInfoMap(suiClient);
 
-    const NORMALIZED_LST_COINTYPES = Object.keys(LIQUID_STAKING_INFO_MAP);
+    const lstCoinTypes = Object.keys(LIQUID_STAKING_INFO_MAP);
 
     // CoinMetadata
     const coinTypes: string[] = [
       NORMALIZED_SUI_COINTYPE,
-      ...NORMALIZED_LST_COINTYPES,
+      ...lstCoinTypes,
       NORMALIZED_SEND_POINTS_S2_COINTYPE,
     ];
     const uniqueCoinTypes = Array.from(new Set(coinTypes));
@@ -246,7 +246,7 @@ export default function useFetchAppData() {
       suiPrice,
 
       LIQUID_STAKING_INFO_MAP,
-      NORMALIZED_LST_COINTYPES,
+      lstCoinTypes,
       lstDataMap,
 
       currentEpoch,

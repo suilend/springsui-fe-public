@@ -58,7 +58,7 @@ export interface AppData {
   suiPrice: BigNumber;
 
   LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo>;
-  NORMALIZED_LST_COINTYPES: string[];
+  lstCoinTypes: string[];
   lstDataMap: Record<string, LstData>;
 
   currentEpoch: number;
@@ -109,11 +109,8 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   }, [mutateRawBalancesMap]);
 
   const balancesCoinTypes = useMemo(
-    () => [
-      NORMALIZED_SUI_COINTYPE,
-      ...(appData?.NORMALIZED_LST_COINTYPES ?? []),
-    ],
-    [appData?.NORMALIZED_LST_COINTYPES],
+    () => [NORMALIZED_SUI_COINTYPE, ...(appData?.lstCoinTypes ?? [])],
+    [appData?.lstCoinTypes],
   );
   const balancesCoinMetadataMap = useCoinMetadataMap(balancesCoinTypes);
 
