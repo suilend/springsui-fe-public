@@ -85,17 +85,25 @@ export class LstClient {
       lstTreasuryCap: treasuryCap,
     });
 
-    tx.moveCall({
-      target: `0x2::transfer::public_share_object`,
-      typeArguments: [`${LiquidStakingInfo.$typeName}<${coinType}>`],
-      arguments: [liquidStakingInfo],
-    });
-
     const [weightHook, weightHookAdminCap] = weightHookGenerated.new_(
       tx,
       coinType,
       adminCap,
     );
+
+    weightHookGenerated.addToRegistry(tx, coinType, {
+      self: weightHook,
+      registry: tx.object(
+        "0x577c5a3b474403aec4629a56bab97b95715d3e87867517650651014cbef23e18",
+      ),
+      liquidStakingInfo,
+    });
+
+    tx.moveCall({
+      target: `0x2::transfer::public_share_object`,
+      typeArguments: [`${LiquidStakingInfo.$typeName}<${coinType}>`],
+      arguments: [liquidStakingInfo],
+    });
 
     tx.moveCall({
       target: `0x2::transfer::public_share_object`,

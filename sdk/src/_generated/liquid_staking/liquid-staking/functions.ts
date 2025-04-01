@@ -7,18 +7,6 @@ import {
   TransactionObjectInput,
 } from "@mysten/sui/transactions";
 
-export function fees(
-  tx: Transaction,
-  typeArg: string,
-  self: TransactionObjectInput,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::liquid_staking::fees`,
-    typeArguments: [typeArg],
-    arguments: [obj(tx, self)],
-  });
-}
-
 export interface MintArgs {
   self: TransactionObjectInput;
   systemState: TransactionObjectInput;
@@ -44,6 +32,18 @@ export function storage(
 ) {
   return tx.moveCall({
     target: `${PUBLISHED_AT}::liquid_staking::storage`,
+    typeArguments: [typeArg],
+    arguments: [obj(tx, self)],
+  });
+}
+
+export function fees(
+  tx: Transaction,
+  typeArg: string,
+  self: TransactionObjectInput,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::liquid_staking::fees`,
     typeArguments: [typeArg],
     arguments: [obj(tx, self)],
   });
