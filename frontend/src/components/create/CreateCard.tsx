@@ -81,12 +81,16 @@ function generate_bytecode(
 export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refresh: refreshAppData } = useLoadedAppContext();
+  const { appData, refresh: refreshAppData } = useLoadedAppContext();
   const { refresh: refreshLstData } = useLoadedLstContext();
+
+  const existingSymbols = Object.values(appData.lstDataMap).reduce(
+    (acc, lstData) => [...acc, lstData.token.symbol],
+    [] as string[],
+  );
 
   // State
   const [module, setModule] = useState<string>("");
-  const [type, setType] = useState<string>("");
 
   const [symbol, setSymbol] = useState<string>("");
   const [name, setName] = useState<string>("");
@@ -101,7 +105,7 @@ export default function CreateCard() {
 
     const bytecode = generate_bytecode(
       module,
-      type,
+      module.toUpperCase(),
       name,
       symbol,
       description,
@@ -224,16 +228,14 @@ export default function CreateCard() {
       if (symbol === "") throw new Error("Missing symbol");
       if (name === symbol)
         throw new Error("Name and symbol cannot be the same");
+      if (existingSymbols.includes(symbol))
+        throw new Error("Symbol already taken");
 
       if (description === "") throw new Error("Missing description");
 
       if (module === "") throw new Error("Missing module");
       if (module.toLowerCase() !== module)
         throw new Error("Module must be lowercase");
-
-      if (type === "") throw new Error("Missing type");
-      if (type.toUpperCase() !== type)
-        throw new Error("Type must be uppercase");
 
       // Step 1: Create the coin
       const { treasuryCapId, coinType } = await createCoin();
@@ -303,7 +305,7 @@ export default function CreateCard() {
         <div className="flex w-full flex-row gap-4">
           <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
             <p className="text-p2 text-navy-600">packageId</p>
-            <Input placeholder="Auto-generated" value="" />
+            <Input placeholder="Random" value="" />
           </div>
           <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
             <p className="text-p2 text-navy-600">module</p>
@@ -315,13 +317,16 @@ export default function CreateCard() {
           </div>
           <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
             <p className="text-p2 text-navy-600">type</p>
-            <Input placeholder="SPRING_SUI" value={type} onChange={setType} />
+            <Input
+              placeholder={"spring_sui".toUpperCase()}
+              value={module.toUpperCase()}
+            />
           </div>
         </div>
 
         <p className="text-p2 text-navy-500">
           {"coinType: "}
-          <span className="text-navy-600">{`packageId::${module || "module"}::${type || "type"}`}</span>
+          <span className="text-navy-600">{`<packageId>::<${module || "module"}>::<${module.toUpperCase() || "type"}>`}</span>
         </p>
 
         <Button onClick={submit} isLoading={isSubmitting} />
