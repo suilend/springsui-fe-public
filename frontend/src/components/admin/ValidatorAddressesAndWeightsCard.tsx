@@ -99,12 +99,9 @@ export default function ValidatorAddressesAndWeightsCard() {
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
 
-      showSuccessTxnToast("Set validator addresses and weights", txUrl);
+      showSuccessTxnToast("Set validators", txUrl);
     } catch (err) {
-      showErrorToast(
-        "Failed to set validator addresses and weights",
-        err as Error,
-      );
+      showErrorToast("Failed to set validators", err as Error);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -115,7 +112,7 @@ export default function ValidatorAddressesAndWeightsCard() {
   return (
     <Card>
       <div className="flex w-full flex-col gap-4 p-4">
-        <p className="text-navy-600">Validator addresses and weights</p>
+        <p className="text-navy-600">Validators</p>
 
         <div className="flex flex-col gap-4">
           {vaw.map((row, index) => (
@@ -123,7 +120,7 @@ export default function ValidatorAddressesAndWeightsCard() {
               {/* Address */}
               <div className="flex flex-1 flex-col gap-1.5">
                 {index === 0 && (
-                  <p className="text-p2 text-navy-600">address</p>
+                  <p className="text-p2 text-navy-600">Address</p>
                 )}
                 <TextareaAutosize
                   id={`validator-address-${row.id}`}
@@ -137,9 +134,9 @@ export default function ValidatorAddressesAndWeightsCard() {
               </div>
 
               {/* Weight */}
-              <div className="flex w-[80px] flex-col gap-1.5 md:w-[120px]">
+              <div className="flex w-[125px] flex-col gap-1.5">
                 {index === 0 && (
-                  <p className="text-p2 text-navy-600">weight (%)</p>
+                  <p className="text-p2 text-navy-600">Weight (0–100%)</p>
                 )}
                 <Input
                   type="number"

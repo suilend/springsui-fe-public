@@ -147,10 +147,10 @@ export default function useFetchAppData() {
 
             const suiToLstExchangeRate = !totalSuiSupply.eq(0)
               ? totalLstSupply.div(totalSuiSupply)
-              : new BigNumber(0);
+              : new BigNumber(1);
             const lstToSuiExchangeRate = !totalLstSupply.eq(0)
               ? totalSuiSupply.div(totalLstSupply)
-              : new BigNumber(0);
+              : new BigNumber(1);
 
             const mintFeePercent = new BigNumber(
               rawLiquidStakingInfo.feeConfig.element?.suiMintFeeBps.toString() ??

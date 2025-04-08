@@ -17,6 +17,12 @@ import { LstData, useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
+const feeNameMap: Record<keyof FeeConfigArgs, string> = {
+  mintFeeBps: "Staking fee",
+  redeemFeeBps: "Unstaking fee",
+  spreadFeeBps: "Performance fee",
+};
+
 export default function UpdateFeesCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
@@ -64,7 +70,7 @@ export default function UpdateFeesCard() {
       if (hasMissingValues) throw new Error("Missing values");
 
       if (new BigNumber(feeConfigArgs.redeemFeeBps).lt(2))
-        throw new Error("Redeem fee must be at least 2 bps");
+        throw new Error("Redeem fee must be at least 2 bps (0.02%)");
 
       admin.lstData.lstClient.updateFees(
         transaction,
@@ -99,15 +105,14 @@ export default function UpdateFeesCard() {
               key={key}
               className="flex flex-col gap-1.5 max-md:w-full md:flex-1"
             >
-              <p className="text-p2 text-navy-600">{key}</p>
+              <p className="text-p2 text-navy-600">
+                {feeNameMap[key as keyof FeeConfigArgs]}
+              </p>
               <Input
                 type="number"
                 value={feeConfigArgs[key as keyof FeeConfigArgs] ?? ""}
                 onChange={(value) =>
-                  setFeeConfigArgs((fc) => ({
-                    ...fc,
-                    [key]: value,
-                  }))
+                  setFeeConfigArgs((fc) => ({ ...fc, [key]: value }))
                 }
               />
             </div>

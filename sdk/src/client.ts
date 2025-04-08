@@ -387,21 +387,23 @@ export class LstClient {
     ).div(100);
 
     return new BigNumber(
-      liquidStakingInfo.storage.validatorInfos
-        .reduce((acc, validatorInfo) => {
-          const validatorApy = new BigNumber(
-            validatorApys.find(
-              (_apy) => _apy.address === validatorInfo.validatorAddress,
-            )?.apy ?? 0,
-          );
+      totalSuiSupply.gt(0)
+        ? liquidStakingInfo.storage.validatorInfos
+            .reduce((acc, validatorInfo) => {
+              const validatorApy = new BigNumber(
+                validatorApys.find(
+                  (_apy) => _apy.address === validatorInfo.validatorAddress,
+                )?.apy ?? 0,
+              );
 
-          const validatorTotalSuiAmount = new BigNumber(
-            validatorInfo.totalSuiAmount.toString(),
-          ).div(10 ** SUI_DECIMALS);
+              const validatorTotalSuiAmount = new BigNumber(
+                validatorInfo.totalSuiAmount.toString(),
+              ).div(10 ** SUI_DECIMALS);
 
-          return acc.plus(validatorApy.times(validatorTotalSuiAmount));
-        }, new BigNumber(0))
-        .div(totalSuiSupply),
+              return acc.plus(validatorApy.times(validatorTotalSuiAmount));
+            }, new BigNumber(0))
+            .div(totalSuiSupply)
+        : new BigNumber(0),
     ).times(new BigNumber(1).minus(spreadFeePercent.div(100)));
   }
 }
@@ -446,6 +448,7 @@ export const fetchRegistryLiquidStakingInfoMap = async (client: SuiClient) => {
           "0x86518340cc15853c76bcb63996c6fb36cd566755a870f46bccd3e95f6a0a4993::test_sui::TEST_SUI",
           "0xbf609bb629a11e7ee7c72bc3d5cf98c1c26cd2e35b2d017be4895d7e0c6be898::temps_sui::TEMPS_SUI",
           "0x4bf0e1d42f731c19066d910ebf7ba12ffe4025258f50b6cc490af38080a15dfb::t0sui::T0SUI",
+          "0xbdf600b2f3b5d2b315f0c82ad190d4b40666b823144f5013c02f26045cda98b6::tt_sui::TT_SUI",
         ].includes(coinType)
       )
         return acc;

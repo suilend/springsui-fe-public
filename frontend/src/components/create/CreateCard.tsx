@@ -8,19 +8,21 @@ import {
   update_identifiers,
 } from "@mysten/move-bytecode-template";
 import init from "@mysten/move-bytecode-template";
+import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
+import BigNumber from "bignumber.js";
+import { Minus } from "lucide-react";
+import TextareaAutosize from "react-textarea-autosize";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import {
-  FeeConfigArgs,
-  LiquidStakingObjectInfo,
-  LstClient,
-} from "@suilend/springsui-sdk";
+import { FeeConfigArgs } from "@suilend/springsui-sdk";
+import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
@@ -78,6 +80,12 @@ function generate_bytecode(
   return updated;
 }
 
+const feeNameMap: Record<keyof FeeConfigArgs, string> = {
+  mintFeeBps: "Staking fee",
+  redeemFeeBps: "Unstaking fee",
+  spreadFeeBps: "Performance fee",
+};
+
 export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
@@ -90,12 +98,38 @@ export default function CreateCard() {
   );
 
   // State
-  const [module, setModule] = useState<string>("");
-
-  const [symbol, setSymbol] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [symbol, setSymbol] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [module, setModule] = useState<string>("");
+
+  // State - fees
+  const [feeConfigArgs, setFeeConfigArgs] = useState<
+    Record<keyof FeeConfigArgs, string>
+  >({ mintFeeBps: "", redeemFeeBps: "", spreadFeeBps: "" });
+
+  // State - validators
+  const [vaw, setVaw] = useState<
+    { id: string; validatorAddress: string; weight: string }[]
+  >([{ id: uuidv4(), validatorAddress: "", weight: "" }]);
+
+  const onVawChange = (id: string, key: string, value: string) =>
+    setVaw((vaw) =>
+      vaw.map((row) => (row.id === id ? { ...row, [key]: value } : row)),
+    );
+
+  const removeVawRow = (id: string) =>
+    setVaw((vaw) => vaw.filter((row) => row.id !== id));
+
+  const addVawRow = () => {
+    const rowId = uuidv4();
+    setVaw((vaw) => [...vaw, { id: rowId, validatorAddress: "", weight: "" }]);
+
+    setTimeout(() => {
+      document.getElementById(`validator-address-${rowId}`)?.focus();
+    });
+  };
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -195,26 +229,34 @@ export default function CreateCard() {
     return { liquidStakingInfoId, weightHookAdminCapId, weightHookId };
   };
 
-  const setFees = async (
+  const setFeesAndValidators = async (
     lstClient: LstClient,
     weightHookAdminCapId: string,
-  ) => {
-    // Set fees
+  ): Promise<SuiTransactionBlockResponse> => {
     const transaction = new Transaction();
 
-    const feeConfigArgs: FeeConfigArgs = {
-      mintFeeBps: 0,
-      redeemFeeBps: 2,
-      spreadFeeBps: 0,
-    };
-    lstClient.updateFees(transaction, weightHookAdminCapId, feeConfigArgs);
+    // Set fees
+    lstClient.updateFees(
+      transaction,
+      weightHookAdminCapId,
+      Object.entries(feeConfigArgs).reduce(
+        (acc, [key, value]) => ({ ...acc, [key]: +value }),
+        {},
+      ),
+    );
 
-    const res = await signExecuteAndWaitForTransaction(transaction);
-    const txUrl = explorer.buildTxUrl(res.digest);
+    // Set validators
+    lstClient.setValidatorAddressesAndWeights(
+      transaction,
+      lstClient.liquidStakingObject.weightHookId,
+      weightHookAdminCapId,
+      vaw.reduce(
+        (acc, row) => ({ ...acc, [row.validatorAddress]: +row.weight }),
+        {},
+      ),
+    );
 
-    showSuccessTxnToast("Created LST", txUrl, {
-      description: "Please configure validators on the Admin page",
-    });
+    return signExecuteAndWaitForTransaction(transaction);
   };
 
   const submit = async () => {
@@ -232,10 +274,20 @@ export default function CreateCard() {
         throw new Error("Symbol already taken");
 
       if (description === "") throw new Error("Missing description");
+      if (imageUrl === "") throw new Error("Missing image");
 
       if (module === "") throw new Error("Missing module");
       if (module.toLowerCase() !== module)
         throw new Error("Module must be lowercase");
+
+      if (Object.entries(feeConfigArgs).some(([key, value]) => value === ""))
+        throw new Error("Missing fees");
+      if (new BigNumber(feeConfigArgs.redeemFeeBps).lt(2))
+        throw new Error("Redeem fee must be at least 2 bps (0.02%)");
+
+      if (vaw.length === 0) throw new Error("Add at least one validator");
+      if (vaw.some((row) => row.validatorAddress === "" || row.weight === ""))
+        throw new Error("Missing validator address or weight");
 
       // Step 1: Create the coin
       const { treasuryCapId, coinType } = await createCoin();
@@ -244,7 +296,7 @@ export default function CreateCard() {
       const { liquidStakingInfoId, weightHookAdminCapId, weightHookId } =
         await createLst(treasuryCapId, coinType);
 
-      // Step 3: Set redeem fee to 2bps
+      // Step 3: Set fees and validators
       const LIQUID_STAKING_INFO: LiquidStakingObjectInfo = {
         id: liquidStakingInfoId,
         type: coinType,
@@ -256,7 +308,20 @@ export default function CreateCard() {
         LIQUID_STAKING_INFO,
       );
 
-      await setFees(lstClient, weightHookAdminCapId);
+      const res = await setFeesAndValidators(lstClient, weightHookAdminCapId);
+      const txUrl = explorer.buildTxUrl(res.digest);
+
+      showSuccessTxnToast("Created LST", txUrl);
+
+      // Reset
+      setName("");
+      setSymbol("");
+      setDescription("");
+      setImageUrl("");
+      setModule("");
+
+      setFeeConfigArgs({ mintFeeBps: "", redeemFeeBps: "", spreadFeeBps: "" });
+      setVaw([{ id: uuidv4(), validatorAddress: "", weight: "" }]);
     } catch (err) {
       showErrorToast("Failed to create LST", err as Error);
       console.error(err);
@@ -268,69 +333,199 @@ export default function CreateCard() {
   };
 
   return (
-    <Card>
-      <div className="flex w-full flex-col gap-4 p-4">
-        <p className="text-navy-600">Create LST</p>
-
-        <div className="flex w-full flex-row gap-4">
-          <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[2]">
-            <p className="text-p2 text-navy-600">name</p>
-            <Input
-              placeholder="Spring Staked SUI"
-              value={name}
-              onChange={setName}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-            <p className="text-p2 text-navy-600">symbol</p>
-            <Input placeholder="sSUI" value={symbol} onChange={setSymbol} />
-          </div>
-          <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
-            <p className="text-p2 text-navy-600">description</p>
-            <Input
-              placeholder="Infinitely liquid staking on Sui"
-              value={description}
-              onChange={setDescription}
-            />
-          </div>
-        </div>
-
-        <div className="flex w-full flex-row gap-4">
-          <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-            <p className="text-p2 text-navy-600">image (url or base64)</p>
-            <Input value={imageUrl} onChange={setImageUrl} />
-          </div>
-        </div>
-
-        <div className="flex w-full flex-row gap-4">
-          <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
-            <p className="text-p2 text-navy-600">packageId</p>
-            <Input placeholder="Random" value="" />
-          </div>
-          <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-            <p className="text-p2 text-navy-600">module</p>
-            <Input
-              placeholder="spring_sui"
-              value={module}
-              onChange={setModule}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-            <p className="text-p2 text-navy-600">type</p>
-            <Input
-              placeholder={"spring_sui".toUpperCase()}
-              value={module.toUpperCase()}
-            />
-          </div>
-        </div>
-
-        <p className="text-p2 text-navy-500">
-          {"coinType: "}
-          <span className="text-navy-600">{`<packageId>::<${module || "module"}>::<${module.toUpperCase() || "type"}>`}</span>
-        </p>
-
-        <Button onClick={submit} isLoading={isSubmitting} />
+    <div className="flex flex-col gap-4">
+      <div className="w-full px-4">
+        <p className="text-h3 text-navy-800">Create LST</p>
       </div>
-    </Card>
+
+      {/* Details */}
+      <Card>
+        <div className="flex w-full flex-col gap-4 p-4">
+          <p className="text-navy-600">Details</p>
+
+          <div className="flex flex-col gap-4 md:flex-row">
+            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[2]">
+              <p className="text-p2 text-navy-600">
+                Name <span className="text-error">*</span>
+              </p>
+              <Input
+                placeholder="Spring Staked SUI"
+                value={name}
+                onChange={setName}
+              />
+              <p className="text-p3 text-navy-500">
+                Cannot be the same as symbol
+              </p>
+            </div>
+            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
+              <p className="text-p2 text-navy-600">
+                Symbol <span className="text-error">*</span>
+              </p>
+              <Input placeholder="sSUI" value={symbol} onChange={setSymbol} />
+              <p className="text-p3 text-navy-500">Must be unique</p>
+            </div>
+            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
+              <p className="text-p2 text-navy-600">
+                Description <span className="text-error">*</span>
+              </p>
+              <Input
+                placeholder="Infinitely liquid staking on Sui"
+                value={description}
+                onChange={setDescription}
+              />
+            </div>
+          </div>
+
+          <div className="flex w-full flex-row gap-4">
+            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
+              <p className="text-p2 text-navy-600">
+                Image (URL or base64) <span className="text-error">*</span>
+              </p>
+              <Input value={imageUrl} onChange={setImageUrl} />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 md:flex-row">
+            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
+              <p className="text-p2 text-navy-600">packageId</p>
+              <Input placeholder="Generated" value="" />
+            </div>
+            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
+              <p className="text-p2 text-navy-600">
+                module <span className="text-error">*</span>
+              </p>
+              <Input
+                placeholder="spring_sui"
+                value={module}
+                onChange={setModule}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
+              <p className="text-p2 text-navy-600">type</p>
+              <Input
+                placeholder={"spring_sui".toUpperCase()}
+                value={module.toUpperCase()}
+              />
+            </div>
+          </div>
+
+          <p className="text-p2 text-navy-500">
+            {"Your LST's coin type will be "}
+            <span className="font-[monospace] text-navy-600">{`<packageId>::${module || "<module>"}::${module.toUpperCase() || "<type>"}`}</span>
+          </p>
+        </div>
+      </Card>
+
+      {/* Fees */}
+      <Card>
+        <div className="flex w-full flex-col gap-4 p-4">
+          <p className="text-navy-600">Fees</p>
+
+          <div className="flex flex-col gap-4 md:flex-row">
+            {Object.keys(feeConfigArgs).map((key) => (
+              <div
+                key={key}
+                className="flex flex-col gap-1.5 max-md:w-full md:flex-1"
+              >
+                <p className="text-p2 text-navy-600">
+                  {feeNameMap[key as keyof FeeConfigArgs]}{" "}
+                  <span className="text-error">*</span>
+                </p>
+                <Input
+                  type="number"
+                  value={feeConfigArgs[key as keyof FeeConfigArgs] ?? ""}
+                  onChange={(value) =>
+                    setFeeConfigArgs((fc) => ({ ...fc, [key]: value }))
+                  }
+                />
+                {key === "mintFeeBps" && (
+                  <p className="text-p3 text-navy-500">
+                    Recommended to use 0 bps (0%)
+                  </p>
+                )}
+                {key === "redeemFeeBps" && (
+                  <p className="text-p3 text-navy-500">Min. 2 bps (0.02%)</p>
+                )}
+                {key === "spreadFeeBps" && (
+                  <p className="text-p3 text-navy-500">
+                    E.g. 10% fee = 1000 bps
+                  </p>
+                )}{" "}
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {/* Validators */}
+      <Card>
+        <div className="flex w-full flex-col gap-4 p-4">
+          <p className="text-navy-600">Validators</p>
+
+          <div className="flex flex-col gap-4">
+            {vaw.map((row, index) => (
+              <div key={row.id} className="flex flex-row gap-4">
+                {/* Address */}
+                <div className="flex flex-1 flex-col gap-1.5">
+                  {index === 0 && (
+                    <p className="text-p2 text-navy-600">
+                      Address <span className="text-error">*</span>
+                    </p>
+                  )}
+                  <TextareaAutosize
+                    id={`validator-address-${row.id}`}
+                    className="min-h-10 w-full rounded-sm bg-white px-4 py-2 font-sans text-p1 text-foreground placeholder:text-navy-500 focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))] focus-visible:outline-none"
+                    value={row.validatorAddress}
+                    onChange={(e) =>
+                      onVawChange(row.id, "validatorAddress", e.target.value)
+                    }
+                    minRows={1}
+                  />
+                </div>
+
+                {/* Weight */}
+                <div className="flex w-[125px] flex-col gap-1.5">
+                  {index === 0 && (
+                    <p className="text-p2 text-navy-600">
+                      Weight (0–100%) <span className="text-error">*</span>
+                    </p>
+                  )}
+                  <Input
+                    type="number"
+                    value={row.weight}
+                    onChange={(value) => onVawChange(row.id, "weight", value)}
+                  />
+                  {index === vaw.length - 1 && (
+                    <p className="text-p3 text-navy-500">Must add up to 100%</p>
+                  )}
+                </div>
+
+                {/* Remove */}
+                <div className="flex flex-col gap-1.5">
+                  {index === 0 && <p className="text-p2 opacity-0">-</p>}
+                  <Button
+                    className="w-10"
+                    isDisabled={vaw.length < 2}
+                    onClick={() => removeVawRow(row.id)}
+                  >
+                    <Minus className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            <Button className="mr-14 w-auto" onClick={addVawRow}>
+              Add row
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <div className="w-full px-4">
+        <Button onClick={submit} isLoading={isSubmitting}>
+          Create LST
+        </Button>
+      </div>
+    </div>
   );
 }
