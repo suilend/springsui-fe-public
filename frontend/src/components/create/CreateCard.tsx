@@ -1,6 +1,7 @@
 import assert from "assert";
 
-import { useState } from "react";
+import Image from "next/image";
+import { ChangeEvent, useRef, useState } from "react";
 
 import { bcs } from "@mysten/bcs";
 import {
@@ -12,7 +13,8 @@ import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
-import { Minus } from "lucide-react";
+import { snakeCase } from "lodash";
+import { Camera, Loader2, Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
@@ -32,7 +34,7 @@ import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 
 function generate_bytecode(
-  module: string,
+  module_: string,
   type: string,
   name: string,
   symbol: string,
@@ -46,7 +48,7 @@ function generate_bytecode(
 
   let updated = update_identifiers(bytecode, {
     TEMPLATE: type,
-    template: module,
+    template: module_,
   });
 
   updated = update_constants(
@@ -102,7 +104,23 @@ export default function CreateCard() {
   const [symbol, setSymbol] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [module, setModule] = useState<string>("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (!reader.result || typeof reader.result !== "string") return;
+      setImageUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const fullName = `${name} Staked SUI`;
+  const module_ = snakeCase(symbol);
+  const type = module_.toUpperCase();
 
   // State - fees
   const [feeConfigArgs, setFeeConfigArgs] = useState<
@@ -138,9 +156,9 @@ export default function CreateCard() {
     await init();
 
     const bytecode = generate_bytecode(
-      module,
-      module.toUpperCase(),
-      name,
+      module_,
+      type,
+      fullName,
       symbol,
       description,
       imageUrl,
@@ -268,17 +286,13 @@ export default function CreateCard() {
     try {
       if (name === "") throw new Error("Missing name");
       if (symbol === "") throw new Error("Missing symbol");
-      if (name === symbol)
+      if (fullName === symbol)
         throw new Error("Name and symbol cannot be the same");
       if (existingSymbols.includes(symbol))
         throw new Error("Symbol already taken");
 
       if (description === "") throw new Error("Missing description");
       if (imageUrl === "") throw new Error("Missing image");
-
-      if (module === "") throw new Error("Missing module");
-      if (module.toLowerCase() !== module)
-        throw new Error("Module must be lowercase");
 
       if (Object.entries(feeConfigArgs).some(([key, value]) => value === ""))
         throw new Error("Missing fees");
@@ -318,7 +332,7 @@ export default function CreateCard() {
       setSymbol("");
       setDescription("");
       setImageUrl("");
-      setModule("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
 
       setFeeConfigArgs({ mintFeeBps: "", redeemFeeBps: "", spreadFeeBps: "" });
       setVaw([{ id: uuidv4(), validatorAddress: "", weight: "" }]);
@@ -348,14 +362,20 @@ export default function CreateCard() {
               <p className="text-p2 text-navy-600">
                 Name <span className="text-error">*</span>
               </p>
-              <Input
-                placeholder="Spring Staked SUI"
-                value={name}
-                onChange={setName}
-              />
-              <p className="text-p3 text-navy-500">
-                Cannot be the same as symbol
-              </p>
+              <div className="relative w-full">
+                <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
+                  <p className="text-p1 text-foreground">Staked SUI</p>
+                </div>
+                <Input
+                  className="relative z-[1]"
+                  placeholder="Spring"
+                  value={name}
+                  onChange={setName}
+                />
+              </div>
+              {name !== "" && (
+                <p className="text-p3 text-navy-500">LST name: {fullName}</p>
+              )}
             </div>
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">
@@ -379,9 +399,45 @@ export default function CreateCard() {
           <div className="flex w-full flex-row gap-4">
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">
-                Image (URL or base64) <span className="text-error">*</span>
+                Icon <span className="text-error">*</span>
               </p>
-              <Input value={imageUrl} onChange={setImageUrl} />
+              <div className="flex flex-col gap-3">
+                <div className="pointer-cursor group relative flex h-[80px] w-[80px] overflow-hidden rounded-sm">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="absolute inset-0 z-[3] h-full w-full appearance-none opacity-0"
+                    accept="image/*"
+                    onChange={onFileChange}
+                  />
+                  <div className="absolute inset-0 z-[2] rounded-sm group-focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))]" />
+                  {imageUrl ? (
+                    <div className="absolute inset-0 z-[1] flex flex-row items-center justify-center">
+                      <Image
+                        className="absolute inset-0 z-[2] h-full w-full object-contain"
+                        src={imageUrl}
+                        alt="Image"
+                        fill
+                        quality={100}
+                      />
+                      <Loader2 className="relative z-[1] h-5 w-5 animate-spin text-navy-600" />
+                    </div>
+                  ) : (
+                    <div className="relative z-[1] flex h-full w-full flex-row items-center justify-center bg-white">
+                      <Camera className="h-5 w-5 text-navy-600" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Input
+                    value={imageUrl}
+                    onChange={(value) => {
+                      setImageUrl(value);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -391,27 +447,18 @@ export default function CreateCard() {
               <Input placeholder="Generated" value="" />
             </div>
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">
-                module <span className="text-error">*</span>
-              </p>
-              <Input
-                placeholder="spring_sui"
-                value={module}
-                onChange={setModule}
-              />
+              <p className="text-p2 text-navy-600">module</p>
+              <Input placeholder="s_sui" value={module_} />
             </div>
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">type</p>
-              <Input
-                placeholder={"spring_sui".toUpperCase()}
-                value={module.toUpperCase()}
-              />
+              <Input placeholder="S_SUI" value={type} />
             </div>
           </div>
 
           <p className="text-p2 text-navy-500">
             {"Your LST's coin type will be "}
-            <span className="font-[monospace] text-navy-600">{`<packageId>::${module || "<module>"}::${module.toUpperCase() || "<type>"}`}</span>
+            <span className="font-[monospace] text-navy-600">{`<packageId>::${module_ || "<module>"}::${type || "<type>"}`}</span>
           </p>
         </div>
       </Card>

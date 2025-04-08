@@ -143,6 +143,9 @@ export default function ValidatorAddressesAndWeightsCard() {
                   value={row.weight}
                   onChange={(value) => onChange(row.id, "weight", value)}
                 />
+                {index === vaw.length - 1 && (
+                  <p className="text-p3 text-navy-500">Must add up to 100%</p>
+                )}
               </div>
 
               {/* Remove */}

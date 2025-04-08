@@ -3,7 +3,7 @@ import { NORMALIZED_sSUI_COINTYPE } from "@suilend/frontend-sui";
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
-import ValidatorAddressesAndWeightsCard from "@/components/admin/ValidatorAddressesAndWeightsCard";
+import ValidatorsCard from "@/components/admin/ValidatorsCard";
 import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
@@ -71,7 +71,7 @@ export default function Admin() {
             {admin.weightHook === undefined ? (
               <Skeleton className="h-40 w-full" />
             ) : (
-              <ValidatorAddressesAndWeightsCard />
+              <ValidatorsCard />
             )}
           </div>
 
