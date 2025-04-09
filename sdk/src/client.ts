@@ -449,6 +449,7 @@ export const fetchRegistryLiquidStakingInfoMap = async (client: SuiClient) => {
           "0xbf609bb629a11e7ee7c72bc3d5cf98c1c26cd2e35b2d017be4895d7e0c6be898::temps_sui::TEMPS_SUI",
           "0x4bf0e1d42f731c19066d910ebf7ba12ffe4025258f50b6cc490af38080a15dfb::t0sui::T0SUI",
           "0xbdf600b2f3b5d2b315f0c82ad190d4b40666b823144f5013c02f26045cda98b6::tt_sui::TT_SUI",
+          "0xfadc3b0fd8aea6aa485ab48271c957922396ab4984a7045da570cf836ed895cc::root_sui::ROOT_SUI",
         ].includes(coinType)
       )
         return acc;

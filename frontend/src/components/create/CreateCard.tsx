@@ -1,7 +1,6 @@
 import assert from "assert";
 
-import Image from "next/image";
-import { ChangeEvent, useRef, useState } from "react";
+import { useState } from "react";
 
 import { bcs } from "@mysten/bcs";
 import {
@@ -14,7 +13,7 @@ import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import { snakeCase } from "lodash";
-import { Camera, Loader2, Minus } from "lucide-react";
+import { Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
@@ -104,19 +103,6 @@ export default function CreateCard() {
   const [symbol, setSymbol] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (!reader.result || typeof reader.result !== "string") return;
-      setImageUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
 
   const fullName = `${name} Staked SUI`;
   const module_ = snakeCase(symbol);
@@ -332,7 +318,6 @@ export default function CreateCard() {
       setSymbol("");
       setDescription("");
       setImageUrl("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
 
       setFeeConfigArgs({ mintFeeBps: "", redeemFeeBps: "", spreadFeeBps: "" });
       setVaw([{ id: uuidv4(), validatorAddress: "", weight: "" }]);
@@ -399,45 +384,16 @@ export default function CreateCard() {
           <div className="flex w-full flex-row gap-4">
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">
-                Icon <span className="text-error">*</span>
+                Icon URL <span className="text-error">*</span>
               </p>
-              <div className="flex flex-col gap-3">
-                <div className="pointer-cursor group relative flex h-[80px] w-[80px] overflow-hidden rounded-sm">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className="absolute inset-0 z-[3] h-full w-full appearance-none opacity-0"
-                    accept="image/*"
-                    onChange={onFileChange}
-                  />
-                  <div className="absolute inset-0 z-[2] rounded-sm group-focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))]" />
-                  {imageUrl ? (
-                    <div className="absolute inset-0 z-[1] flex flex-row items-center justify-center">
-                      <Image
-                        className="absolute inset-0 z-[2] h-full w-full object-contain"
-                        src={imageUrl}
-                        alt="Image"
-                        fill
-                        quality={100}
-                      />
-                      <Loader2 className="relative z-[1] h-5 w-5 animate-spin text-navy-600" />
-                    </div>
-                  ) : (
-                    <div className="relative z-[1] flex h-full w-full flex-row items-center justify-center bg-white">
-                      <Camera className="h-5 w-5 text-navy-600" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <Input
-                    value={imageUrl}
-                    onChange={(value) => {
-                      setImageUrl(value);
-                      if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}
-                  />
-                </div>
-              </div>
+              <Input
+                placeholder="https://springsui-assets.s3.us-east-2.amazonaws.com/sSUI.png"
+                value={imageUrl}
+                onChange={setImageUrl}
+              />
+              <p className="text-p3 text-navy-500">
+                Any image format (e.g. PNG, JPEG, or SVG), 256x256 or larger
+              </p>
             </div>
           </div>
 
