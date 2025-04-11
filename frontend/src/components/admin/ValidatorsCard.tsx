@@ -152,7 +152,7 @@ export default function ValidatorAddressesAndWeightsCard() {
               <div className="flex flex-col gap-1.5">
                 {index === 0 && <p className="text-p2 opacity-0">-</p>}
                 <Button
-                  className="w-10"
+                  className="w-10 bg-navy-600"
                   isDisabled={vaw.length < 2}
                   onClick={() => removeRow(row.id)}
                 >
@@ -162,7 +162,7 @@ export default function ValidatorAddressesAndWeightsCard() {
             </div>
           ))}
 
-          <Button className="mr-14 w-auto" onClick={addRow}>
+          <Button className="mr-14 w-auto bg-navy-600" onClick={addRow}>
             Add row
           </Button>
         </div>

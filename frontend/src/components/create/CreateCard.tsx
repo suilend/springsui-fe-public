@@ -38,7 +38,7 @@ function generate_bytecode(
   name: string,
   symbol: string,
   description: string,
-  imageUrl: string,
+  iconUrl: string,
 ) {
   const bytecode = Buffer.from(
     "oRzrCwYAAAAKAQAMAgweAyonBFEIBVlMB6UBywEI8AJgBtADXQqtBAUMsgQoABABCwIGAhECEgITAAICAAEBBwEAAAIADAEAAQIDDAEAAQQEAgAFBQcAAAkAAQABDwUGAQACBwgJAQIDDAUBAQwDDQ0BAQwEDgoLAAUKAwQAAQQCBwQMAwICCAAHCAQAAQsCAQgAAQoCAQgFAQkAAQsBAQkAAQgABwkAAgoCCgIKAgsBAQgFBwgEAgsDAQkACwIBCQABBggEAQUBCwMBCAACCQAFDENvaW5NZXRhZGF0YQZPcHRpb24IVEVNUExBVEULVHJlYXN1cnlDYXAJVHhDb250ZXh0A1VybARjb2luD2NyZWF0ZV9jdXJyZW5jeQtkdW1teV9maWVsZARpbml0FW5ld191bnNhZmVfZnJvbV9ieXRlcwZvcHRpb24TcHVibGljX3NoYXJlX29iamVjdA9wdWJsaWNfdHJhbnNmZXIGc2VuZGVyBHNvbWUIdGVtcGxhdGUIdHJhbnNmZXIKdHhfY29udGV4dAN1cmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAQkKAgUEVE1QTAoCDg1UZW1wbGF0ZSBDb2luCgIaGVRlbXBsYXRlIENvaW4gRGVzY3JpcHRpb24KAiEgaHR0cHM6Ly9leGFtcGxlLmNvbS90ZW1wbGF0ZS5wbmcAAgEIAQAAAAACEgsABwAHAQcCBwMHBBEGOAAKATgBDAILAS4RBTgCCwI4AwIA=",
@@ -73,7 +73,7 @@ function generate_bytecode(
 
   updated = update_constants(
     updated,
-    bcs.string().serialize(imageUrl).toBytes(), // new value
+    bcs.string().serialize(iconUrl).toBytes(), // new value
     bcs.string().serialize("https://example.com/template.png").toBytes(), // current value
     "Vector(U8)", // type of the constant
   );
@@ -102,10 +102,11 @@ export default function CreateCard() {
   const [name, setName] = useState<string>("");
   const [symbol, setSymbol] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [iconUrl, setIconUrl] = useState<string>("");
 
   const fullName = `${name} Staked SUI`;
-  const module_ = snakeCase(symbol);
+  const fullSymbol = `${symbol}SUI`;
+  const module_ = snakeCase(fullSymbol);
   const type = module_.toUpperCase();
 
   // State - fees
@@ -145,9 +146,9 @@ export default function CreateCard() {
       module_,
       type,
       fullName,
-      symbol,
+      fullSymbol,
       description,
-      imageUrl,
+      iconUrl,
     );
 
     // Create coin
@@ -272,13 +273,15 @@ export default function CreateCard() {
     try {
       if (name === "") throw new Error("Missing name");
       if (symbol === "") throw new Error("Missing symbol");
-      if (fullName === symbol)
+      if (symbol !== symbol.toLowerCase())
+        throw new Error("Symbol must follow the format xxxSUI");
+      if (fullName === fullSymbol)
         throw new Error("Name and symbol cannot be the same");
-      if (existingSymbols.includes(symbol))
+      if (existingSymbols.includes(fullSymbol))
         throw new Error("Symbol already taken");
 
       if (description === "") throw new Error("Missing description");
-      if (imageUrl === "") throw new Error("Missing image");
+      if (iconUrl === "") throw new Error("Missing icon URL");
 
       if (Object.entries(feeConfigArgs).some(([key, value]) => value === ""))
         throw new Error("Missing fees");
@@ -317,7 +320,7 @@ export default function CreateCard() {
       setName("");
       setSymbol("");
       setDescription("");
-      setImageUrl("");
+      setIconUrl("");
 
       setFeeConfigArgs({ mintFeeBps: "", redeemFeeBps: "", spreadFeeBps: "" });
       setVaw([{ id: uuidv4(), validatorAddress: "", weight: "" }]);
@@ -343,6 +346,7 @@ export default function CreateCard() {
           <p className="text-navy-600">Details</p>
 
           <div className="flex flex-col gap-4 md:flex-row">
+            {/* Name */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[2]">
               <p className="text-p2 text-navy-600">
                 Name <span className="text-error">*</span>
@@ -359,16 +363,38 @@ export default function CreateCard() {
                 />
               </div>
               {name !== "" && (
-                <p className="text-p3 text-navy-500">LST name: {fullName}</p>
+                <p className="text-p3 text-navy-500">{`"${fullName}"`}</p>
               )}
             </div>
+
+            {/* Symbol */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">
                 Symbol <span className="text-error">*</span>
               </p>
-              <Input placeholder="sSUI" value={symbol} onChange={setSymbol} />
-              <p className="text-p3 text-navy-500">Must be unique</p>
+              <div className="relative w-full">
+                <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
+                  <p className="text-p1 text-foreground">SUI</p>
+                </div>
+                <Input
+                  className="relative z-[1]"
+                  placeholder="s"
+                  value={symbol}
+                  onChange={setSymbol}
+                />
+              </div>
+              {symbol !== "" && (
+                <p className="text-p3 text-navy-500">
+                  {`"${fullSymbol}"`} (
+                  {existingSymbols.includes(fullSymbol)
+                    ? "not unique"
+                    : "unique"}
+                  )
+                </p>
+              )}
             </div>
+
+            {/* Description */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
               <p className="text-p2 text-navy-600">
                 Description <span className="text-error">*</span>
@@ -382,14 +408,15 @@ export default function CreateCard() {
           </div>
 
           <div className="flex w-full flex-row gap-4">
+            {/* Icon URL */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">
                 Icon URL <span className="text-error">*</span>
               </p>
               <Input
                 placeholder="https://springsui-assets.s3.us-east-2.amazonaws.com/sSUI.png"
-                value={imageUrl}
-                onChange={setImageUrl}
+                value={iconUrl}
+                onChange={setIconUrl}
               />
               <p className="text-p3 text-navy-500">
                 Any image format (e.g. PNG, JPEG, or SVG), 256x256 or larger
@@ -398,14 +425,19 @@ export default function CreateCard() {
           </div>
 
           <div className="flex flex-col gap-4 md:flex-row">
+            {/* packageId */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
               <p className="text-p2 text-navy-600">packageId</p>
               <Input placeholder="Generated" value="" />
             </div>
+
+            {/* module */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">module</p>
               <Input placeholder="s_sui" value={module_} />
             </div>
+
+            {/* type */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">type</p>
               <Input placeholder="S_SUI" value={type} />
@@ -507,7 +539,7 @@ export default function CreateCard() {
                 <div className="flex flex-col gap-1.5">
                   {index === 0 && <p className="text-p2 opacity-0">-</p>}
                   <Button
-                    className="w-10"
+                    className="w-10 bg-navy-600"
                     isDisabled={vaw.length < 2}
                     onClick={() => removeVawRow(row.id)}
                   >
@@ -517,7 +549,7 @@ export default function CreateCard() {
               </div>
             ))}
 
-            <Button className="mr-14 w-auto" onClick={addVawRow}>
+            <Button className="mr-14 w-auto bg-navy-600" onClick={addVawRow}>
               Add row
             </Button>
           </div>
