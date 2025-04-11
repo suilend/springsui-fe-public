@@ -274,11 +274,11 @@ export default function CreateCard() {
       if (name === "") throw new Error("Missing name");
       if (symbol === "") throw new Error("Missing symbol");
       if (symbol !== symbol.toLowerCase())
-        throw new Error("Symbol must follow the format xxxSUI");
+        throw new Error("Symbol does not follow the format xxxSUI");
       if (fullName === fullSymbol)
         throw new Error("Name and symbol cannot be the same");
       if (existingSymbols.includes(fullSymbol))
-        throw new Error("Symbol already taken");
+        throw new Error("Symbol must be unique among SpringSui LSTs");
 
       if (description === "") throw new Error("Missing description");
       if (iconUrl === "") throw new Error("Missing icon URL");
