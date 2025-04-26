@@ -18,7 +18,7 @@
     },
     "cli": {
       "name": "@suilend/springsui-cli-local",
-      "version": "1.0.10",
+      "version": "1.0.11",
       "dependencies": {
         "@mysten/move-bytecode-template": "0.1.0",
         "commander": "^12.1.0",
@@ -46,8 +46,8 @@
         "@radix-ui/react-popover": "^1.1.2",
         "@radix-ui/react-tooltip": "^1.1.4",
         "@sentry/nextjs": "^8.38.0",
-        "@suilend/frontend-sui": "^0.2.56",
-        "@suilend/frontend-sui-next": "^0.1.26",
+        "@suilend/frontend-sui": "^0.2.58",
+        "@suilend/frontend-sui-next": "^0.1.27",
         "@suilend/sdk": "^1.1.48",
         "@tanstack/react-table": "^8.20.5",
         "@vercel/analytics": "^1.4.0",
