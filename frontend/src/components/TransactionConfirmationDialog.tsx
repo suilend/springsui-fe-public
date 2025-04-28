@@ -45,78 +45,76 @@ export default function TransactionConfirmationDialog({
 
   if (!md) return null;
   return (
-    <Dialog rootProps={{ open: isOpen }}>
-      <Card className="p-2 md:p-4">
-        <div className="flex w-full flex-col items-center gap-6 rounded-md bg-white px-4 pb-4 pt-8">
-          <p className="px-4 text-center text-h2">
-            Confirm transaction in your wallet
-          </p>
+    <Dialog rootProps={{ open: isOpen }} dialogContentOuterClassName="max-w-sm">
+      <div className="flex w-full flex-col items-center gap-6 bg-white pt-4">
+        <p className="px-4 text-center text-h2">
+          Confirm transaction in your wallet
+        </p>
 
-          {issSui(token.coinType) ? (
-            <video
-              className="h-40 w-40"
-              autoPlay
-              controls={false}
-              loop
-              muted
-              preload="auto"
-              playsInline
-            >
-              <source
-                src={`${ASSETS_URL}/transaction-modal/sSUI.webm`}
-                type="video/webm"
-              />
-            </video>
-          ) : (
-            <TokenLogo
-              token={{
-                ...token,
-                iconUrl:
-                  {
-                    [NORMALIZED_mSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/mSUI.jpg`,
-                    [NORMALIZED_fudSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/fudSUI.png`,
-                    [NORMALIZED_kSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/kSUI.png`,
-                    [NORMALIZED_trevinSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/trevinSUI.png`,
-                    [NORMALIZED_upSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/upSUI.png`,
-                  }[token.coinType] ?? token.iconUrl,
-              }}
-              size={160}
+        {issSui(token.coinType) ? (
+          <video
+            className="h-40 w-40"
+            autoPlay
+            controls={false}
+            loop
+            muted
+            preload="auto"
+            playsInline
+          >
+            <source
+              src={`${ASSETS_URL}/transaction-modal/sSUI.webm`}
+              type="video/webm"
             />
-          )}
+          </video>
+        ) : (
+          <TokenLogo
+            token={{
+              ...token,
+              iconUrl:
+                {
+                  [NORMALIZED_mSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/mSUI.jpg`,
+                  [NORMALIZED_fudSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/fudSUI.png`,
+                  [NORMALIZED_kSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/kSUI.png`,
+                  [NORMALIZED_trevinSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/trevinSUI.png`,
+                  [NORMALIZED_upSUI_COINTYPE]: `${ASSETS_URL}/transaction-modal/upSUI.png`,
+                }[token.coinType] ?? token.iconUrl,
+            }}
+            size={160}
+          />
+        )}
 
-          <div className="flex w-full flex-col rounded-md border border-navy-100">
-            <div className="flex w-full flex-row items-center justify-between p-3">
-              <p className="text-p2 text-navy-600">In</p>
+        <div className="flex w-full flex-col rounded-md border border-navy-100">
+          <div className="flex w-full flex-row items-center justify-between p-3">
+            <p className="text-p2 text-navy-600">In</p>
 
-              <div className="flex flex-row items-center">
-                <p className="mr-2">
-                  {formatToken(new BigNumber(inValue), {
-                    dp: inToken.decimals,
-                  })}
-                </p>
-                <TokenLogo className="mr-1.5" token={inToken} size={16} />
-                <p>{inToken.symbol}</p>
-              </div>
-            </div>
-            <div className="h-px w-full bg-navy-100" />
-            <div className="flex w-full flex-row items-center justify-between p-3">
-              <p className="text-p2 text-navy-600">
-                {isDepositing ? "Deposit" : "Receive"}
+            <div className="flex flex-row items-center">
+              <p className="mr-2">
+                {formatToken(new BigNumber(inValue), {
+                  dp: inToken.decimals,
+                })}
               </p>
+              <TokenLogo className="mr-1.5" token={inToken} size={16} />
+              <p>{inToken.symbol}</p>
+            </div>
+          </div>
+          <div className="h-px w-full bg-navy-100" />
+          <div className="flex w-full flex-row items-center justify-between p-3">
+            <p className="text-p2 text-navy-600">
+              {isDepositing ? "Deposit" : "Receive"}
+            </p>
 
-              <div className="flex flex-row items-center">
-                <p className="mr-2">
-                  {formatToken(new BigNumber(outValue), {
-                    dp: outToken.decimals,
-                  })}
-                </p>
-                <TokenLogo className="mr-1.5" token={outToken} size={16} />
-                <p>{outToken.symbol}</p>
-              </div>
+            <div className="flex flex-row items-center">
+              <p className="mr-2">
+                {formatToken(new BigNumber(outValue), {
+                  dp: outToken.decimals,
+                })}
+              </p>
+              <TokenLogo className="mr-1.5" token={outToken} size={16} />
+              <p>{outToken.symbol}</p>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </Dialog>
   );
 }

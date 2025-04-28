@@ -28,10 +28,10 @@ export default function CopyToClipboardButton({
 
   return (
     <button
-      className="group flex h-5 w-5 flex-row items-center justify-center"
+      className="group/copy-to-clipboard flex h-5 w-5 flex-row items-center justify-center"
       onClick={copyToClipboard}
     >
-      <Copy className="h-4 w-4 text-navy-500 transition-colors group-hover:text-foreground" />
+      <Copy className="h-4 w-4 text-navy-500 transition-colors group-hover/copy-to-clipboard:text-foreground" />
     </button>
   );
 }

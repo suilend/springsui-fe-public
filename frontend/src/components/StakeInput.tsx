@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import { Token, formatUsd } from "@suilend/frontend-sui";
 
 import BalanceLabel from "@/components/BalanceLabel";
-import TokenPopover from "@/components/TokenPopover";
+import TokenSelectionDialog from "@/components/TokenSelectionDialog";
 import { cn } from "@/lib/utils";
 
 interface StakeInputProps {
@@ -52,7 +52,7 @@ const StakeInput = forwardRef<HTMLInputElement, StakeInputProps>(
             />
           </div>
 
-          <TokenPopover token={token} onChange={onTokenChange} />
+          <TokenSelectionDialog token={token} onSelectToken={onTokenChange} />
         </div>
 
         <div className="flex w-full flex-row items-center justify-between">
