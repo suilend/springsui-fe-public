@@ -91,10 +91,7 @@ export default function useFetchAppData() {
     ];
     const uniqueCoinTypes = Array.from(new Set(coinTypes));
 
-    const coinMetadataMap = await getCoinMetadataMap(
-      suiClient,
-      uniqueCoinTypes,
-    );
+    const coinMetadataMap = await getCoinMetadataMap(uniqueCoinTypes);
 
     // SEND Points
     const sendPointsToken = getToken(
