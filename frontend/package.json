@@ -36,6 +36,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "formidable": "^3.5.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.456.0",
     "mixpanel-browser": "^2.56.0",
@@ -51,12 +52,14 @@
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "tus-js-client": "^4.3.1",
     "usehooks-ts": "^3.1.0",
     "uuid": "^11.0.3",
     "vaul": "^1.1.1"
   },
   "devDependencies": {
     "@tsconfig/next": "^2.0.3",
+    "@types/formidable": "^3.4.5",
     "@types/lodash": "^4.17.13",
     "@types/mixpanel-browser": "^2.50.2",
     "@types/react": "^18.3.12",

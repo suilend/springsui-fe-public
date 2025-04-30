@@ -30,6 +30,7 @@ import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
+import IconUpload from "@/components/create/IconUpload";
 import SelectPopover from "@/components/create/SelectPopover";
 import Skeleton from "@/components/Skeleton";
 import { useLoadedAppContext } from "@/contexts/AppContext";
@@ -389,6 +390,7 @@ export default function CreateCard() {
       setSymbol("");
       setDescription("");
       setIconUrl("");
+      (document.getElementById("icon-upload") as HTMLInputElement).value = "";
 
       setFeeConfigArgs(DEFAULT_FEE_CONFIG);
       setVaw([getDefaultVawConfig()]);
@@ -466,17 +468,15 @@ export default function CreateCard() {
           </div>
 
           <div className="flex w-full flex-row gap-4">
-            {/* Icon URL */}
-            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">Icon URL</p>
-              <Input
-                placeholder="https://springsui-assets.s3.us-east-2.amazonaws.com/sSUI.png"
-                value={iconUrl}
-                onChange={setIconUrl}
-              />
-              <p className="text-p3 text-navy-500">
-                Any image format (e.g. PNG, JPEG, or SVG), 256x256 or larger
-              </p>
+            <div className="flex flex-col gap-2 max-md:w-full md:flex-1">
+              <div className="flex w-full flex-col gap-1">
+                <p className="text-p2 text-navy-600">Icon</p>
+                <p className="text-p3 text-navy-500">
+                  PNG, JPEG, or SVG, 256x256 or larger recommended
+                </p>
+              </div>
+
+              <IconUpload iconUrl={iconUrl} setIconUrl={setIconUrl} />
             </div>
           </div>
 
