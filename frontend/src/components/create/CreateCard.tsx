@@ -1,6 +1,7 @@
 import assert from "assert";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 import { bcs } from "@mysten/bcs";
 import {
@@ -8,15 +9,16 @@ import {
   update_identifiers,
 } from "@mysten/move-bytecode-template";
 import init from "@mysten/move-bytecode-template";
-import { SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { SuiTransactionBlockResponse, ValidatorApy } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { normalizeSuiAddress } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import { snakeCase } from "lodash";
-import { Minus } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink, Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
+import { formatPercent } from "@suilend/frontend-sui";
 import {
   showErrorToast,
   useSettingsContext,
@@ -28,9 +30,13 @@ import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
+import SelectPopover from "@/components/create/SelectPopover";
+import Skeleton from "@/components/Skeleton";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
+import { cn } from "@/lib/utils";
+import { VALIDATOR_METADATA } from "@/lib/validators";
 
 function generate_bytecode(
   module_: string,
@@ -87,6 +93,17 @@ const feeNameMap: Record<keyof FeeConfigArgs, string> = {
   spreadFeeBps: "Performance fee",
 };
 
+const DEFAULT_FEE_CONFIG = {
+  mintFeeBps: "0",
+  redeemFeeBps: "2",
+  spreadFeeBps: "1000",
+};
+const getDefaultVawConfig = () => ({
+  id: uuidv4(),
+  validatorAddress: "",
+  weight: "100",
+});
+
 export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
@@ -109,15 +126,66 @@ export default function CreateCard() {
   const module_ = snakeCase(fullSymbol);
   const type = module_.toUpperCase();
 
+  // Advanced
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+
   // State - fees
-  const [feeConfigArgs, setFeeConfigArgs] = useState<
-    Record<keyof FeeConfigArgs, string>
-  >({ mintFeeBps: "", redeemFeeBps: "", spreadFeeBps: "" });
+  const [feeConfigArgs, setFeeConfigArgs] =
+    useState<Record<keyof FeeConfigArgs, string>>(DEFAULT_FEE_CONFIG);
 
   // State - validators
+  const [validatorApys, setValidatorApys] = useState<
+    ValidatorApy[] | undefined
+  >(undefined);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const validatorApys = await suiClient.getValidatorsApy();
+        setValidatorApys(validatorApys.apys);
+      } catch (err) {}
+    })();
+  }, [suiClient]);
+
+  const validatorOptions = useMemo(
+    () =>
+      validatorApys === undefined
+        ? undefined
+        : validatorApys
+            .map((apyObj) => {
+              const metadata = VALIDATOR_METADATA.find(
+                (vm) => vm.address === apyObj.address,
+              );
+
+              return {
+                id: apyObj.address,
+                name: metadata?.name ?? apyObj.address,
+                endDecorator: (
+                  <p className="shrink-0 text-p2 text-navy-500">
+                    {formatPercent(new BigNumber(apyObj.apy * 100))} APR
+                  </p>
+                ),
+                iconUrl: metadata?.imageUrl,
+              };
+            })
+            .sort((a, b) => {
+              const aMetadata = VALIDATOR_METADATA.find(
+                (vm) => vm.address === a.id,
+              );
+              const bMetadata = VALIDATOR_METADATA.find(
+                (vm) => vm.address === b.id,
+              );
+
+              return a.name === "Suilend"
+                ? -1
+                : (bMetadata?.stakeAmount ?? 0) - (aMetadata?.stakeAmount ?? 0); // Sort by stake (desc)
+            }),
+    [validatorApys],
+  );
+
   const [vaw, setVaw] = useState<
     { id: string; validatorAddress: string; weight: string }[]
-  >([{ id: uuidv4(), validatorAddress: "", weight: "" }]);
+  >([getDefaultVawConfig()]);
 
   const onVawChange = (id: string, key: string, value: string) =>
     setVaw((vaw) =>
@@ -322,8 +390,8 @@ export default function CreateCard() {
       setDescription("");
       setIconUrl("");
 
-      setFeeConfigArgs({ mintFeeBps: "", redeemFeeBps: "", spreadFeeBps: "" });
-      setVaw([{ id: uuidv4(), validatorAddress: "", weight: "" }]);
+      setFeeConfigArgs(DEFAULT_FEE_CONFIG);
+      setVaw([getDefaultVawConfig()]);
     } catch (err) {
       showErrorToast("Failed to create LST", err as Error);
       console.error(err);
@@ -335,11 +403,7 @@ export default function CreateCard() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="w-full px-4">
-        <p className="text-h3 text-navy-800">Create LST</p>
-      </div>
-
+    <>
       {/* Details */}
       <Card>
         <div className="flex w-full flex-col gap-4 p-4">
@@ -348,9 +412,7 @@ export default function CreateCard() {
           <div className="flex flex-col gap-4 md:flex-row">
             {/* Name */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[2]">
-              <p className="text-p2 text-navy-600">
-                Name <span className="text-error">*</span>
-              </p>
+              <p className="text-p2 text-navy-600">Name</p>
               <div className="relative w-full">
                 <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
                   <p className="text-p1 text-foreground">Staked SUI</p>
@@ -369,9 +431,7 @@ export default function CreateCard() {
 
             {/* Symbol */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">
-                Symbol <span className="text-error">*</span>
-              </p>
+              <p className="text-p2 text-navy-600">Symbol</p>
               <div className="relative w-full">
                 <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
                   <p className="text-p1 text-foreground">SUI</p>
@@ -396,9 +456,7 @@ export default function CreateCard() {
 
             {/* Description */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
-              <p className="text-p2 text-navy-600">
-                Description <span className="text-error">*</span>
-              </p>
+              <p className="text-p2 text-navy-600">Description</p>
               <Input
                 placeholder="Infinitely liquid staking on Sui"
                 value={description}
@@ -410,9 +468,7 @@ export default function CreateCard() {
           <div className="flex w-full flex-row gap-4">
             {/* Icon URL */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">
-                Icon URL <span className="text-error">*</span>
-              </p>
+              <p className="text-p2 text-navy-600">Icon URL</p>
               <Input
                 placeholder="https://springsui-assets.s3.us-east-2.amazonaws.com/sSUI.png"
                 value={iconUrl}
@@ -424,135 +480,196 @@ export default function CreateCard() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 md:flex-row">
-            {/* packageId */}
-            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
-              <p className="text-p2 text-navy-600">packageId</p>
-              <Input placeholder="Generated" value="" />
-            </div>
-
-            {/* module */}
+          <div className="flex w-full flex-row gap-4">
+            {/* Validator */}
             <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">module</p>
-              <Input placeholder="s_sui" value={module_} />
-            </div>
-
-            {/* type */}
-            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">type</p>
-              <Input placeholder="S_SUI" value={type} />
-            </div>
-          </div>
-
-          <p className="text-p2 text-navy-500">
-            {"Your LST's coin type will be "}
-            <span className="font-[monospace] text-navy-600">{`<packageId>::${module_ || "<module>"}::${type || "<type>"}`}</span>
-          </p>
-        </div>
-      </Card>
-
-      {/* Fees */}
-      <Card>
-        <div className="flex w-full flex-col gap-4 p-4">
-          <p className="text-navy-600">Fees</p>
-
-          <div className="flex flex-col gap-4 md:flex-row">
-            {Object.keys(feeConfigArgs).map((key) => (
-              <div
-                key={key}
-                className="flex flex-col gap-1.5 max-md:w-full md:flex-1"
-              >
-                <p className="text-p2 text-navy-600">
-                  {feeNameMap[key as keyof FeeConfigArgs]}{" "}
-                  <span className="text-error">*</span>
-                </p>
-                <Input
-                  type="number"
-                  value={feeConfigArgs[key as keyof FeeConfigArgs] ?? ""}
-                  onChange={(value) =>
-                    setFeeConfigArgs((fc) => ({ ...fc, [key]: value }))
-                  }
-                />
-                {key === "mintFeeBps" && (
-                  <p className="text-p3 text-navy-500">
-                    Recommended to use 0 bps (0%)
-                  </p>
-                )}
-                {key === "redeemFeeBps" && (
-                  <p className="text-p3 text-navy-500">Min. 2 bps (0.02%)</p>
-                )}
-                {key === "spreadFeeBps" && (
-                  <p className="text-p3 text-navy-500">
-                    E.g. 10% fee = 1000 bps
-                  </p>
-                )}{" "}
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
-
-      {/* Validators */}
-      <Card>
-        <div className="flex w-full flex-col gap-4 p-4">
-          <p className="text-navy-600">Validators</p>
-
-          <div className="flex flex-col gap-4">
-            {vaw.map((row, index) => (
-              <div key={row.id} className="flex flex-row gap-4">
-                {/* Address */}
-                <div className="flex flex-1 flex-col gap-1.5">
-                  {index === 0 && (
-                    <p className="text-p2 text-navy-600">
-                      Address <span className="text-error">*</span>
-                    </p>
-                  )}
-                  <TextareaAutosize
-                    id={`validator-address-${row.id}`}
-                    className="min-h-10 w-full rounded-sm bg-white px-4 py-2 font-sans text-p1 text-foreground placeholder:text-navy-500 focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))] focus-visible:outline-none"
-                    value={row.validatorAddress}
-                    onChange={(e) =>
-                      onVawChange(row.id, "validatorAddress", e.target.value)
+              <p className="text-p2 text-navy-600">Validator</p>
+              <div className="w-full max-w-[320px]">
+                {validatorOptions === undefined ? (
+                  <Skeleton className="h-10 w-full" />
+                ) : (
+                  <SelectPopover
+                    maxWidth={320}
+                    placeholder="Select validator"
+                    options={validatorOptions}
+                    value={vaw[0].validatorAddress}
+                    onChange={(id) =>
+                      onVawChange(vaw[0].id, "validatorAddress", id)
                     }
-                    minRows={1}
                   />
-                </div>
-
-                {/* Weight */}
-                <div className="flex w-[125px] flex-col gap-1.5">
-                  {index === 0 && (
-                    <p className="text-p2 text-navy-600">
-                      Weight (0–100%) <span className="text-error">*</span>
-                    </p>
-                  )}
-                  <Input
-                    type="number"
-                    value={row.weight}
-                    onChange={(value) => onVawChange(row.id, "weight", value)}
-                  />
-                  {index === vaw.length - 1 && (
-                    <p className="text-p3 text-navy-500">Must add up to 100%</p>
-                  )}
-                </div>
-
-                {/* Remove */}
-                <div className="flex flex-col gap-1.5">
-                  {index === 0 && <p className="text-p2 opacity-0">-</p>}
-                  <Button
-                    className="w-10 bg-navy-600"
-                    isDisabled={vaw.length < 2}
-                    onClick={() => removeVawRow(row.id)}
-                  >
-                    <Minus className="h-5 w-5" />
-                  </Button>
-                </div>
+                )}
               </div>
-            ))}
-
-            <Button className="mr-14 w-auto bg-navy-600" onClick={addVawRow}>
-              Add row
-            </Button>
+              {vaw[0].validatorAddress && (
+                <Link
+                  className="flex w-max flex-row items-center gap-1 text-navy-500 transition-colors hover:text-foreground"
+                  href={explorer
+                    .buildAddressUrl("")
+                    .replace("account", `validator/${vaw[0].validatorAddress}`)}
+                  target="_blank"
+                >
+                  <p className="text-inherit text-p3">View validator</p>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+              )}
+            </div>
           </div>
+
+          {/* Advanced */}
+          <button
+            className="group flex w-full w-max flex-row items-center gap-2"
+            onClick={() => setShowAdvanced((prev) => !prev)}
+          >
+            <p
+              className={cn(
+                "!text-p2 transition-colors",
+                showAdvanced
+                  ? "text-foreground"
+                  : "text-navy-600 group-hover:text-foreground",
+              )}
+            >
+              Advanced
+            </p>
+            {showAdvanced ? (
+              <ChevronUp className="h-4 w-4 text-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-navy-600 group-hover:text-foreground" />
+            )}
+          </button>
+
+          {showAdvanced && (
+            <>
+              {/* Advanced - fees */}
+              <Card className="shadow-none bg-[transparent]">
+                <div className="flex w-full flex-col gap-4 p-4">
+                  <p className="text-navy-600">Fees</p>
+
+                  <div className="flex flex-col gap-4 md:flex-row">
+                    {Object.keys(feeConfigArgs).map((key) => (
+                      <div
+                        key={key}
+                        className="flex flex-col gap-1.5 max-md:w-full md:flex-1"
+                      >
+                        <p className="text-p2 text-navy-600">
+                          {feeNameMap[key as keyof FeeConfigArgs]}
+                        </p>
+                        <Input
+                          type="number"
+                          value={
+                            feeConfigArgs[key as keyof FeeConfigArgs] ?? ""
+                          }
+                          onChange={(value) =>
+                            setFeeConfigArgs((fc) => ({ ...fc, [key]: value }))
+                          }
+                        />
+                        {key === "mintFeeBps" && (
+                          <p className="text-p3 text-navy-500">
+                            Recommended to use 0 bps (0%)
+                          </p>
+                        )}
+                        {key === "redeemFeeBps" && (
+                          <p className="text-p3 text-navy-500">
+                            Min. 2 bps (0.02%)
+                          </p>
+                        )}
+                        {key === "spreadFeeBps" && (
+                          <p className="text-p3 text-navy-500">
+                            E.g. 10% fee = 1000 bps
+                          </p>
+                        )}{" "}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+
+              {/* Advanced - validators */}
+              <Card className="shadow-none bg-[transparent]">
+                <div className="flex w-full flex-col gap-4 p-4">
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="text-navy-600">Validators</p>
+
+                    <Link
+                      className="block text-navy-500 transition-colors hover:text-foreground"
+                      href={explorer
+                        .buildAddressUrl("")
+                        .replace("account", "validators")}
+                      target="_blank"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Link>
+                  </div>
+
+                  <div className="flex flex-col gap-4">
+                    {vaw.map((row, index) => (
+                      <div key={row.id} className="flex flex-row gap-4">
+                        {/* Address */}
+                        <div className="flex flex-1 flex-col gap-1.5">
+                          {index === 0 && (
+                            <p className="text-p2 text-navy-600">Address</p>
+                          )}
+                          <TextareaAutosize
+                            id={`validator-address-${row.id}`}
+                            className="min-h-10 w-full rounded-sm bg-white px-4 py-2 font-sans text-p1 text-foreground placeholder:text-navy-500 focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))] focus-visible:outline-none"
+                            value={row.validatorAddress}
+                            onChange={(e) =>
+                              onVawChange(
+                                row.id,
+                                "validatorAddress",
+                                e.target.value,
+                              )
+                            }
+                            minRows={1}
+                          />
+                        </div>
+
+                        {/* Weight */}
+                        <div className="flex w-[125px] flex-col gap-1.5">
+                          {index === 0 && (
+                            <p className="text-p2 text-navy-600">
+                              Weight (0–100%)
+                            </p>
+                          )}
+                          <Input
+                            type="number"
+                            value={row.weight}
+                            onChange={(value) =>
+                              onVawChange(row.id, "weight", value)
+                            }
+                          />
+                          {index === vaw.length - 1 && (
+                            <p className="text-p3 text-navy-500">
+                              Must add up to 100%
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Remove */}
+                        <div className="flex flex-col gap-1.5">
+                          {index === 0 && (
+                            <p className="text-p2 opacity-0">-</p>
+                          )}
+                          <Button
+                            className="w-10 bg-navy-600"
+                            isDisabled={vaw.length < 2}
+                            onClick={() => removeVawRow(row.id)}
+                          >
+                            <Minus className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <Button
+                      className="mr-14 w-auto bg-navy-600"
+                      onClick={addVawRow}
+                    >
+                      Add row
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </>
+          )}
         </div>
       </Card>
 
@@ -561,6 +678,6 @@ export default function CreateCard() {
           Create LST
         </Button>
       </div>
-    </div>
+    </>
   );
 }

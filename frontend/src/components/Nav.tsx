@@ -2,14 +2,14 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactElement, cloneElement } from "react";
 
-import { Bolt, Compass } from "lucide-react";
+import { Bolt, Compass, Plus } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 import StakeIcon from "@/components/icons/StakeIcon";
 import Logo from "@/components/Logo";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
-import { ADMIN_URL, EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
+import { ADMIN_URL, CREATE_URL, EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 const SM_NAV_HEIGHT = 60; // px
@@ -23,6 +23,7 @@ type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
+  // { url: CREATE_URL, icon: <Plus />, title: "Create" },
   { url: EXPLORE_URL, icon: <Compass />, title: "Explore" },
 ];
 export const ADMIN_NAV_ITEM: NavItem = {

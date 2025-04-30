@@ -11,6 +11,7 @@ import {
   SUI_COINTYPE,
   Token,
   formatToken,
+  formatUsd,
   isSui,
 } from "@suilend/frontend-sui";
 import useIsTouchscreen from "@suilend/frontend-sui-next/hooks/useIsTouchscreen";
@@ -82,6 +83,11 @@ function TokenRow({ token, isSelected, onClick }: TokenRowProps) {
             <p className="text-p2 text-foreground">
               {formatToken(lstData!.totalSuiSupply, { exact: false })}{" "}
               {appData.suiToken.symbol}
+            </p>
+            <p className="text-p2 text-navy-500">
+              {formatUsd(lstData!.totalLstSupply.times(appData.suiPrice), {
+                exact: false,
+              })}
             </p>
           </div>
         )}
@@ -216,7 +222,7 @@ export default function TokenSelectionDialog({
         <button className="flex flex-row items-center gap-2 py-1.5">
           <TokenLogo token={token} size={28} />
           <p className="text-h3">{token.symbol}</p>
-          <ChevronDown className="-ml-0.5 h-4 w-4" />
+          <ChevronDown className="-ml-0.5 h-4 w-4 text-navy-600" />
         </button>
       }
       headerProps={{

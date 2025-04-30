@@ -1,4 +1,5 @@
 export const ROOT_URL = "/";
+export const CREATE_URL = "/create";
 export const EXPLORE_URL = "/explore";
 export const ADMIN_URL = "/admin";
 
