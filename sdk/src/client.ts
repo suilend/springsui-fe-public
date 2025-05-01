@@ -389,20 +389,20 @@ export class LstClient {
     return new BigNumber(
       totalSuiSupply.gt(0)
         ? liquidStakingInfo.storage.validatorInfos
-            .reduce((acc, validatorInfo) => {
-              const validatorApy = new BigNumber(
-                validatorApys.find(
-                  (_apy) => _apy.address === validatorInfo.validatorAddress,
-                )?.apy ?? 0,
-              );
+          .reduce((acc, validatorInfo) => {
+            const validatorApy = new BigNumber(
+              validatorApys.find(
+                (_apy) => _apy.address === validatorInfo.validatorAddress,
+              )?.apy ?? 0,
+            );
 
-              const validatorTotalSuiAmount = new BigNumber(
-                validatorInfo.totalSuiAmount.toString(),
-              ).div(10 ** SUI_DECIMALS);
+            const validatorTotalSuiAmount = new BigNumber(
+              validatorInfo.totalSuiAmount.toString(),
+            ).div(10 ** SUI_DECIMALS);
 
-              return acc.plus(validatorApy.times(validatorTotalSuiAmount));
-            }, new BigNumber(0))
-            .div(totalSuiSupply)
+            return acc.plus(validatorApy.times(validatorTotalSuiAmount));
+          }, new BigNumber(0))
+          .div(totalSuiSupply)
         : new BigNumber(0),
     ).times(new BigNumber(1).minus(spreadFeePercent.div(100)));
   }
@@ -419,10 +419,22 @@ export const fetchRegistryLiquidStakingInfoMap = async (client: SuiClient) => {
   const REGISTRY_ID =
     "0x06d6b6881ef14ad1a8cc29d1f97ba3397ecea56af5afa0642093e981b1fda3f4";
 
-  const registryObjectIds = (
-    await client.getDynamicFields({ parentId: REGISTRY_ID })
-  ).data.map((d) => d.objectId);
+  const registryObjectIds: string[] = [];
 
+  let cursor: string | null = null;
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const page = await client.getDynamicFields({
+      parentId: REGISTRY_ID,
+      cursor,
+    });
+
+    registryObjectIds.push(...page.data.map((d) => d.objectId));
+
+    cursor = page.nextCursor;
+    hasNextPage = page.hasNextPage;
+  }
   const registryObjects = await Promise.all(
     registryObjectIds.map((objectId) =>
       client.getObject({
