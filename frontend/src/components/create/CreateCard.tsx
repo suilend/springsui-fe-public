@@ -472,7 +472,7 @@ export default function CreateCard() {
               <div className="flex w-full flex-col gap-1">
                 <p className="text-p2 text-navy-600">Icon</p>
                 <p className="text-p3 text-navy-500">
-                  PNG, JPEG, or SVG, 256x256 or larger recommended
+                  PNG, JPEG, or SVG. Max 1MB. 256x256 or larger recommended
                 </p>
               </div>
 

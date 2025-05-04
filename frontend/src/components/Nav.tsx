@@ -23,7 +23,7 @@ type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
-  // { url: CREATE_URL, icon: <Plus />, title: "Create" },
+  { url: CREATE_URL, icon: <Plus />, title: "Create" },
   { url: EXPLORE_URL, icon: <Compass />, title: "Explore" },
 ];
 export const ADMIN_NAV_ITEM: NavItem = {
