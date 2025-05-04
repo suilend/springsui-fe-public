@@ -15,6 +15,7 @@ interface SelectPopoverProps {
     name: string;
     endDecorator?: ReactNode;
   }[];
+  highlightedOptionIds?: string[];
   value: string;
   onChange: (id: string) => void;
 }
@@ -23,6 +24,7 @@ export default function SelectPopover({
   maxWidth,
   placeholder,
   options,
+  highlightedOptionIds,
   value,
   onChange,
 }: SelectPopoverProps) {
@@ -80,7 +82,7 @@ export default function SelectPopover({
       }
     >
       <div className="flex w-full flex-col gap-1">
-        {options.map((option) => (
+        {options.map((option, index) => (
           <button
             key={option.id}
             className={cn(
@@ -88,6 +90,11 @@ export default function SelectPopover({
               option.id === value
                 ? "border-light-blue bg-light-blue"
                 : "bg-navy-100/50",
+              highlightedOptionIds?.includes(option.id) &&
+                cn(
+                  index !== 0 && "mt-2",
+                  index !== options.length - 1 && "mb-2",
+                ),
             )}
             onClick={() => {
               onChange(option.id);

@@ -39,6 +39,9 @@ import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 import { VALIDATOR_METADATA } from "@/lib/validators";
 
+const SUILEND_VALIDATOR_ADDRESS =
+  "0xce8e537664ba5d1d5a6a857b17bd142097138706281882be6805e17065ecde89";
+
 function generate_bytecode(
   module_: string,
   type: string,
@@ -101,7 +104,7 @@ const DEFAULT_FEE_CONFIG = {
 };
 const getDefaultVawConfig = () => ({
   id: uuidv4(),
-  validatorAddress: "",
+  validatorAddress: SUILEND_VALIDATOR_ADDRESS,
   weight: "100",
 });
 
@@ -492,6 +495,7 @@ export default function CreateCard() {
                     maxWidth={320}
                     placeholder="Select validator"
                     options={validatorOptions}
+                    highlightedOptionIds={[SUILEND_VALIDATOR_ADDRESS]}
                     value={vaw[0].validatorAddress}
                     onChange={(id) =>
                       onVawChange(vaw[0].id, "validatorAddress", id)
@@ -527,7 +531,7 @@ export default function CreateCard() {
                   : "text-navy-600 group-hover:text-foreground",
               )}
             >
-              Advanced
+              Optional
             </p>
             {showAdvanced ? (
               <ChevronUp className="h-4 w-4 text-foreground" />
