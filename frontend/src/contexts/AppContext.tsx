@@ -8,6 +8,7 @@ import {
 
 import { CoinMetadata } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
+import { useLocalStorage } from "usehooks-ts";
 
 import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui-next/fetchers/useFetchBalances";
@@ -18,7 +19,6 @@ import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-mark
 import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
-
 export interface LstData {
   LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
   lstClient: LstClient;
@@ -66,7 +66,13 @@ export interface AppData {
   currentEpochEndMs: number;
 }
 
-interface AppContext {
+export interface AppContext {
+  localCoinMetadataMap: Record<string, CoinMetadata>;
+  addCoinMetadataToLocalMap: (
+    coinType: string,
+    coinMetadata: CoinMetadata,
+  ) => void;
+
   appData: AppData | undefined;
 
   rawBalancesMap: Record<string, BigNumber> | undefined;
@@ -80,6 +86,11 @@ type LoadedAppContext = AppContext & {
 };
 
 const AppContext = createContext<AppContext>({
+  localCoinMetadataMap: {},
+  addCoinMetadataToLocalMap: () => {
+    throw Error("AppContextProvider not initialized");
+  },
+
   appData: undefined,
 
   rawBalancesMap: undefined,
@@ -97,8 +108,23 @@ export const useAppContext = () => useContext(AppContext);
 export const useLoadedAppContext = () => useAppContext() as LoadedAppContext;
 
 export function AppContextProvider({ children }: PropsWithChildren) {
+  // Local CoinMetadata map
+  const [localCoinMetadataMap, setLocalCoinMetadataMap] = useLocalStorage<
+    Record<string, CoinMetadata>
+  >("coinMetadataMap", {});
+
+  const addCoinMetadataToLocalMap = useCallback(
+    (coinType: string, coinMetadata: CoinMetadata) => {
+      setLocalCoinMetadataMap((o) => ({ ...o, [coinType]: coinMetadata }));
+    },
+    [setLocalCoinMetadataMap],
+  );
+
   // App data
-  const { data: appData, mutateData: mutateAppData } = useFetchAppData();
+  const { data: appData, mutateData: mutateAppData } = useFetchAppData(
+    localCoinMetadataMap,
+    addCoinMetadataToLocalMap,
+  );
 
   // Balances
   const { data: rawBalancesMap, mutateData: mutateRawBalancesMap } =
@@ -139,6 +165,9 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   // Context
   const contextValue: AppContext = useMemo(
     () => ({
+      localCoinMetadataMap,
+      addCoinMetadataToLocalMap,
+
       appData,
 
       rawBalancesMap,
@@ -147,7 +176,15 @@ export function AppContextProvider({ children }: PropsWithChildren) {
 
       refresh,
     }),
-    [appData, rawBalancesMap, balancesCoinMetadataMap, getBalance, refresh],
+    [
+      localCoinMetadataMap,
+      addCoinMetadataToLocalMap,
+      appData,
+      rawBalancesMap,
+      balancesCoinMetadataMap,
+      getBalance,
+      refresh,
+    ],
   );
 
   return (

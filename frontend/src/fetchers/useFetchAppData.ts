@@ -1,3 +1,4 @@
+import { CoinMetadata } from "@mysten/sui/client";
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import pLimit from "p-limit";
@@ -34,9 +35,12 @@ import {
   fetchRegistryLiquidStakingInfoMap,
 } from "@suilend/springsui-sdk";
 
-import { AppData, LstData } from "@/contexts/AppContext";
+import { AppContext, AppData, LstData } from "@/contexts/AppContext";
 
-export default function useFetchAppData() {
+export default function useFetchAppData(
+  localCoinMetadataMap: AppContext["localCoinMetadataMap"],
+  addCoinMetadataToLocalMap: AppContext["addCoinMetadataToLocalMap"],
+) {
   const { suiClient } = useSettingsContext();
   const { address } = useWalletContext();
 
@@ -50,12 +54,18 @@ export default function useFetchAppData() {
     );
 
     const {
+      coinMetadataMap,
+
       refreshedRawReserves,
       reserveMap,
 
       activeRewardCoinTypes,
       rewardCoinMetadataMap,
-    } = await initializeSuilend(suiClient, suilendClient);
+    } = await initializeSuilend(suiClient, suilendClient, localCoinMetadataMap);
+    for (const coinType of Object.keys(coinMetadataMap)) {
+      if (!localCoinMetadataMap[coinType])
+        addCoinMetadataToLocalMap(coinType, coinMetadataMap[coinType]);
+    }
 
     const { rewardPriceMap } = await initializeSuilendRewards(
       reserveMap,
@@ -84,25 +94,39 @@ export default function useFetchAppData() {
     const lstCoinTypes = Object.keys(LIQUID_STAKING_INFO_MAP);
 
     // CoinMetadata
-    const coinTypes: string[] = [
+    const springuiCoinTypes: string[] = [
       NORMALIZED_SUI_COINTYPE,
       ...lstCoinTypes,
       NORMALIZED_SEND_POINTS_S2_COINTYPE,
     ];
-    const uniqueCoinTypes = Array.from(new Set(coinTypes));
+    const uniqueSpringuiCoinTypes = Array.from(new Set(springuiCoinTypes));
 
-    const coinMetadataMap = await getCoinMetadataMap(uniqueCoinTypes);
+    const _springuiCoinMetadataMap = await getCoinMetadataMap(
+      uniqueSpringuiCoinTypes.filter(
+        (coinType) => !localCoinMetadataMap[coinType],
+      ),
+    );
+    const springuiCoinMetadataMap: Record<string, CoinMetadata> =
+      uniqueSpringuiCoinTypes.reduce(
+        (acc, coinType) => ({
+          ...acc,
+          [coinType]:
+            localCoinMetadataMap?.[coinType] ??
+            _springuiCoinMetadataMap[coinType],
+        }),
+        {} as Record<string, CoinMetadata>,
+      );
 
     // SEND Points
     const sendPointsToken = getToken(
       NORMALIZED_SEND_POINTS_S2_COINTYPE,
-      coinMetadataMap[NORMALIZED_SEND_POINTS_S2_COINTYPE],
+      springuiCoinMetadataMap[NORMALIZED_SEND_POINTS_S2_COINTYPE],
     );
 
     // SUI
     const suiToken = getToken(
       NORMALIZED_SUI_COINTYPE,
-      coinMetadataMap[NORMALIZED_SUI_COINTYPE],
+      springuiCoinMetadataMap[NORMALIZED_SUI_COINTYPE],
     );
     const suiPrice = reserveMap[NORMALIZED_SUI_COINTYPE].price;
 
@@ -140,7 +164,9 @@ export default function useFetchAppData() {
             ).div(10 ** SUI_DECIMALS);
             const totalLstSupply = new BigNumber(
               rawLiquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
-            ).div(10 ** coinMetadataMap[LIQUID_STAKING_INFO.type].decimals);
+            ).div(
+              10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
+            );
 
             const suiToLstExchangeRate = !totalSuiSupply.eq(0)
               ? totalLstSupply.div(totalSuiSupply)
@@ -173,11 +199,13 @@ export default function useFetchAppData() {
             ).div(10 ** SUI_DECIMALS);
             const accruedSpreadFees = new BigNumber(
               rawLiquidStakingInfo.accruedSpreadFees.toString(),
-            ).div(10 ** coinMetadataMap[LIQUID_STAKING_INFO.type].decimals);
+            ).div(
+              10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
+            );
 
             const lstToken = getToken(
               LIQUID_STAKING_INFO.type,
-              coinMetadataMap[LIQUID_STAKING_INFO.type],
+              springuiCoinMetadataMap[LIQUID_STAKING_INFO.type],
             );
             const lstPrice = !suiToLstExchangeRate.eq(0)
               ? suiPrice.div(suiToLstExchangeRate)
