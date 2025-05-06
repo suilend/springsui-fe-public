@@ -42,6 +42,115 @@ import { VALIDATOR_METADATA } from "@/lib/validators";
 const SUILEND_VALIDATOR_ADDRESS =
   "0xce8e537664ba5d1d5a6a857b17bd142097138706281882be6805e17065ecde89";
 
+const BLACKLISTED_WORDS = [
+  // Sui
+  "sui",
+  "suilend",
+  "springsui",
+  "steamm",
+  "root",
+  "rootlet",
+  "rootlets",
+  "send",
+
+  // Test
+  "test",
+  "temp",
+  "dummy",
+
+  // Brands
+  "bnb",
+  "bn",
+  "okx",
+  "x",
+  "coin",
+  "coinbase",
+
+  // Inappropriate
+  "anal",
+  "anus",
+  "ass",
+  "asshole",
+  "bitch",
+  "bitching",
+  "boob",
+  "boobs",
+  "butt",
+  "butthole",
+  "butts",
+  "cheat",
+  "cheater",
+  "cock",
+  "cockhead",
+  "cocaine",
+  "crack",
+  "cracker",
+  "cunt",
+  "cunty",
+  "cum",
+  "cumshot",
+  "death",
+  "dead",
+  "die",
+  "dick",
+  "dickhead",
+  "drug",
+  "drugs",
+  "fake",
+  "fraud",
+  "fuck",
+  "fucker",
+  "fucking",
+  "hack",
+  "hacker",
+  "hate",
+  "heroin",
+  "hitler",
+  "hax",
+  "haxor",
+  "jizz",
+  "kill",
+  "meth",
+  "naked",
+  "nazi",
+  "nude",
+  "nudes",
+  "pedo",
+  "pedophile",
+  "penis",
+  "pirate",
+  "piracy",
+  "porn",
+  "porno",
+  "pussy",
+  "pussycat",
+  "racism",
+  "racist",
+  "scam",
+  "scammer",
+  "sex",
+  "sexism",
+  "sexist",
+  "shit",
+  "shitter",
+  "shitting",
+  "slut",
+  "slutty",
+  "sperm",
+  "steal",
+  "terror",
+  "terrorist",
+  "thief",
+  "thieves",
+  "tit",
+  "tits",
+  "vagina",
+  "weed",
+  "whore",
+  "whoring",
+  "xxx",
+];
+
 function generate_bytecode(
   module_: string,
   type: string,
@@ -112,8 +221,7 @@ export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
   const { appData, refresh: refreshAppData } = useLoadedAppContext();
-  const { refresh: refreshLstData } = useLoadedLstContext();
-
+  const { admin, refresh: refreshLstData } = useLoadedLstContext();
   const existingSymbols = Object.values(appData.lstDataMap).reduce(
     (acc, lstData) => [...acc, lstData.token.symbol],
     [] as string[],
@@ -346,9 +454,15 @@ export default function CreateCard() {
       if (name === "") throw new Error("Missing name");
       if (symbol === "") throw new Error("Missing symbol");
       if (symbol !== symbol.toLowerCase())
-        throw new Error("Symbol does not follow the format xxxSUI");
+        throw new Error("Symbol is not lowercase");
+      if (/\s/.test(symbol)) throw new Error("Symbol cannot contain spaces");
+      if (
+        !admin.weightHookAdminCapId &&
+        BLACKLISTED_WORDS.includes(symbol.toLowerCase())
+      )
+        throw new Error("Symbol contains a reserved or blacklisted word");
       if (fullName === fullSymbol)
-        throw new Error("Name and symbol cannot be the same");
+        throw new Error("Name and symbol cannot be the same"); // Should never happen (different suffixes are added automatically)
       if (existingSymbols.includes(fullSymbol))
         throw new Error("Symbol must be unique among SpringSui LSTs");
 
