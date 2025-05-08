@@ -150,9 +150,11 @@ export default function TokenSelectionDialog({
   const otherTokens = useMemo(
     () =>
       tokens.filter(
-        (t) => !balanceTokens.find((_t) => _t.coinType === t.coinType),
+        (t) =>
+          !balanceTokens.find((_t) => _t.coinType === t.coinType) &&
+          !suilendTokens.find((_t) => _t.coinType === t.coinType),
       ),
-    [tokens, balanceTokens],
+    [tokens, balanceTokens, suilendTokens],
   );
 
   // Tokens - top
