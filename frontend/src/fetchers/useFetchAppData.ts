@@ -36,6 +36,7 @@ import {
 } from "@suilend/springsui-sdk";
 
 import { AppContext, AppData, LstData } from "@/contexts/AppContext";
+import { API_URL } from "@/lib/navigation";
 
 export default function useFetchAppData(
   localCoinMetadataMap: AppContext["localCoinMetadataMap"],
@@ -143,6 +144,18 @@ export default function useFetchAppData(
       +latestSuiSystemState.epochDurationMs;
 
     // LSTs
+    const lstAprsRes = await fetch(`${API_URL}/springsui/all`);
+    const lstAprsJson: Record<string, string> = await lstAprsRes.json();
+    if ((lstAprsRes as any)?.statusCode === 500)
+      throw new Error("Failed to fetch SpringSui LST APRs");
+
+    const lstAprPercentMap: Record<string, BigNumber> = Object.fromEntries(
+      Object.entries(lstAprsJson).map(([coinType, aprPercent]) => [
+        coinType,
+        new BigNumber(aprPercent),
+      ]),
+    );
+
     const lstData: [string, LstData][] = await Promise.all(
       Object.entries(LIQUID_STAKING_INFO_MAP).map(
         ([coinType, LIQUID_STAKING_INFO]) =>
@@ -190,9 +203,6 @@ export default function useFetchAppData(
                 0,
             ).div(100);
             // customRedeemFeeBps
-
-            const apr = await lstClient.getSpringSuiApy(); // TODO: Use APR
-            const aprPercent = new BigNumber(apr).times(100);
 
             const fees = new BigNumber(
               rawLiquidStakingInfo.fees.value.toString(),
@@ -245,7 +255,7 @@ export default function useFetchAppData(
                 mintFeePercent,
                 redeemFeePercent,
                 spreadFeePercent,
-                aprPercent,
+                aprPercent: lstAprPercentMap[coinType] ?? new BigNumber(0),
 
                 fees,
                 accruedSpreadFees,
@@ -263,6 +273,7 @@ export default function useFetchAppData(
 
     return {
       suilendClient,
+      reserveMap,
       obligationOwnerCaps,
       obligations,
 
@@ -281,7 +292,7 @@ export default function useFetchAppData(
   };
 
   const { data, mutate } = useSWR<AppData>(`appData-${address}`, dataFetcher, {
-    refreshInterval: 30 * 1000,
+    refreshInterval: 5 * 60 * 1000, // 5 minutes
     onSuccess: (data) => {
       console.log("Refreshed app data", data);
     },

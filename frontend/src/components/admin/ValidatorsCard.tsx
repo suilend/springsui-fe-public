@@ -118,7 +118,7 @@ export default function ValidatorAddressesAndWeightsCard() {
           {vaw.map((row, index) => (
             <div key={row.id} className="flex flex-row gap-4">
               {/* Address */}
-              <div className="flex flex-1 flex-col gap-1.5">
+              <div className="flex flex-1 flex-col gap-2">
                 {index === 0 && (
                   <p className="text-p2 text-navy-600">Address</p>
                 )}
@@ -134,7 +134,7 @@ export default function ValidatorAddressesAndWeightsCard() {
               </div>
 
               {/* Weight */}
-              <div className="flex w-[125px] flex-col gap-1.5">
+              <div className="flex w-[125px] flex-col gap-2">
                 {index === 0 && (
                   <p className="text-p2 text-navy-600">Weight (0–100%)</p>
                 )}
@@ -149,7 +149,7 @@ export default function ValidatorAddressesAndWeightsCard() {
               </div>
 
               {/* Remove */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2">
                 {index === 0 && <p className="text-p2 opacity-0">-</p>}
                 <Button
                   className="w-10 bg-navy-600"

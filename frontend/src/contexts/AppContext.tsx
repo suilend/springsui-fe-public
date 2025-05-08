@@ -14,7 +14,7 @@ import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui-next/fetchers/useFetchBalances";
 import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
-import { ParsedObligation, SuilendClient } from "@suilend/sdk";
+import { ParsedObligation, ParsedReserve, SuilendClient } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
@@ -50,6 +50,7 @@ export interface LstData {
 
 export interface AppData {
   suilendClient: SuilendClient;
+  reserveMap: Record<string, ParsedReserve>;
   obligationOwnerCaps: ObligationOwnerCap<string>[] | undefined;
   obligations: ParsedObligation[] | undefined;
 

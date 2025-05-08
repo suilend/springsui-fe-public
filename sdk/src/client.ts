@@ -40,6 +40,9 @@ export const SUILEND_VALIDATOR_ADDRESS =
 const SPRING_SUI_UPGRADE_CAP_ID =
   "0x4dc657b6c0fe896f4b94fee1ceac96312dde0a36b94e799caaec30deb53dcd67";
 
+export const ADMIN_ADDRESS =
+  "0xb1ffbc2e1915f44b8f271a703becc1bf8aa79bc22431a58900a102892b783c25";
+
 async function getLatestPackageId(
   client: SuiClient,
   upgradeCapId: string,

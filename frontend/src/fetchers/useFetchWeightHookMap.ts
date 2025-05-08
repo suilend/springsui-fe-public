@@ -34,7 +34,7 @@ export default function useFetchWeightHookMap() {
   const { data, mutate } = useSWR<
     Record<string, WeightHook<string>> | undefined
   >(!appData ? null : "weightHookMap", dataFetcher, {
-    refreshInterval: 30 * 1000,
+    refreshInterval: 60 * 60 * 1000, // 1 hour
     onSuccess: (data) => {
       console.log("Refreshed weightHookMap", data);
     },

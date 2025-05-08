@@ -142,6 +142,11 @@ export default function TokenSelectionDialog({
     return sortedTokens;
   }, [tokens, getBalance]);
 
+  const suilendTokens = useMemo(
+    () => tokens.filter((t) => !!appData.reserveMap[t.coinType]),
+    [tokens, appData.reserveMap],
+  );
+
   const otherTokens = useMemo(
     () =>
       tokens.filter(
@@ -184,14 +189,22 @@ export default function TokenSelectionDialog({
     () => filterTokens(balanceTokens),
     [filterTokens, balanceTokens],
   );
+  const filteredSuilendTokens = useMemo(
+    () => filterTokens(suilendTokens),
+    [filterTokens, suilendTokens],
+  );
   const filteredOtherTokens = useMemo(
     () => filterTokens(otherTokens),
     [filterTokens, otherTokens],
   );
 
   const filteredTokens = useMemo(
-    () => [...filteredBalanceTokens, ...filteredOtherTokens],
-    [filteredBalanceTokens, filteredOtherTokens],
+    () => [
+      ...filteredBalanceTokens,
+      ...filteredSuilendTokens,
+      ...filteredOtherTokens,
+    ],
+    [filteredBalanceTokens, filteredSuilendTokens, filteredOtherTokens],
   );
 
   const filteredTokensMap = useMemo(
@@ -200,12 +213,16 @@ export default function TokenSelectionDialog({
         title: "Wallet balances",
         tokens: filteredBalanceTokens,
       },
+      suilend: {
+        title: "Assets listed on Suilend",
+        tokens: filteredSuilendTokens,
+      },
       other: {
-        title: filteredBalanceTokens.length > 0 ? "Other assets" : "Assets",
+        title: "Other known assets",
         tokens: filteredOtherTokens,
       },
     }),
-    [filteredBalanceTokens, filteredOtherTokens],
+    [filteredBalanceTokens, filteredSuilendTokens, filteredOtherTokens],
   );
 
   // Select token

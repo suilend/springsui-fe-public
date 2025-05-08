@@ -5,6 +5,7 @@ export const ADMIN_URL = "/admin";
 
 export const SUILEND_URL = "https://suilend.fi";
 
+export const API_URL = "https://api.suilend.fi";
 export const DOCS_URL =
   "https://docs.suilend.fi/springsui/intro-to-springsui-standard";
 export const TWITTER_URL = "https://twitter.com/springsui_";

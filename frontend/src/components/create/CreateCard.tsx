@@ -18,19 +18,21 @@ import { ChevronDown, ChevronUp, ExternalLink, Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
-import { formatPercent } from "@suilend/frontend-sui";
+import { formatNumber, formatPercent } from "@suilend/frontend-sui";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import { FeeConfigArgs } from "@suilend/springsui-sdk";
+import { ADMIN_ADDRESS, FeeConfigArgs } from "@suilend/springsui-sdk";
 import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import IconUpload from "@/components/create/IconUpload";
+import IconUpload, {
+  MAX_FILE_SIZE_BYTES,
+} from "@/components/create/IconUpload";
 import SelectPopover from "@/components/create/SelectPopover";
 import Skeleton from "@/components/Skeleton";
 import { useLoadedAppContext } from "@/contexts/AppContext";
@@ -221,7 +223,7 @@ export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
   const { appData, refresh: refreshAppData } = useLoadedAppContext();
-  const { admin, refresh: refreshLstData } = useLoadedLstContext();
+  const { refresh: refreshLstData } = useLoadedLstContext();
   const existingSymbols = Object.values(appData.lstDataMap).reduce(
     (acc, lstData) => [...acc, lstData.token.symbol],
     [] as string[],
@@ -231,15 +233,18 @@ export default function CreateCard() {
   const [name, setName] = useState<string>("");
   const [symbol, setSymbol] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+
   const [iconUrl, setIconUrl] = useState<string>("");
+  const [iconFilename, setIconFilename] = useState<string>("");
+  const [iconFileSize, setIconFileSize] = useState<string>("");
 
   const fullName = `${name} Staked SUI`;
   const fullSymbol = `${symbol}SUI`;
   const module_ = snakeCase(fullSymbol);
   const type = module_.toUpperCase();
 
-  // Advanced
-  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+  // Optional
+  const [showOptional, setShowOptional] = useState<boolean>(false);
 
   // State - fees
   const [feeConfigArgs, setFeeConfigArgs] =
@@ -451,41 +456,65 @@ export default function CreateCard() {
     setIsSubmitting(true);
 
     try {
-      if (name === "") throw new Error("Missing name");
-      if (symbol === "") throw new Error("Missing symbol");
+      // Name
+      if (name === "") throw new Error("Enter a name");
+      if (name.length < 3 || name.length > 32)
+        return {
+          isDisabled: true,
+          title: "Name must be between 3 and 32 characters",
+        };
+
+      // Symbol
+      if (symbol === "") throw new Error("Enter a symbol");
       if (symbol !== symbol.toLowerCase())
-        throw new Error("Symbol is not lowercase");
+        throw new Error("Symbol must be lowercase");
       if (/\s/.test(symbol)) throw new Error("Symbol cannot contain spaces");
+      if (symbol.length < 1 || symbol.length > 8)
+        return {
+          isDisabled: true,
+          title: "Symbol must be between 1 and 8 characters",
+        };
       if (
-        !admin.weightHookAdminCapId &&
+        address !== ADMIN_ADDRESS &&
         BLACKLISTED_WORDS.includes(symbol.toLowerCase())
       )
-        throw new Error("Symbol contains a reserved or blacklisted word");
-      if (fullName === fullSymbol)
-        throw new Error("Name and symbol cannot be the same"); // Should never happen (different suffixes are added automatically)
+        throw new Error("Symbol cannot be a reserved or blacklisted word");
+      if (fullSymbol === fullName)
+        throw new Error("Symbol can't be the same as the name"); // Should never happen (different suffixes are added automatically)
       if (existingSymbols.includes(fullSymbol))
         throw new Error("Symbol must be unique among SpringSui LSTs");
 
-      if (description === "") throw new Error("Missing description");
-      if (iconUrl === "") throw new Error("Missing icon URL");
+      // Description
+      if (description.length > 256)
+        return {
+          isDisabled: true,
+          title: "Description must be 256 characters or less",
+        };
 
+      // Icon
+      if (iconUrl === "") throw new Error("Upload an icon");
+
+      // Fees
       if (Object.entries(feeConfigArgs).some(([key, value]) => value === ""))
-        throw new Error("Missing fees");
+        throw new Error("Enter fees");
       if (new BigNumber(feeConfigArgs.redeemFeeBps).lt(2))
         throw new Error("Redeem fee must be at least 2 bps (0.02%)");
 
+      // Validators
       if (vaw.length === 0) throw new Error("Add at least one validator");
       if (vaw.some((row) => row.validatorAddress === "" || row.weight === ""))
-        throw new Error("Missing validator address or weight");
+        throw new Error("Enter validator address and weight");
 
-      // Step 1: Create the coin
+      //
+
+      // 1) Create coin
       const { treasuryCapId, coinType } = await createCoin();
 
-      // Step 2: Create the lst
+      // 2) Create LST
       const { liquidStakingInfoId, weightHookAdminCapId, weightHookId } =
         await createLst(treasuryCapId, coinType);
 
-      // Step 3: Set fees and validators
+      // 3) Set fees and validators
       const LIQUID_STAKING_INFO: LiquidStakingObjectInfo = {
         id: liquidStakingInfoId,
         type: coinType,
@@ -506,7 +535,10 @@ export default function CreateCard() {
       setName("");
       setSymbol("");
       setDescription("");
+
       setIconUrl("");
+      setIconFilename("");
+      setIconFileSize("");
       (document.getElementById("icon-upload") as HTMLInputElement).value = "";
 
       setFeeConfigArgs(DEFAULT_FEE_CONFIG);
@@ -530,7 +562,7 @@ export default function CreateCard() {
 
           <div className="flex flex-col gap-4 md:flex-row">
             {/* Name */}
-            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[2]">
+            <div className="flex flex-col gap-2 max-md:w-full md:flex-[2]">
               <p className="text-p2 text-navy-600">Name</p>
               <div className="relative w-full">
                 <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
@@ -549,7 +581,7 @@ export default function CreateCard() {
             </div>
 
             {/* Symbol */}
-            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
+            <div className="flex flex-col gap-2 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">Symbol</p>
               <div className="relative w-full">
                 <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
@@ -572,16 +604,6 @@ export default function CreateCard() {
                 </p>
               )}
             </div>
-
-            {/* Description */}
-            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-[3]">
-              <p className="text-p2 text-navy-600">Description</p>
-              <Input
-                placeholder="Infinitely liquid staking on Sui"
-                value={description}
-                onChange={setDescription}
-              />
-            </div>
           </div>
 
           <div className="flex w-full flex-row gap-4">
@@ -589,17 +611,30 @@ export default function CreateCard() {
               <div className="flex w-full flex-col gap-1">
                 <p className="text-p2 text-navy-600">Icon</p>
                 <p className="text-p3 text-navy-500">
-                  PNG, JPEG, or SVG. Max 1MB. 256x256 or larger recommended
+                  {[
+                    "PNG, JPEG, or SVG.",
+                    `Max ${formatNumber(
+                      new BigNumber(MAX_FILE_SIZE_BYTES / 1024),
+                      { dp: 0 },
+                    )} KB.`,
+                    `256x256 or larger recommended`,
+                  ].join(" ")}
                 </p>
               </div>
-
-              <IconUpload iconUrl={iconUrl} setIconUrl={setIconUrl} />
+              <IconUpload
+                iconUrl={iconUrl}
+                setIconUrl={setIconUrl}
+                iconFilename={iconFilename}
+                setIconFilename={setIconFilename}
+                iconFileSize={iconFileSize}
+                setIconFileSize={setIconFileSize}
+              />
             </div>
           </div>
 
           <div className="flex w-full flex-row gap-4">
             {/* Validator */}
-            <div className="flex flex-col gap-1.5 max-md:w-full md:flex-1">
+            <div className="flex flex-col gap-2 max-md:w-full md:flex-1">
               <p className="text-p2 text-navy-600">Validator</p>
               <div className="w-full max-w-[320px]">
                 {validatorOptions === undefined ? (
@@ -632,31 +667,45 @@ export default function CreateCard() {
             </div>
           </div>
 
-          {/* Advanced */}
+          {/* Optional */}
           <button
             className="group flex w-full w-max flex-row items-center gap-2"
-            onClick={() => setShowAdvanced((prev) => !prev)}
+            onClick={() => setShowOptional((prev) => !prev)}
           >
             <p
               className={cn(
                 "!text-p2 transition-colors",
-                showAdvanced
+                showOptional
                   ? "text-foreground"
                   : "text-navy-600 group-hover:text-foreground",
               )}
             >
               Optional
             </p>
-            {showAdvanced ? (
+            {showOptional ? (
               <ChevronUp className="h-4 w-4 text-foreground" />
             ) : (
               <ChevronDown className="h-4 w-4 text-navy-600 group-hover:text-foreground" />
             )}
           </button>
 
-          {showAdvanced && (
+          {showOptional && (
             <>
-              {/* Advanced - fees */}
+              {/* Optional - description */}
+              <Card className="shadow-none bg-[transparent]">
+                <div className="flex w-full flex-col gap-4 p-4">
+                  <div className="flex flex-col gap-2">
+                    <p className="text-p2 text-navy-600">Description</p>
+                    <Input
+                      placeholder="Infinitely liquid staking on Sui"
+                      value={description}
+                      onChange={setDescription}
+                    />
+                  </div>
+                </div>
+              </Card>
+
+              {/* Optional - fees */}
               <Card className="shadow-none bg-[transparent]">
                 <div className="flex w-full flex-col gap-4 p-4">
                   <p className="text-navy-600">Fees</p>
@@ -665,7 +714,7 @@ export default function CreateCard() {
                     {Object.keys(feeConfigArgs).map((key) => (
                       <div
                         key={key}
-                        className="flex flex-col gap-1.5 max-md:w-full md:flex-1"
+                        className="flex flex-col gap-2 max-md:w-full md:flex-1"
                       >
                         <p className="text-p2 text-navy-600">
                           {feeNameMap[key as keyof FeeConfigArgs]}
@@ -700,7 +749,7 @@ export default function CreateCard() {
                 </div>
               </Card>
 
-              {/* Advanced - validators */}
+              {/* Optional - validators */}
               <Card className="shadow-none bg-[transparent]">
                 <div className="flex w-full flex-col gap-4 p-4">
                   <div className="flex flex-row items-center gap-2">
@@ -721,7 +770,7 @@ export default function CreateCard() {
                     {vaw.map((row, index) => (
                       <div key={row.id} className="flex flex-row gap-4">
                         {/* Address */}
-                        <div className="flex flex-1 flex-col gap-1.5">
+                        <div className="flex flex-1 flex-col gap-2">
                           {index === 0 && (
                             <p className="text-p2 text-navy-600">Address</p>
                           )}
@@ -741,7 +790,7 @@ export default function CreateCard() {
                         </div>
 
                         {/* Weight */}
-                        <div className="flex w-[125px] flex-col gap-1.5">
+                        <div className="flex w-[125px] flex-col gap-2">
                           {index === 0 && (
                             <p className="text-p2 text-navy-600">
                               Weight (0–100%)
@@ -762,7 +811,7 @@ export default function CreateCard() {
                         </div>
 
                         {/* Remove */}
-                        <div className="flex flex-col gap-1.5">
+                        <div className="flex flex-col gap-2">
                           {index === 0 && (
                             <p className="text-p2 opacity-0">-</p>
                           )}

@@ -103,7 +103,7 @@ export default function UpdateFeesCard() {
           {Object.keys(feeConfigArgs).map((key) => (
             <div
               key={key}
-              className="flex flex-col gap-1.5 max-md:w-full md:flex-1"
+              className="flex flex-col gap-2 max-md:w-full md:flex-1"
             >
               <p className="text-p2 text-navy-600">
                 {feeNameMap[key as keyof FeeConfigArgs]}
