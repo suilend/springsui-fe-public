@@ -469,6 +469,8 @@ export default function CreateCard() {
       if (symbol !== symbol.toLowerCase())
         throw new Error("Symbol must be lowercase");
       if (/\s/.test(symbol)) throw new Error("Symbol cannot contain spaces");
+      if (/^\d/.test(symbol))
+        return { isDisabled: true, title: "Symbol cannot start with a number" };
       if (symbol.length < 1 || symbol.length > 8)
         return {
           isDisabled: true,
