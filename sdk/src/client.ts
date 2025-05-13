@@ -37,13 +37,13 @@ const SUI_SYSTEM_STATE_ID =
   "0x0000000000000000000000000000000000000000000000000000000000000005";
 export const SUILEND_VALIDATOR_ADDRESS =
   "0xce8e537664ba5d1d5a6a857b17bd142097138706281882be6805e17065ecde89";
-const SPRING_SUI_UPGRADE_CAP_ID =
+export const SPRING_SUI_UPGRADE_CAP_ID =
   "0x4dc657b6c0fe896f4b94fee1ceac96312dde0a36b94e799caaec30deb53dcd67";
 
 export const ADMIN_ADDRESS =
   "0xb1ffbc2e1915f44b8f271a703becc1bf8aa79bc22431a58900a102892b783c25";
 
-async function getLatestPackageId(
+export async function getLatestPackageId(
   client: SuiClient,
   upgradeCapId: string,
 ): Promise<string> {
@@ -64,11 +64,11 @@ export class LstClient {
   static async initialize(
     client: SuiClient,
     liquidStakingObjectInfo: LiquidStakingObjectInfo,
+    _publishedAt?: string,
   ): Promise<LstClient> {
-    const publishedAt = await getLatestPackageId(
-      client,
-      SPRING_SUI_UPGRADE_CAP_ID,
-    );
+    const publishedAt =
+      _publishedAt ??
+      (await getLatestPackageId(client, SPRING_SUI_UPGRADE_CAP_ID));
     setPublishedAt(publishedAt);
     console.log(`Initialized LstClient with package ID: ${publishedAt}`);
 

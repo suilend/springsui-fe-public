@@ -30,9 +30,10 @@ import {
   initializeSuilendRewards,
 } from "@suilend/sdk";
 import {
+  LiquidStakingObjectInfo,
   LstClient,
-  fetchLiquidStakingInfo,
-  fetchRegistryLiquidStakingInfoMap,
+  SPRING_SUI_UPGRADE_CAP_ID,
+  getLatestPackageId,
 } from "@suilend/springsui-sdk";
 
 import { AppContext, AppData, LstData } from "@/contexts/AppContext";
@@ -89,10 +90,25 @@ export default function useFetchAppData(
     );
 
     // LSTs
-    const LIQUID_STAKING_INFO_MAP =
-      await fetchRegistryLiquidStakingInfoMap(suiClient);
+    const lstInfoRes = await fetch(`${API_URL}/springsui/lst-info`);
+    const lstInfoJson: Record<
+      string,
+      { LIQUID_STAKING_INFO: any; liquidStakingInfo: any; apy: string }
+    > = await lstInfoRes.json();
+    if ((lstInfoRes as any)?.statusCode === 500)
+      throw new Error("Failed to fetch SpringSui LST data");
 
-    const lstCoinTypes = Object.keys(LIQUID_STAKING_INFO_MAP);
+    const LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo> =
+      Object.fromEntries(
+        Object.entries(lstInfoJson).map(
+          ([coinType, { LIQUID_STAKING_INFO }]) => [
+            coinType,
+            LIQUID_STAKING_INFO,
+          ],
+        ),
+      );
+
+    const lstCoinTypes = Array.from(new Set(Object.keys(lstInfoJson)));
 
     // CoinMetadata
     const springuiCoinTypes: string[] = [
@@ -144,39 +160,35 @@ export default function useFetchAppData(
       +latestSuiSystemState.epochDurationMs;
 
     // LSTs
-    const lstAprsRes = await fetch(`${API_URL}/springsui/all`);
-    const lstAprsJson: Record<string, string> = await lstAprsRes.json();
-    if ((lstAprsRes as any)?.statusCode === 500)
-      throw new Error("Failed to fetch SpringSui LST APRs");
-
     const lstAprPercentMap: Record<string, BigNumber> = Object.fromEntries(
-      Object.entries(lstAprsJson).map(([coinType, aprPercent]) => [
+      Object.entries(lstInfoJson).map(([coinType, { apy }]) => [
         coinType,
-        new BigNumber(aprPercent),
+        new BigNumber(apy),
       ]),
     );
 
+    const publishedAt = await getLatestPackageId(
+      suiClient,
+      SPRING_SUI_UPGRADE_CAP_ID,
+    );
+
     const lstData: [string, LstData][] = await Promise.all(
-      Object.entries(LIQUID_STAKING_INFO_MAP).map(
-        ([coinType, LIQUID_STAKING_INFO]) =>
+      Object.entries(lstInfoJson).map(
+        ([coinType, { LIQUID_STAKING_INFO, liquidStakingInfo }]) =>
           limit10<[], [string, LstData]>(async () => {
             // Client
             const lstClient = await LstClient.initialize(
               suiClient,
               LIQUID_STAKING_INFO,
+              publishedAt,
             );
 
             // Staking info
-            const rawLiquidStakingInfo = await fetchLiquidStakingInfo(
-              LIQUID_STAKING_INFO,
-              suiClient,
-            );
-
             const totalSuiSupply = new BigNumber(
-              rawLiquidStakingInfo.storage.totalSuiSupply.toString(),
+              liquidStakingInfo.storage.totalSuiSupply.toString(),
             ).div(10 ** SUI_DECIMALS);
             const totalLstSupply = new BigNumber(
-              rawLiquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
+              liquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
             ).div(
               10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
             );
@@ -189,26 +201,24 @@ export default function useFetchAppData(
               : new BigNumber(1);
 
             const mintFeePercent = new BigNumber(
-              rawLiquidStakingInfo.feeConfig.element?.suiMintFeeBps.toString() ??
+              liquidStakingInfo.feeConfig.element?.suiMintFeeBps.toString() ??
                 0,
             ).div(100);
             // stakedSuiMintFeeBps
             const redeemFeePercent = new BigNumber(
-              rawLiquidStakingInfo.feeConfig.element?.redeemFeeBps.toString() ??
-                0,
+              liquidStakingInfo.feeConfig.element?.redeemFeeBps.toString() ?? 0,
             ).div(100);
             // stakedSuiRedeemFeeBps
             const spreadFeePercent = new BigNumber(
-              rawLiquidStakingInfo.feeConfig.element?.spreadFeeBps.toString() ??
-                0,
+              liquidStakingInfo.feeConfig.element?.spreadFeeBps.toString() ?? 0,
             ).div(100);
             // customRedeemFeeBps
 
             const fees = new BigNumber(
-              rawLiquidStakingInfo.fees.value.toString(),
+              liquidStakingInfo.fees.value.toString(),
             ).div(10 ** SUI_DECIMALS);
             const accruedSpreadFees = new BigNumber(
-              rawLiquidStakingInfo.accruedSpreadFees.toString(),
+              liquidStakingInfo.accruedSpreadFees.toString(),
             ).div(
               10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
             );
