@@ -8,11 +8,11 @@ import {
 
 import { CoinMetadata } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
-import { useLocalStorage } from "usehooks-ts";
 
 import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/frontend-sui";
 import useFetchBalances from "@suilend/frontend-sui-next/fetchers/useFetchBalances";
 import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
+import useExpandedLocalStorageMap from "@suilend/frontend-sui-next/hooks/useExpandedLocalStorageMap";
 import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
 import { ParsedObligation, ParsedReserve, SuilendClient } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
@@ -110,13 +110,14 @@ export const useLoadedAppContext = () => useAppContext() as LoadedAppContext;
 
 export function AppContextProvider({ children }: PropsWithChildren) {
   // Local CoinMetadata map
-  const [localCoinMetadataMap, setLocalCoinMetadataMap] = useLocalStorage<
-    Record<string, CoinMetadata>
-  >("springSui_coinMetadataMap", {});
+  const { value: localCoinMetadataMap, setValue: setLocalCoinMetadataMap } =
+    useExpandedLocalStorageMap<Record<string, CoinMetadata>>(
+      "springSui_coinMetadataMap",
+    );
 
   const addCoinMetadataToLocalMap = useCallback(
     (coinType: string, coinMetadata: CoinMetadata) => {
-      setLocalCoinMetadataMap((o) => ({ ...o, [coinType]: coinMetadata }));
+      setLocalCoinMetadataMap({ [coinType]: coinMetadata });
     },
     [setLocalCoinMetadataMap],
   );
