@@ -1,17 +1,7 @@
-import assert from "assert";
-
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { bcs } from "@mysten/bcs";
-import {
-  update_constants,
-  update_identifiers,
-} from "@mysten/move-bytecode-template";
-import init from "@mysten/move-bytecode-template";
-import { SuiTransactionBlockResponse, ValidatorApy } from "@mysten/sui/client";
-import { Transaction } from "@mysten/sui/transactions";
-import { normalizeSuiAddress } from "@mysten/sui/utils";
+import { ValidatorApy } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 import { snakeCase } from "lodash";
 import { ChevronDown, ChevronUp, ExternalLink, Minus } from "lucide-react";
@@ -25,182 +15,32 @@ import {
   useWalletContext,
 } from "@suilend/frontend-sui-next";
 import { ADMIN_ADDRESS, FeeConfigArgs } from "@suilend/springsui-sdk";
-import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import IconUpload, {
-  MAX_FILE_SIZE_BYTES,
-} from "@/components/create/IconUpload";
+import IconUpload from "@/components/create/IconUpload";
 import SelectPopover from "@/components/create/SelectPopover";
 import Skeleton from "@/components/Skeleton";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
+import {
+  createCoin,
+  generate_bytecode,
+  initializeCoinCreation,
+} from "@/lib/createCoin";
+import {
+  BLACKLISTED_WORDS,
+  BROWSE_MAX_FILE_SIZE_BYTES,
+  createLst,
+  setFeesAndValidators,
+} from "@/lib/createLst";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 import { VALIDATOR_METADATA } from "@/lib/validators";
 
 const SUILEND_VALIDATOR_ADDRESS =
   "0xce8e537664ba5d1d5a6a857b17bd142097138706281882be6805e17065ecde89";
-
-const BLACKLISTED_WORDS = [
-  // Sui
-  "sui",
-  "suilend",
-  "springsui",
-  "steamm",
-  "root",
-  "rootlet",
-  "rootlets",
-  "send",
-
-  // Test
-  "test",
-  "temp",
-  "dummy",
-
-  // Brands
-  "bnb",
-  "bn",
-  "okx",
-  "x",
-  "coin",
-  "coinbase",
-
-  // Inappropriate
-  "anal",
-  "anus",
-  "ass",
-  "asshole",
-  "bitch",
-  "bitching",
-  "boob",
-  "boobs",
-  "butt",
-  "butthole",
-  "butts",
-  "cheat",
-  "cheater",
-  "cock",
-  "cockhead",
-  "cocaine",
-  "crack",
-  "cracker",
-  "cunt",
-  "cunty",
-  "cum",
-  "cumshot",
-  "death",
-  "dead",
-  "die",
-  "dick",
-  "dickhead",
-  "drug",
-  "drugs",
-  "fake",
-  "fraud",
-  "fuck",
-  "fucker",
-  "fucking",
-  "hack",
-  "hacker",
-  "hate",
-  "heroin",
-  "hitler",
-  "hax",
-  "haxor",
-  "jizz",
-  "kill",
-  "meth",
-  "naked",
-  "nazi",
-  "nude",
-  "nudes",
-  "pedo",
-  "pedophile",
-  "penis",
-  "pirate",
-  "piracy",
-  "porn",
-  "porno",
-  "pussy",
-  "pussycat",
-  "racism",
-  "racist",
-  "scam",
-  "scammer",
-  "sex",
-  "sexism",
-  "sexist",
-  "shit",
-  "shitter",
-  "shitting",
-  "slut",
-  "slutty",
-  "sperm",
-  "steal",
-  "terror",
-  "terrorist",
-  "thief",
-  "thieves",
-  "tit",
-  "tits",
-  "vagina",
-  "weed",
-  "whore",
-  "whoring",
-  "xxx",
-];
-
-function generate_bytecode(
-  module_: string,
-  type: string,
-  name: string,
-  symbol: string,
-  description: string,
-  iconUrl: string,
-) {
-  const bytecode = Buffer.from(
-    "oRzrCwYAAAAKAQAMAgweAyonBFEIBVlMB6UBywEI8AJgBtADXQqtBAUMsgQoABABCwIGAhECEgITAAICAAEBBwEAAAIADAEAAQIDDAEAAQQEAgAFBQcAAAkAAQABDwUGAQACBwgJAQIDDAUBAQwDDQ0BAQwEDgoLAAUKAwQAAQQCBwQMAwICCAAHCAQAAQsCAQgAAQoCAQgFAQkAAQsBAQkAAQgABwkAAgoCCgIKAgsBAQgFBwgEAgsDAQkACwIBCQABBggEAQUBCwMBCAACCQAFDENvaW5NZXRhZGF0YQZPcHRpb24IVEVNUExBVEULVHJlYXN1cnlDYXAJVHhDb250ZXh0A1VybARjb2luD2NyZWF0ZV9jdXJyZW5jeQtkdW1teV9maWVsZARpbml0FW5ld191bnNhZmVfZnJvbV9ieXRlcwZvcHRpb24TcHVibGljX3NoYXJlX29iamVjdA9wdWJsaWNfdHJhbnNmZXIGc2VuZGVyBHNvbWUIdGVtcGxhdGUIdHJhbnNmZXIKdHhfY29udGV4dAN1cmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAQkKAgUEVE1QTAoCDg1UZW1wbGF0ZSBDb2luCgIaGVRlbXBsYXRlIENvaW4gRGVzY3JpcHRpb24KAiEgaHR0cHM6Ly9leGFtcGxlLmNvbS90ZW1wbGF0ZS5wbmcAAgEIAQAAAAACEgsABwAHAQcCBwMHBBEGOAAKATgBDAILAS4RBTgCCwI4AwIA=",
-    "base64",
-  );
-
-  let updated = update_identifiers(bytecode, {
-    TEMPLATE: type,
-    template: module_,
-  });
-
-  updated = update_constants(
-    updated,
-    bcs.string().serialize(symbol).toBytes(),
-    bcs.string().serialize("TMPL").toBytes(),
-    "Vector(U8)", // type of the constant
-  );
-
-  updated = update_constants(
-    updated,
-    bcs.string().serialize(name).toBytes(), // new value
-    bcs.string().serialize("Template Coin").toBytes(), // current value
-    "Vector(U8)", // type of the constant
-  );
-
-  updated = update_constants(
-    updated,
-    bcs.string().serialize(description).toBytes(), // new value
-    bcs.string().serialize("Template Coin Description").toBytes(), // current value
-    "Vector(U8)", // type of the constant
-  );
-
-  updated = update_constants(
-    updated,
-    bcs.string().serialize(iconUrl).toBytes(), // new value
-    bcs.string().serialize("https://example.com/template.png").toBytes(), // current value
-    "Vector(U8)", // type of the constant
-  );
-
-  return updated;
-}
 
 const feeNameMap: Record<keyof FeeConfigArgs, string> = {
   mintFeeBps: "Staking fee",
@@ -324,131 +164,6 @@ export default function CreateCard() {
   // Submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const createCoin = async () => {
-    await init();
-
-    const bytecode = generate_bytecode(
-      module_,
-      type,
-      fullName,
-      fullSymbol,
-      description,
-      iconUrl,
-    );
-
-    // Create coin
-    const transaction = new Transaction();
-
-    const [upgradeCap] = transaction.publish({
-      modules: [[...bytecode]],
-      dependencies: [normalizeSuiAddress("0x1"), normalizeSuiAddress("0x2")],
-    });
-    transaction.transferObjects(
-      [upgradeCap],
-      transaction.pure.address(address!),
-    );
-
-    const res = await signExecuteAndWaitForTransaction(transaction);
-
-    // Get TreasuryCap id from transaction
-    const treasuryCapObjectChange = res.objectChanges?.find(
-      (change) =>
-        change.type === "created" && change.objectType.includes("TreasuryCap"),
-    );
-    assert(treasuryCapObjectChange?.type === "created");
-
-    const treasuryCapId = treasuryCapObjectChange?.objectId;
-    console.log("treasuryCapId:", treasuryCapId);
-
-    const coinType = treasuryCapObjectChange?.objectType
-      .split("<")[1]
-      .split(">")[0];
-    console.log("coinType:", coinType);
-
-    return { treasuryCapId, coinType };
-  };
-
-  const createLst = async (treasuryCapId: string, coinType: string) => {
-    const transaction = new Transaction();
-
-    // Create lst
-    const weightHookAdminCap = LstClient.createNewLst(
-      transaction,
-      treasuryCapId,
-      coinType,
-    );
-    transaction.transferObjects(
-      [transaction.object(weightHookAdminCap)],
-      transaction.pure.address(address!),
-    );
-
-    const res = await signExecuteAndWaitForTransaction(transaction);
-
-    // Get LiquidStakingInfo id from transaction
-    const liquidStakingInfoObjectChange = res.objectChanges?.find(
-      (change) =>
-        change.type === "created" &&
-        change.objectType.includes(":LiquidStakingInfo<"),
-    );
-    assert(liquidStakingInfoObjectChange?.type === "created");
-
-    const liquidStakingInfoId = liquidStakingInfoObjectChange?.objectId;
-    console.log("liquidStakingInfoId:", liquidStakingInfoId);
-
-    // Get WeightHookAdminCap id from transaction
-    const weightHookAdminCapObjectChange = res.objectChanges?.find(
-      (change) =>
-        change.type === "created" &&
-        change.objectType.includes(":WeightHookAdminCap<"),
-    );
-    assert(weightHookAdminCapObjectChange?.type === "created");
-
-    const weightHookAdminCapId = weightHookAdminCapObjectChange?.objectId;
-    console.log("weightHookAdminCapId:", weightHookAdminCapId);
-
-    // Get WeightHook id from transaction
-    const weightHookObjectChange = res.objectChanges?.find(
-      (change) =>
-        change.type === "created" && change.objectType.includes(":WeightHook<"),
-    );
-    assert(weightHookObjectChange?.type === "created");
-
-    const weightHookId = weightHookObjectChange?.objectId;
-    console.log("weightHookId:", weightHookId);
-
-    return { liquidStakingInfoId, weightHookAdminCapId, weightHookId };
-  };
-
-  const setFeesAndValidators = async (
-    lstClient: LstClient,
-    weightHookAdminCapId: string,
-  ): Promise<SuiTransactionBlockResponse> => {
-    const transaction = new Transaction();
-
-    // Set fees
-    lstClient.updateFees(
-      transaction,
-      weightHookAdminCapId,
-      Object.entries(feeConfigArgs).reduce(
-        (acc, [key, value]) => ({ ...acc, [key]: +value }),
-        {},
-      ),
-    );
-
-    // Set validators
-    lstClient.setValidatorAddressesAndWeights(
-      transaction,
-      lstClient.liquidStakingObject.weightHookId,
-      weightHookAdminCapId,
-      vaw.reduce(
-        (acc, row) => ({ ...acc, [row.validatorAddress]: +row.weight }),
-        {},
-      ),
-    );
-
-    return signExecuteAndWaitForTransaction(transaction);
-  };
-
   const submit = async () => {
     if (!address) throw new Error("Wallet not connected");
 
@@ -509,26 +224,39 @@ export default function CreateCard() {
 
       //
 
+      // 0) Prepare
+      await initializeCoinCreation();
+
       // 1) Create coin
-      const { treasuryCapId, coinType } = await createCoin();
-
-      // 2) Create LST
-      const { liquidStakingInfoId, weightHookAdminCapId, weightHookId } =
-        await createLst(treasuryCapId, coinType);
-
-      // 3) Set fees and validators
-      const LIQUID_STAKING_INFO: LiquidStakingObjectInfo = {
-        id: liquidStakingInfoId,
-        type: coinType,
-        weightHookId: weightHookId,
-      };
-
-      const lstClient = await LstClient.initialize(
-        suiClient,
-        LIQUID_STAKING_INFO,
+      const createCoinResult = await createCoin(
+        generate_bytecode(
+          module_,
+          type,
+          fullName,
+          fullSymbol,
+          description,
+          iconUrl,
+        ),
+        address,
+        signExecuteAndWaitForTransaction,
       );
 
-      const res = await setFeesAndValidators(lstClient, weightHookAdminCapId);
+      // 2) Create LST
+      const createLstResult = await createLst(
+        createCoinResult,
+        address,
+        signExecuteAndWaitForTransaction,
+      );
+
+      // 3) Set fees and validators
+      const res = await setFeesAndValidators(
+        createCoinResult,
+        createLstResult,
+        feeConfigArgs,
+        vaw,
+        suiClient,
+        signExecuteAndWaitForTransaction,
+      );
       const txUrl = explorer.buildTxUrl(res.digest);
 
       showSuccessTxnToast("Created LST", txUrl);
@@ -614,11 +342,11 @@ export default function CreateCard() {
                 <p className="text-p2 text-navy-600">Icon</p>
                 <p className="text-p3 text-navy-500">
                   {[
-                    "PNG, JPEG, or SVG.",
+                    "PNG, JPEG, WebP, or SVG.",
                     `Max ${formatNumber(
-                      new BigNumber(MAX_FILE_SIZE_BYTES / 1024),
+                      new BigNumber(BROWSE_MAX_FILE_SIZE_BYTES / 1024 / 1024),
                       { dp: 0 },
-                    )} KB.`,
+                    )} MB.`,
                     `256x256 or larger recommended`,
                   ].join(" ")}
                 </p>

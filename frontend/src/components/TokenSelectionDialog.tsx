@@ -250,7 +250,7 @@ export default function TokenSelectionDialog({
       dialogContentOuterClassName="max-w-lg h-[800px]"
     >
       {/* Search */}
-      <div className="relative z-[1] h-10 w-full shrink-0 rounded-md border border-navy-400 bg-background transition-colors focus-within:border-blue">
+      <div className="relative z-[1] h-10 w-full shrink-0 rounded-md border border-navy-400 bg-white transition-colors focus-within:border-blue">
         <Search className="pointer-events-none absolute left-4 top-3 z-[2] -mt-px h-4 w-4 text-navy-500" />
         {searchString !== "" && (
           <button

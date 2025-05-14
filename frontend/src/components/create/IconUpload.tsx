@@ -3,16 +3,18 @@ import { ChangeEvent, DragEvent, useEffect, useState } from "react";
 
 import BigNumber from "bignumber.js";
 import { X } from "lucide-react";
+import { Metadata } from "sharp";
 
 import { formatNumber } from "@suilend/frontend-sui";
 import { showErrorToast } from "@suilend/frontend-sui-next";
 
 import Skeleton from "@/components/Skeleton";
+import {
+  BROWSE_FILE_SIZE_ERROR_MESSAGE,
+  BROWSE_MAX_FILE_SIZE_BYTES,
+} from "@/lib/createLst";
 
-export const MAX_BASE64_LENGTH = 2 ** 16; // 65,536 characters
-export const MAX_FILE_SIZE_BYTES = Math.floor((MAX_BASE64_LENGTH * 3) / 4); // ~49KB to ensure base64 stays under 2^16
-
-const FILE_SIZE_ERROR_MESSAGE = `Please upload an image smaller than ${formatNumber(new BigNumber(MAX_FILE_SIZE_BYTES / 1024), { dp: 0 })} KB`;
+const MAX_BASE64_LENGTH = 2 ** 16; // 65,536 characters (~49KB file size)
 
 const VALID_MIME_TYPES = [
   "image/png",
@@ -86,32 +88,50 @@ export default function IconUpload({
     (document.getElementById("icon-upload") as HTMLInputElement).value = "";
   };
 
+  const resizeImageAndSetIconUrl = async (base64: string, file: File) => {
+    const res = await fetch("/api/resize-image", {
+      method: "POST",
+      body: JSON.stringify({
+        base64: base64.split(",")[1],
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const json: { base64: string; metadata: Metadata } = await res.json();
+    if (!json.metadata.size) throw new Error("Failed to resize image");
+
+    const processedBase64 = `data:image/webp;base64,${json.base64}`;
+    if (processedBase64.length > MAX_BASE64_LENGTH)
+      throw new Error(BROWSE_FILE_SIZE_ERROR_MESSAGE);
+
+    setIconUrl(processedBase64);
+    setIconFilename(file.name);
+    setIconFileSize(
+      json.metadata.size > 1024 * 1024
+        ? `${formatNumber(new BigNumber(json.metadata.size / 1024 / 1024), { dp: 1 })} MB`
+        : `${formatNumber(new BigNumber(json.metadata.size / 1024), { dp: 1 })} KB`,
+    );
+  };
+
   const handleFile = async (file: File) => {
     try {
       setIsProcessing(true);
-
-      // Set filename and fileSize
-      setIconFilename(file.name);
-      setIconFileSize(
-        `${formatNumber(new BigNumber(file.size / 1024), { dp: 1 })} KB`,
-      );
 
       // Validate file type
       if (!VALID_MIME_TYPES.includes(file.type))
         throw new Error("Please upload a PNG, JPEG, WebP, or SVG image");
 
       // Validate file size
-      if (file.size > MAX_FILE_SIZE_BYTES)
-        throw new Error(FILE_SIZE_ERROR_MESSAGE);
+      if (file.size > BROWSE_MAX_FILE_SIZE_BYTES)
+        throw new Error(BROWSE_FILE_SIZE_ERROR_MESSAGE);
 
       // Read file
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64String = e.target?.result as string;
-        if (base64String.length > MAX_BASE64_LENGTH)
-          throw new Error(FILE_SIZE_ERROR_MESSAGE);
 
-        setIconUrl(base64String);
+        resizeImageAndSetIconUrl(base64String, file);
       };
       reader.onerror = () => {
         throw new Error("Failed to upload image");
@@ -161,7 +181,7 @@ export default function IconUpload({
           {isProcessing || iconUrl ? (
             <>
               <button
-                className="absolute right-1 top-1 z-[3] rounded-md border bg-background p-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                className="absolute right-1 top-1 z-[3] rounded-md bg-white p-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
                 onClick={reset}
               >
                 <X className="h-4 w-4 text-navy-600 transition-colors hover:text-foreground" />
