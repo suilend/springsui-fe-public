@@ -1,4 +1,4 @@
-import { SuiClient } from "@mysten/sui/client";
+import { SuiClient, ValidatorApy } from "@mysten/sui/client";
 import {
   Transaction,
   TransactionObjectInput,
@@ -373,8 +373,9 @@ export class LstClient {
     });
   }
 
-  async getSpringSuiApy() {
-    const validatorApys = (await this.client.getValidatorsApy()).apys;
+  async getSpringSuiApy(_validatorApys?: ValidatorApy[]) {
+    const validatorApys =
+      _validatorApys ?? (await this.client.getValidatorsApy()).apys;
 
     const liquidStakingInfo = await fetchLiquidStakingInfo(
       this.liquidStakingObject,
