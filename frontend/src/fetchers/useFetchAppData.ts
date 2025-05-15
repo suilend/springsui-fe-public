@@ -1,4 +1,3 @@
-import { CoinMetadata } from "@mysten/sui/client";
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import pLimit from "p-limit";
@@ -36,13 +35,10 @@ import {
   getLatestPackageId,
 } from "@suilend/springsui-sdk";
 
-import { AppContext, AppData, LstData } from "@/contexts/AppContext";
+import { AppData, LstData } from "@/contexts/AppContext";
 import { API_URL } from "@/lib/navigation";
 
-export default function useFetchAppData(
-  localCoinMetadataMap: AppContext["localCoinMetadataMap"],
-  addCoinMetadataToLocalMap: AppContext["addCoinMetadataToLocalMap"],
-) {
+export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
   const { address } = useWalletContext();
 
@@ -56,18 +52,12 @@ export default function useFetchAppData(
     );
 
     const {
-      coinMetadataMap,
-
       refreshedRawReserves,
       reserveMap,
 
       activeRewardCoinTypes,
       rewardCoinMetadataMap,
-    } = await initializeSuilend(suiClient, suilendClient, localCoinMetadataMap);
-    for (const coinType of Object.keys(coinMetadataMap)) {
-      if (!localCoinMetadataMap[coinType])
-        addCoinMetadataToLocalMap(coinType, coinMetadataMap[coinType]);
-    }
+    } = await initializeSuilend(suiClient, suilendClient);
 
     const { rewardPriceMap } = await initializeSuilendRewards(
       reserveMap,
@@ -118,21 +108,9 @@ export default function useFetchAppData(
     ];
     const uniqueSpringuiCoinTypes = Array.from(new Set(springuiCoinTypes));
 
-    const _springuiCoinMetadataMap = await getCoinMetadataMap(
-      uniqueSpringuiCoinTypes.filter(
-        (coinType) => !localCoinMetadataMap[coinType],
-      ),
+    const springuiCoinMetadataMap = await getCoinMetadataMap(
+      uniqueSpringuiCoinTypes,
     );
-    const springuiCoinMetadataMap: Record<string, CoinMetadata> =
-      uniqueSpringuiCoinTypes.reduce(
-        (acc, coinType) => ({
-          ...acc,
-          [coinType]:
-            localCoinMetadataMap?.[coinType] ??
-            _springuiCoinMetadataMap[coinType],
-        }),
-        {} as Record<string, CoinMetadata>,
-      );
 
     // SEND Points
     const sendPointsToken = getToken(

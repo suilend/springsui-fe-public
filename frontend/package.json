@@ -25,8 +25,8 @@
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@sentry/nextjs": "^8.38.0",
-    "@suilend/frontend-sui": "^0.2.67",
-    "@suilend/frontend-sui-next": "^0.1.44",
+    "@suilend/frontend-sui": "^0.2.69",
+    "@suilend/frontend-sui-next": "^0.1.45",
     "@suilend/sdk": "^1.1.54",
     "@tanstack/react-table": "^8.20.5",
     "@vercel/analytics": "^1.4.0",
@@ -54,6 +54,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "tus-js-client": "^4.3.1",
+    "usehooks-ts": "^3.1.1",
     "uuid": "^11.0.3",
     "vaul": "^1.1.1"
   },
