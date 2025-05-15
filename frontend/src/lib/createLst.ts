@@ -38,6 +38,7 @@ export const BLACKLISTED_WORDS = [
   "p",
   "bp",
   "cb",
+  "bb",
 
   // Inappropriate
   "anal",
