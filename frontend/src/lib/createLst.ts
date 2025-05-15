@@ -35,6 +35,8 @@ export const BLACKLISTED_WORDS = [
   "x",
   "coin",
   "coinbase",
+  "p",
+  "bp",
 
   // Inappropriate
   "anal",
