@@ -1,12 +1,32 @@
+import { SuiClient } from "@mysten/sui/client";
 import useSWR from "swr";
 
 import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/frontend-sui-next";
-import { LstClient } from "@suilend/springsui-sdk";
+import { PACKAGE_ID } from "@suilend/springsui-sdk/_generated/liquid_staking";
 
 import { useAppContext } from "@/contexts/AppContext";
+
+const getOwnedObjects = async (suiClient: SuiClient, address: string) => {
+  const allObjs = [];
+  let cursor = null;
+  let hasNextPage = true;
+  while (hasNextPage) {
+    const objs = await suiClient.getOwnedObjects({
+      owner: address,
+      cursor,
+      options: { showType: true },
+    });
+
+    allObjs.push(...objs.data);
+    cursor = objs.nextCursor;
+    hasNextPage = objs.hasNextPage;
+  }
+
+  return allObjs;
+};
 
 export default function useFetchWeightHookAdminCapIdMap() {
   const { suiClient } = useSettingsContext();
@@ -24,15 +44,14 @@ export default function useFetchWeightHookAdminCapIdMap() {
       {} as Record<string, string | undefined>,
     );
 
-    for (const [coinType, LIQUID_STAKING_INFO] of Object.entries(
-      appData.LIQUID_STAKING_INFO_MAP,
-    )) {
-      weightHookAdminCapIdMap[coinType] =
-        (await LstClient.getWeightHookAdminCapId(
-          suiClient,
-          address,
-          LIQUID_STAKING_INFO.type,
-        )) ?? undefined;
+    const allOwnedObjs = await getOwnedObjects(suiClient, address);
+    for (const coinType of Object.keys(appData.LIQUID_STAKING_INFO_MAP)) {
+      const weightHookAdminCapType = `${PACKAGE_ID}::weight::WeightHookAdminCap<${coinType}>`;
+
+      const ownedObj = allOwnedObjs.find(
+        (obj) => obj.data?.type === weightHookAdminCapType,
+      );
+      if (ownedObj) weightHookAdminCapIdMap[coinType] = ownedObj.data?.objectId;
     }
 
     return weightHookAdminCapIdMap;
