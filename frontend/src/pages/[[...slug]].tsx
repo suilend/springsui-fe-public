@@ -328,7 +328,7 @@ export default function Home() {
       suiBalance.lt(SUI_GAS_MIN)
     )
       return {
-        title: `${SUI_GAS_MIN} SUI should be saved for gas`,
+        title: "Insufficient gas",
         isDisabled: true,
       };
     if (new BigNumber(outValue).lte(0))
