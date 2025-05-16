@@ -19,7 +19,6 @@ import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/wei
 
 import { LstData, useAppContext } from "@/contexts/AppContext";
 import useFetchWeightHookAdminCapIdMap from "@/fetchers/useFetchWeightHookAdminCapIdMap";
-import useFetchWeightHookMap from "@/fetchers/useFetchWeightHookMap";
 
 export enum Mode {
   STAKING = "staking",
@@ -107,10 +106,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
     if (!appData) return false;
     if (slug === undefined) return false;
 
-    const validSymbols = [
-      NORMALIZED_SUI_COINTYPE,
-      ...Object.keys(appData.LIQUID_STAKING_INFO_MAP),
-    ].map(
+    const validSymbols = [NORMALIZED_SUI_COINTYPE, ...appData.lstCoinTypes].map(
       (coinType) =>
         (isSui(coinType)
           ? appData.suiToken
@@ -150,7 +146,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   const mode = useMemo(() => {
     if (!appData) return Mode.STAKING;
 
-    const validNonSuiSymbols = Object.keys(appData.LIQUID_STAKING_INFO_MAP).map(
+    const validNonSuiSymbols = appData.lstCoinTypes.map(
       (coinType) => appData.lstDataMap[coinType].token.symbol,
     );
 
@@ -200,12 +196,9 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   );
 
   // Admin - weightHook
-  const { data: weightHookMap, mutateData: mutateWeightHookMap } =
-    useFetchWeightHookMap();
-
   const weightHook = useMemo(
-    () => weightHookMap?.[adminLstCoinType],
-    [weightHookMap, adminLstCoinType],
+    () => appData?.lstDataMap[adminLstCoinType].lstInfo.weightHook,
+    [appData?.lstDataMap, adminLstCoinType],
   );
 
   // Admin - weightHookAdminCapId
@@ -224,7 +217,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
   // Admin - set adminLstCoinType based on weightHookAdminCapId
   useEffect(() => {
-    if (!appData?.LIQUID_STAKING_INFO_MAP) return;
+    if (!appData) return;
     if (
       !address ||
       weightHookAdminCapIdMap === undefined ||
@@ -234,24 +227,18 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    for (const _coinType of Object.keys(appData.LIQUID_STAKING_INFO_MAP)) {
+    for (const _coinType of appData.lstCoinTypes) {
       if (weightHookAdminCapIdMap[_coinType]) {
         setAdminLstCoinType(_coinType);
         break;
       }
     }
-  }, [
-    appData?.LIQUID_STAKING_INFO_MAP,
-    address,
-    weightHookAdminCapIdMap,
-    setAdminLstCoinType,
-  ]);
+  }, [appData, address, weightHookAdminCapIdMap, setAdminLstCoinType]);
 
   // Refresh
   const refresh = useCallback(async () => {
-    await mutateWeightHookMap();
     await mutateWeightHookAdminCapIdMap();
-  }, [mutateWeightHookMap, mutateWeightHookAdminCapIdMap]);
+  }, [mutateWeightHookAdminCapIdMap]);
 
   // Context
   const contextValue: LstContext = useMemo(

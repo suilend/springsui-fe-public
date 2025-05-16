@@ -8,7 +8,7 @@ import { ChevronDown, ChevronUp, ExternalLink, Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
-import { formatNumber, formatPercent } from "@suilend/frontend-sui";
+import { API_URL, formatNumber, formatPercent } from "@suilend/frontend-sui";
 import {
   showErrorToast,
   useSettingsContext,
@@ -261,6 +261,17 @@ export default function CreateCard() {
 
       showSuccessTxnToast("Created LST", txUrl);
 
+      // Push to cache
+      await fetch(`${API_URL}/springsui/lst-info`, {
+        method: "POST",
+        body: JSON.stringify({
+          digest: createLstResult.res.digest,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
       // Reset
       setName("");
       setSymbol("");
@@ -278,8 +289,8 @@ export default function CreateCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      refreshAppData();
-      refreshLstData();
+      await refreshAppData();
+      await refreshLstData();
     }
   };
 

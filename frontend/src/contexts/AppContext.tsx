@@ -16,10 +16,18 @@ import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefr
 import { ParsedObligation, ParsedReserve, SuilendClient } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
+import { LiquidStakingInfo } from "@suilend/springsui-sdk/_generated/liquid_staking/liquid-staking/structs";
+import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
+
 export interface LstData {
-  LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
+  lstInfo: {
+    LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
+    liquidStakingInfo: LiquidStakingInfo<string>;
+    weightHook: WeightHook<string>;
+    apy: string;
+  };
   lstClient: LstClient;
 
   totalSuiSupply: BigNumber;
@@ -30,7 +38,7 @@ export interface LstData {
   mintFeePercent: BigNumber;
   redeemFeePercent: BigNumber;
   spreadFeePercent: BigNumber;
-  aprPercent?: BigNumber;
+  aprPercent: BigNumber;
 
   fees: BigNumber;
   accruedSpreadFees: BigNumber;
@@ -57,7 +65,6 @@ export interface AppData {
   suiToken: Token;
   suiPrice: BigNumber;
 
-  LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo>;
   lstCoinTypes: string[];
   lstDataMap: Record<string, LstData>;
 

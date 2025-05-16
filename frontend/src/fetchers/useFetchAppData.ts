@@ -1,6 +1,5 @@
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
-import pLimit from "p-limit";
 import useSWR from "swr";
 
 import {
@@ -34,6 +33,8 @@ import {
   SPRING_SUI_UPGRADE_CAP_ID,
   getLatestPackageId,
 } from "@suilend/springsui-sdk";
+import { LiquidStakingInfo } from "@suilend/springsui-sdk/_generated/liquid_staking/liquid-staking/structs";
+import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import { AppData, LstData } from "@/contexts/AppContext";
 import { API_URL } from "@/lib/navigation";
@@ -43,8 +44,6 @@ export default function useFetchAppData() {
   const { address } = useWalletContext();
 
   const dataFetcher = async () => {
-    const limit10 = pLimit(10);
-
     const suilendClient = await SuilendClient.initialize(
       LENDING_MARKET_ID,
       LENDING_MARKET_TYPE,
@@ -83,22 +82,19 @@ export default function useFetchAppData() {
     const lstInfoRes = await fetch(`${API_URL}/springsui/lst-info`);
     const lstInfoJson: Record<
       string,
-      { LIQUID_STAKING_INFO: any; liquidStakingInfo: any; apy: string }
+      {
+        LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
+        liquidStakingInfo: LiquidStakingInfo<string>;
+        weightHook: WeightHook<string>;
+        apy: string;
+      }
     > = await lstInfoRes.json();
     if ((lstInfoRes as any)?.statusCode === 500)
       throw new Error("Failed to fetch SpringSui LST data");
 
-    const LIQUID_STAKING_INFO_MAP: Record<string, LiquidStakingObjectInfo> =
-      Object.fromEntries(
-        Object.entries(lstInfoJson).map(
-          ([coinType, { LIQUID_STAKING_INFO }]) => [
-            coinType,
-            LIQUID_STAKING_INFO,
-          ],
-        ),
-      );
+    const lstInfoMap = lstInfoJson;
 
-    const lstCoinTypes = Array.from(new Set(Object.keys(lstInfoJson)));
+    const lstCoinTypes = Array.from(new Set(Object.keys(lstInfoMap)));
 
     // CoinMetadata
     const springuiCoinTypes: string[] = [
@@ -137,124 +133,120 @@ export default function useFetchAppData() {
       +latestSuiSystemState.epochStartTimestampMs +
       +latestSuiSystemState.epochDurationMs;
 
-    // LSTs
-    const lstAprPercentMap: Record<string, BigNumber> = Object.fromEntries(
-      Object.entries(lstInfoJson).map(([coinType, { apy }]) => [
-        coinType,
-        new BigNumber(apy),
-      ]),
-    );
-
+    // LSTs - parse
     const publishedAt = await getLatestPackageId(
       suiClient,
       SPRING_SUI_UPGRADE_CAP_ID,
     );
 
     const lstData: [string, LstData][] = await Promise.all(
-      Object.entries(lstInfoJson).map(
-        ([coinType, { LIQUID_STAKING_INFO, liquidStakingInfo }]) =>
-          limit10<[], [string, LstData]>(async () => {
-            // Client
-            const lstClient = await LstClient.initialize(
-              suiClient,
-              LIQUID_STAKING_INFO,
-              publishedAt,
-            );
+      Object.entries(lstInfoMap).map(([coinType, lstInfo]) =>
+        (async () => {
+          const { LIQUID_STAKING_INFO, liquidStakingInfo, weightHook, apy } =
+            lstInfo;
 
-            // Staking info
-            const totalSuiSupply = new BigNumber(
-              liquidStakingInfo.storage.totalSuiSupply.toString(),
-            ).div(10 ** SUI_DECIMALS);
-            const totalLstSupply = new BigNumber(
-              liquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
-            ).div(
-              10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
-            );
+          // Client
+          const lstClient = await LstClient.initialize(
+            suiClient,
+            LIQUID_STAKING_INFO,
+            publishedAt,
+          );
 
-            const suiToLstExchangeRate = !totalSuiSupply.eq(0)
-              ? totalLstSupply.div(totalSuiSupply)
-              : new BigNumber(1);
-            const lstToSuiExchangeRate = !totalLstSupply.eq(0)
-              ? totalSuiSupply.div(totalLstSupply)
-              : new BigNumber(1);
+          // Staking info
+          const totalSuiSupply = new BigNumber(
+            liquidStakingInfo.storage.totalSuiSupply.toString(),
+          ).div(10 ** SUI_DECIMALS);
+          const totalLstSupply = new BigNumber(
+            liquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
+          ).div(
+            10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
+          );
 
-            const mintFeePercent = new BigNumber(
-              liquidStakingInfo.feeConfig.element?.suiMintFeeBps.toString() ??
-                0,
-            ).div(100);
-            // stakedSuiMintFeeBps
-            const redeemFeePercent = new BigNumber(
-              liquidStakingInfo.feeConfig.element?.redeemFeeBps.toString() ?? 0,
-            ).div(100);
-            // stakedSuiRedeemFeeBps
-            const spreadFeePercent = new BigNumber(
-              liquidStakingInfo.feeConfig.element?.spreadFeeBps.toString() ?? 0,
-            ).div(100);
-            // customRedeemFeeBps
+          const suiToLstExchangeRate = !totalSuiSupply.eq(0)
+            ? totalLstSupply.div(totalSuiSupply)
+            : new BigNumber(1);
+          const lstToSuiExchangeRate = !totalLstSupply.eq(0)
+            ? totalSuiSupply.div(totalLstSupply)
+            : new BigNumber(1);
 
-            const fees = new BigNumber(
-              liquidStakingInfo.fees.value.toString(),
-            ).div(10 ** SUI_DECIMALS);
-            const accruedSpreadFees = new BigNumber(
-              liquidStakingInfo.accruedSpreadFees.toString(),
-            ).div(
-              10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
-            );
+          const mintFeePercent = new BigNumber(
+            liquidStakingInfo.feeConfig.element?.suiMintFeeBps.toString() ?? 0,
+          ).div(100);
+          // stakedSuiMintFeeBps
+          const redeemFeePercent = new BigNumber(
+            liquidStakingInfo.feeConfig.element?.redeemFeeBps.toString() ?? 0,
+          ).div(100);
+          // stakedSuiRedeemFeeBps
+          const spreadFeePercent = new BigNumber(
+            liquidStakingInfo.feeConfig.element?.spreadFeeBps.toString() ?? 0,
+          ).div(100);
+          // customRedeemFeeBps
 
-            const lstToken = getToken(
-              LIQUID_STAKING_INFO.type,
-              springuiCoinMetadataMap[LIQUID_STAKING_INFO.type],
-            );
-            const lstPrice = !suiToLstExchangeRate.eq(0)
-              ? suiPrice.div(suiToLstExchangeRate)
-              : suiPrice;
+          const aprPercent = new BigNumber(apy);
 
-            const suilendLstReserve = reserveMap[LIQUID_STAKING_INFO.type];
-            const suilendLstRewards = rewardMap[LIQUID_STAKING_INFO.type];
+          const fees = new BigNumber(
+            liquidStakingInfo.fees.value.toString(),
+          ).div(10 ** SUI_DECIMALS);
+          const accruedSpreadFees = new BigNumber(
+            liquidStakingInfo.accruedSpreadFees.toString(),
+          ).div(
+            10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
+          );
 
-            const suilendReserveStats =
-              suilendLstReserve && suilendLstRewards
-                ? {
-                    aprPercent: getTotalAprPercent(
-                      Side.DEPOSIT,
-                      suilendLstReserve.depositAprPercent,
+          const lstToken = getToken(
+            LIQUID_STAKING_INFO.type,
+            springuiCoinMetadataMap[LIQUID_STAKING_INFO.type],
+          );
+          const lstPrice = !suiToLstExchangeRate.eq(0)
+            ? suiPrice.div(suiToLstExchangeRate)
+            : suiPrice;
+
+          const suilendLstReserve = reserveMap[LIQUID_STAKING_INFO.type];
+          const suilendLstRewards = rewardMap[LIQUID_STAKING_INFO.type];
+
+          const suilendReserveStats =
+            suilendLstReserve && suilendLstRewards
+              ? {
+                  aprPercent: getTotalAprPercent(
+                    Side.DEPOSIT,
+                    suilendLstReserve.depositAprPercent,
+                    getFilteredRewards(suilendLstRewards.deposit),
+                  ),
+                  tvlUsd: suilendLstReserve.availableAmountUsd,
+                  sendPointsPerDay:
+                    getDedupedPerDayRewards(
                       getFilteredRewards(suilendLstRewards.deposit),
-                    ),
-                    tvlUsd: suilendLstReserve.availableAmountUsd,
-                    sendPointsPerDay:
-                      getDedupedPerDayRewards(
-                        getFilteredRewards(suilendLstRewards.deposit),
-                      ).find((r) => isSendPointsS2(r.stats.rewardCoinType))
-                        ?.stats.perDay ?? new BigNumber(0),
-                  }
-                : undefined;
+                    ).find((r) => isSendPointsS2(r.stats.rewardCoinType))?.stats
+                      .perDay ?? new BigNumber(0),
+                }
+              : undefined;
 
-            return [
-              coinType,
-              {
-                LIQUID_STAKING_INFO,
-                lstClient,
+          return [
+            coinType,
+            {
+              lstInfo,
+              lstClient,
 
-                totalSuiSupply,
-                totalLstSupply,
-                suiToLstExchangeRate,
-                lstToSuiExchangeRate,
+              totalSuiSupply,
+              totalLstSupply,
+              suiToLstExchangeRate,
+              lstToSuiExchangeRate,
 
-                mintFeePercent,
-                redeemFeePercent,
-                spreadFeePercent,
-                aprPercent: lstAprPercentMap[coinType] ?? new BigNumber(0),
+              mintFeePercent,
+              redeemFeePercent,
+              spreadFeePercent,
+              aprPercent,
 
-                fees,
-                accruedSpreadFees,
+              fees,
+              accruedSpreadFees,
 
-                token: lstToken,
-                price: lstPrice,
+              token: lstToken,
+              price: lstPrice,
 
-                suilendReserveStats,
-              },
-            ];
-          }),
+              suilendReserveStats,
+            },
+          ];
+        })(),
       ),
     );
     const lstDataMap = Object.fromEntries(lstData);
@@ -269,7 +261,6 @@ export default function useFetchAppData() {
       suiToken,
       suiPrice,
 
-      LIQUID_STAKING_INFO_MAP,
       lstCoinTypes,
       lstDataMap,
 

@@ -34,18 +34,16 @@ export default function useFetchWeightHookAdminCapIdMap() {
   const { appData } = useAppContext();
 
   const dataFetcher = async () => {
-    if (!appData?.LIQUID_STAKING_INFO_MAP) return undefined; // Won't be reached as the useSWR key is null when appData is undefined
+    if (!appData) return undefined; // Won't be reached as the useSWR key is null when appData is undefined
     if (!address) return undefined;
 
-    const weightHookAdminCapIdMap = Object.keys(
-      appData.LIQUID_STAKING_INFO_MAP,
-    ).reduce(
+    const weightHookAdminCapIdMap = appData.lstCoinTypes.reduce(
       (acc, coinType) => ({ ...acc, [coinType]: undefined }),
       {} as Record<string, string | undefined>,
     );
 
     const allOwnedObjs = await getOwnedObjects(suiClient, address);
-    for (const coinType of Object.keys(appData.LIQUID_STAKING_INFO_MAP)) {
+    for (const coinType of appData.lstCoinTypes) {
       const weightHookAdminCapType = `${PACKAGE_ID}::weight::WeightHookAdminCap<${coinType}>`;
 
       const ownedObj = allOwnedObjs.find(

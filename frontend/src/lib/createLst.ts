@@ -129,9 +129,12 @@ export const BROWSE_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 export const BROWSE_FILE_SIZE_ERROR_MESSAGE = `Please upload an image smaller than ${formatNumber(new BigNumber(BROWSE_MAX_FILE_SIZE_BYTES / 1024 / 1024), { dp: 0 })} MB`;
 
 export type CreateLstResult = {
-  liquidStakingInfoId: string;
-  weightHookAdminCapId: string;
-  weightHookId: string;
+  result: {
+    liquidStakingInfoId: string;
+    weightHookAdminCapId: string;
+    weightHookId: string;
+  };
+  res: SuiTransactionBlockResponse;
 };
 export const createLst = async (
   createCoinResult: CreateCoinResult,
@@ -202,7 +205,10 @@ export const createLst = async (
     weightHookId,
   );
 
-  return { liquidStakingInfoId, weightHookAdminCapId, weightHookId };
+  return {
+    result: { liquidStakingInfoId, weightHookAdminCapId, weightHookId },
+    res,
+  };
 };
 
 export const setFeesAndValidators = async (
@@ -216,16 +222,16 @@ export const setFeesAndValidators = async (
   const transaction = new Transaction();
 
   const LIQUID_STAKING_INFO: LiquidStakingObjectInfo = {
-    id: lstCreateResult.liquidStakingInfoId,
+    id: lstCreateResult.result.liquidStakingInfoId,
     type: createCoinResult.coinType,
-    weightHookId: lstCreateResult.weightHookId,
+    weightHookId: lstCreateResult.result.weightHookId,
   };
   const lstClient = await LstClient.initialize(suiClient, LIQUID_STAKING_INFO);
 
   // Set fees
   lstClient.updateFees(
     transaction,
-    lstCreateResult.weightHookAdminCapId,
+    lstCreateResult.result.weightHookAdminCapId,
     Object.entries(feeConfigArgs).reduce(
       (acc, [key, value]) => ({ ...acc, [key]: +value }),
       {},
@@ -235,8 +241,8 @@ export const setFeesAndValidators = async (
   // Set validators
   lstClient.setValidatorAddressesAndWeights(
     transaction,
-    lstCreateResult.weightHookId,
-    lstCreateResult.weightHookAdminCapId,
+    lstCreateResult.result.weightHookId,
+    lstCreateResult.result.weightHookAdminCapId,
     vaw.reduce(
       (acc, row) => ({ ...acc, [row.validatorAddress]: +row.weight }),
       {},
