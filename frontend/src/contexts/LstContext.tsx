@@ -18,7 +18,6 @@ import { useWalletContext } from "@suilend/frontend-sui-next";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import { LstData, useAppContext } from "@/contexts/AppContext";
-import useFetchWeightHookAdminCapIdMap from "@/fetchers/useFetchWeightHookAdminCapIdMap";
 
 export enum Mode {
   STAKING = "staking",
@@ -43,15 +42,12 @@ export interface LstContext {
 
   admin: {
     weightHook: WeightHook<string> | undefined;
-    weightHookAdminCapIdMap: Record<string, string | undefined> | undefined;
     weightHookAdminCapId: string | undefined;
 
     lstCoinType: string;
     setLstCoinType: (coinType: string) => void;
     lstData: LstData | undefined;
   };
-
-  refresh: () => Promise<void>;
 }
 type LoadedLstContext = LstContext & {
   admin: LstContext["admin"] & {
@@ -70,7 +66,6 @@ const LstContext = createContext<LstContext>({
 
   admin: {
     weightHook: undefined,
-    weightHookAdminCapIdMap: undefined,
     weightHookAdminCapId: undefined,
 
     lstCoinType: NORMALIZED_sSUI_COINTYPE,
@@ -78,10 +73,6 @@ const LstContext = createContext<LstContext>({
       throw Error("LstContextProvider not initialized");
     },
     lstData: undefined,
-  },
-
-  refresh: async () => {
-    throw Error("LstContextProvider not initialized");
   },
 });
 
@@ -202,17 +193,9 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   );
 
   // Admin - weightHookAdminCapId
-  const {
-    data: weightHookAdminCapIdMap,
-    mutateData: mutateWeightHookAdminCapIdMap,
-  } = useFetchWeightHookAdminCapIdMap();
-  useEffect(() => {
-    mutateWeightHookAdminCapIdMap();
-  }, [address, mutateWeightHookAdminCapIdMap]);
-
   const weightHookAdminCapId = useMemo(
-    () => weightHookAdminCapIdMap?.[adminLstCoinType],
-    [weightHookAdminCapIdMap, adminLstCoinType],
+    () => appData?.lstWeightHookAdminCapIdMap[adminLstCoinType],
+    [appData?.lstWeightHookAdminCapIdMap, adminLstCoinType],
   );
 
   // Admin - set adminLstCoinType based on weightHookAdminCapId
@@ -220,25 +203,21 @@ export function LstContextProvider({ children }: PropsWithChildren) {
     if (!appData) return;
     if (
       !address ||
-      weightHookAdminCapIdMap === undefined ||
-      Object.values(weightHookAdminCapIdMap).every((v) => v === undefined)
+      Object.values(appData.lstWeightHookAdminCapIdMap).every(
+        (v) => v === undefined,
+      )
     ) {
       setAdminLstCoinType(NORMALIZED_sSUI_COINTYPE);
       return;
     }
 
     for (const _coinType of appData.lstCoinTypes) {
-      if (weightHookAdminCapIdMap[_coinType]) {
+      if (appData.lstWeightHookAdminCapIdMap[_coinType]) {
         setAdminLstCoinType(_coinType);
         break;
       }
     }
-  }, [appData, address, weightHookAdminCapIdMap, setAdminLstCoinType]);
-
-  // Refresh
-  const refresh = useCallback(async () => {
-    await mutateWeightHookAdminCapIdMap();
-  }, [mutateWeightHookAdminCapIdMap]);
+  }, [appData, address, setAdminLstCoinType]);
 
   // Context
   const contextValue: LstContext = useMemo(
@@ -251,15 +230,12 @@ export function LstContextProvider({ children }: PropsWithChildren) {
 
       admin: {
         weightHook,
-        weightHookAdminCapIdMap,
         weightHookAdminCapId,
 
         lstCoinType: adminLstCoinType,
         setLstCoinType: setAdminLstCoinType,
         lstData: adminLstData,
       },
-
-      refresh,
     }),
     [
       isSlugValid,
@@ -268,12 +244,10 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       mode,
       lstCoinTypes,
       weightHook,
-      weightHookAdminCapIdMap,
       weightHookAdminCapId,
       adminLstCoinType,
       setAdminLstCoinType,
       adminLstData,
-      refresh,
     ],
   );
 

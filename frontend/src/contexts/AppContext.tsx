@@ -66,6 +66,7 @@ export interface AppData {
   suiPrice: BigNumber;
 
   lstCoinTypes: string[];
+  lstWeightHookAdminCapIdMap: Record<string, string | undefined>;
   lstDataMap: Record<string, LstData>;
 
   currentEpoch: number;

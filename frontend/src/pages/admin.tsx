@@ -16,7 +16,7 @@ export default function Admin() {
   const { admin } = useLoadedLstContext();
 
   const detectedWeightHookAdminCapIds = Object.entries(
-    admin.weightHookAdminCapIdMap ?? {},
+    appData.lstWeightHookAdminCapIdMap,
   )
     .filter(([, value]) => value !== undefined)
     .map(([coinType]) => coinType);

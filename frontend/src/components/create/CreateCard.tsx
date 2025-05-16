@@ -63,7 +63,6 @@ export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
   const { appData, refresh: refreshAppData } = useLoadedAppContext();
-  const { refresh: refreshLstData } = useLoadedLstContext();
   const existingSymbols = Object.values(appData.lstDataMap).reduce(
     (acc, lstData) => [...acc, lstData.token.symbol],
     [] as string[],
@@ -262,15 +261,15 @@ export default function CreateCard() {
       showSuccessTxnToast("Created LST", txUrl);
 
       // Push to cache
-      await fetch(`${API_URL}/springsui/lst-info`, {
-        method: "POST",
-        body: JSON.stringify({
-          digest: createLstResult.res.digest,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // await fetch(`${API_URL}/springsui/lst-info`, {
+      //   method: "POST",
+      //   body: JSON.stringify({
+      //     digest: createLstResult.res.digest,
+      //   }),
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
 
       // Reset
       setName("");
@@ -290,7 +289,6 @@ export default function CreateCard() {
     } finally {
       setIsSubmitting(false);
       await refreshAppData();
-      await refreshLstData();
     }
   };
 

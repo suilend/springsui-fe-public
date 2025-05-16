@@ -1,3 +1,4 @@
+import { SuiClient } from "@mysten/sui/client";
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
@@ -33,11 +34,31 @@ import {
   SPRING_SUI_UPGRADE_CAP_ID,
   getLatestPackageId,
 } from "@suilend/springsui-sdk";
+import { PACKAGE_ID } from "@suilend/springsui-sdk/_generated/liquid_staking";
 import { LiquidStakingInfo } from "@suilend/springsui-sdk/_generated/liquid_staking/liquid-staking/structs";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import { AppData, LstData } from "@/contexts/AppContext";
 import { API_URL } from "@/lib/navigation";
+
+const getOwnedObjects = async (suiClient: SuiClient, address: string) => {
+  const allObjs = [];
+  let cursor = null;
+  let hasNextPage = true;
+  while (hasNextPage) {
+    const objs = await suiClient.getOwnedObjects({
+      owner: address,
+      cursor,
+      options: { showType: true },
+    });
+
+    allObjs.push(...objs.data);
+    cursor = objs.nextCursor;
+    hasNextPage = objs.hasNextPage;
+  }
+
+  return allObjs;
+};
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
@@ -95,6 +116,24 @@ export default function useFetchAppData() {
     const lstInfoMap = lstInfoJson;
 
     const lstCoinTypes = Array.from(new Set(Object.keys(lstInfoMap)));
+
+    // LSTs - WeightHookAdminCap map
+    const lstWeightHookAdminCapIdMap = lstCoinTypes.reduce(
+      (acc, coinType) => ({ ...acc, [coinType]: undefined }),
+      {} as Record<string, string | undefined>,
+    );
+
+    const allOwnedObjs =
+      address !== undefined ? await getOwnedObjects(suiClient, address) : [];
+    for (const coinType of lstCoinTypes) {
+      const ownedObj = allOwnedObjs.find(
+        (obj) =>
+          obj.data?.type ===
+          `${PACKAGE_ID}::weight::WeightHookAdminCap<${coinType}>`,
+      );
+      if (ownedObj)
+        lstWeightHookAdminCapIdMap[coinType] = ownedObj.data?.objectId;
+    }
 
     // CoinMetadata
     const springuiCoinTypes: string[] = [
@@ -262,6 +301,7 @@ export default function useFetchAppData() {
       suiPrice,
 
       lstCoinTypes,
+      lstWeightHookAdminCapIdMap,
       lstDataMap,
 
       currentEpoch,
