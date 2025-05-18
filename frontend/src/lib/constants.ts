@@ -8,3 +8,5 @@ export const ASSETS_URL =
   "https://suilend-assets.s3.us-east-2.amazonaws.com/springsui";
 export const SUILEND_ASSETS_URL =
   "https://suilend-assets.s3.us-east-2.amazonaws.com/suilend";
+
+export const MAX_BALANCE_SUI_SUBTRACTED_AMOUNT = 0.05;

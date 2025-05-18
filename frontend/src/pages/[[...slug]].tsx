@@ -15,7 +15,6 @@ import { cloneDeep } from "lodash";
 import { ArrowUpDown, Wallet } from "lucide-react";
 
 import {
-  SUI_GAS_MIN,
   Token,
   formatInteger,
   formatPercent,
@@ -53,6 +52,7 @@ import {
   QueryParams,
   useLoadedLstContext,
 } from "@/contexts/LstContext";
+import { MAX_BALANCE_SUI_SUBTRACTED_AMOUNT } from "@/lib/constants";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
@@ -85,8 +85,6 @@ export default function Home() {
   const { appData, getBalance, refresh } = useLoadedAppContext();
   const { isSlugValid, tokenInSymbol, tokenOutSymbol, mode, lstCoinTypes } =
     useLoadedLstContext();
-
-  const suiBalance = getBalance(appData.suiToken.coinType);
 
   // Ref
   const inInputRef = useRef<HTMLInputElement>(null);
@@ -198,10 +196,10 @@ export default function Home() {
 
   const onInBalanceClick = () => {
     formatAndSetInValue(
-      (isStaking ? BigNumber.max(0, inBalance.minus(1)) : inBalance).toFixed(
-        inToken.decimals,
-        BigNumber.ROUND_DOWN,
-      ),
+      (isStaking
+        ? BigNumber.max(0, inBalance.minus(MAX_BALANCE_SUI_SUBTRACTED_AMOUNT))
+        : inBalance
+      ).toFixed(inToken.decimals, BigNumber.ROUND_DOWN),
     );
     inInputRef.current?.focus();
   };
@@ -323,14 +321,6 @@ export default function Home() {
       return { title: "Enter an amount", isDisabled: true };
     if (new BigNumber(inValue).gt(inBalance))
       return { title: `Insufficient ${inToken.symbol}`, isDisabled: true };
-    if (
-      (isStaking && new BigNumber(inValue).gt(inBalance.minus(SUI_GAS_MIN))) ||
-      suiBalance.lt(SUI_GAS_MIN)
-    )
-      return {
-        title: "Insufficient gas",
-        isDisabled: true,
-      };
     if (new BigNumber(outValue).lte(0))
       return { title: "Amount too low", isDisabled: true };
 
