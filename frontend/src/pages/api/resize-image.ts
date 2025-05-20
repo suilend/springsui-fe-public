@@ -27,8 +27,8 @@ export default async function handler(
       throw new Error("Invalid image");
 
     const s = sharp(originalBuffer);
-    if (originalMetadata.width > 256 || originalMetadata.height > 256)
-      s.resize(256, 256, {
+    if (originalMetadata.width > 128 || originalMetadata.height > 128)
+      s.resize(128, 128, {
         fit: "contain",
         background: { r: 0, g: 0, b: 0, alpha: 0 },
       });
