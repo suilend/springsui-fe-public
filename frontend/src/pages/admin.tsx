@@ -3,7 +3,7 @@ import { NORMALIZED_sSUI_COINTYPE } from "@suilend/frontend-sui";
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
-import ValidatorsCard from "@/components/admin/ValidatorsCard";
+import UpdateValidatorsCard from "@/components/admin/UpdateValidatorsCard";
 import { FooterSm } from "@/components/Footer";
 import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
@@ -24,12 +24,12 @@ export default function Admin() {
   return (
     <>
       <div className="relative z-[1] flex w-full flex-col items-center px-4 pt-4 md:px-10 md:py-20">
-        <div className="flex w-full max-w-4xl flex-col items-center gap-8">
+        <div className="flex w-full max-w-2xl flex-col items-center gap-8">
           {/* Title */}
           <div className="flex w-full flex-col items-center gap-3">
             <p className="text-center text-h1">Admin</p>
 
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row flex-wrap items-center justify-center gap-2">
               {(detectedWeightHookAdminCapIds.length > 0
                 ? detectedWeightHookAdminCapIds
                 : [NORMALIZED_sSUI_COINTYPE]
@@ -71,7 +71,7 @@ export default function Admin() {
             {admin.weightHook === undefined ? (
               <Skeleton className="h-40 w-full" />
             ) : (
-              <ValidatorsCard />
+              <UpdateValidatorsCard />
             )}
           </div>
 

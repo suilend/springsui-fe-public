@@ -211,13 +211,14 @@ export function LstContextProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    if (adminLstCoinType !== NORMALIZED_sSUI_COINTYPE) return;
     for (const _coinType of appData.lstCoinTypes) {
       if (appData.lstWeightHookAdminCapIdMap[_coinType]) {
         setAdminLstCoinType(_coinType);
         break;
       }
     }
-  }, [appData, address, setAdminLstCoinType]);
+  }, [appData, address, setAdminLstCoinType, adminLstCoinType]);
 
   // Context
   const contextValue: LstContext = useMemo(

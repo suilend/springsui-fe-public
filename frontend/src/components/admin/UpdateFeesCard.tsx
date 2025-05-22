@@ -11,17 +11,11 @@ import {
 import { FeeConfigArgs } from "@suilend/springsui-sdk";
 
 import Button from "@/components/admin/Button";
-import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
+import FeesInputs from "@/components/FeesInputs";
 import { LstData, useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
-
-const feeNameMap: Record<keyof FeeConfigArgs, string> = {
-  mintFeeBps: "Staking fee",
-  redeemFeeBps: "Unstaking fee",
-  spreadFeeBps: "Performance fee",
-};
 
 export default function UpdateFeesCard() {
   const { explorer } = useSettingsContext();
@@ -99,25 +93,10 @@ export default function UpdateFeesCard() {
       <div className="flex w-full flex-col gap-4 p-4">
         <p className="text-navy-600">Update fees</p>
 
-        <div className="flex flex-col gap-4 md:flex-row">
-          {Object.keys(feeConfigArgs).map((key) => (
-            <div
-              key={key}
-              className="flex flex-col gap-2 max-md:w-full md:flex-1"
-            >
-              <p className="text-p2 text-navy-600">
-                {feeNameMap[key as keyof FeeConfigArgs]}
-              </p>
-              <Input
-                type="number"
-                value={feeConfigArgs[key as keyof FeeConfigArgs] ?? ""}
-                onChange={(value) =>
-                  setFeeConfigArgs((fc) => ({ ...fc, [key]: value }))
-                }
-              />
-            </div>
-          ))}
-        </div>
+        <FeesInputs
+          feeConfigArgs={feeConfigArgs}
+          setFeeConfigArgs={setFeeConfigArgs}
+        />
 
         <Button
           onClick={submit}
