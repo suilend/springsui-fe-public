@@ -66,7 +66,7 @@ DialogContent.displayName = DialogPrimitive.Content.displayName;
 // Header
 export interface DialogHeaderProps {
   className?: ClassValue;
-  title: string;
+  title: React.ReactNode;
   titleEndContent?: React.ReactNode;
   showCloseButton?: boolean;
   description?: React.ReactNode;
@@ -88,7 +88,7 @@ const DialogHeader = ({
           className,
         )}
       >
-        <p className="text-h3">{title}</p>
+        <p className="flex flex-row items-center gap-2 text-h3">{title}</p>
 
         {(titleEndContent || showCloseButton) && (
           <div className="flex flex-row items-center">

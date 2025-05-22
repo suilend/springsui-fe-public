@@ -11,7 +11,6 @@ import {
   issSui,
 } from "@suilend/frontend-sui";
 
-import Card from "@/components/Card";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
 import { Mode, useLoadedLstContext } from "@/contexts/LstContext";

@@ -2,24 +2,22 @@ import { NORMALIZED_sSUI_COINTYPE } from "@suilend/frontend-sui";
 
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
+import TransferOwnershipCard from "@/components/admin/TransferOwnershipCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
 import UpdateValidatorsCard from "@/components/admin/UpdateValidatorsCard";
 import { FooterSm } from "@/components/Footer";
-import Skeleton from "@/components/Skeleton";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { cn } from "@/lib/utils";
 
 export default function Admin() {
-  const { appData } = useLoadedAppContext();
+  const { appData, lstWeightHookAdminCapIdMap } = useLoadedAppContext();
   const { admin } = useLoadedLstContext();
 
   const detectedWeightHookAdminCapIds = Object.entries(
-    appData.lstWeightHookAdminCapIdMap,
-  )
-    .filter(([, value]) => value !== undefined)
-    .map(([coinType]) => coinType);
+    lstWeightHookAdminCapIdMap ?? {},
+  ).map(([coinType]) => coinType);
 
   return (
     <>
@@ -68,11 +66,8 @@ export default function Admin() {
             <RebalanceCard />
             <UpdateFeesCard />
             <ClaimFeesCard />
-            {admin.weightHook === undefined ? (
-              <Skeleton className="h-40 w-full" />
-            ) : (
-              <UpdateValidatorsCard />
-            )}
+            <UpdateValidatorsCard />
+            <TransferOwnershipCard />
           </div>
 
           {/* WIDTH < md */}

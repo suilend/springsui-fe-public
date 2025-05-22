@@ -90,7 +90,7 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   const slug = router.query.slug as string[] | undefined;
 
   const { address } = useWalletContext();
-  const { appData } = useAppContext();
+  const { appData, lstWeightHookAdminCapIdMap } = useAppContext();
 
   // Slug
   const isSlugValid = useCallback(() => {
@@ -193,32 +193,36 @@ export function LstContextProvider({ children }: PropsWithChildren) {
   );
 
   // Admin - weightHookAdminCapId
-  const weightHookAdminCapId = useMemo(
-    () => appData?.lstWeightHookAdminCapIdMap[adminLstCoinType],
-    [appData?.lstWeightHookAdminCapIdMap, adminLstCoinType],
+  const weightHookAdminCapId: string | undefined = useMemo(
+    () => lstWeightHookAdminCapIdMap?.[adminLstCoinType],
+    [lstWeightHookAdminCapIdMap, adminLstCoinType],
   );
 
   // Admin - set adminLstCoinType based on weightHookAdminCapId
   useEffect(() => {
-    if (!appData) return;
+    if (!appData || lstWeightHookAdminCapIdMap === undefined) return;
     if (
       !address ||
-      Object.values(appData.lstWeightHookAdminCapIdMap).every(
-        (v) => v === undefined,
-      )
+      Object.values(lstWeightHookAdminCapIdMap).every((v) => v === undefined)
     ) {
       setAdminLstCoinType(NORMALIZED_sSUI_COINTYPE);
       return;
     }
 
-    if (adminLstCoinType !== NORMALIZED_sSUI_COINTYPE) return;
+    if (lstWeightHookAdminCapIdMap[adminLstCoinType] !== undefined) return;
     for (const _coinType of appData.lstCoinTypes) {
-      if (appData.lstWeightHookAdminCapIdMap[_coinType]) {
+      if (lstWeightHookAdminCapIdMap[_coinType]) {
         setAdminLstCoinType(_coinType);
         break;
       }
     }
-  }, [appData, address, setAdminLstCoinType, adminLstCoinType]);
+  }, [
+    appData,
+    lstWeightHookAdminCapIdMap,
+    address,
+    setAdminLstCoinType,
+    adminLstCoinType,
+  ]);
 
   // Context
   const contextValue: LstContext = useMemo(
