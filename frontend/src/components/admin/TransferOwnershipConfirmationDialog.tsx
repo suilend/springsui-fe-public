@@ -89,8 +89,9 @@ export default function TransferOwnershipConfirmationDialog({
         <div className="flex flex-col gap-2">
           <p className="text-p2 text-navy-600">
             Note that transferring the OwnerCap will transfer full
-            administrative control of {admin.lstData.token.symbol} to this
-            address. This includes the ability to:
+            administrative control of{" "}
+            <span className="font-bold">{admin.lstData.token.symbol}</span> to
+            this address. This includes the ability to:
           </p>
 
           <div className="flex flex-col gap-1">
@@ -105,8 +106,9 @@ export default function TransferOwnershipConfirmationDialog({
         </div>
 
         <p className="text-p2 text-navy-600">
-          This action is irreversible. Please double-check the recipient address
-          and confirm you fully understand the consequences.
+          <span className="font-bold">This action is irreversible.</span> Please
+          double-check the recipient address and confirm you fully understand
+          the consequences.
         </p>
 
         <Button
