@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 import useSWR from "swr";
 
 import {
+  API_URL,
   NORMALIZED_SEND_POINTS_S2_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
   getCoinMetadataMap,
@@ -37,7 +38,6 @@ import { LiquidStakingInfo } from "@suilend/springsui-sdk/_generated/liquid_stak
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 
 import { AppData, LstData } from "@/contexts/AppContext";
-import { API_URL } from "@/lib/navigation";
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
