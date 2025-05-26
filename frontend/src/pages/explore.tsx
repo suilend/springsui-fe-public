@@ -226,28 +226,28 @@ export default function Explore() {
         categoryId: CategoryId.LENDING,
       });
     result.push(
-      {
-        protocol: protocolMap[ProtocolId.CETUS],
-        title: "Provide liquidity on Cetus",
-        opportunities: Object.values(cetusPoolOpportunityMap).map(
-          (opportunity) => {
-            const cetusPool = cetusPools?.find(
-              (pool: CetusPool) =>
-                pool.swap_account === opportunity.poolAddress,
-            );
+      // {
+      //   protocol: protocolMap[ProtocolId.CETUS],
+      //   title: "Provide liquidity on Cetus",
+      //   opportunities: Object.values(cetusPoolOpportunityMap).map(
+      //     (opportunity) => {
+      //       const cetusPool = cetusPools?.find(
+      //         (pool: CetusPool) =>
+      //           pool.swap_account === opportunity.poolAddress,
+      //       );
 
-            return {
-              url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${opportunity.poolAddress}`,
-              coinTypes: opportunity.coinTypes,
-              aprPercent: cetusPool
-                ? new BigNumber(+cetusPool.total_apr * 100)
-                : null,
-              tvlUsd: cetusPool ? new BigNumber(cetusPool.tvl_in_usd) : null,
-            };
-          },
-        ),
-        categoryId: CategoryId.AMM,
-      },
+      //       return {
+      //         url: `https://app.cetus.zone/liquidity/deposit/?poolAddress=${opportunity.poolAddress}`,
+      //         coinTypes: opportunity.coinTypes,
+      //         aprPercent: cetusPool
+      //           ? new BigNumber(+cetusPool.total_apr * 100)
+      //           : null,
+      //         tvlUsd: cetusPool ? new BigNumber(cetusPool.tvl_in_usd) : null,
+      //       };
+      //     },
+      //   ),
+      //   categoryId: CategoryId.AMM,
+      // },
       {
         protocol: protocolMap[ProtocolId.BUCKET],
         title: "Borrow BUCK and Earn on Bucket",
@@ -276,8 +276,8 @@ export default function Explore() {
     protocolMap,
     lstData.token.symbol,
     lstData.token.coinType,
-    cetusPoolOpportunityMap,
-    cetusPools,
+    // cetusPoolOpportunityMap,
+    // cetusPools,
     sBuckSavingsPoolStats,
   ]);
 
