@@ -1,6 +1,6 @@
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 import {
   API_URL,
@@ -42,6 +42,8 @@ import { AppData, LstData } from "@/contexts/AppContext";
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
   const { address } = useWalletContext();
+
+  const { cache } = useSWRConfig();
 
   const dataFetcher = async () => {
     const suilendClient = await SuilendClient.initialize(
@@ -271,12 +273,14 @@ export default function useFetchAppData() {
   };
 
   const { data, mutate } = useSWR<AppData>(`appData-${address}`, dataFetcher, {
-    refreshInterval: 5 * 60 * 1000, // 5 minutes
+    refreshInterval: 30 * 1000,
     onSuccess: (data) => {
       console.log("Refreshed app data", data);
     },
-    onError: (err) => {
-      showErrorToast("Failed to refresh app data", err);
+    onError: (err, key) => {
+      const isInitialLoad = cache.get(key)?.data === undefined;
+      if (isInitialLoad) showErrorToast("Failed to refresh app data", err);
+
       console.error(err);
     },
   });
