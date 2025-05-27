@@ -275,11 +275,11 @@ export default function useFetchAppData() {
   const { data, mutate } = useSWR<AppData>(`appData-${address}`, dataFetcher, {
     refreshInterval: 30 * 1000,
     onSuccess: (data) => {
-      console.log("Refreshed app data", data);
+      console.log("Fetched app data", data);
     },
     onError: (err, key) => {
       const isInitialLoad = cache.get(key)?.data === undefined;
-      if (isInitialLoad) showErrorToast("Failed to refresh app data", err);
+      if (isInitialLoad) showErrorToast("Failed to fetch app data", err);
 
       console.error(err);
     },
