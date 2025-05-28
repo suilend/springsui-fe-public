@@ -154,8 +154,8 @@ export default function CreateCard() {
     try {
       // Name
       if (name === "") throw new Error("Enter a name");
-      if (name.length < 3 || name.length > 32)
-        throw new Error("Name must be between 3 and 32 characters");
+      if (name.length < 1 || name.length > 32)
+        throw new Error("Name must be between 1 and 32 characters");
 
       // Symbol
       if (symbol === "") throw new Error("Enter a symbol");
