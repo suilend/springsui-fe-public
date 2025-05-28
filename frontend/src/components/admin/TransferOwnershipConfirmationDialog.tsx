@@ -14,6 +14,7 @@ import TokenLogo from "@/components/TokenLogo";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
+import { patchLst } from "@/lib/updateLst";
 
 interface TransactionConfirmationDialogProps {
   isOpen: boolean;

@@ -14,6 +14,7 @@ import Card from "@/components/Card";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
+import { patchLst } from "@/lib/updateLst";
 
 export default function ClaimFeesCard() {
   const { explorer } = useSettingsContext();
@@ -45,6 +46,9 @@ export default function ClaimFeesCard() {
       const txUrl = explorer.buildTxUrl(res.digest);
 
       showSuccessTxnToast("Claimed fees", txUrl);
+
+      // Patch
+      await patchLst(admin.lstCoinType);
     } catch (err) {
       showErrorToast("Failed to claim fees", err as Error);
       console.error(err);

@@ -54,6 +54,7 @@ import {
 } from "@/contexts/LstContext";
 import { MAX_BALANCE_SUI_SUBTRACTED_AMOUNT } from "@/lib/constants";
 import { showSuccessTxnToast } from "@/lib/toasts";
+import { patchLst } from "@/lib/updateLst";
 import { cn } from "@/lib/utils";
 
 const getUrl = (tokenInSymbol: string, tokenOutSymbol: string) =>
@@ -486,6 +487,10 @@ export default function Home() {
         amountOut: outValue,
         amountOutUsd: outValueUsd.toFixed(2, BigNumber.ROUND_DOWN),
       });
+
+      // // Patch
+      // if (inLstData) await patchLst(inLstData.token.coinType);
+      // if (outLstData) await patchLst(outLstData.token.coinType);
     } catch (err) {
       showErrorToast(
         `Failed to ${isStaking ? "stake" : isUnstaking ? "unstake" : "convert"}`,

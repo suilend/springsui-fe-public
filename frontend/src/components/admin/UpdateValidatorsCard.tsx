@@ -18,6 +18,7 @@ import ValidatorsInputs from "@/components/ValidatorsInputs";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
+import { patchLst } from "@/lib/updateLst";
 
 export default function UpdateValidatorsCard() {
   const { explorer } = useSettingsContext();
@@ -83,6 +84,9 @@ export default function UpdateValidatorsCard() {
       const txUrl = explorer.buildTxUrl(res.digest);
 
       showSuccessTxnToast("Set validators", txUrl);
+
+      // Patch
+      await patchLst(admin.lstCoinType);
     } catch (err) {
       showErrorToast("Failed to set validators", err as Error);
       console.error(err);

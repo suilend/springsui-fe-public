@@ -13,6 +13,7 @@ import Card from "@/components/Card";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
+import { patchLst } from "@/lib/updateLst";
 
 export default function RebalanceCard() {
   const { explorer } = useSettingsContext();
@@ -39,6 +40,9 @@ export default function RebalanceCard() {
       const txUrl = explorer.buildTxUrl(res.digest);
 
       showSuccessTxnToast("Rebalanced", txUrl);
+
+      // Patch
+      await patchLst(admin.lstCoinType);
     } catch (err) {
       showErrorToast("Failed to rebalance", err as Error);
       console.error(err);

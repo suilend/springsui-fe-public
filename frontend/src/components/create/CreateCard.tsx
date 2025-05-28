@@ -235,17 +235,6 @@ export default function CreateCard() {
 
       showSuccessTxnToast("Created LST", txUrl);
 
-      // Push to cache
-      // await fetch(`${API_URL}/springsui/lst-info`, {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     digest: createLstResult.res.digest,
-      //   }),
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-
       // Reset
       setName("");
       setSymbol("");
