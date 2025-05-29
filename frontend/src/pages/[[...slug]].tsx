@@ -327,7 +327,7 @@ export default function Home() {
       return { title: "Amount too low", isDisabled: true };
 
     return {
-      title: `${isStaking ? "Stake" : isUnstaking ? "Unstake" : "Convert"} ${formatToken(new BigNumber(inValue), { dp: inToken.decimals })} ${inToken.symbol}`,
+      title: `${isStaking ? "Stake" : isUnstaking ? "Unstake" : "Convert"} ${formatToken(new BigNumber(inValue), { dp: inToken.decimals, trimTrailingZeros: true })} ${inToken.symbol}`,
       isDisabled: isSubmitting_stakeAndDeposit,
     };
   };
@@ -459,7 +459,7 @@ export default function Home() {
             balanceChangeIn !== undefined
               ? balanceChangeIn
               : new BigNumber(inValue),
-            { dp: inToken.decimals },
+            { dp: inToken.decimals, trimTrailingZeros: true },
           ),
           inToken.symbol,
         ].join(" "),
@@ -471,7 +471,7 @@ export default function Home() {
               !isDepositing && balanceChangeOut !== undefined
                 ? balanceChangeOut
                 : new BigNumber(outValue),
-              { dp: outToken.decimals },
+              { dp: outToken.decimals, trimTrailingZeros: true },
             ),
             outToken.symbol,
             isDepositing ? "in Suilend" : false,

@@ -90,6 +90,7 @@ export default function TransactionConfirmationDialog({
               <p className="mr-2">
                 {formatToken(new BigNumber(inValue), {
                   dp: inToken.decimals,
+                  trimTrailingZeros: true,
                 })}
               </p>
               <TokenLogo className="mr-1.5" token={inToken} size={16} />
@@ -106,6 +107,7 @@ export default function TransactionConfirmationDialog({
               <p className="mr-2">
                 {formatToken(new BigNumber(outValue), {
                   dp: outToken.decimals,
+                  trimTrailingZeros: true,
                 })}
               </p>
               <TokenLogo className="mr-1.5" token={outToken} size={16} />
