@@ -3,19 +3,6 @@ import BigNumber from "bignumber.js";
 import useSWR, { useSWRConfig } from "swr";
 
 import {
-  API_URL,
-  NORMALIZED_SEND_POINTS_S2_COINTYPE,
-  NORMALIZED_SUI_COINTYPE,
-  getCoinMetadataMap,
-  getToken,
-  isSendPointsS2,
-} from "@suilend/frontend-sui";
-import {
-  showErrorToast,
-  useSettingsContext,
-  useWalletContext,
-} from "@suilend/frontend-sui-next";
-import {
   LENDING_MARKET_ID,
   LENDING_MARKET_TYPE,
   Side,
@@ -36,6 +23,19 @@ import {
 } from "@suilend/springsui-sdk";
 import { LiquidStakingInfo } from "@suilend/springsui-sdk/_generated/liquid_staking/liquid-staking/structs";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
+import {
+  API_URL,
+  NORMALIZED_SEND_POINTS_S2_COINTYPE,
+  NORMALIZED_SUI_COINTYPE,
+  getCoinMetadataMap,
+  getToken,
+  isSendPointsS2,
+} from "@suilend/sui-fe";
+import {
+  showErrorToast,
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/sui-fe-next";
 
 import { AppData, LstData } from "@/contexts/AppContext";
 

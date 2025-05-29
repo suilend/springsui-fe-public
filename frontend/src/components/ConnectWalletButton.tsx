@@ -1,4 +1,4 @@
-import { useWalletContext } from "@suilend/frontend-sui-next";
+import { useWalletContext } from "@suilend/sui-fe-next";
 
 import ConnectedWalletPopover from "@/components/ConnectedWalletPopover";
 import ConnectWalletPopover from "@/components/ConnectWalletPopover";

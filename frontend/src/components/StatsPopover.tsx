@@ -3,7 +3,7 @@ import { ReactNode, useMemo, useState } from "react";
 import { intervalToDuration } from "date-fns";
 import { ChartBar } from "lucide-react";
 
-import { formatToken, formatUsd } from "@suilend/frontend-sui";
+import { formatToken, formatUsd } from "@suilend/sui-fe";
 
 import Popover from "@/components/Popover";
 import { useLoadedAppContext } from "@/contexts/AppContext";

@@ -3,12 +3,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
 
+import { FeeConfigArgs } from "@suilend/springsui-sdk";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
-} from "@suilend/frontend-sui-next";
-import { FeeConfigArgs } from "@suilend/springsui-sdk";
+} from "@suilend/sui-fe-next";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";

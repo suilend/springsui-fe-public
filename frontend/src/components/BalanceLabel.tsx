@@ -1,7 +1,7 @@
 import { Wallet } from "lucide-react";
 
-import { Token, formatToken } from "@suilend/frontend-sui";
-import { useWalletContext } from "@suilend/frontend-sui-next";
+import { Token, formatToken } from "@suilend/sui-fe";
+import { useWalletContext } from "@suilend/sui-fe-next";
 
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { cn } from "@/lib/utils";

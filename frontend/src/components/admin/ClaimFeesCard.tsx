@@ -2,12 +2,12 @@ import { useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 
-import { formatToken } from "@suilend/frontend-sui";
+import { formatToken } from "@suilend/sui-fe";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
-} from "@suilend/frontend-sui-next";
+} from "@suilend/sui-fe-next";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";

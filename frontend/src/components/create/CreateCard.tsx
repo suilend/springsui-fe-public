@@ -7,13 +7,13 @@ import { snakeCase } from "lodash";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
-import { formatNumber, formatPercent } from "@suilend/frontend-sui";
+import { ADMIN_ADDRESS, FeeConfigArgs } from "@suilend/springsui-sdk";
+import { formatNumber, formatPercent } from "@suilend/sui-fe";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
-} from "@suilend/frontend-sui-next";
-import { ADMIN_ADDRESS, FeeConfigArgs } from "@suilend/springsui-sdk";
+} from "@suilend/sui-fe-next";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";

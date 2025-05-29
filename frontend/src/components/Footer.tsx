@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getMsafeAppStoreUrl, isInMsafeApp } from "@suilend/frontend-sui";
+import { getMsafeAppStoreUrl, isInMsafeApp } from "@suilend/sui-fe";
 
 import DiscordIcon from "@/components/icons/DiscordIcon";
 import XIcon from "@/components/icons/XIcon";

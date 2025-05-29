@@ -3,14 +3,10 @@ import React from "react";
 
 import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
 
-import { isInMsafeApp } from "@suilend/frontend-sui";
-import {
-  Wallet,
-  WalletType,
-  useWalletContext,
-} from "@suilend/frontend-sui-next";
-import useIsAndroid from "@suilend/frontend-sui-next/hooks/useIsAndroid";
-import useIsiOS from "@suilend/frontend-sui-next/hooks/useIsiOS";
+import { isInMsafeApp } from "@suilend/sui-fe";
+import { Wallet, WalletType, useWalletContext } from "@suilend/sui-fe-next";
+import useIsAndroid from "@suilend/sui-fe-next/hooks/useIsAndroid";
+import useIsiOS from "@suilend/sui-fe-next/hooks/useIsiOS";
 
 import Popover from "@/components/Popover";
 

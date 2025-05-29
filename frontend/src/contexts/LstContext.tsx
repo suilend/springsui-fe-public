@@ -9,13 +9,13 @@ import {
   useState,
 } from "react";
 
+import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 import {
   NORMALIZED_SUI_COINTYPE,
   NORMALIZED_sSUI_COINTYPE,
   isSui,
-} from "@suilend/frontend-sui";
-import { useWalletContext } from "@suilend/frontend-sui-next";
-import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
+} from "@suilend/sui-fe";
+import { useWalletContext } from "@suilend/sui-fe-next";
 
 import { LstData, useAppContext } from "@/contexts/AppContext";
 

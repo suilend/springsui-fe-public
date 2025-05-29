@@ -13,21 +13,21 @@ import { CoinMetadata } from "@mysten/sui/client";
 import * as Sentry from "@sentry/nextjs";
 import BigNumber from "bignumber.js";
 
-import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/frontend-sui";
-import {
-  showErrorToast,
-  useSettingsContext,
-  useWalletContext,
-} from "@suilend/frontend-sui-next";
-import useFetchBalances from "@suilend/frontend-sui-next/fetchers/useFetchBalances";
-import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
-import useRefreshOnBalancesChange from "@suilend/frontend-sui-next/hooks/useRefreshOnBalancesChange";
 import { ParsedObligation, ParsedReserve, SuilendClient } from "@suilend/sdk";
 import { ObligationOwnerCap } from "@suilend/sdk/_generated/suilend/lending-market/structs";
 import { LiquidStakingObjectInfo, LstClient } from "@suilend/springsui-sdk";
 import { PACKAGE_ID } from "@suilend/springsui-sdk/_generated/liquid_staking";
 import { LiquidStakingInfo } from "@suilend/springsui-sdk/_generated/liquid_staking/liquid-staking/structs";
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
+import { NORMALIZED_SUI_COINTYPE, Token } from "@suilend/sui-fe";
+import {
+  showErrorToast,
+  useSettingsContext,
+  useWalletContext,
+} from "@suilend/sui-fe-next";
+import useFetchBalances from "@suilend/sui-fe-next/fetchers/useFetchBalances";
+import useCoinMetadataMap from "@suilend/sui-fe-next/hooks/useCoinMetadataMap";
+import useRefreshOnBalancesChange from "@suilend/sui-fe-next/hooks/useRefreshOnBalancesChange";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
 

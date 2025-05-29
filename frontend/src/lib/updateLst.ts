@@ -1,5 +1,5 @@
-import { API_URL } from "@suilend/frontend-sui";
-import { showErrorToast } from "@suilend/frontend-sui-next";
+import { API_URL } from "@suilend/sui-fe";
+import { showErrorToast } from "@suilend/sui-fe-next";
 
 export const patchLst = async (lstCoinType: string) => {
   try {

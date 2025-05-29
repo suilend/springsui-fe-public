@@ -5,8 +5,8 @@ import BigNumber from "bignumber.js";
 import { X } from "lucide-react";
 import { Metadata } from "sharp";
 
-import { formatNumber } from "@suilend/frontend-sui";
-import { showErrorToast } from "@suilend/frontend-sui-next";
+import { formatNumber } from "@suilend/sui-fe";
+import { showErrorToast } from "@suilend/sui-fe-next";
 
 import Skeleton from "@/components/Skeleton";
 import {

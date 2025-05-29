@@ -15,24 +15,24 @@ import { cloneDeep } from "lodash";
 import { ArrowUpDown, Wallet } from "lucide-react";
 
 import {
+  createObligationIfNoneExists,
+  sendObligationToUser,
+} from "@suilend/sdk";
+import { convertLsts, convertLstsAndSendToUser } from "@suilend/springsui-sdk";
+import {
   Token,
   formatInteger,
   formatPercent,
   formatPoints,
   formatToken,
   getBalanceChange,
-} from "@suilend/frontend-sui";
-import track from "@suilend/frontend-sui/lib/track";
+} from "@suilend/sui-fe";
+import track from "@suilend/sui-fe/lib/track";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
-} from "@suilend/frontend-sui-next";
-import {
-  createObligationIfNoneExists,
-  sendObligationToUser,
-} from "@suilend/sdk";
-import { convertLsts, convertLstsAndSendToUser } from "@suilend/springsui-sdk";
+} from "@suilend/sui-fe-next";
 // import * as weightHookGenerated from "@suilend/springsui-sdk/_generated/liquid_staking/weight/functions";
 
 import Card from "@/components/Card";

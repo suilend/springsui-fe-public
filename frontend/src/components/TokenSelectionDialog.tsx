@@ -13,8 +13,8 @@ import {
   formatToken,
   formatUsd,
   isSui,
-} from "@suilend/frontend-sui";
-import useIsTouchscreen from "@suilend/frontend-sui-next/hooks/useIsTouchscreen";
+} from "@suilend/sui-fe";
+import useIsTouchscreen from "@suilend/sui-fe-next/hooks/useIsTouchscreen";
 
 import CopyToClipboardButton from "@/components/CopyToClipboardButton";
 import Dialog from "@/components/Dialog";

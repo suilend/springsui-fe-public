@@ -9,12 +9,12 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import mixpanel from "mixpanel-browser";
 
-import { RPCS, RpcId } from "@suilend/frontend-sui";
+import { RPCS, RpcId } from "@suilend/sui-fe";
 import {
   SettingsContextProvider,
   WalletContextProvider,
   useSettingsContext,
-} from "@suilend/frontend-sui-next";
+} from "@suilend/sui-fe-next";
 
 import Layout from "@/components/Layout";
 import Toaster from "@/components/Toaster";

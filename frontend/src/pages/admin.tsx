@@ -1,4 +1,4 @@
-import { NORMALIZED_sSUI_COINTYPE } from "@suilend/frontend-sui";
+import { NORMALIZED_sSUI_COINTYPE } from "@suilend/sui-fe";
 
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";

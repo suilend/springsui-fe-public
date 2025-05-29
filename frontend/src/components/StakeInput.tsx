@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 
 import BigNumber from "bignumber.js";
 
-import { Token, formatUsd } from "@suilend/frontend-sui";
+import { Token, formatUsd } from "@suilend/sui-fe";
 
 import BalanceLabel from "@/components/BalanceLabel";
 import TokenSelectionDialog from "@/components/TokenSelectionDialog";

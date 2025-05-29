@@ -9,7 +9,7 @@ import {
   Token,
   formatToken,
   issSui,
-} from "@suilend/frontend-sui";
+} from "@suilend/sui-fe";
 
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";

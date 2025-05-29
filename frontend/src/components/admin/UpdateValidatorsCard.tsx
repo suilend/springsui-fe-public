@@ -5,12 +5,12 @@ import { Transaction } from "@mysten/sui/transactions";
 import { ExternalLink } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
+import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
-} from "@suilend/frontend-sui-next";
-import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
+} from "@suilend/sui-fe-next";
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";

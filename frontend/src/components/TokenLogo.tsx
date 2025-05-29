@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { ClassValue } from "clsx";
 
-import { Token } from "@suilend/frontend-sui";
+import { Token } from "@suilend/sui-fe";
 
 import Skeleton from "@/components/Skeleton";
 import { cn } from "@/lib/utils";

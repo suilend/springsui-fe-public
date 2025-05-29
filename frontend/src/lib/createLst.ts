@@ -2,13 +2,13 @@ import { SuiClient, SuiTransactionBlockResponse } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import BigNumber from "bignumber.js";
 
-import { formatNumber } from "@suilend/frontend-sui";
-import { WalletContext } from "@suilend/frontend-sui-next";
 import {
   FeeConfigArgs,
   LiquidStakingObjectInfo,
   LstClient,
 } from "@suilend/springsui-sdk";
+import { formatNumber } from "@suilend/sui-fe";
+import { WalletContext } from "@suilend/sui-fe-next";
 
 import { CreateCoinResult } from "@/lib/createCoin";
 

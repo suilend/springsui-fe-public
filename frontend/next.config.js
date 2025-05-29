@@ -5,7 +5,7 @@ module.exports = {
     externalDir: true,
     esmExternals: "loose",
   },
-  transpilePackages: ["@suilend/frontend-sui-next"],
+  transpilePackages: ["@suilend/sui-fe-next"],
   images: {
     remotePatterns: [
       {

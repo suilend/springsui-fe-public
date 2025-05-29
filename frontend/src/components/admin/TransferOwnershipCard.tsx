@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { showErrorToast } from "@suilend/frontend-sui-next";
+import { showErrorToast } from "@suilend/sui-fe-next";
 
 import Button from "@/components/admin/Button";
 import Input from "@/components/admin/Input";

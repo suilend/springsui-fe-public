@@ -14,12 +14,9 @@ import {
   formatPoints,
   formatUsd,
   getToken,
-} from "@suilend/frontend-sui";
-import {
-  shallowPushQuery,
-  useSettingsContext,
-} from "@suilend/frontend-sui-next";
-import useCoinMetadataMap from "@suilend/frontend-sui-next/hooks/useCoinMetadataMap";
+} from "@suilend/sui-fe";
+import { shallowPushQuery, useSettingsContext } from "@suilend/sui-fe-next";
+import useCoinMetadataMap from "@suilend/sui-fe-next/hooks/useCoinMetadataMap";
 
 import Card from "@/components/Card";
 import FaqPopover, { FaqContent } from "@/components/FaqPopover";
