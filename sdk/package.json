@@ -19,10 +19,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/solendprotocol/liquid-staking.git"
+    "url": "git+https://github.com/suilend/springsui-fe-public.git"
   },
   "bugs": {
-    "url": "https://github.com/solendprotocol/liquid-staking/issues"
+    "url": "https://github.com/suilend/springsui-fe-public/issues"
   },
   "dependencies": {
     "bignumber.js": "^9.1.2"
