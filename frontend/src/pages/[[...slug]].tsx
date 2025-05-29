@@ -267,6 +267,7 @@ export default function Home() {
     return formatToken(result, {
       dp: outToken.decimals,
       useGrouping: false,
+      trimTrailingZeros: true,
       roundLtMinToZero: true,
     });
   }, [
