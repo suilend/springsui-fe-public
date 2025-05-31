@@ -213,7 +213,9 @@ export default function Explore() {
           {
             url: `https://suilend.fi/dashboard?asset=${lstData.token.symbol}`,
             coinTypes: [lstData.token.coinType],
-            aprPercent: lstData.suilendReserveStats.aprPercent,
+            aprPercent: lstData.suilendReserveStats.aprPercent.plus(
+              lstData.aprPercent,
+            ),
             tvlUsd: lstData.suilendReserveStats.tvlUsd,
           },
         ],
