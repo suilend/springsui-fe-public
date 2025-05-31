@@ -11,7 +11,6 @@ import {
   NORMALIZED_sSUI_COINTYPE,
   Token,
   formatPercent,
-  formatPoints,
   formatUsd,
   getToken,
 } from "@suilend/sui-fe";
@@ -177,7 +176,6 @@ export default function Explore() {
     coinTypes: string[];
     aprPercent?: BigNumber | null;
     tvlUsd?: BigNumber | null;
-    sendPointsPerDay?: BigNumber;
   };
 
   const cetusPoolOpportunityMap: Record<
@@ -217,7 +215,6 @@ export default function Explore() {
             coinTypes: [lstData.token.coinType],
             aprPercent: lstData.suilendReserveStats.aprPercent,
             tvlUsd: lstData.suilendReserveStats.tvlUsd,
-            sendPointsPerDay: lstData.suilendReserveStats.sendPointsPerDay,
           },
         ],
         categoryId: CategoryId.LENDING,
@@ -501,33 +498,6 @@ export default function Explore() {
                               <p className="text-p2">
                                 {categoryMap[og.categoryId].name}
                               </p>
-                            </div>
-
-                            {/* SEND Points */}
-                            <div className="flex min-w-40 flex-col gap-1.5">
-                              <p className="text-p2 text-navy-500">
-                                SEND Points
-                              </p>
-                              {opportunity.sendPointsPerDay === undefined ? (
-                                <p className="text-p2">--</p>
-                              ) : (
-                                <div className="flex flex-row gap-1.5">
-                                  <TokenLogo
-                                    className="my-0.5"
-                                    token={appData.sendPointsToken}
-                                    size={16}
-                                  />
-                                  <p className="text-p2">
-                                    {formatPoints(
-                                      opportunity.sendPointsPerDay,
-                                      { dp: 3 },
-                                    )}
-                                    {" / "}
-                                    {lstData.token.symbol}
-                                    {" / day"}
-                                  </p>
-                                </div>
-                              )}
                             </div>
                           </div>
                         </Link>

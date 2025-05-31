@@ -23,7 +23,6 @@ import {
   Token,
   formatInteger,
   formatPercent,
-  formatPoints,
   formatToken,
   getBalanceChange,
 } from "@suilend/sui-fe";
@@ -685,20 +684,6 @@ export default function Home() {
                       />
                     )}
                   </div>
-
-                  {(isStaking || isConverting) &&
-                    outLstData &&
-                    outLstData.suilendReserveStats !== undefined &&
-                    outLstData.suilendReserveStats.sendPointsPerDay.gt(0) && (
-                      <div className="flex flex-row items-center gap-1.5">
-                        <p className="text-p2 text-navy-600">
-                          Deposit to earn{" "}
-                          {outValue === ""
-                            ? `${formatPoints(new BigNumber(1).times(outLstData.suilendReserveStats!.sendPointsPerDay), { dp: 3 })} SEND Points / ${outLstData.token.symbol} / day`
-                            : `${formatPoints(new BigNumber(outValue || 0).times(outLstData.suilendReserveStats!.sendPointsPerDay), { dp: 3 })} SEND Points / day`}
-                        </p>
-                      </div>
-                    )}
                 </div>
               </div>
             </Card>

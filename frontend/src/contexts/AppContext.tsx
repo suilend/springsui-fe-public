@@ -56,13 +56,7 @@ export interface LstData {
   token: Token;
   price: BigNumber;
 
-  suilendReserveStats:
-    | {
-        aprPercent: BigNumber;
-        tvlUsd: BigNumber;
-        sendPointsPerDay: BigNumber;
-      }
-    | undefined;
+  suilendReserveStats: { aprPercent: BigNumber; tvlUsd: BigNumber } | undefined;
 }
 
 export interface AppData {
@@ -71,7 +65,6 @@ export interface AppData {
   obligationOwnerCaps: ObligationOwnerCap<string>[] | undefined;
   obligations: ParsedObligation[] | undefined;
 
-  sendPointsToken: Token;
   suiToken: Token;
   suiPrice: BigNumber;
 

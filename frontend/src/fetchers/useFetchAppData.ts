@@ -8,7 +8,6 @@ import {
   Side,
   SuilendClient,
   formatRewards,
-  getDedupedPerDayRewards,
   getFilteredRewards,
   getTotalAprPercent,
   initializeObligations,
@@ -25,11 +24,9 @@ import { LiquidStakingInfo } from "@suilend/springsui-sdk/_generated/liquid_stak
 import { WeightHook } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/structs";
 import {
   API_URL,
-  NORMALIZED_SEND_POINTS_S2_COINTYPE,
   NORMALIZED_SUI_COINTYPE,
   getCoinMetadataMap,
   getToken,
-  isSendPointsS2,
 } from "@suilend/sui-fe";
 import {
   showErrorToast,
@@ -102,18 +99,11 @@ export default function useFetchAppData() {
     const springuiCoinTypes: string[] = [
       NORMALIZED_SUI_COINTYPE,
       ...lstCoinTypes,
-      NORMALIZED_SEND_POINTS_S2_COINTYPE,
     ];
     const uniqueSpringuiCoinTypes = Array.from(new Set(springuiCoinTypes));
 
     const springuiCoinMetadataMap = await getCoinMetadataMap(
       uniqueSpringuiCoinTypes,
-    );
-
-    // SEND Points
-    const sendPointsToken = getToken(
-      NORMALIZED_SEND_POINTS_S2_COINTYPE,
-      springuiCoinMetadataMap[NORMALIZED_SEND_POINTS_S2_COINTYPE],
     );
 
     // SUI
@@ -215,11 +205,6 @@ export default function useFetchAppData() {
                     getFilteredRewards(suilendLstRewards.deposit),
                   ),
                   tvlUsd: suilendLstReserve.availableAmountUsd,
-                  sendPointsPerDay:
-                    getDedupedPerDayRewards(
-                      getFilteredRewards(suilendLstRewards.deposit),
-                    ).find((r) => isSendPointsS2(r.stats.rewardCoinType))?.stats
-                      .perDay ?? new BigNumber(0),
                 }
               : undefined;
 
@@ -259,7 +244,6 @@ export default function useFetchAppData() {
       obligationOwnerCaps,
       obligations,
 
-      sendPointsToken,
       suiToken,
       suiPrice,
 
