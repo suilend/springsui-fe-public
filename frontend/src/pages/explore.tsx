@@ -272,6 +272,7 @@ export default function Explore() {
     protocolMap,
     lstData.token.symbol,
     lstData.token.coinType,
+    lstData.aprPercent,
     // cetusPoolOpportunityMap,
     // cetusPools,
     sBuckSavingsPoolStats,
