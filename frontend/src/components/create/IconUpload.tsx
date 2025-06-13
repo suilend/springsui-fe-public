@@ -191,11 +191,11 @@ export default function IconUpload({
 
               <div className="pointer-events-none relative z-[2] flex h-24 w-24">
                 {isProcessing && (
-                  <Skeleton className="absolute left-4 top-4 z-[1] h-16 w-16 bg-white/50" />
+                  <Skeleton className="absolute left-4 top-4 z-[1] h-16 w-16 rounded-[50%] bg-white/50" />
                 )}
                 {!!iconUrl && (
                   <Image
-                    className="absolute left-4 top-4 z-[2] h-16 w-16"
+                    className="absolute left-4 top-4 z-[2] h-16 w-16 rounded-[50%]"
                     src={iconUrl}
                     alt="Icon"
                     width={64}
