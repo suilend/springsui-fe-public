@@ -32,6 +32,7 @@ export const BLACKLISTED_WORDS = [
   "bnb",
   "bn",
   "okx",
+  "x",
   "coin",
   "coinbase",
   "p",
