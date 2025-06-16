@@ -1,4 +1,4 @@
-# springsui
+# springsui-fe
 
 - frontend, a TypeScript frontend for interacting with the SpringSui program
 - sdk, a TypeScript SDK for interacting with the SpringSui program published on npm as [`@suilend/springsui-sdk`](https://www.npmjs.com/package/@suilend/springsui-sdk)
