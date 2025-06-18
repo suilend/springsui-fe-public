@@ -37,60 +37,117 @@ export default function useFetchAppData() {
   const { cache } = useSWRConfig();
 
   const dataFetcher = async () => {
-    const suilendClient = await SuilendClient.initialize(
-      LENDING_MARKET_ID,
-      LENDING_MARKET_TYPE,
-      suiClient,
-    );
-
-    const {
-      refreshedRawReserves,
-      reserveMap,
-
-      activeRewardCoinTypes,
-      rewardCoinMetadataMap,
-    } = await initializeSuilend(suiClient, suilendClient);
-
-    const { rewardPriceMap } = await initializeSuilendRewards(
-      reserveMap,
-      activeRewardCoinTypes,
-    );
-
-    const rewardMap = formatRewards(
-      reserveMap,
-      rewardCoinMetadataMap,
-      rewardPriceMap,
-      [],
-    );
-
-    // LSTs
-    const lstInfoRes = await fetch(`${API_URL}/springsui/lst-info`);
-    const lstInfoJson: Record<
-      string,
+    const [
       {
-        LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
-        liquidStakingInfo: LiquidStakingInfo<string>;
-        weightHook: WeightHook<string>;
-        apy: string;
-      }
-    > = await lstInfoRes.json();
-    if ((lstInfoRes as any)?.statusCode === 500)
-      throw new Error("Failed to fetch SpringSui LST data");
+        suilendClient,
 
-    const lstInfoMap = lstInfoJson;
+        refreshedRawReserves,
+        reserveMap,
 
-    const lstCoinTypes = Array.from(new Set(Object.keys(lstInfoMap)));
+        rewardMap,
+      },
+      { lstInfoMap, lstCoinTypes, springuiCoinMetadataMap, publishedAt },
+      { currentEpoch, currentEpochProgressPercent, currentEpochEndMs },
+    ] = await Promise.all([
+      // Suilend
+      (async () => {
+        const suilendClient = await SuilendClient.initialize(
+          LENDING_MARKET_ID,
+          LENDING_MARKET_TYPE,
+          suiClient,
+        );
 
-    // CoinMetadata
-    const springuiCoinTypes: string[] = [
-      NORMALIZED_SUI_COINTYPE,
-      ...lstCoinTypes,
-    ];
-    const uniqueSpringuiCoinTypes = Array.from(new Set(springuiCoinTypes));
+        const {
+          refreshedRawReserves,
+          reserveMap,
 
-    const springuiCoinMetadataMap = await getCoinMetadataMap(
-      uniqueSpringuiCoinTypes,
-    );
+          activeRewardCoinTypes,
+          rewardCoinMetadataMap,
+        } = await initializeSuilend(suiClient, suilendClient);
+
+        const { rewardPriceMap } = await initializeSuilendRewards(
+          reserveMap,
+          activeRewardCoinTypes,
+        );
+
+        const rewardMap = formatRewards(
+          reserveMap,
+          rewardCoinMetadataMap,
+          rewardPriceMap,
+          [],
+        );
+
+        return {
+          suilendClient,
+
+          refreshedRawReserves,
+          reserveMap,
+
+          rewardMap,
+        };
+      })(),
+
+      // LSTs
+      (async () => {
+        const lstInfoRes = await fetch(`${API_URL}/springsui/lst-info`);
+        const lstInfoJson: Record<
+          string,
+          {
+            LIQUID_STAKING_INFO: LiquidStakingObjectInfo;
+            liquidStakingInfo: LiquidStakingInfo<string>;
+            weightHook: WeightHook<string>;
+            apy: string;
+          }
+        > = await lstInfoRes.json();
+        if ((lstInfoRes as any)?.statusCode === 500)
+          throw new Error("Failed to fetch SpringSui LST data");
+
+        const lstInfoMap = lstInfoJson;
+
+        const lstCoinTypes = Array.from(new Set(Object.keys(lstInfoMap)));
+
+        // CoinMetadata
+        const springuiCoinTypes: string[] = [
+          NORMALIZED_SUI_COINTYPE,
+          ...lstCoinTypes,
+        ];
+        const uniqueSpringuiCoinTypes = Array.from(new Set(springuiCoinTypes));
+
+        const springuiCoinMetadataMap = await getCoinMetadataMap(
+          uniqueSpringuiCoinTypes,
+        );
+
+        // PublishedAt
+        const publishedAt = await getLatestPackageId(
+          suiClient,
+          SPRING_SUI_UPGRADE_CAP_ID,
+        );
+
+        return {
+          lstInfoMap,
+          lstCoinTypes,
+          springuiCoinMetadataMap,
+          publishedAt,
+        };
+      })(),
+
+      // Epoch
+      (async () => {
+        // Epoch
+        const latestSuiSystemState = await suiClient.getLatestSuiSystemState();
+
+        const currentEpoch = +latestSuiSystemState.epoch;
+        const currentEpochProgressPercent =
+          ((Date.now() - +latestSuiSystemState.epochStartTimestampMs) /
+            +latestSuiSystemState.epochDurationMs) *
+          100;
+        const currentEpochEndMs =
+          +latestSuiSystemState.epochStartTimestampMs +
+          +latestSuiSystemState.epochDurationMs;
+
+        return { currentEpoch, currentEpochProgressPercent, currentEpochEndMs };
+      })(),
+    ]);
 
     // SUI
     const suiToken = getToken(
@@ -99,24 +156,7 @@ export default function useFetchAppData() {
     );
     const suiPrice = reserveMap[NORMALIZED_SUI_COINTYPE].price;
 
-    // Epoch
-    const latestSuiSystemState = await suiClient.getLatestSuiSystemState();
-
-    const currentEpoch = +latestSuiSystemState.epoch;
-    const currentEpochProgressPercent =
-      ((Date.now() - +latestSuiSystemState.epochStartTimestampMs) /
-        +latestSuiSystemState.epochDurationMs) *
-      100;
-    const currentEpochEndMs =
-      +latestSuiSystemState.epochStartTimestampMs +
-      +latestSuiSystemState.epochDurationMs;
-
-    // LSTs - parse
-    const publishedAt = await getLatestPackageId(
-      suiClient,
-      SPRING_SUI_UPGRADE_CAP_ID,
-    );
-
+    // LSTs
     const lstData: [string, LstData][] = await Promise.all(
       Object.entries(lstInfoMap).map(([coinType, lstInfo]) =>
         (async () => {
