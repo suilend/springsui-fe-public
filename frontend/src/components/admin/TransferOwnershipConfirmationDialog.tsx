@@ -11,10 +11,9 @@ import {
 import Button from "@/components/admin/Button";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
-import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
-import { patchLst } from "@/lib/updateLst";
 
 interface TransactionConfirmationDialogProps {
   isOpen: boolean;
@@ -29,7 +28,7 @@ export default function TransferOwnershipConfirmationDialog({
 }: TransactionConfirmationDialogProps) {
   const { explorer } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refresh } = useLoadedAppContext();
+  const { refresh } = useUserContext();
   const { admin } = useLoadedLstContext();
 
   // Submit
@@ -61,7 +60,7 @@ export default function TransferOwnershipConfirmationDialog({
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      await refresh();
+      refresh();
     }
   };
 

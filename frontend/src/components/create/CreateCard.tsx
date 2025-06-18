@@ -24,6 +24,7 @@ import FeesInputs from "@/components/FeesInputs";
 import Skeleton from "@/components/Skeleton";
 import ValidatorsInputs from "@/components/ValidatorsInputs";
 import { useLoadedAppContext } from "@/contexts/AppContext";
+import { useUserContext } from "@/contexts/UserContext";
 import {
   createCoin,
   generate_bytecode,
@@ -56,7 +57,8 @@ const getDefaultVawConfig = () => ({
 export default function CreateCard() {
   const { explorer, suiClient } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
-  const { appData, refresh: refreshAppData } = useLoadedAppContext();
+  const { appData } = useLoadedAppContext();
+  const { refresh } = useUserContext();
   const existingSymbols = Object.values(appData.lstDataMap).reduce(
     (acc, lstData) => [...acc, lstData.token.symbol],
     [] as string[],
@@ -262,7 +264,7 @@ export default function CreateCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      await refreshAppData();
+      refresh();
     }
   };
 

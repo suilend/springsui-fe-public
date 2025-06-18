@@ -10,15 +10,15 @@ import {
 
 import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
-import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { patchLst } from "@/lib/updateLst";
 
 export default function RebalanceCard() {
   const { explorer } = useSettingsContext();
   const { signExecuteAndWaitForTransaction } = useWalletContext();
-  const { refresh } = useLoadedAppContext();
+  const { refresh } = useUserContext();
   const { admin } = useLoadedLstContext();
 
   // Submit
@@ -48,7 +48,7 @@ export default function RebalanceCard() {
       console.error(err);
     } finally {
       setIsSubmitting(false);
-      await refresh();
+      refresh();
     }
   };
 

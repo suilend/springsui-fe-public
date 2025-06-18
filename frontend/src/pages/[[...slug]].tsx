@@ -51,6 +51,7 @@ import {
   QueryParams,
   useLoadedLstContext,
 } from "@/contexts/LstContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { MAX_BALANCE_SUI_SUBTRACTED_AMOUNT } from "@/lib/constants";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { patchLst } from "@/lib/updateLst";
@@ -82,7 +83,8 @@ export default function Home() {
     address,
     signExecuteAndWaitForTransaction,
   } = useWalletContext();
-  const { appData, getBalance, refresh } = useLoadedAppContext();
+  const { appData } = useLoadedAppContext();
+  const { getBalance, userData, refresh } = useUserContext();
   const { isSlugValid, tokenInSymbol, tokenOutSymbol, mode, lstCoinTypes } =
     useLoadedLstContext();
 
@@ -336,6 +338,23 @@ export default function Home() {
     if (isSubmitting_stakeAndDeposit)
       return { isLoading: true, isDisabled: true };
 
+    if (userData?.obligations?.[0]) {
+      const obligation = userData.obligations[0];
+      if (
+        obligation.deposits.length >= 5 &&
+        !obligation.deposits.find(
+          (d) =>
+            d.coinType ===
+            (isStaking ? outLstData!.token : appData.suiToken).coinType,
+        )
+      )
+        return {
+          isDisabled: true,
+          title: "Max 5 deposit positions",
+          description: "Cannot deposit more than 5 different assets at once",
+        };
+    }
+
     return {
       title: `${isStaking ? "Stake" : "Convert"} and deposit in Suilend`,
       isDisabled:
@@ -381,8 +400,8 @@ export default function Home() {
       if (isDepositing) {
         if (!(isStaking || isConverting)) throw new Error("Unsupported mode");
 
-        const obligation = appData.obligations?.[0]; // Obligation with the highest TVL
-        const obligationOwnerCap = appData.obligationOwnerCaps?.find(
+        const obligation = userData?.obligations?.[0]; // Obligation with the highest TVL
+        const obligationOwnerCap = userData?.obligationOwnerCaps?.find(
           (o) => o.obligationId === obligation?.id,
         );
 
@@ -502,7 +521,7 @@ export default function Home() {
       setIsTransactionConfirmationDialogOpen(false);
 
       inInputRef.current?.focus();
-      await refresh();
+      refresh();
     }
   };
 

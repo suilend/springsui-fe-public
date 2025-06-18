@@ -3,7 +3,7 @@ import { Wallet } from "lucide-react";
 import { Token, formatToken } from "@suilend/sui-fe";
 import { useWalletContext } from "@suilend/sui-fe-next";
 
-import { useLoadedAppContext } from "@/contexts/AppContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 
 interface BalanceLabelProps {
@@ -13,7 +13,7 @@ interface BalanceLabelProps {
 
 export default function BalanceLabel({ token, onClick }: BalanceLabelProps) {
   const { address } = useWalletContext();
-  const { getBalance } = useLoadedAppContext();
+  const { getBalance } = useUserContext();
 
   const hasOnClick = !!onClick && getBalance(token.coinType).gt(0);
 

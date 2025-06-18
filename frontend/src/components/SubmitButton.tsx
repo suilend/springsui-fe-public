@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 export type SubmitButtonState = {
   icon?: ReactElement;
   title?: string;
+  description?: string;
   isLoading?: boolean;
   isDisabled?: boolean;
   onClick?: () => void;
@@ -30,7 +31,7 @@ export default function SubmitButton({
   state,
   submit,
 }: SubmitButtonProps) {
-  const { icon, title, isLoading, isDisabled, onClick } = state;
+  const { icon, title, description, isLoading, isDisabled, onClick } = state;
 
   return (
     <button
@@ -58,15 +59,19 @@ export default function SubmitButton({
             isLoading && "opacity-0",
           ),
         })}
-      <p
+      <div
         className={cn(
           "relative z-[1] transition-opacity",
           isLoading && "opacity-0",
-          labelClassName,
         )}
       >
-        {title}
-      </p>
+        <p className={cn(labelClassName)}>{title}</p>
+        {description && (
+          <span className="block font-sans text-[11px] normal-case">
+            {description}
+          </span>
+        )}
+      </div>
     </button>
   );
 }

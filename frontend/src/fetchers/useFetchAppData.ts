@@ -10,7 +10,6 @@ import {
   formatRewards,
   getFilteredRewards,
   getTotalAprPercent,
-  initializeObligations,
   initializeSuilend,
   initializeSuilendRewards,
 } from "@suilend/sdk";
@@ -28,17 +27,12 @@ import {
   getCoinMetadataMap,
   getToken,
 } from "@suilend/sui-fe";
-import {
-  showErrorToast,
-  useSettingsContext,
-  useWalletContext,
-} from "@suilend/sui-fe-next";
+import { showErrorToast, useSettingsContext } from "@suilend/sui-fe-next";
 
 import { AppData, LstData } from "@/contexts/AppContext";
 
 export default function useFetchAppData() {
   const { suiClient } = useSettingsContext();
-  const { address } = useWalletContext();
 
   const { cache } = useSWRConfig();
 
@@ -62,19 +56,11 @@ export default function useFetchAppData() {
       activeRewardCoinTypes,
     );
 
-    const { obligationOwnerCaps, obligations } = await initializeObligations(
-      suiClient,
-      suilendClient,
-      refreshedRawReserves,
-      reserveMap,
-      address,
-    );
-
     const rewardMap = formatRewards(
       reserveMap,
       rewardCoinMetadataMap,
       rewardPriceMap,
-      obligations,
+      [],
     );
 
     // LSTs
@@ -240,9 +226,9 @@ export default function useFetchAppData() {
 
     return {
       suilendClient,
+
+      refreshedRawReserves,
       reserveMap,
-      obligationOwnerCaps,
-      obligations,
 
       suiToken,
       suiPrice,
@@ -256,7 +242,7 @@ export default function useFetchAppData() {
     };
   };
 
-  const { data, mutate } = useSWR<AppData>(`appData-${address}`, dataFetcher, {
+  const { data, mutate } = useSWR<AppData>("appData", dataFetcher, {
     refreshInterval: 30 * 1000,
     onSuccess: (data) => {
       console.log("Fetched app data", data);

@@ -21,6 +21,7 @@ import Toaster from "@/components/Toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppContextProvider } from "@/contexts/AppContext";
 import { LstContextProvider } from "@/contexts/LstContext";
+import { UserContextProvider } from "@/contexts/UserContext";
 import { TITLE } from "@/lib/constants";
 import { fontClassNames } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
@@ -79,14 +80,16 @@ export default function App({ Component, pageProps }: AppProps) {
         <SettingsContextProvider>
           <WalletContextProviderWrapper>
             <AppContextProvider>
-              <LstContextProvider>
-                <TooltipProvider>
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
-                  <Toaster />
-                </TooltipProvider>
-              </LstContextProvider>
+              <UserContextProvider>
+                <LstContextProvider>
+                  <TooltipProvider>
+                    <Layout>
+                      <Component {...pageProps} />
+                    </Layout>
+                    <Toaster />
+                  </TooltipProvider>
+                </LstContextProvider>
+              </UserContextProvider>
             </AppContextProvider>
           </WalletContextProviderWrapper>
         </SettingsContextProvider>

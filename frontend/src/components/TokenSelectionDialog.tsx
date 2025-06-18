@@ -20,6 +20,7 @@ import CopyToClipboardButton from "@/components/CopyToClipboardButton";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedAppContext } from "@/contexts/AppContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 
 interface TokenRowProps {
@@ -29,7 +30,8 @@ interface TokenRowProps {
 }
 
 function TokenRow({ token, isSelected, onClick }: TokenRowProps) {
-  const { appData, getBalance } = useLoadedAppContext();
+  const { appData } = useLoadedAppContext();
+  const { getBalance } = useUserContext();
 
   const lstData = isSui(token.coinType)
     ? undefined
@@ -105,7 +107,8 @@ export default function TokenSelectionDialog({
   token,
   onSelectToken,
 }: TokenSelectionDialogProps) {
-  const { appData, getBalance } = useLoadedAppContext();
+  const { appData } = useLoadedAppContext();
+  const { getBalance } = useUserContext();
 
   const isTouchscreen = useIsTouchscreen();
 
