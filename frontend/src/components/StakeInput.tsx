@@ -41,7 +41,7 @@ const StakeInput = forwardRef<HTMLInputElement, StakeInputProps>(
               ref={ref}
               autoFocus
               type="number"
-              className="w-full py-1.5 font-sans text-h2 text-foreground placeholder:text-navy-500 focus-visible:outline-none md:text-h1 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="w-full appearance-none py-1.5 font-sans text-h2 text-foreground placeholder:text-navy-500 focus-visible:outline-none md:text-h1 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               placeholder="0"
               value={value}
               readOnly={isReadOnly}
