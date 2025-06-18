@@ -340,12 +340,14 @@ export default function Home() {
 
     if (userData?.obligations?.[0]) {
       const obligation = userData.obligations[0];
+
       if (
         obligation.deposits.length >= 5 &&
         !obligation.deposits.find(
           (d) =>
             d.coinType ===
-            (isStaking ? outLstData!.token : appData.suiToken).coinType,
+            (isStaking || isConverting ? outLstData!.token : appData.suiToken)
+              .coinType,
         )
       )
         return {
