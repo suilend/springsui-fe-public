@@ -188,8 +188,16 @@ export default function CreateCard() {
       // Fees
       if (Object.entries(feeConfigArgs).some(([key, value]) => value === ""))
         throw new Error("Enter fees");
-      if (new BigNumber(feeConfigArgs.redeemFeeBps).lt(2))
-        throw new Error("Redeem fee must be at least 2 bps (0.02%)");
+      if (
+        new BigNumber(
+          new BigNumber(feeConfigArgs.mintFeeBps).plus(
+            feeConfigArgs.redeemFeeBps,
+          ),
+        ).lt(2)
+      )
+        throw new Error(
+          "Staking + unstaking fees must add up to at least 2 bps (0.02%)",
+        );
 
       // Validators
       if (vaw.length === 0) throw new Error("Add at least one validator");

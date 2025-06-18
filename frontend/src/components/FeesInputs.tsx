@@ -5,9 +5,9 @@ import { FeeConfigArgs } from "@suilend/springsui-sdk";
 import Input from "@/components/admin/Input";
 
 const feeNameMap: Record<keyof FeeConfigArgs, string> = {
-  mintFeeBps: "Staking fee",
-  redeemFeeBps: "Unstaking fee",
-  spreadFeeBps: "Performance fee",
+  mintFeeBps: "Staking fee (bps)",
+  redeemFeeBps: "Unstaking fee (bps)",
+  spreadFeeBps: "Performance fee (bps)",
 };
 
 interface FeesInputsProps {
@@ -36,13 +36,9 @@ export default function FeesInputs({
             }
           />
           {key === "mintFeeBps" && (
-            <p className="text-p3 text-navy-500">
-              Recommended to use 0 bps (0%)
-            </p>
+            <p className="text-p3 text-navy-500">0 bps (0.00%) recommended</p>
           )}
-          {key === "redeemFeeBps" && (
-            <p className="text-p3 text-navy-500">Min. 2 bps (0.02%)</p>
-          )}
+          {key === "redeemFeeBps" && <></>}
           {key === "spreadFeeBps" && (
             <p className="text-p3 text-navy-500">E.g. 10% fee = 1000 bps</p>
           )}
