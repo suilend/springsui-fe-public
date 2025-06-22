@@ -26,6 +26,7 @@ import {
 } from "@suilend/sui-fe-next";
 
 import useFetchAppData from "@/fetchers/useFetchAppData";
+import { isInvalidIconUrl } from "@/lib/tokens";
 
 export interface LstData {
   lstInfo: {
@@ -77,6 +78,9 @@ interface AppContext {
   refreshAppData: () => Promise<void>;
 
   lstWeightHookAdminCapIdMap: Record<string, string> | undefined;
+
+  tokenIconImageLoadErrorMap: Record<string, boolean>;
+  loadTokenIconImage: (token: Token) => void;
 }
 type LoadedAppContext = AppContext & {
   appData: AppData;
@@ -89,6 +93,11 @@ const AppContext = createContext<AppContext>({
   },
 
   lstWeightHookAdminCapIdMap: undefined,
+
+  tokenIconImageLoadErrorMap: {},
+  loadTokenIconImage: () => {
+    throw Error("AppContextProvider not initialized");
+  },
 });
 
 export const useAppContext = () => useContext(AppContext);
@@ -181,6 +190,31 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     fetchWeightHookAdminCapIdMap();
   }, [address, appData, fetchWeightHookAdminCapIdMap]);
 
+  // Token images
+  const [tokenIconImageLoadErrorMap, setTokenIconImageLoadErrorMap] = useState<
+    Record<string, boolean>
+  >({});
+
+  const loadedTokenIconsRef = useRef<string[]>([]);
+  const loadTokenIconImage = useCallback((token: Token) => {
+    if (isInvalidIconUrl(token.iconUrl)) return;
+
+    if (loadedTokenIconsRef.current.includes(token.coinType)) return;
+    loadedTokenIconsRef.current.push(token.coinType);
+
+    const image = new Image();
+    image.src = token.iconUrl!;
+    image.onerror = () => {
+      console.error(
+        `Failed to load iconUrl for ${token.coinType}: ${token.iconUrl}`,
+      );
+      setTokenIconImageLoadErrorMap((prev) => ({
+        ...prev,
+        [token.coinType]: true,
+      }));
+    };
+  }, []);
+
   // Context
   const contextValue: AppContext = useMemo(
     () => ({
@@ -188,8 +222,17 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       refreshAppData,
 
       lstWeightHookAdminCapIdMap,
+
+      tokenIconImageLoadErrorMap,
+      loadTokenIconImage,
     }),
-    [appData, refreshAppData, lstWeightHookAdminCapIdMap],
+    [
+      appData,
+      refreshAppData,
+      lstWeightHookAdminCapIdMap,
+      tokenIconImageLoadErrorMap,
+      loadTokenIconImage,
+    ],
   );
 
   return (

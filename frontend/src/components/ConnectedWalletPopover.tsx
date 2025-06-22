@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -50,13 +49,13 @@ export default function ConnectedWalletPopover() {
           {isImpersonating ? (
             <VenetianMask className="h-4 w-4 shrink-0" />
           ) : wallet?.iconUrl ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               className="h-4 w-4 min-w-4 shrink-0"
               src={wallet.iconUrl}
               alt={`${wallet.name} logo`}
               width={16}
               height={16}
-              quality={100}
             />
           ) : undefined}
 

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import React from "react";
 
 import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
@@ -44,16 +43,16 @@ function WalletItem({ wallet }: WalletItemProps) {
     >
       <div className="flex flex-row items-center gap-2">
         {wallet.iconUrl ? (
-          <Image
-            className="h-6 w-6"
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="h-5 w-5 min-w-5 shrink-0"
             src={wallet.iconUrl}
             alt={`${wallet.name} logo`}
-            width={24}
-            height={24}
-            quality={100}
+            width={20}
+            height={20}
           />
         ) : (
-          <div className="h-6 w-6" />
+          <div className="h-5 w-5" />
         )}
 
         <p className="!text-p2 text-navy-600 transition-colors group-hover:text-foreground">

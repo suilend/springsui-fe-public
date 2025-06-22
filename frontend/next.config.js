@@ -8,18 +8,8 @@ module.exports = {
   transpilePackages: ["@suilend/sui-fe-next"],
   images: {
     remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "**",
-        port: "",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "**",
-        port: "",
-        pathname: "**",
-      },
+      new URL("https://suilend-assets.s3.us-east-2.amazonaws.com/springsui/**"),
+      new URL("https://suilend-assets.s3.us-east-2.amazonaws.com/suilend/**"),
     ],
   },
 };

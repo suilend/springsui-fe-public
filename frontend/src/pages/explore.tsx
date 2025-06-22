@@ -402,13 +402,13 @@ export default function Explore() {
                         >
                           <div className="flex flex-row items-center gap-2">
                             {og.protocol.logoUrl ? (
-                              <Image
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
                                 className="h-6 w-6 shrink-0"
                                 src={og.protocol.logoUrl}
                                 alt={`${og.protocol.name} logo`}
                                 width={24}
                                 height={24}
-                                quality={100}
                               />
                             ) : (
                               <div className="h-6 w-6 rounded-[50%] bg-navy-100" />

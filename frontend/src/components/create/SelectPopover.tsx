@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ReactNode, useState } from "react";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -47,13 +46,13 @@ export default function SelectPopover({
             <div className="flex min-w-0 flex-1 flex-row items-center justify-between gap-4">
               <div className="flex min-w-0 flex-row items-center gap-2">
                 {selectedOption.iconUrl && (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     className="h-4 w-4 min-w-4 shrink-0"
                     src={selectedOption.iconUrl}
                     alt={selectedOption.name}
                     width={16}
                     height={16}
-                    quality={100}
                   />
                 )}
 
@@ -103,13 +102,13 @@ export default function SelectPopover({
           >
             <div className="flex min-w-0 flex-1 flex-row items-center gap-2">
               {option.iconUrl && (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   className="h-4 w-4 min-w-4 shrink-0"
                   src={option.iconUrl}
                   alt={option.name}
                   width={16}
                   height={16}
-                  quality={100}
                 />
               )}
 
