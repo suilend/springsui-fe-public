@@ -2,14 +2,18 @@ import { Transaction } from "@mysten/sui/transactions";
 
 import { LstClient } from "../client";
 
-export const convertLsts = (
+export const convertLstsAndRebalance = (
   inLstClient: LstClient,
   outLstClient: LstClient,
   transaction: Transaction,
   address: string,
   amount: string,
 ) => {
-  const suiCoin = inLstClient.redeemAmount(transaction, address, amount);
+  const suiCoin = inLstClient.redeemAmountAndRebalance(
+    transaction,
+    address,
+    amount,
+  );
   const lstCoin = outLstClient.mint(transaction, suiCoin);
 
   outLstClient.rebalance(
@@ -20,14 +24,14 @@ export const convertLsts = (
   return lstCoin;
 };
 
-export const convertLstsAndSendToUser = (
+export const convertLstsAndRebalanceAndSendToUser = (
   inLstClient: LstClient,
   outLstClient: LstClient,
   transaction: Transaction,
   address: string,
   amount: string,
 ) => {
-  const lstCoin = convertLsts(
+  const lstCoin = convertLstsAndRebalance(
     inLstClient,
     outLstClient,
     transaction,

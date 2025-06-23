@@ -18,7 +18,10 @@ import {
   createObligationIfNoneExists,
   sendObligationToUser,
 } from "@suilend/sdk";
-import { convertLsts, convertLstsAndSendToUser } from "@suilend/springsui-sdk";
+import {
+  convertLstsAndRebalance,
+  convertLstsAndRebalanceAndSendToUser,
+} from "@suilend/springsui-sdk";
 import {
   Token,
   formatInteger,
@@ -328,7 +331,15 @@ export default function Home() {
       return { title: "Amount too low", isDisabled: true };
 
     return {
-      title: `${isStaking ? "Stake" : isUnstaking ? "Unstake" : "Convert"} ${formatToken(new BigNumber(inValue), { dp: inToken.decimals, trimTrailingZeros: true })} ${inToken.symbol}`,
+      title: [
+        isStaking ? "Stake" : isUnstaking ? "Unstake" : "Convert",
+        formatToken(new BigNumber(inValue), {
+          dp: inToken.decimals,
+          trimTrailingZeros: true,
+        }),
+        inToken.symbol,
+        ...(isConverting ? ["to", outToken.symbol] : []),
+      ].join(" "),
       isDisabled: isSubmitting_stakeAndDeposit,
     };
   };
@@ -420,7 +431,7 @@ export default function Home() {
               address!,
               submitAmount,
             )
-          : convertLsts(
+          : convertLstsAndRebalance(
               inLstData!.lstClient,
               outLstData!.lstClient,
               transaction,
@@ -444,13 +455,13 @@ export default function Home() {
             submitAmount,
           );
         } else if (isUnstaking) {
-          inLstData!.lstClient.redeemAmountAndSendToUser(
+          inLstData!.lstClient.redeemAmountAndRebalanceAndSendToUser(
             transaction,
             address!,
             submitAmount,
           );
         } else if (isConverting) {
-          convertLstsAndSendToUser(
+          convertLstsAndRebalanceAndSendToUser(
             inLstData!.lstClient,
             outLstData!.lstClient,
             transaction,
@@ -482,6 +493,7 @@ export default function Home() {
             { dp: inToken.decimals, trimTrailingZeros: true },
           ),
           inToken.symbol,
+          ...(isConverting ? ["to", outToken.symbol] : []),
         ].join(" "),
         txUrl,
         {
