@@ -65,10 +65,13 @@ export class LstClient {
     client: SuiClient,
     liquidStakingObjectInfo: LiquidStakingObjectInfo,
     _publishedAt?: string,
+    logPackageId?: boolean,
   ): Promise<LstClient> {
     const publishedAt =
       _publishedAt ??
       (await getLatestPackageId(client, SPRING_SUI_UPGRADE_CAP_ID));
+    if (logPackageId)
+      console.log("@suilend/springsui-sdk | publishedAt:", publishedAt);
     setPublishedAt(publishedAt);
 
     return new LstClient(liquidStakingObjectInfo, client);

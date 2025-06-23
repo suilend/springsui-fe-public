@@ -55,6 +55,7 @@ export default function useFetchAppData() {
           LENDING_MARKET_ID,
           LENDING_MARKET_TYPE,
           suiClient,
+          true,
         );
 
         const {
@@ -168,6 +169,7 @@ export default function useFetchAppData() {
             suiClient,
             LIQUID_STAKING_INFO,
             publishedAt,
+            true,
           );
 
           // Staking info

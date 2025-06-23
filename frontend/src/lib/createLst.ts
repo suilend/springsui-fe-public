@@ -225,7 +225,12 @@ export const setFeesAndValidators = async (
     type: createCoinResult.coinType,
     weightHookId: lstCreateResult.result.weightHookId,
   };
-  const lstClient = await LstClient.initialize(suiClient, LIQUID_STAKING_INFO);
+  const lstClient = await LstClient.initialize(
+    suiClient,
+    LIQUID_STAKING_INFO,
+    undefined,
+    true,
+  );
 
   // Set fees
   lstClient.updateFees(
