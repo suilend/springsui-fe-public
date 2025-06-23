@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
 import BigNumber from "bignumber.js";
 import { BucketClient } from "bucket-protocol-sdk";
+import DOMPurify from "dompurify";
 
 import {
   NORMALIZED_SUI_COINTYPE,
@@ -405,7 +405,7 @@ export default function Explore() {
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 className="h-6 w-6 shrink-0"
-                                src={og.protocol.logoUrl}
+                                src={DOMPurify.sanitize(og.protocol.logoUrl)}
                                 alt={`${og.protocol.name} logo`}
                                 width={24}
                                 height={24}

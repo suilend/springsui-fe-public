@@ -1,5 +1,6 @@
 import React from "react";
 
+import DOMPurify from "dompurify";
 import { ChevronDown, ChevronUp, WalletIcon } from "lucide-react";
 
 import { isInMsafeApp } from "@suilend/sui-fe";
@@ -46,7 +47,7 @@ function WalletItem({ wallet }: WalletItemProps) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             className="h-5 w-5 min-w-5 shrink-0"
-            src={wallet.iconUrl}
+            src={DOMPurify.sanitize(wallet.iconUrl)}
             alt={`${wallet.name} logo`}
             width={20}
             height={20}

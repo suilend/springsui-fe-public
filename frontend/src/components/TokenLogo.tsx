@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { ClassValue } from "clsx";
+import DOMPurify from "dompurify";
 
 import { Token } from "@suilend/sui-fe";
 
@@ -53,7 +54,7 @@ export default function TokenLogo({ className, token, size }: TokenLogoProps) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       className={cn("shrink-0 rounded-[50%]", className)}
-      src={token.iconUrl!}
+      src={DOMPurify.sanitize(token.iconUrl!)}
       alt={`${token.symbol} logo`}
       width={size}
       height={size}
