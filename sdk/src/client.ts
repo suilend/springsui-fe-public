@@ -70,7 +70,6 @@ export class LstClient {
       _publishedAt ??
       (await getLatestPackageId(client, SPRING_SUI_UPGRADE_CAP_ID));
     setPublishedAt(publishedAt);
-    console.log(`Initialized LstClient with package ID: ${publishedAt}`);
 
     return new LstClient(liquidStakingObjectInfo, client);
   }
