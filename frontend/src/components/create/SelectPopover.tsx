@@ -1,9 +1,9 @@
 import { ReactNode, useState } from "react";
 
-import DOMPurify from "dompurify";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import Popover from "@/components/Popover";
+import { isInvalidIconUrl } from "@/lib/tokens";
 import { cn } from "@/lib/utils";
 
 interface SelectPopoverProps {
@@ -46,11 +46,11 @@ export default function SelectPopover({
           {selectedOption ? (
             <div className="flex min-w-0 flex-1 flex-row items-center justify-between gap-4">
               <div className="flex min-w-0 flex-row items-center gap-2">
-                {selectedOption.iconUrl && (
+                {!isInvalidIconUrl(selectedOption.iconUrl) && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     className="h-4 w-4 min-w-4 shrink-0"
-                    src={DOMPurify.sanitize(selectedOption.iconUrl)}
+                    src={selectedOption.iconUrl}
                     alt={selectedOption.name}
                     width={16}
                     height={16}
@@ -102,11 +102,11 @@ export default function SelectPopover({
             }}
           >
             <div className="flex min-w-0 flex-1 flex-row items-center gap-2">
-              {option.iconUrl && (
+              {!isInvalidIconUrl(option.iconUrl) && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   className="h-4 w-4 min-w-4 shrink-0"
-                  src={DOMPurify.sanitize(option.iconUrl)}
+                  src={option.iconUrl}
                   alt={option.name}
                   width={16}
                   height={16}
