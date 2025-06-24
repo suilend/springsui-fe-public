@@ -11,7 +11,6 @@ import {
 
 import * as Sentry from "@sentry/nextjs";
 import BigNumber from "bignumber.js";
-import DOMPurify from "dompurify";
 
 import { ParsedReserve, SuilendClient } from "@suilend/sdk";
 import { Reserve } from "@suilend/sdk/_generated/suilend/reserve/structs";
@@ -204,7 +203,7 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     loadedTokenIconsRef.current.push(token.coinType);
 
     const image = new Image();
-    image.src = DOMPurify.sanitize(token.iconUrl!);
+    image.src = token.iconUrl!;
     image.onerror = () => {
       console.error(
         `Failed to load iconUrl for ${token.coinType}: ${token.iconUrl}`,

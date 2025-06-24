@@ -1,6 +1,5 @@
 import { ReactNode, useState } from "react";
 
-import DOMPurify from "dompurify";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import Popover from "@/components/Popover";
@@ -50,7 +49,7 @@ export default function SelectPopover({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     className="h-4 w-4 min-w-4 shrink-0"
-                    src={DOMPurify.sanitize(selectedOption.iconUrl)}
+                    src={selectedOption.iconUrl}
                     alt={selectedOption.name}
                     width={16}
                     height={16}
@@ -106,7 +105,7 @@ export default function SelectPopover({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   className="h-4 w-4 min-w-4 shrink-0"
-                  src={DOMPurify.sanitize(option.iconUrl)}
+                  src={option.iconUrl}
                   alt={option.name}
                   width={16}
                   height={16}
