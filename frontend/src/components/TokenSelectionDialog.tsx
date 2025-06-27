@@ -219,11 +219,11 @@ export default function TokenSelectionDialog({
         tokens: filteredBalanceTokens,
       },
       suilend: {
-        title: "Assets listed on Suilend",
+        title: "Available on Suilend",
         tokens: filteredSuilendTokens,
       },
       other: {
-        title: "Other known assets",
+        title: "Other",
         tokens: filteredOtherTokens,
       },
     }),
