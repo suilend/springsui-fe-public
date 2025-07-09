@@ -12,9 +12,9 @@ import {
   useWalletContext,
 } from "@suilend/sui-fe-next";
 
-import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
-import ValidatorsInputs from "@/components/ValidatorsInputs";
+import Button from "@/components/create-admin/Button";
+import ValidatorsInputs from "@/components/create-admin/ValidatorsInputs";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
@@ -117,7 +117,9 @@ export default function UpdateValidatorsCard() {
           onClick={submit}
           isLoading={isSubmitting}
           isDisabled={!admin.weightHookAdminCapId}
-        />
+        >
+          Update
+        </Button>
       </div>
     </Card>
   );

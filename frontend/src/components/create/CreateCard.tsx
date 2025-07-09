@@ -1,28 +1,31 @@
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
-import { ValidatorApy } from "@mysten/sui/client";
 import BigNumber from "bignumber.js";
 import { snakeCase } from "lodash";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
-import { ADMIN_ADDRESS, FeeConfigArgs } from "@suilend/springsui-sdk";
-import { formatNumber, formatPercent } from "@suilend/sui-fe";
+import {
+  ADMIN_ADDRESS,
+  FeeConfigArgs,
+  SUILEND_VALIDATOR_ADDRESS,
+} from "@suilend/springsui-sdk";
 import {
   showErrorToast,
   useSettingsContext,
   useWalletContext,
 } from "@suilend/sui-fe-next";
 
-import Button from "@/components/admin/Button";
-import Input from "@/components/admin/Input";
 import Card from "@/components/Card";
-import IconUpload from "@/components/create/IconUpload";
-import SelectPopover from "@/components/create/SelectPopover";
-import FeesInputs from "@/components/FeesInputs";
-import Skeleton from "@/components/Skeleton";
-import ValidatorsInputs from "@/components/ValidatorsInputs";
+import ValidatorInput from "@/components/create/ValidatorInput";
+import Button from "@/components/create-admin/Button";
+import DescriptionInput from "@/components/create-admin/DescriptionInput";
+import FeesInputs from "@/components/create-admin/FeesInputs";
+import IconUrllInput from "@/components/create-admin/IconUrllInput";
+import NameInput from "@/components/create-admin/NameInput";
+import SymbolInput from "@/components/create-admin/SymbolInput";
+import ValidatorsInputs from "@/components/create-admin/ValidatorsInputs";
 import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useUserContext } from "@/contexts/UserContext";
 import {
@@ -32,16 +35,11 @@ import {
 } from "@/lib/createCoin";
 import {
   BLACKLISTED_WORDS,
-  BROWSE_MAX_FILE_SIZE_BYTES,
   createLst,
   setFeesAndValidators,
 } from "@/lib/createLst";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
-import { VALIDATOR_METADATA } from "@/lib/validators";
-
-const SUILEND_VALIDATOR_ADDRESS =
-  "0xce8e537664ba5d1d5a6a857b17bd142097138706281882be6805e17065ecde89";
 
 const DEFAULT_FEE_CONFIG = {
   mintFeeBps: "0",
@@ -59,12 +57,13 @@ export default function CreateCard() {
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
   const { appData } = useLoadedAppContext();
   const { refresh } = useUserContext();
+
   const existingSymbols = Object.values(appData.lstDataMap).reduce(
     (acc, lstData) => [...acc, lstData.token.symbol],
     [] as string[],
   );
 
-  // State
+  // State - coinMetadata
   const [name, setName] = useState<string>("");
   const [symbol, setSymbol] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -86,55 +85,6 @@ export default function CreateCard() {
     useState<Record<keyof FeeConfigArgs, string>>(DEFAULT_FEE_CONFIG);
 
   // State - validators
-  const [validatorApys, setValidatorApys] = useState<
-    ValidatorApy[] | undefined
-  >(undefined);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const validatorApys = await suiClient.getValidatorsApy();
-        setValidatorApys(validatorApys.apys);
-      } catch (err) {}
-    })();
-  }, [suiClient]);
-
-  const validatorOptions = useMemo(
-    () =>
-      validatorApys === undefined
-        ? undefined
-        : validatorApys
-            .map((apyObj) => {
-              const metadata = VALIDATOR_METADATA.find(
-                (vm) => vm.address === apyObj.address,
-              );
-
-              return {
-                id: apyObj.address,
-                name: metadata?.name ?? apyObj.address,
-                endDecorator: (
-                  <p className="shrink-0 text-p2 text-navy-500">
-                    {formatPercent(new BigNumber(apyObj.apy * 100))} APR
-                  </p>
-                ),
-                iconUrl: metadata?.imageUrl,
-              };
-            })
-            .sort((a, b) => {
-              const aMetadata = VALIDATOR_METADATA.find(
-                (vm) => vm.address === a.id,
-              );
-              const bMetadata = VALIDATOR_METADATA.find(
-                (vm) => vm.address === b.id,
-              );
-
-              return a.name === "Suilend"
-                ? -1
-                : (bMetadata?.stakeAmount ?? 0) - (aMetadata?.stakeAmount ?? 0); // Sort by stake (desc)
-            }),
-    [validatorApys],
-  );
-
   const [vaw, setVaw] = useState<
     { id: string; validatorAddress: string; weight: string }[]
   >([getDefaultVawConfig()]);
@@ -277,110 +227,28 @@ export default function CreateCard() {
 
           <div className="flex flex-col gap-4 md:flex-row">
             {/* Name */}
-            <div className="flex flex-col gap-2 max-md:w-full md:flex-[2]">
-              <p className="text-p2 text-navy-600">Name</p>
-              <div className="relative w-full">
-                <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
-                  <p className="text-p1 text-foreground">Staked SUI</p>
-                </div>
-                <Input
-                  className="relative z-[1]"
-                  placeholder="Spring"
-                  value={name}
-                  onChange={setName}
-                />
-              </div>
-              {name !== "" && (
-                <p className="text-p3 text-navy-500">{`"${fullName}"`}</p>
-              )}
-            </div>
+            <NameInput name={name} setName={setName} fullName={fullName} />
 
             {/* Symbol */}
-            <div className="flex flex-col gap-2 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">Symbol</p>
-              <div className="relative w-full">
-                <div className="pointer-events-none absolute right-4 top-1/2 z-[2] -translate-y-1/2 bg-white">
-                  <p className="text-p1 text-foreground">SUI</p>
-                </div>
-                <Input
-                  className="relative z-[1]"
-                  placeholder="s"
-                  value={symbol}
-                  onChange={setSymbol}
-                />
-              </div>
-              {symbol !== "" && (
-                <p className="text-p3 text-navy-500">
-                  {`"${fullSymbol}"`} (
-                  {existingSymbols.includes(fullSymbol)
-                    ? "not unique"
-                    : "unique"}
-                  )
-                </p>
-              )}
-            </div>
+            <SymbolInput
+              symbol={symbol}
+              setSymbol={setSymbol}
+              fullSymbol={fullSymbol}
+            />
           </div>
 
-          <div className="flex w-full flex-row gap-4">
-            <div className="flex flex-col gap-2 max-md:w-full md:flex-1">
-              <div className="flex w-full flex-col gap-1">
-                <p className="text-p2 text-navy-600">Icon</p>
-                <p className="text-p3 text-navy-500">
-                  {[
-                    "PNG, JPEG, WebP, or SVG.",
-                    `Max ${formatNumber(
-                      new BigNumber(BROWSE_MAX_FILE_SIZE_BYTES / 1024 / 1024),
-                      { dp: 0 },
-                    )} MB.`,
-                    `128x128 or larger recommended`,
-                  ].join(" ")}
-                </p>
-              </div>
-              <IconUpload
-                iconUrl={iconUrl}
-                setIconUrl={setIconUrl}
-                iconFilename={iconFilename}
-                setIconFilename={setIconFilename}
-                iconFileSize={iconFileSize}
-                setIconFileSize={setIconFileSize}
-              />
-            </div>
-          </div>
+          {/* IconUrl */}
+          <IconUrllInput
+            iconUrl={iconUrl}
+            setIconUrl={setIconUrl}
+            iconFilename={iconFilename}
+            setIconFilename={setIconFilename}
+            iconFileSize={iconFileSize}
+            setIconFileSize={setIconFileSize}
+          />
 
-          <div className="flex w-full flex-row gap-4">
-            {/* Validator */}
-            <div className="flex flex-col gap-2 max-md:w-full md:flex-1">
-              <p className="text-p2 text-navy-600">Validator</p>
-              <div className="w-full max-w-[320px]">
-                {validatorOptions === undefined ? (
-                  <Skeleton className="h-10 w-full" />
-                ) : (
-                  <SelectPopover
-                    maxWidth={320}
-                    placeholder="Select validator"
-                    options={validatorOptions}
-                    highlightedOptionIds={[SUILEND_VALIDATOR_ADDRESS]}
-                    value={vaw[0].validatorAddress}
-                    onChange={(id) =>
-                      onVawChange(vaw[0].id, "validatorAddress", id)
-                    }
-                  />
-                )}
-              </div>
-              {vaw[0].validatorAddress && (
-                <Link
-                  className="flex w-max flex-row items-center gap-1 text-navy-500 transition-colors hover:text-foreground"
-                  href={explorer
-                    .buildAddressUrl("")
-                    .replace("account", `validator/${vaw[0].validatorAddress}`)}
-                  target="_blank"
-                >
-                  <p className="text-inherit text-p3">View validator</p>
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-              )}
-            </div>
-          </div>
+          {/* Validator */}
+          <ValidatorInput vaw={vaw} onVawChange={onVawChange} />
 
           {/* Optional */}
           <button
@@ -395,7 +263,7 @@ export default function CreateCard() {
                   : "text-navy-600 group-hover:text-foreground",
               )}
             >
-              Optional
+              More options
             </p>
             {showOptional ? (
               <ChevronUp className="h-4 w-4 text-foreground" />
@@ -409,14 +277,10 @@ export default function CreateCard() {
               {/* Optional - description */}
               <Card className="shadow-none bg-[transparent]">
                 <div className="flex w-full flex-col gap-4 p-4">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-p2 text-navy-600">Description</p>
-                    <Input
-                      placeholder="Infinitely liquid staking on Sui"
-                      value={description}
-                      onChange={setDescription}
-                    />
-                  </div>
+                  <DescriptionInput
+                    description={description}
+                    setDescription={setDescription}
+                  />
                 </div>
               </Card>
 

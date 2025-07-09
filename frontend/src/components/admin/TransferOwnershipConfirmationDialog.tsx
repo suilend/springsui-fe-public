@@ -8,7 +8,7 @@ import {
   useWalletContext,
 } from "@suilend/sui-fe-next";
 
-import Button from "@/components/admin/Button";
+import Button from "@/components/create-admin/Button";
 import Dialog from "@/components/Dialog";
 import TokenLogo from "@/components/TokenLogo";
 import { useLoadedLstContext } from "@/contexts/LstContext";
@@ -115,7 +115,9 @@ export default function TransferOwnershipConfirmationDialog({
           onClick={submit}
           isLoading={isSubmitting}
           isDisabled={!admin.weightHookAdminCapId}
-        />
+        >
+          Transfer
+        </Button>
       </div>
     </Dialog>
   );

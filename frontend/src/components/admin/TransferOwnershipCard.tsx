@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 
 import { showErrorToast } from "@suilend/sui-fe-next";
 
-import Button from "@/components/admin/Button";
-import Input from "@/components/admin/Input";
 import TransferOwnershipConfirmationDialog from "@/components/admin/TransferOwnershipConfirmationDialog";
 import Card from "@/components/Card";
+import Button from "@/components/create-admin/Button";
+import Input from "@/components/create-admin/Input";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 
 export default function TransferOwnershipCard() {
@@ -56,7 +56,9 @@ export default function TransferOwnershipCard() {
             />
           </div>
 
-          <Button onClick={submit} isDisabled={!admin.weightHookAdminCapId} />
+          <Button onClick={submit} isDisabled={!admin.weightHookAdminCapId}>
+            Transfer
+          </Button>
         </div>
       </Card>
     </>

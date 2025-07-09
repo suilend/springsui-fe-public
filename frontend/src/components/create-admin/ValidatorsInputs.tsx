@@ -4,8 +4,8 @@ import { Minus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { v4 as uuidv4 } from "uuid";
 
-import Button from "@/components/admin/Button";
-import Input from "@/components/admin/Input";
+import Button from "@/components/create-admin/Button";
+import Input from "@/components/create-admin/Input";
 
 interface ValidatorsInputsProps {
   vaw: { id: string; validatorAddress: string; weight: string }[];

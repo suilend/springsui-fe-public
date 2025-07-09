@@ -4,6 +4,7 @@ import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
 import TransferOwnershipCard from "@/components/admin/TransferOwnershipCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
+import UpdateMetadataCard from "@/components/admin/UpdateMetadataCard";
 import UpdateValidatorsCard from "@/components/admin/UpdateValidatorsCard";
 import { FooterSm } from "@/components/Footer";
 import TokenLogo from "@/components/TokenLogo";
@@ -64,8 +65,9 @@ export default function Admin() {
 
           <div className="flex w-full flex-col gap-4">
             <RebalanceCard />
-            <UpdateFeesCard />
             <ClaimFeesCard />
+            <UpdateMetadataCard />
+            <UpdateFeesCard />
             <UpdateValidatorsCard />
             <TransferOwnershipCard />
           </div>

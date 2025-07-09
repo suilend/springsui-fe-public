@@ -1,5 +1,12 @@
 import Image from "next/image";
-import { ChangeEvent, DragEvent, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  DragEvent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 import BigNumber from "bignumber.js";
 import { X } from "lucide-react";
@@ -26,11 +33,11 @@ const VALID_MIME_TYPES = [
 
 interface IconUploadProps {
   iconUrl: string;
-  setIconUrl: (url: string) => void;
+  setIconUrl: Dispatch<SetStateAction<string>>;
   iconFilename: string;
-  setIconFilename: (filename: string) => void;
+  setIconFilename: Dispatch<SetStateAction<string>>;
   iconFileSize: string;
-  setIconFileSize: (fileSize: string) => void;
+  setIconFileSize: Dispatch<SetStateAction<string>>;
 }
 
 export default function IconUpload({
