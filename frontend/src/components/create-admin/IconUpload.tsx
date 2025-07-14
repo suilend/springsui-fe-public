@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   ChangeEvent,
   Dispatch,
@@ -137,26 +136,45 @@ export default function IconUpload({
       // Read file
       const reader = new FileReader();
       reader.onload = (e) => {
-        const base64String = e.target?.result as string;
+        try {
+          const base64String = e.target?.result as string;
 
-        resizeImageAndSetIconUrl(base64String, file);
+          resizeImageAndSetIconUrl(base64String, file);
+        } catch (err) {
+          console.error(err);
+          showErrorToast("Failed to upload image", err as Error);
+
+          reset();
+          setIsProcessing(false);
+        }
       };
       reader.onerror = () => {
-        throw new Error("Failed to upload image");
+        try {
+          throw new Error("Failed to upload image");
+        } catch (err) {
+          console.error(err);
+          showErrorToast("Failed to upload image", err as Error);
+
+          reset();
+          setIsProcessing(false);
+        }
       };
       reader.readAsDataURL(file);
     } catch (err) {
       console.error(err);
       showErrorToast("Failed to upload image", err as Error);
 
-      setIsProcessing(false);
       reset();
+      setIsProcessing(false);
     }
   };
 
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      reset();
+      return;
+    }
 
     await handleFile(file);
   };
@@ -166,7 +184,10 @@ export default function IconUpload({
     setIsDragging(false);
 
     const file = e.dataTransfer.files?.[0];
-    if (!file) return;
+    if (!file) {
+      reset();
+      return;
+    }
 
     await handleFile(file);
   };
@@ -189,27 +210,27 @@ export default function IconUpload({
             <>
               {!isProcessing && !!iconUrl && (
                 <button
-                  className="absolute right-1 top-1 z-[3] rounded-md bg-white p-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                  className="absolute right-1 top-1 z-[2] rounded-md bg-white p-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
                   onClick={reset}
                 >
                   <X className="h-4 w-4 text-navy-600 transition-colors hover:text-foreground" />
                 </button>
               )}
 
-              <div className="pointer-events-none relative z-[2] flex h-24 w-24">
-                {isProcessing && (
-                  <Skeleton className="absolute left-4 top-4 z-[1] h-16 w-16 rounded-[50%] bg-white/50" />
-                )}
+              <div className="pointer-events-none relative z-[1] flex h-24 w-24">
                 {!!iconUrl && (
-                  <Image
-                    className="absolute left-4 top-4 z-[2] h-16 w-16 rounded-[50%]"
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="absolute left-4 top-4 z-[2] h-16 w-16"
                     src={iconUrl}
                     alt="Icon"
                     width={64}
                     height={64}
-                    quality={100}
                     onLoad={() => setIsProcessing(false)}
                   />
+                )}
+                {isProcessing && (
+                  <Skeleton className="absolute left-4 top-4 z-[1] h-16 w-16" />
                 )}
               </div>
             </>
@@ -231,12 +252,12 @@ export default function IconUpload({
         </div>
 
         {/* Metadata */}
-        {iconFilename && iconFileSize && (
-          <div className="flex flex-1 flex-col gap-1">
-            <p className="break-all text-p2 text-navy-600">{iconFilename}</p>
-            <p className="text-p3 text-navy-500">{iconFileSize}</p>
-          </div>
-        )}
+        <div className="flex flex-1 flex-col gap-1">
+          <p className="break-all text-p2 text-navy-600">
+            {iconFilename || "--"}
+          </p>
+          <p className="text-p3 text-navy-500">{iconFileSize || "--"}</p>
+        </div>
       </div>
     </>
   );

@@ -11,6 +11,7 @@ import {
   FeeConfigArgs,
   SUILEND_VALIDATOR_ADDRESS,
 } from "@suilend/springsui-sdk";
+import { BLACKLISTED_WORDS } from "@suilend/sui-fe";
 import {
   showErrorToast,
   useSettingsContext,
@@ -33,11 +34,7 @@ import {
   generate_bytecode,
   initializeCoinCreation,
 } from "@/lib/createCoin";
-import {
-  BLACKLISTED_WORDS,
-  createLst,
-  setFeesAndValidators,
-} from "@/lib/createLst";
+import { createLst, setFeesAndValidators } from "@/lib/createLst";
 import { showSuccessTxnToast } from "@/lib/toasts";
 import { cn } from "@/lib/utils";
 
