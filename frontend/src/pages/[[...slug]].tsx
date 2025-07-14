@@ -80,13 +80,14 @@ export default function Home() {
     [router.query],
   );
 
-  const { explorer } = useSettingsContext();
+  const { explorer, suiClient } = useSettingsContext();
   const {
     setIsConnectWalletDropdownOpen,
     address,
     signExecuteAndWaitForTransaction,
   } = useWalletContext();
-  const { appData } = useLoadedAppContext();
+  const { appData, openLedgerHashDialog, closeLedgerHashDialog } =
+    useLoadedAppContext();
   const { getBalance, userData, refresh } = useUserContext();
   const { isSlugValid, tokenInSymbol, tokenOutSymbol, mode, lstCoinTypes } =
     useLoadedLstContext();
@@ -431,7 +432,7 @@ export default function Home() {
               address!,
               submitAmount,
             )
-          : convertLstsAndRebalance(
+          : await convertLstsAndRebalance(
               inLstData!.lstClient,
               outLstData!.lstClient,
               transaction,
@@ -455,13 +456,14 @@ export default function Home() {
             submitAmount,
           );
         } else if (isUnstaking) {
-          inLstData!.lstClient.redeemAmountAndRebalanceAndSendToUser(
+          await inLstData!.lstClient.redeemAmountAndRebalanceAndSendToUser(
             transaction,
             address!,
             submitAmount,
+            suiClient,
           );
         } else if (isConverting) {
-          convertLstsAndRebalanceAndSendToUser(
+          await convertLstsAndRebalanceAndSendToUser(
             inLstData!.lstClient,
             outLstData!.lstClient,
             transaction,
@@ -477,6 +479,7 @@ export default function Home() {
     }
 
     try {
+      await openLedgerHashDialog(transaction);
       const res = await signExecuteAndWaitForTransaction(transaction);
       const txUrl = explorer.buildTxUrl(res.digest);
 
@@ -536,6 +539,8 @@ export default function Home() {
 
       inInputRef.current?.focus();
       refresh();
+
+      closeLedgerHashDialog();
     }
   };
 
@@ -618,28 +623,6 @@ export default function Home() {
 
     return result;
   }, [lstCoinTypes, appData.lstDataMap]);
-
-  // const addToRegistry = async () => {
-  //   const tx = new Transaction();
-  //   const coinType =
-  //     "0x285b49635f4ed253967a2a4a5f0c5aea2cbd9dd0fc427b4086f3fad7ccef2c29::i_sui::I_SUI";
-
-  //   weightHookGenerated.addToRegistry(tx, coinType, {
-  //     self: tx.object(
-  //       "0x0378a02d894cf2ad00c6aa236d43b6c5087eec2885c01ec1a0714162dd69d6c3",
-  //     ),
-  //     registry: tx.object(
-  //       "0x577c5a3b474403aec4629a56bab97b95715d3e87867517650651014cbef23e18",
-  //     ),
-  //     liquidStakingInfo: tx.object(
-  //       "0x4c19387aae1ce9baec9f53d7e7a1dcae348a2fd5614785a7047b0b8cbc5494d7",
-  //     ),
-  //   });
-
-  //   const res = await signExecuteAndWaitForTransaction(tx);
-  //   const txUrl = explorer.buildTxUrl(res.digest);
-  //   console.log("XXX", txUrl);
-  // };
 
   return (
     <>

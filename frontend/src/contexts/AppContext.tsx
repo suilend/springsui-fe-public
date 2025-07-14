@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { Transaction } from "@mysten/sui/transactions";
 import * as Sentry from "@sentry/nextjs";
 import BigNumber from "bignumber.js";
 
@@ -24,7 +25,9 @@ import {
   useSettingsContext,
   useWalletContext,
 } from "@suilend/sui-fe-next";
+import useLedgerHashDialog from "@suilend/sui-fe-next/hooks/useLedgerHashDialog";
 
+import LedgerHashDialog from "@/components/LedgerHashDialog";
 import useFetchAppData from "@/fetchers/useFetchAppData";
 import { isInvalidIconUrl } from "@/lib/tokens";
 
@@ -81,6 +84,9 @@ interface AppContext {
 
   tokenIconImageLoadErrorMap: Record<string, boolean>;
   loadTokenIconImage: (token: Token) => void;
+
+  openLedgerHashDialog: (transaction: Transaction) => Promise<void>;
+  closeLedgerHashDialog: () => void;
 }
 type LoadedAppContext = AppContext & {
   appData: AppData;
@@ -96,6 +102,13 @@ const AppContext = createContext<AppContext>({
 
   tokenIconImageLoadErrorMap: {},
   loadTokenIconImage: () => {
+    throw Error("AppContextProvider not initialized");
+  },
+
+  openLedgerHashDialog: async () => {
+    throw Error("AppContextProvider not initialized");
+  },
+  closeLedgerHashDialog: () => {
     throw Error("AppContextProvider not initialized");
   },
 });
@@ -215,6 +228,15 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
+  // Ledger hash
+  const {
+    ledgerHash,
+    isLedgerHashDialogOpen,
+    doNotShowLedgerHashDialogAgain,
+    openLedgerHashDialog,
+    closeLedgerHashDialog,
+  } = useLedgerHashDialog();
+
   // Context
   const contextValue: AppContext = useMemo(
     () => ({
@@ -225,6 +247,9 @@ export function AppContextProvider({ children }: PropsWithChildren) {
 
       tokenIconImageLoadErrorMap,
       loadTokenIconImage,
+
+      openLedgerHashDialog,
+      closeLedgerHashDialog,
     }),
     [
       appData,
@@ -232,10 +257,19 @@ export function AppContextProvider({ children }: PropsWithChildren) {
       lstWeightHookAdminCapIdMap,
       tokenIconImageLoadErrorMap,
       loadTokenIconImage,
+      openLedgerHashDialog,
+      closeLedgerHashDialog,
     ],
   );
 
   return (
-    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
+    <AppContext.Provider value={contextValue}>
+      <LedgerHashDialog
+        isOpen={isLedgerHashDialogOpen}
+        ledgerHash={ledgerHash ?? ""}
+      />
+
+      {children}
+    </AppContext.Provider>
   );
 }
