@@ -199,24 +199,48 @@ export class LstClient {
 
     return suiCoin;
   }
-  redeemAmountAndRebalance(tx: Transaction, address: string, amount: string) {
-    const lstCoin = coinWithBalance({
-      balance: BigInt(amount),
-      type: this.liquidStakingObject.type,
-      useGasCoin: false,
-    })(tx);
+  async redeemAmountAndRebalance(
+    tx: Transaction,
+    address: string,
+    amount: string,
+    client: SuiClient,
+  ) {
+    const coins = (
+      await client.getCoins({
+        owner: address,
+        coinType: this.liquidStakingObject.type,
+      })
+    ).data;
+
+    const mergeCoin = coins[0];
+    if (coins.length > 1) {
+      tx.mergeCoins(
+        tx.object(mergeCoin.coinObjectId),
+        coins.map((c) => tx.object(c.coinObjectId)).slice(1),
+      );
+    }
+
+    const [lstCoin] = tx.splitCoins(tx.object(mergeCoin.coinObjectId), [
+      BigInt(amount),
+    ]);
     const suiCoin = this.redeem(tx, lstCoin);
 
     this.rebalance(tx, this.liquidStakingObject.weightHookId);
 
     return suiCoin;
   }
-  redeemAmountAndRebalanceAndSendToUser(
+  async redeemAmountAndRebalanceAndSendToUser(
     tx: Transaction,
     address: string,
     amount: string,
+    client: SuiClient,
   ) {
-    const suiCoin = this.redeemAmountAndRebalance(tx, address, amount);
+    const suiCoin = await this.redeemAmountAndRebalance(
+      tx,
+      address,
+      amount,
+      client,
+    );
     tx.transferObjects([suiCoin], address);
   }
 
