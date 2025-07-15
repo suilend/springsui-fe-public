@@ -232,7 +232,6 @@ export function AppContextProvider({ children }: PropsWithChildren) {
   const {
     ledgerHash,
     isLedgerHashDialogOpen,
-    doNotShowLedgerHashDialogAgain,
     openLedgerHashDialog,
     closeLedgerHashDialog,
   } = useLedgerHashDialog();

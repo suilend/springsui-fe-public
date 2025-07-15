@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { cloneElement } from "react";
 
 import { ADMIN_NAV_ITEM, NAV_ITEMS } from "@/components/Nav";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { cn } from "@/lib/utils";
 
-export const BOTTOM_NAV_BOTTOM_HEIGHT = 78; // px
+export const BOTTOM_NAV_BOTTOM_HEIGHT = 60; // px
 
 export default function BottomNav() {
   const router = useRouter();
@@ -34,23 +33,11 @@ export default function BottomNav() {
               <Component
                 href={item.url as string}
                 key={item.title}
-                className="group flex flex-1 flex-col items-center gap-1.5"
+                className="group flex h-7 flex-1 flex-col items-center justify-center gap-1.5"
               >
-                {item.icon &&
-                  cloneElement(item.icon, {
-                    className: cn(
-                      "h-5 w-5",
-                      isSelected
-                        ? "text-foreground"
-                        : !isDisabled
-                          ? "text-navy-600 transition-colors group-hover:text-foreground"
-                          : "text-navy-400",
-                    ),
-                  })}
-
                 <p
                   className={cn(
-                    "!text-p2",
+                    "!text-p1",
                     isSelected
                       ? "text-foreground"
                       : !isDisabled

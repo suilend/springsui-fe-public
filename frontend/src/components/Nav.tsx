@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ReactElement, cloneElement } from "react";
-
-import { Bolt, Compass, Plus } from "lucide-react";
 
 import ConnectWalletButton from "@/components/ConnectWalletButton";
-import StakeIcon from "@/components/icons/StakeIcon";
 import Logo from "@/components/Logo";
+import SettingsDialog from "@/components/SettingsDialog";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import useBreakpoint from "@/hooks/useBreakpoint";
 import { ADMIN_URL, CREATE_URL, EXPLORE_URL, ROOT_URL } from "@/lib/navigation";
@@ -17,20 +14,15 @@ export const MD_NAV_HEIGHT = 72; // px
 
 type NavItem = {
   url: string;
-  icon?: ReactElement;
   title: string;
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { url: ROOT_URL, icon: <StakeIcon />, title: "Stake" },
-  { url: CREATE_URL, icon: <Plus />, title: "Create" },
-  { url: EXPLORE_URL, icon: <Compass />, title: "Explore" },
+  { url: ROOT_URL, title: "Stake" },
+  { url: CREATE_URL, title: "Create" },
+  { url: EXPLORE_URL, title: "Explore" },
 ];
-export const ADMIN_NAV_ITEM: NavItem = {
-  url: ADMIN_URL,
-  icon: <Bolt />,
-  title: "Admin",
-};
+export const ADMIN_NAV_ITEM: NavItem = { url: ADMIN_URL, title: "Admin" };
 
 export default function Nav() {
   const router = useRouter();
@@ -68,17 +60,6 @@ export default function Nav() {
                 key={item.title}
                 className="group flex h-10 flex-row items-center gap-2"
               >
-                {item.icon &&
-                  cloneElement(item.icon, {
-                    className: cn(
-                      "h-5 w-5",
-                      isSelected
-                        ? "text-foreground"
-                        : !isDisabled
-                          ? "text-navy-600 transition-colors group-hover:text-foreground"
-                          : "text-navy-400",
-                    ),
-                  })}
                 <p
                   className={cn(
                     isSelected
@@ -96,7 +77,8 @@ export default function Nav() {
         </div>
 
         {/* Wallet */}
-        <div className="flex w-40 flex-row items-center justify-end">
+        <div className="flex w-52 flex-row items-center justify-end gap-3">
+          <SettingsDialog />
           <ConnectWalletButton />
         </div>
       </div>

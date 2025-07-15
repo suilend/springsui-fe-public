@@ -180,6 +180,7 @@ export default function UpdateMetadataCard() {
             symbol={symbol}
             setSymbol={setSymbol}
             fullSymbol={fullSymbol}
+            isUpdate
           />
         </div>
 

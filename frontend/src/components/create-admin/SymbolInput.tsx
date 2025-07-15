@@ -7,12 +7,14 @@ interface SymbolInputProps {
   symbol: string;
   setSymbol: Dispatch<SetStateAction<string>>;
   fullSymbol: string;
+  isUpdate?: boolean;
 }
 
 export default function SymbolInput({
   symbol,
   setSymbol,
   fullSymbol,
+  isUpdate,
 }: SymbolInputProps) {
   const { appData } = useLoadedAppContext();
 
@@ -38,7 +40,10 @@ export default function SymbolInput({
       {symbol !== "" && (
         <p className="text-p3 text-navy-500">
           {`"${fullSymbol}"`} (
-          {existingSymbols.includes(fullSymbol) ? "not unique" : "unique"})
+          {existingSymbols.includes(fullSymbol) && !isUpdate
+            ? "not unique"
+            : "unique"}
+          )
         </p>
       )}
     </div>
