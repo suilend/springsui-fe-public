@@ -248,6 +248,7 @@ export default function IconUpload({
             accept={VALID_MIME_TYPES.join(",")}
             onChange={handleFileSelect}
             disabled={isProcessing}
+            autoComplete="off"
           />
         </div>
 

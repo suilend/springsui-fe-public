@@ -49,6 +49,7 @@ const StakeInput = forwardRef<HTMLInputElement, StakeInputProps>(
                 !isReadOnly ? (e) => onChange(e.target.value) : undefined
               }
               onWheel={(e) => e.currentTarget.blur()}
+              autoComplete="off"
             />
           </div>
 

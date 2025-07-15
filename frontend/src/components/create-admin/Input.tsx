@@ -34,6 +34,7 @@ export default function Input({
       onChange={onChange ? (e) => onChange(e.target.value) : undefined}
       readOnly={isReadOnly}
       onWheel={(e) => e.currentTarget.blur()}
+      autoComplete="off"
     />
   );
 }

@@ -277,6 +277,7 @@ export default function TokenSelectionDialog({
           placeholder="Search by token symbol, name or address"
           value={searchString}
           onChange={(e) => setSearchString(e.target.value)}
+          autoComplete="off"
         />
       </div>
 
