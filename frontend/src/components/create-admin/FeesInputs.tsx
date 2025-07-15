@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 
 import { FeeConfigArgs } from "@suilend/springsui-sdk";
 
-import Input from "@/components/admin/Input";
+import Input from "@/components/create-admin/Input";
 
 const feeNameMap: Record<keyof FeeConfigArgs, string> = {
   mintFeeBps: "Staking fee (bps)",

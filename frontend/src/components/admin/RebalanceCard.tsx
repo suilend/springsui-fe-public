@@ -8,8 +8,8 @@ import {
   useWalletContext,
 } from "@suilend/sui-fe-next";
 
-import Button from "@/components/admin/Button";
 import Card from "@/components/Card";
+import Button from "@/components/create-admin/Button";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
@@ -57,7 +57,9 @@ export default function RebalanceCard() {
       <div className="flex w-full flex-col gap-4 p-4">
         <p className="text-navy-600">Rebalance</p>
 
-        <Button onClick={submit} isLoading={isSubmitting} />
+        <Button onClick={submit} isLoading={isSubmitting}>
+          Rebalance
+        </Button>
       </div>
     </Card>
   );
