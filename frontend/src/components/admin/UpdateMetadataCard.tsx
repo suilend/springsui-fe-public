@@ -85,6 +85,7 @@ export default function UpdateMetadataCard() {
   const submit = async () => {
     if (!admin.weightHookAdminCapId)
       throw new Error("Error: No weight hook admin cap");
+    if (!admin.lstData.token.id) throw new Error("Missing coinMetadata id");
 
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -130,23 +131,15 @@ export default function UpdateMetadataCard() {
 
       //
 
-      if (!admin.lstData.token.id) throw new Error("Missing coinMetadata id");
-
-      const adminCapId = adminCap(
-        transaction,
-        admin.lstData.lstInfo.LIQUID_STAKING_INFO.type,
-        {
-          self: admin.lstData.lstInfo.LIQUID_STAKING_INFO.id,
-          weightHookAdminCap: admin.weightHookAdminCapId,
-        },
-      );
-
       transaction.moveCall({
-        target: `${PUBLISHED_AT}::liquid_staking::update_metadata`,
+        target: `${PUBLISHED_AT}::weight::update_metadata`,
         typeArguments: [admin.lstData.lstInfo.LIQUID_STAKING_INFO.type],
         arguments: [
+          transaction.object(
+            admin.lstData.lstInfo.LIQUID_STAKING_INFO.weightHookId,
+          ),
+          transaction.object(admin.weightHookAdminCapId),
           transaction.object(admin.lstData.lstInfo.liquidStakingInfo.id),
-          adminCapId,
           transaction.object(admin.lstData.token.id),
           transaction.pure.option("string", fullName),
           transaction.pure.option("string", fullSymbol),
