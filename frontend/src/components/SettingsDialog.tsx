@@ -44,14 +44,14 @@ export default function SettingsDialog() {
 
         <button
           className={cn(
-            "rounded-full group flex h-[24px] w-[40px] flex-row items-center border border-navy-200 p-px transition-colors",
+            "group flex h-[24px] w-[40px] flex-row items-center rounded-full border border-navy-200 p-px transition-colors",
             isUsingLedger ? "border-blue" : "",
           )}
           onClick={() => setIsUsingLedger(!isUsingLedger)}
         >
           <div
             className={cn(
-              "rounded-full h-[20px] w-[20px] transition-all",
+              "h-[20px] w-[20px] rounded-full transition-all",
               isUsingLedger ? "ml-[16px] bg-blue" : "bg-navy-200",
             )}
           />
