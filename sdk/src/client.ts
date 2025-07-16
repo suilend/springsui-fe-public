@@ -1,9 +1,5 @@
 import { SuiClient, ValidatorApy } from "@mysten/sui/client";
-import {
-  Transaction,
-  TransactionObjectInput,
-  coinWithBalance,
-} from "@mysten/sui/transactions";
+import { Transaction, TransactionObjectInput } from "@mysten/sui/transactions";
 import { SUI_DECIMALS, normalizeStructTag } from "@mysten/sui/utils";
 import BigNumber from "bignumber.js";
 
