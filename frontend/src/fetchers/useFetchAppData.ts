@@ -46,7 +46,7 @@ export default function useFetchAppData() {
 
         rewardMap,
       },
-      { lstInfoMap, lstCoinTypes, springuiCoinMetadataMap, publishedAt },
+      { lstInfoMap, lstCoinTypes, springSuiCoinMetadataMap, publishedAt },
       { currentEpoch, currentEpochProgressPercent, currentEpochEndMs },
     ] = await Promise.all([
       // Suilend
@@ -114,7 +114,7 @@ export default function useFetchAppData() {
         ];
         const uniqueSpringuiCoinTypes = Array.from(new Set(springuiCoinTypes));
 
-        const springuiCoinMetadataMap = await getCoinMetadataMap(
+        const springSuiCoinMetadataMap = await getCoinMetadataMap(
           uniqueSpringuiCoinTypes,
         );
 
@@ -127,7 +127,7 @@ export default function useFetchAppData() {
         return {
           lstInfoMap,
           lstCoinTypes,
-          springuiCoinMetadataMap,
+          springSuiCoinMetadataMap,
           publishedAt,
         };
       })(),
@@ -153,7 +153,7 @@ export default function useFetchAppData() {
     // SUI
     const suiToken = getToken(
       NORMALIZED_SUI_COINTYPE,
-      springuiCoinMetadataMap[NORMALIZED_SUI_COINTYPE],
+      springSuiCoinMetadataMap[NORMALIZED_SUI_COINTYPE],
     );
     const suiPrice = reserveMap[NORMALIZED_SUI_COINTYPE].price;
 
@@ -179,7 +179,7 @@ export default function useFetchAppData() {
           const totalLstSupply = new BigNumber(
             liquidStakingInfo.lstTreasuryCap.totalSupply.value.toString(),
           ).div(
-            10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
+            10 ** springSuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
           );
 
           const suiToLstExchangeRate = !totalSuiSupply.eq(0)
@@ -210,12 +210,12 @@ export default function useFetchAppData() {
           const accruedSpreadFees = new BigNumber(
             liquidStakingInfo.accruedSpreadFees.toString(),
           ).div(
-            10 ** springuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
+            10 ** springSuiCoinMetadataMap[LIQUID_STAKING_INFO.type].decimals,
           );
 
           const lstToken = getToken(
             LIQUID_STAKING_INFO.type,
-            springuiCoinMetadataMap[LIQUID_STAKING_INFO.type],
+            springSuiCoinMetadataMap[LIQUID_STAKING_INFO.type],
           );
           const lstPrice = !suiToLstExchangeRate.eq(0)
             ? suiPrice.div(suiToLstExchangeRate)

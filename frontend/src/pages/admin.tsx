@@ -3,8 +3,8 @@ import { NORMALIZED_sSUI_COINTYPE } from "@suilend/sui-fe";
 import ClaimFeesCard from "@/components/admin/ClaimFeesCard";
 import RebalanceCard from "@/components/admin/RebalanceCard";
 import TransferOwnershipCard from "@/components/admin/TransferOwnershipCard";
+import UpdateCoinMetadataCard from "@/components/admin/UpdateCoinMetadataCard";
 import UpdateFeesCard from "@/components/admin/UpdateFeesCard";
-import UpdateMetadataCard from "@/components/admin/UpdateMetadataCard";
 import UpdateValidatorsCard from "@/components/admin/UpdateValidatorsCard";
 import { FooterSm } from "@/components/Footer";
 import TokenLogo from "@/components/TokenLogo";
@@ -66,7 +66,7 @@ export default function Admin() {
           <div className="flex w-full flex-col gap-4">
             <RebalanceCard />
             <ClaimFeesCard />
-            <UpdateMetadataCard />
+            <UpdateCoinMetadataCard />
             <UpdateFeesCard />
             <UpdateValidatorsCard />
             <TransferOwnershipCard />

@@ -1,12 +1,16 @@
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
 import { snakeCase } from "lodash";
+import { ExternalLink } from "lucide-react";
 
 import { ADMIN_ADDRESS } from "@suilend/springsui-sdk";
 import { PUBLISHED_AT } from "@suilend/springsui-sdk/_generated/liquid_staking";
-import { adminCap } from "@suilend/springsui-sdk/_generated/liquid_staking/weight/functions";
-import { BLACKLISTED_WORDS } from "@suilend/sui-fe";
+import {
+  BLACKLISTED_WORDS,
+  removeCoinMetadataFromIndexedDB,
+} from "@suilend/sui-fe";
 import {
   showErrorToast,
   useSettingsContext,
@@ -23,10 +27,9 @@ import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
-import { patchLst } from "@/lib/updateLst";
 
-export default function UpdateMetadataCard() {
-  const { explorer, suiClient } = useSettingsContext();
+export default function UpdateCoinMetadataCard() {
+  const { explorer } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
   const { appData } = useLoadedAppContext();
   const { refresh } = useUserContext();
@@ -154,7 +157,7 @@ export default function UpdateMetadataCard() {
       showSuccessTxnToast("Updated metadata", txUrl);
 
       // Patch
-      await patchLst(admin.lstCoinType);
+      await removeCoinMetadataFromIndexedDB([admin.lstCoinType]);
     } catch (err) {
       showErrorToast("Failed to update metadata", err as Error);
       console.error(err);
@@ -164,12 +167,20 @@ export default function UpdateMetadataCard() {
     }
   };
 
-  console.log("XXX", { name, symbol, description, iconUrl });
-
   return (
     <Card>
       <div className="flex w-full flex-col gap-4 p-4">
-        <p className="text-navy-600">CoinMetadata</p>
+        <div className="flex flex-row items-center gap-2">
+          <p className="text-navy-600">Coin Metadata</p>
+
+          <Link
+            className="block text-navy-500 transition-colors hover:text-foreground"
+            href={explorer.buildCoinUrl(admin.lstCoinType)}
+            target="_blank"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Link>
+        </div>
 
         <div className="flex flex-col gap-4 md:flex-row">
           {/* Name */}
