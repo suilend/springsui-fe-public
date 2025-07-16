@@ -479,8 +479,11 @@ export default function Home() {
     }
 
     try {
-      await openLedgerHashDialog(transaction);
-      const res = await signExecuteAndWaitForTransaction(transaction);
+      const res = await signExecuteAndWaitForTransaction(
+        transaction,
+        undefined,
+        (tx: Transaction) => openLedgerHashDialog(tx),
+      );
       const txUrl = explorer.buildTxUrl(res.digest);
 
       const balanceChangeIn = getBalanceChange(res, address!, inToken, -1);
