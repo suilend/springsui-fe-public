@@ -26,7 +26,6 @@ import {
   parseTypeName,
 } from "../../../../_framework/util";
 import { Option } from "../../0x1/option/structs";
-import { PKG_V31 } from "../index";
 import { UID } from "../object/structs";
 import { BcsType, bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -36,7 +35,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isLinkedTable(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::linked_table::LinkedTable` + "<");
+  return type.startsWith(`0x2::linked_table::LinkedTable` + "<");
 }
 
 export interface LinkedTableFields<
@@ -59,12 +58,12 @@ export class LinkedTable<K extends TypeArgument, V extends PhantomTypeArgument>
 {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::linked_table::LinkedTable`;
+  static readonly $typeName = `0x2::linked_table::LinkedTable`;
   static readonly $numTypeParams = 2;
   static readonly $isPhantom = [false, true] as const;
 
   readonly $typeName = LinkedTable.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::linked_table::LinkedTable<${ToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
+  readonly $fullTypeName: `0x2::linked_table::LinkedTable<${ToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
   readonly $typeArgs: [ToTypeStr<K>, PhantomToTypeStr<V>];
   readonly $isPhantom = LinkedTable.$isPhantom;
 
@@ -80,7 +79,7 @@ export class LinkedTable<K extends TypeArgument, V extends PhantomTypeArgument>
     this.$fullTypeName = composeSuiType(
       LinkedTable.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::linked_table::LinkedTable<${ToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
+    ) as `0x2::linked_table::LinkedTable<${ToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -96,12 +95,13 @@ export class LinkedTable<K extends TypeArgument, V extends PhantomTypeArgument>
     K: K,
     V: V,
   ): LinkedTableReified<ToTypeArgument<K>, ToPhantomTypeArgument<V>> {
+    const reifiedBcs = LinkedTable.bcs(toBcs(K));
     return {
       typeName: LinkedTable.$typeName,
       fullTypeName: composeSuiType(
         LinkedTable.$typeName,
         ...[extractType(K), extractType(V)],
-      ) as `${typeof PKG_V31}::linked_table::LinkedTable<${ToTypeStr<ToTypeArgument<K>>}, ${PhantomToTypeStr<ToPhantomTypeArgument<V>>}>`,
+      ) as `0x2::linked_table::LinkedTable<${ToTypeStr<ToTypeArgument<K>>}, ${PhantomToTypeStr<ToPhantomTypeArgument<V>>}>`,
       typeArgs: [extractType(K), extractType(V)] as [
         ToTypeStr<ToTypeArgument<K>>,
         PhantomToTypeStr<ToPhantomTypeArgument<V>>,
@@ -112,8 +112,9 @@ export class LinkedTable<K extends TypeArgument, V extends PhantomTypeArgument>
         LinkedTable.fromFields([K, V], fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         LinkedTable.fromFieldsWithTypes([K, V], item),
-      fromBcs: (data: Uint8Array) => LinkedTable.fromBcs([K, V], data),
-      bcs: LinkedTable.bcs(toBcs(K)),
+      fromBcs: (data: Uint8Array) =>
+        LinkedTable.fromFields([K, V], reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => LinkedTable.fromJSONField([K, V], field),
       fromJSON: (json: Record<string, any>) =>
         LinkedTable.fromJSON([K, V], json),
@@ -151,7 +152,7 @@ export class LinkedTable<K extends TypeArgument, V extends PhantomTypeArgument>
     return LinkedTable.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return <K extends BcsType<any>>(K: K) =>
       bcs.struct(`LinkedTable<${K.name}>`, {
         id: UID.bcs,
@@ -159,6 +160,17 @@ export class LinkedTable<K extends TypeArgument, V extends PhantomTypeArgument>
         head: Option.bcs(K),
         tail: Option.bcs(K),
       });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof LinkedTable.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!LinkedTable.cachedBcs) {
+      LinkedTable.cachedBcs = LinkedTable.instantiateBcs();
+    }
+    return LinkedTable.cachedBcs;
   }
 
   static fromFields<
@@ -357,7 +369,7 @@ export class LinkedTable<K extends TypeArgument, V extends PhantomTypeArgument>
 
 export function isNode(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::linked_table::Node` + "<");
+  return type.startsWith(`0x2::linked_table::Node` + "<");
 }
 
 export interface NodeFields<K extends TypeArgument, V extends TypeArgument> {
@@ -376,12 +388,12 @@ export class Node<K extends TypeArgument, V extends TypeArgument>
 {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::linked_table::Node`;
+  static readonly $typeName = `0x2::linked_table::Node`;
   static readonly $numTypeParams = 2;
   static readonly $isPhantom = [false, false] as const;
 
   readonly $typeName = Node.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::linked_table::Node<${ToTypeStr<K>}, ${ToTypeStr<V>}>`;
+  readonly $fullTypeName: `0x2::linked_table::Node<${ToTypeStr<K>}, ${ToTypeStr<V>}>`;
   readonly $typeArgs: [ToTypeStr<K>, ToTypeStr<V>];
   readonly $isPhantom = Node.$isPhantom;
 
@@ -396,7 +408,7 @@ export class Node<K extends TypeArgument, V extends TypeArgument>
     this.$fullTypeName = composeSuiType(
       Node.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::linked_table::Node<${ToTypeStr<K>}, ${ToTypeStr<V>}>`;
+    ) as `0x2::linked_table::Node<${ToTypeStr<K>}, ${ToTypeStr<V>}>`;
     this.$typeArgs = typeArgs;
 
     this.prev = fields.prev;
@@ -408,12 +420,13 @@ export class Node<K extends TypeArgument, V extends TypeArgument>
     K extends Reified<TypeArgument, any>,
     V extends Reified<TypeArgument, any>,
   >(K: K, V: V): NodeReified<ToTypeArgument<K>, ToTypeArgument<V>> {
+    const reifiedBcs = Node.bcs(toBcs(K), toBcs(V));
     return {
       typeName: Node.$typeName,
       fullTypeName: composeSuiType(
         Node.$typeName,
         ...[extractType(K), extractType(V)],
-      ) as `${typeof PKG_V31}::linked_table::Node<${ToTypeStr<ToTypeArgument<K>>}, ${ToTypeStr<ToTypeArgument<V>>}>`,
+      ) as `0x2::linked_table::Node<${ToTypeStr<ToTypeArgument<K>>}, ${ToTypeStr<ToTypeArgument<V>>}>`,
       typeArgs: [extractType(K), extractType(V)] as [
         ToTypeStr<ToTypeArgument<K>>,
         ToTypeStr<ToTypeArgument<V>>,
@@ -424,8 +437,9 @@ export class Node<K extends TypeArgument, V extends TypeArgument>
         Node.fromFields([K, V], fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Node.fromFieldsWithTypes([K, V], item),
-      fromBcs: (data: Uint8Array) => Node.fromBcs([K, V], data),
-      bcs: Node.bcs(toBcs(K), toBcs(V)),
+      fromBcs: (data: Uint8Array) =>
+        Node.fromFields([K, V], reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Node.fromJSONField([K, V], field),
       fromJSON: (json: Record<string, any>) => Node.fromJSON([K, V], json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -458,13 +472,23 @@ export class Node<K extends TypeArgument, V extends TypeArgument>
     return Node.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return <K extends BcsType<any>, V extends BcsType<any>>(K: K, V: V) =>
       bcs.struct(`Node<${K.name}, ${V.name}>`, {
         prev: Option.bcs(K),
         next: Option.bcs(K),
         value: V,
       });
+  }
+
+  private static cachedBcs: ReturnType<typeof Node.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Node.cachedBcs) {
+      Node.cachedBcs = Node.instantiateBcs();
+    }
+    return Node.cachedBcs;
   }
 
   static fromFields<

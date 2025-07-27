@@ -17,7 +17,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { Vector } from "../../../../_framework/vector";
-import { PKG_V31 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -26,7 +25,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isBCS(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::bcs::BCS`;
+  return type === `0x2::bcs::BCS`;
 }
 
 export interface BCSFields {
@@ -38,12 +37,12 @@ export type BCSReified = Reified<BCS, BCSFields>;
 export class BCS implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::bcs::BCS`;
+  static readonly $typeName = `0x2::bcs::BCS`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = BCS.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::bcs::BCS`;
+  readonly $fullTypeName: `0x2::bcs::BCS`;
   readonly $typeArgs: [];
   readonly $isPhantom = BCS.$isPhantom;
 
@@ -53,27 +52,25 @@ export class BCS implements StructClass {
     this.$fullTypeName = composeSuiType(
       BCS.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::bcs::BCS`;
+    ) as `0x2::bcs::BCS`;
     this.$typeArgs = typeArgs;
 
     this.bytes = fields.bytes;
   }
 
   static reified(): BCSReified {
+    const reifiedBcs = BCS.bcs;
     return {
       typeName: BCS.$typeName,
-      fullTypeName: composeSuiType(
-        BCS.$typeName,
-        ...[],
-      ) as `${typeof PKG_V31}::bcs::BCS`,
+      fullTypeName: composeSuiType(BCS.$typeName, ...[]) as `0x2::bcs::BCS`,
       typeArgs: [] as [],
       isPhantom: BCS.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => BCS.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         BCS.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => BCS.fromBcs(data),
-      bcs: BCS.bcs,
+      fromBcs: (data: Uint8Array) => BCS.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => BCS.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => BCS.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -99,10 +96,19 @@ export class BCS implements StructClass {
     return BCS.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("BCS", {
       bytes: bcs.vector(bcs.u8()),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof BCS.instantiateBcs> | null = null;
+
+  static get bcs() {
+    if (!BCS.cachedBcs) {
+      BCS.cachedBcs = BCS.instantiateBcs();
+    }
+    return BCS.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): BCS {

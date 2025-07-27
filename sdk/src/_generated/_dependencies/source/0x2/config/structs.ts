@@ -26,7 +26,6 @@ import {
   parseTypeName,
 } from "../../../../_framework/util";
 import { Option } from "../../0x1/option/structs";
-import { PKG_V31 } from "../index";
 import { UID } from "../object/structs";
 import { BcsType, bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -36,7 +35,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isConfig(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::config::Config` + "<");
+  return type.startsWith(`0x2::config::Config` + "<");
 }
 
 export interface ConfigFields<WriteCap extends PhantomTypeArgument> {
@@ -53,12 +52,12 @@ export class Config<WriteCap extends PhantomTypeArgument>
 {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::config::Config`;
+  static readonly $typeName = `0x2::config::Config`;
   static readonly $numTypeParams = 1;
   static readonly $isPhantom = [true] as const;
 
   readonly $typeName = Config.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::config::Config<${PhantomToTypeStr<WriteCap>}>`;
+  readonly $fullTypeName: `0x2::config::Config<${PhantomToTypeStr<WriteCap>}>`;
   readonly $typeArgs: [PhantomToTypeStr<WriteCap>];
   readonly $isPhantom = Config.$isPhantom;
 
@@ -71,7 +70,7 @@ export class Config<WriteCap extends PhantomTypeArgument>
     this.$fullTypeName = composeSuiType(
       Config.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::config::Config<${PhantomToTypeStr<WriteCap>}>`;
+    ) as `0x2::config::Config<${PhantomToTypeStr<WriteCap>}>`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -80,12 +79,13 @@ export class Config<WriteCap extends PhantomTypeArgument>
   static reified<WriteCap extends PhantomReified<PhantomTypeArgument>>(
     WriteCap: WriteCap,
   ): ConfigReified<ToPhantomTypeArgument<WriteCap>> {
+    const reifiedBcs = Config.bcs;
     return {
       typeName: Config.$typeName,
       fullTypeName: composeSuiType(
         Config.$typeName,
         ...[extractType(WriteCap)],
-      ) as `${typeof PKG_V31}::config::Config<${PhantomToTypeStr<ToPhantomTypeArgument<WriteCap>>}>`,
+      ) as `0x2::config::Config<${PhantomToTypeStr<ToPhantomTypeArgument<WriteCap>>}>`,
       typeArgs: [extractType(WriteCap)] as [
         PhantomToTypeStr<ToPhantomTypeArgument<WriteCap>>,
       ],
@@ -95,8 +95,9 @@ export class Config<WriteCap extends PhantomTypeArgument>
         Config.fromFields(WriteCap, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Config.fromFieldsWithTypes(WriteCap, item),
-      fromBcs: (data: Uint8Array) => Config.fromBcs(WriteCap, data),
-      bcs: Config.bcs,
+      fromBcs: (data: Uint8Array) =>
+        Config.fromFields(WriteCap, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Config.fromJSONField(WriteCap, field),
       fromJSON: (json: Record<string, any>) => Config.fromJSON(WriteCap, json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -125,10 +126,20 @@ export class Config<WriteCap extends PhantomTypeArgument>
     return Config.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Config", {
       id: UID.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Config.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Config.cachedBcs) {
+      Config.cachedBcs = Config.instantiateBcs();
+    }
+    return Config.cachedBcs;
   }
 
   static fromFields<WriteCap extends PhantomReified<PhantomTypeArgument>>(
@@ -280,7 +291,7 @@ export class Config<WriteCap extends PhantomTypeArgument>
 
 export function isSetting(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::config::Setting` + "<");
+  return type.startsWith(`0x2::config::Setting` + "<");
 }
 
 export interface SettingFields<Value extends TypeArgument> {
@@ -295,12 +306,12 @@ export type SettingReified<Value extends TypeArgument> = Reified<
 export class Setting<Value extends TypeArgument> implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::config::Setting`;
+  static readonly $typeName = `0x2::config::Setting`;
   static readonly $numTypeParams = 1;
   static readonly $isPhantom = [false] as const;
 
   readonly $typeName = Setting.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::config::Setting<${ToTypeStr<Value>}>`;
+  readonly $fullTypeName: `0x2::config::Setting<${ToTypeStr<Value>}>`;
   readonly $typeArgs: [ToTypeStr<Value>];
   readonly $isPhantom = Setting.$isPhantom;
 
@@ -313,7 +324,7 @@ export class Setting<Value extends TypeArgument> implements StructClass {
     this.$fullTypeName = composeSuiType(
       Setting.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::config::Setting<${ToTypeStr<Value>}>`;
+    ) as `0x2::config::Setting<${ToTypeStr<Value>}>`;
     this.$typeArgs = typeArgs;
 
     this.data = fields.data;
@@ -322,12 +333,13 @@ export class Setting<Value extends TypeArgument> implements StructClass {
   static reified<Value extends Reified<TypeArgument, any>>(
     Value: Value,
   ): SettingReified<ToTypeArgument<Value>> {
+    const reifiedBcs = Setting.bcs(toBcs(Value));
     return {
       typeName: Setting.$typeName,
       fullTypeName: composeSuiType(
         Setting.$typeName,
         ...[extractType(Value)],
-      ) as `${typeof PKG_V31}::config::Setting<${ToTypeStr<ToTypeArgument<Value>>}>`,
+      ) as `0x2::config::Setting<${ToTypeStr<ToTypeArgument<Value>>}>`,
       typeArgs: [extractType(Value)] as [ToTypeStr<ToTypeArgument<Value>>],
       isPhantom: Setting.$isPhantom,
       reifiedTypeArgs: [Value],
@@ -335,8 +347,9 @@ export class Setting<Value extends TypeArgument> implements StructClass {
         Setting.fromFields(Value, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Setting.fromFieldsWithTypes(Value, item),
-      fromBcs: (data: Uint8Array) => Setting.fromBcs(Value, data),
-      bcs: Setting.bcs(toBcs(Value)),
+      fromBcs: (data: Uint8Array) =>
+        Setting.fromFields(Value, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Setting.fromJSONField(Value, field),
       fromJSON: (json: Record<string, any>) => Setting.fromJSON(Value, json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -365,11 +378,21 @@ export class Setting<Value extends TypeArgument> implements StructClass {
     return Setting.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return <Value extends BcsType<any>>(Value: Value) =>
       bcs.struct(`Setting<${Value.name}>`, {
         data: Option.bcs(SettingData.bcs(Value)),
       });
+  }
+
+  private static cachedBcs: ReturnType<typeof Setting.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Setting.cachedBcs) {
+      Setting.cachedBcs = Setting.instantiateBcs();
+    }
+    return Setting.cachedBcs;
   }
 
   static fromFields<Value extends Reified<TypeArgument, any>>(
@@ -532,7 +555,7 @@ export class Setting<Value extends TypeArgument> implements StructClass {
 
 export function isSettingData(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::config::SettingData` + "<");
+  return type.startsWith(`0x2::config::SettingData` + "<");
 }
 
 export interface SettingDataFields<Value extends TypeArgument> {
@@ -549,12 +572,12 @@ export type SettingDataReified<Value extends TypeArgument> = Reified<
 export class SettingData<Value extends TypeArgument> implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::config::SettingData`;
+  static readonly $typeName = `0x2::config::SettingData`;
   static readonly $numTypeParams = 1;
   static readonly $isPhantom = [false] as const;
 
   readonly $typeName = SettingData.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::config::SettingData<${ToTypeStr<Value>}>`;
+  readonly $fullTypeName: `0x2::config::SettingData<${ToTypeStr<Value>}>`;
   readonly $typeArgs: [ToTypeStr<Value>];
   readonly $isPhantom = SettingData.$isPhantom;
 
@@ -569,7 +592,7 @@ export class SettingData<Value extends TypeArgument> implements StructClass {
     this.$fullTypeName = composeSuiType(
       SettingData.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::config::SettingData<${ToTypeStr<Value>}>`;
+    ) as `0x2::config::SettingData<${ToTypeStr<Value>}>`;
     this.$typeArgs = typeArgs;
 
     this.newerValueEpoch = fields.newerValueEpoch;
@@ -580,12 +603,13 @@ export class SettingData<Value extends TypeArgument> implements StructClass {
   static reified<Value extends Reified<TypeArgument, any>>(
     Value: Value,
   ): SettingDataReified<ToTypeArgument<Value>> {
+    const reifiedBcs = SettingData.bcs(toBcs(Value));
     return {
       typeName: SettingData.$typeName,
       fullTypeName: composeSuiType(
         SettingData.$typeName,
         ...[extractType(Value)],
-      ) as `${typeof PKG_V31}::config::SettingData<${ToTypeStr<ToTypeArgument<Value>>}>`,
+      ) as `0x2::config::SettingData<${ToTypeStr<ToTypeArgument<Value>>}>`,
       typeArgs: [extractType(Value)] as [ToTypeStr<ToTypeArgument<Value>>],
       isPhantom: SettingData.$isPhantom,
       reifiedTypeArgs: [Value],
@@ -593,8 +617,9 @@ export class SettingData<Value extends TypeArgument> implements StructClass {
         SettingData.fromFields(Value, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         SettingData.fromFieldsWithTypes(Value, item),
-      fromBcs: (data: Uint8Array) => SettingData.fromBcs(Value, data),
-      bcs: SettingData.bcs(toBcs(Value)),
+      fromBcs: (data: Uint8Array) =>
+        SettingData.fromFields(Value, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => SettingData.fromJSONField(Value, field),
       fromJSON: (json: Record<string, any>) =>
         SettingData.fromJSON(Value, json),
@@ -624,13 +649,24 @@ export class SettingData<Value extends TypeArgument> implements StructClass {
     return SettingData.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return <Value extends BcsType<any>>(Value: Value) =>
       bcs.struct(`SettingData<${Value.name}>`, {
         newer_value_epoch: bcs.u64(),
         newer_value: Option.bcs(Value),
         older_value_opt: Option.bcs(Value),
       });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof SettingData.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!SettingData.cachedBcs) {
+      SettingData.cachedBcs = SettingData.instantiateBcs();
+    }
+    return SettingData.cachedBcs;
   }
 
   static fromFields<Value extends Reified<TypeArgument, any>>(

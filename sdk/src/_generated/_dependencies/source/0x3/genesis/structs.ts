@@ -18,392 +18,15 @@ import {
 } from "../../../../_framework/util";
 import { Vector } from "../../../../_framework/vector";
 import { Option } from "../../0x1/option/structs";
-import { PKG_V19 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64, fromHEX, toHEX } from "@mysten/sui/utils";
-
-/* ============================== GenesisChainParameters =============================== */
-
-export function isGenesisChainParameters(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V19}::genesis::GenesisChainParameters`;
-}
-
-export interface GenesisChainParametersFields {
-  protocolVersion: ToField<"u64">;
-  chainStartTimestampMs: ToField<"u64">;
-  epochDurationMs: ToField<"u64">;
-  stakeSubsidyStartEpoch: ToField<"u64">;
-  stakeSubsidyInitialDistributionAmount: ToField<"u64">;
-  stakeSubsidyPeriodLength: ToField<"u64">;
-  stakeSubsidyDecreaseRate: ToField<"u16">;
-  maxValidatorCount: ToField<"u64">;
-  minValidatorJoiningStake: ToField<"u64">;
-  validatorLowStakeThreshold: ToField<"u64">;
-  validatorVeryLowStakeThreshold: ToField<"u64">;
-  validatorLowStakeGracePeriod: ToField<"u64">;
-}
-
-export type GenesisChainParametersReified = Reified<
-  GenesisChainParameters,
-  GenesisChainParametersFields
->;
-
-export class GenesisChainParameters implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V19}::genesis::GenesisChainParameters`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = GenesisChainParameters.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::genesis::GenesisChainParameters`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = GenesisChainParameters.$isPhantom;
-
-  readonly protocolVersion: ToField<"u64">;
-  readonly chainStartTimestampMs: ToField<"u64">;
-  readonly epochDurationMs: ToField<"u64">;
-  readonly stakeSubsidyStartEpoch: ToField<"u64">;
-  readonly stakeSubsidyInitialDistributionAmount: ToField<"u64">;
-  readonly stakeSubsidyPeriodLength: ToField<"u64">;
-  readonly stakeSubsidyDecreaseRate: ToField<"u16">;
-  readonly maxValidatorCount: ToField<"u64">;
-  readonly minValidatorJoiningStake: ToField<"u64">;
-  readonly validatorLowStakeThreshold: ToField<"u64">;
-  readonly validatorVeryLowStakeThreshold: ToField<"u64">;
-  readonly validatorLowStakeGracePeriod: ToField<"u64">;
-
-  private constructor(typeArgs: [], fields: GenesisChainParametersFields) {
-    this.$fullTypeName = composeSuiType(
-      GenesisChainParameters.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V19}::genesis::GenesisChainParameters`;
-    this.$typeArgs = typeArgs;
-
-    this.protocolVersion = fields.protocolVersion;
-    this.chainStartTimestampMs = fields.chainStartTimestampMs;
-    this.epochDurationMs = fields.epochDurationMs;
-    this.stakeSubsidyStartEpoch = fields.stakeSubsidyStartEpoch;
-    this.stakeSubsidyInitialDistributionAmount =
-      fields.stakeSubsidyInitialDistributionAmount;
-    this.stakeSubsidyPeriodLength = fields.stakeSubsidyPeriodLength;
-    this.stakeSubsidyDecreaseRate = fields.stakeSubsidyDecreaseRate;
-    this.maxValidatorCount = fields.maxValidatorCount;
-    this.minValidatorJoiningStake = fields.minValidatorJoiningStake;
-    this.validatorLowStakeThreshold = fields.validatorLowStakeThreshold;
-    this.validatorVeryLowStakeThreshold = fields.validatorVeryLowStakeThreshold;
-    this.validatorLowStakeGracePeriod = fields.validatorLowStakeGracePeriod;
-  }
-
-  static reified(): GenesisChainParametersReified {
-    return {
-      typeName: GenesisChainParameters.$typeName,
-      fullTypeName: composeSuiType(
-        GenesisChainParameters.$typeName,
-        ...[],
-      ) as `${typeof PKG_V19}::genesis::GenesisChainParameters`,
-      typeArgs: [] as [],
-      isPhantom: GenesisChainParameters.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        GenesisChainParameters.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        GenesisChainParameters.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => GenesisChainParameters.fromBcs(data),
-      bcs: GenesisChainParameters.bcs,
-      fromJSONField: (field: any) =>
-        GenesisChainParameters.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) =>
-        GenesisChainParameters.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        GenesisChainParameters.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        GenesisChainParameters.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        GenesisChainParameters.fetch(client, id),
-      new: (fields: GenesisChainParametersFields) => {
-        return new GenesisChainParameters([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return GenesisChainParameters.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<GenesisChainParameters>> {
-    return phantom(GenesisChainParameters.reified());
-  }
-  static get p() {
-    return GenesisChainParameters.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("GenesisChainParameters", {
-      protocol_version: bcs.u64(),
-      chain_start_timestamp_ms: bcs.u64(),
-      epoch_duration_ms: bcs.u64(),
-      stake_subsidy_start_epoch: bcs.u64(),
-      stake_subsidy_initial_distribution_amount: bcs.u64(),
-      stake_subsidy_period_length: bcs.u64(),
-      stake_subsidy_decrease_rate: bcs.u16(),
-      max_validator_count: bcs.u64(),
-      min_validator_joining_stake: bcs.u64(),
-      validator_low_stake_threshold: bcs.u64(),
-      validator_very_low_stake_threshold: bcs.u64(),
-      validator_low_stake_grace_period: bcs.u64(),
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): GenesisChainParameters {
-    return GenesisChainParameters.reified().new({
-      protocolVersion: decodeFromFields("u64", fields.protocol_version),
-      chainStartTimestampMs: decodeFromFields(
-        "u64",
-        fields.chain_start_timestamp_ms,
-      ),
-      epochDurationMs: decodeFromFields("u64", fields.epoch_duration_ms),
-      stakeSubsidyStartEpoch: decodeFromFields(
-        "u64",
-        fields.stake_subsidy_start_epoch,
-      ),
-      stakeSubsidyInitialDistributionAmount: decodeFromFields(
-        "u64",
-        fields.stake_subsidy_initial_distribution_amount,
-      ),
-      stakeSubsidyPeriodLength: decodeFromFields(
-        "u64",
-        fields.stake_subsidy_period_length,
-      ),
-      stakeSubsidyDecreaseRate: decodeFromFields(
-        "u16",
-        fields.stake_subsidy_decrease_rate,
-      ),
-      maxValidatorCount: decodeFromFields("u64", fields.max_validator_count),
-      minValidatorJoiningStake: decodeFromFields(
-        "u64",
-        fields.min_validator_joining_stake,
-      ),
-      validatorLowStakeThreshold: decodeFromFields(
-        "u64",
-        fields.validator_low_stake_threshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromFields(
-        "u64",
-        fields.validator_very_low_stake_threshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromFields(
-        "u64",
-        fields.validator_low_stake_grace_period,
-      ),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): GenesisChainParameters {
-    if (!isGenesisChainParameters(item.type)) {
-      throw new Error("not a GenesisChainParameters type");
-    }
-
-    return GenesisChainParameters.reified().new({
-      protocolVersion: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.protocol_version,
-      ),
-      chainStartTimestampMs: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.chain_start_timestamp_ms,
-      ),
-      epochDurationMs: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.epoch_duration_ms,
-      ),
-      stakeSubsidyStartEpoch: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.stake_subsidy_start_epoch,
-      ),
-      stakeSubsidyInitialDistributionAmount: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.stake_subsidy_initial_distribution_amount,
-      ),
-      stakeSubsidyPeriodLength: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.stake_subsidy_period_length,
-      ),
-      stakeSubsidyDecreaseRate: decodeFromFieldsWithTypes(
-        "u16",
-        item.fields.stake_subsidy_decrease_rate,
-      ),
-      maxValidatorCount: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.max_validator_count,
-      ),
-      minValidatorJoiningStake: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.min_validator_joining_stake,
-      ),
-      validatorLowStakeThreshold: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_low_stake_threshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_very_low_stake_threshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_low_stake_grace_period,
-      ),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): GenesisChainParameters {
-    return GenesisChainParameters.fromFields(
-      GenesisChainParameters.bcs.parse(data),
-    );
-  }
-
-  toJSONField() {
-    return {
-      protocolVersion: this.protocolVersion.toString(),
-      chainStartTimestampMs: this.chainStartTimestampMs.toString(),
-      epochDurationMs: this.epochDurationMs.toString(),
-      stakeSubsidyStartEpoch: this.stakeSubsidyStartEpoch.toString(),
-      stakeSubsidyInitialDistributionAmount:
-        this.stakeSubsidyInitialDistributionAmount.toString(),
-      stakeSubsidyPeriodLength: this.stakeSubsidyPeriodLength.toString(),
-      stakeSubsidyDecreaseRate: this.stakeSubsidyDecreaseRate,
-      maxValidatorCount: this.maxValidatorCount.toString(),
-      minValidatorJoiningStake: this.minValidatorJoiningStake.toString(),
-      validatorLowStakeThreshold: this.validatorLowStakeThreshold.toString(),
-      validatorVeryLowStakeThreshold:
-        this.validatorVeryLowStakeThreshold.toString(),
-      validatorLowStakeGracePeriod:
-        this.validatorLowStakeGracePeriod.toString(),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): GenesisChainParameters {
-    return GenesisChainParameters.reified().new({
-      protocolVersion: decodeFromJSONField("u64", field.protocolVersion),
-      chainStartTimestampMs: decodeFromJSONField(
-        "u64",
-        field.chainStartTimestampMs,
-      ),
-      epochDurationMs: decodeFromJSONField("u64", field.epochDurationMs),
-      stakeSubsidyStartEpoch: decodeFromJSONField(
-        "u64",
-        field.stakeSubsidyStartEpoch,
-      ),
-      stakeSubsidyInitialDistributionAmount: decodeFromJSONField(
-        "u64",
-        field.stakeSubsidyInitialDistributionAmount,
-      ),
-      stakeSubsidyPeriodLength: decodeFromJSONField(
-        "u64",
-        field.stakeSubsidyPeriodLength,
-      ),
-      stakeSubsidyDecreaseRate: decodeFromJSONField(
-        "u16",
-        field.stakeSubsidyDecreaseRate,
-      ),
-      maxValidatorCount: decodeFromJSONField("u64", field.maxValidatorCount),
-      minValidatorJoiningStake: decodeFromJSONField(
-        "u64",
-        field.minValidatorJoiningStake,
-      ),
-      validatorLowStakeThreshold: decodeFromJSONField(
-        "u64",
-        field.validatorLowStakeThreshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromJSONField(
-        "u64",
-        field.validatorVeryLowStakeThreshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromJSONField(
-        "u64",
-        field.validatorLowStakeGracePeriod,
-      ),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): GenesisChainParameters {
-    if (json.$typeName !== GenesisChainParameters.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return GenesisChainParameters.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(content: SuiParsedData): GenesisChainParameters {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isGenesisChainParameters(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a GenesisChainParameters object`,
-      );
-    }
-    return GenesisChainParameters.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): GenesisChainParameters {
-    if (data.bcs) {
-      if (
-        data.bcs.dataType !== "moveObject" ||
-        !isGenesisChainParameters(data.bcs.type)
-      ) {
-        throw new Error(`object at is not a GenesisChainParameters object`);
-      }
-
-      return GenesisChainParameters.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return GenesisChainParameters.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(
-    client: SuiClient,
-    id: string,
-  ): Promise<GenesisChainParameters> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching GenesisChainParameters object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isGenesisChainParameters(res.data.bcs.type)
-    ) {
-      throw new Error(
-        `object at id ${id} is not a GenesisChainParameters object`,
-      );
-    }
-
-    return GenesisChainParameters.fromSuiObjectData(res.data);
-  }
-}
 
 /* ============================== GenesisValidatorMetadata =============================== */
 
 export function isGenesisValidatorMetadata(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::genesis::GenesisValidatorMetadata`;
+  return type === `0x3::genesis::GenesisValidatorMetadata`;
 }
 
 export interface GenesisValidatorMetadataFields {
@@ -432,12 +55,12 @@ export type GenesisValidatorMetadataReified = Reified<
 export class GenesisValidatorMetadata implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::genesis::GenesisValidatorMetadata`;
+  static readonly $typeName = `0x3::genesis::GenesisValidatorMetadata`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = GenesisValidatorMetadata.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::genesis::GenesisValidatorMetadata`;
+  readonly $fullTypeName: `0x3::genesis::GenesisValidatorMetadata`;
   readonly $typeArgs: [];
   readonly $isPhantom = GenesisValidatorMetadata.$isPhantom;
 
@@ -461,7 +84,7 @@ export class GenesisValidatorMetadata implements StructClass {
     this.$fullTypeName = composeSuiType(
       GenesisValidatorMetadata.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::genesis::GenesisValidatorMetadata`;
+    ) as `0x3::genesis::GenesisValidatorMetadata`;
     this.$typeArgs = typeArgs;
 
     this.name = fields.name;
@@ -482,12 +105,13 @@ export class GenesisValidatorMetadata implements StructClass {
   }
 
   static reified(): GenesisValidatorMetadataReified {
+    const reifiedBcs = GenesisValidatorMetadata.bcs;
     return {
       typeName: GenesisValidatorMetadata.$typeName,
       fullTypeName: composeSuiType(
         GenesisValidatorMetadata.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::genesis::GenesisValidatorMetadata`,
+      ) as `0x3::genesis::GenesisValidatorMetadata`,
       typeArgs: [] as [],
       isPhantom: GenesisValidatorMetadata.$isPhantom,
       reifiedTypeArgs: [],
@@ -495,8 +119,9 @@ export class GenesisValidatorMetadata implements StructClass {
         GenesisValidatorMetadata.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         GenesisValidatorMetadata.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => GenesisValidatorMetadata.fromBcs(data),
-      bcs: GenesisValidatorMetadata.bcs,
+      fromBcs: (data: Uint8Array) =>
+        GenesisValidatorMetadata.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) =>
         GenesisValidatorMetadata.fromJSONField(field),
       fromJSON: (json: Record<string, any>) =>
@@ -525,7 +150,7 @@ export class GenesisValidatorMetadata implements StructClass {
     return GenesisValidatorMetadata.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("GenesisValidatorMetadata", {
       name: bcs.vector(bcs.u8()),
       description: bcs.vector(bcs.u8()),
@@ -548,6 +173,18 @@ export class GenesisValidatorMetadata implements StructClass {
       primary_address: bcs.vector(bcs.u8()),
       worker_address: bcs.vector(bcs.u8()),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof GenesisValidatorMetadata.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!GenesisValidatorMetadata.cachedBcs) {
+      GenesisValidatorMetadata.cachedBcs =
+        GenesisValidatorMetadata.instantiateBcs();
+    }
+    return GenesisValidatorMetadata.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): GenesisValidatorMetadata {
@@ -809,155 +446,279 @@ export class GenesisValidatorMetadata implements StructClass {
   }
 }
 
-/* ============================== TokenAllocation =============================== */
+/* ============================== GenesisChainParameters =============================== */
 
-export function isTokenAllocation(type: string): boolean {
+export function isGenesisChainParameters(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::genesis::TokenAllocation`;
+  return type === `0x3::genesis::GenesisChainParameters`;
 }
 
-export interface TokenAllocationFields {
-  recipientAddress: ToField<"address">;
-  amountMist: ToField<"u64">;
-  stakedWithValidator: ToField<Option<"address">>;
+export interface GenesisChainParametersFields {
+  protocolVersion: ToField<"u64">;
+  chainStartTimestampMs: ToField<"u64">;
+  epochDurationMs: ToField<"u64">;
+  stakeSubsidyStartEpoch: ToField<"u64">;
+  stakeSubsidyInitialDistributionAmount: ToField<"u64">;
+  stakeSubsidyPeriodLength: ToField<"u64">;
+  stakeSubsidyDecreaseRate: ToField<"u16">;
+  maxValidatorCount: ToField<"u64">;
+  minValidatorJoiningStake: ToField<"u64">;
+  validatorLowStakeThreshold: ToField<"u64">;
+  validatorVeryLowStakeThreshold: ToField<"u64">;
+  validatorLowStakeGracePeriod: ToField<"u64">;
 }
 
-export type TokenAllocationReified = Reified<
-  TokenAllocation,
-  TokenAllocationFields
+export type GenesisChainParametersReified = Reified<
+  GenesisChainParameters,
+  GenesisChainParametersFields
 >;
 
-export class TokenAllocation implements StructClass {
+export class GenesisChainParameters implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::genesis::TokenAllocation`;
+  static readonly $typeName = `0x3::genesis::GenesisChainParameters`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
-  readonly $typeName = TokenAllocation.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::genesis::TokenAllocation`;
+  readonly $typeName = GenesisChainParameters.$typeName;
+  readonly $fullTypeName: `0x3::genesis::GenesisChainParameters`;
   readonly $typeArgs: [];
-  readonly $isPhantom = TokenAllocation.$isPhantom;
+  readonly $isPhantom = GenesisChainParameters.$isPhantom;
 
-  readonly recipientAddress: ToField<"address">;
-  readonly amountMist: ToField<"u64">;
-  readonly stakedWithValidator: ToField<Option<"address">>;
+  readonly protocolVersion: ToField<"u64">;
+  readonly chainStartTimestampMs: ToField<"u64">;
+  readonly epochDurationMs: ToField<"u64">;
+  readonly stakeSubsidyStartEpoch: ToField<"u64">;
+  readonly stakeSubsidyInitialDistributionAmount: ToField<"u64">;
+  readonly stakeSubsidyPeriodLength: ToField<"u64">;
+  readonly stakeSubsidyDecreaseRate: ToField<"u16">;
+  readonly maxValidatorCount: ToField<"u64">;
+  readonly minValidatorJoiningStake: ToField<"u64">;
+  readonly validatorLowStakeThreshold: ToField<"u64">;
+  readonly validatorVeryLowStakeThreshold: ToField<"u64">;
+  readonly validatorLowStakeGracePeriod: ToField<"u64">;
 
-  private constructor(typeArgs: [], fields: TokenAllocationFields) {
+  private constructor(typeArgs: [], fields: GenesisChainParametersFields) {
     this.$fullTypeName = composeSuiType(
-      TokenAllocation.$typeName,
+      GenesisChainParameters.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::genesis::TokenAllocation`;
+    ) as `0x3::genesis::GenesisChainParameters`;
     this.$typeArgs = typeArgs;
 
-    this.recipientAddress = fields.recipientAddress;
-    this.amountMist = fields.amountMist;
-    this.stakedWithValidator = fields.stakedWithValidator;
+    this.protocolVersion = fields.protocolVersion;
+    this.chainStartTimestampMs = fields.chainStartTimestampMs;
+    this.epochDurationMs = fields.epochDurationMs;
+    this.stakeSubsidyStartEpoch = fields.stakeSubsidyStartEpoch;
+    this.stakeSubsidyInitialDistributionAmount =
+      fields.stakeSubsidyInitialDistributionAmount;
+    this.stakeSubsidyPeriodLength = fields.stakeSubsidyPeriodLength;
+    this.stakeSubsidyDecreaseRate = fields.stakeSubsidyDecreaseRate;
+    this.maxValidatorCount = fields.maxValidatorCount;
+    this.minValidatorJoiningStake = fields.minValidatorJoiningStake;
+    this.validatorLowStakeThreshold = fields.validatorLowStakeThreshold;
+    this.validatorVeryLowStakeThreshold = fields.validatorVeryLowStakeThreshold;
+    this.validatorLowStakeGracePeriod = fields.validatorLowStakeGracePeriod;
   }
 
-  static reified(): TokenAllocationReified {
+  static reified(): GenesisChainParametersReified {
+    const reifiedBcs = GenesisChainParameters.bcs;
     return {
-      typeName: TokenAllocation.$typeName,
+      typeName: GenesisChainParameters.$typeName,
       fullTypeName: composeSuiType(
-        TokenAllocation.$typeName,
+        GenesisChainParameters.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::genesis::TokenAllocation`,
+      ) as `0x3::genesis::GenesisChainParameters`,
       typeArgs: [] as [],
-      isPhantom: TokenAllocation.$isPhantom,
+      isPhantom: GenesisChainParameters.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) =>
-        TokenAllocation.fromFields(fields),
+        GenesisChainParameters.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        TokenAllocation.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => TokenAllocation.fromBcs(data),
-      bcs: TokenAllocation.bcs,
-      fromJSONField: (field: any) => TokenAllocation.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) => TokenAllocation.fromJSON(json),
+        GenesisChainParameters.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        GenesisChainParameters.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) =>
+        GenesisChainParameters.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) =>
+        GenesisChainParameters.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
-        TokenAllocation.fromSuiParsedData(content),
+        GenesisChainParameters.fromSuiParsedData(content),
       fromSuiObjectData: (content: SuiObjectData) =>
-        TokenAllocation.fromSuiObjectData(content),
+        GenesisChainParameters.fromSuiObjectData(content),
       fetch: async (client: SuiClient, id: string) =>
-        TokenAllocation.fetch(client, id),
-      new: (fields: TokenAllocationFields) => {
-        return new TokenAllocation([], fields);
+        GenesisChainParameters.fetch(client, id),
+      new: (fields: GenesisChainParametersFields) => {
+        return new GenesisChainParameters([], fields);
       },
       kind: "StructClassReified",
     };
   }
 
   static get r() {
-    return TokenAllocation.reified();
+    return GenesisChainParameters.reified();
   }
 
-  static phantom(): PhantomReified<ToTypeStr<TokenAllocation>> {
-    return phantom(TokenAllocation.reified());
+  static phantom(): PhantomReified<ToTypeStr<GenesisChainParameters>> {
+    return phantom(GenesisChainParameters.reified());
   }
   static get p() {
-    return TokenAllocation.phantom();
+    return GenesisChainParameters.phantom();
   }
+
+  private static instantiateBcs() {
+    return bcs.struct("GenesisChainParameters", {
+      protocol_version: bcs.u64(),
+      chain_start_timestamp_ms: bcs.u64(),
+      epoch_duration_ms: bcs.u64(),
+      stake_subsidy_start_epoch: bcs.u64(),
+      stake_subsidy_initial_distribution_amount: bcs.u64(),
+      stake_subsidy_period_length: bcs.u64(),
+      stake_subsidy_decrease_rate: bcs.u16(),
+      max_validator_count: bcs.u64(),
+      min_validator_joining_stake: bcs.u64(),
+      validator_low_stake_threshold: bcs.u64(),
+      validator_very_low_stake_threshold: bcs.u64(),
+      validator_low_stake_grace_period: bcs.u64(),
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof GenesisChainParameters.instantiateBcs
+  > | null = null;
 
   static get bcs() {
-    return bcs.struct("TokenAllocation", {
-      recipient_address: bcs
-        .bytes(32)
-        .transform({
-          input: (val: string) => fromHEX(val),
-          output: (val: Uint8Array) => toHEX(val),
-        }),
-      amount_mist: bcs.u64(),
-      staked_with_validator: Option.bcs(
-        bcs
-          .bytes(32)
-          .transform({
-            input: (val: string) => fromHEX(val),
-            output: (val: Uint8Array) => toHEX(val),
-          }),
+    if (!GenesisChainParameters.cachedBcs) {
+      GenesisChainParameters.cachedBcs =
+        GenesisChainParameters.instantiateBcs();
+    }
+    return GenesisChainParameters.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): GenesisChainParameters {
+    return GenesisChainParameters.reified().new({
+      protocolVersion: decodeFromFields("u64", fields.protocol_version),
+      chainStartTimestampMs: decodeFromFields(
+        "u64",
+        fields.chain_start_timestamp_ms,
+      ),
+      epochDurationMs: decodeFromFields("u64", fields.epoch_duration_ms),
+      stakeSubsidyStartEpoch: decodeFromFields(
+        "u64",
+        fields.stake_subsidy_start_epoch,
+      ),
+      stakeSubsidyInitialDistributionAmount: decodeFromFields(
+        "u64",
+        fields.stake_subsidy_initial_distribution_amount,
+      ),
+      stakeSubsidyPeriodLength: decodeFromFields(
+        "u64",
+        fields.stake_subsidy_period_length,
+      ),
+      stakeSubsidyDecreaseRate: decodeFromFields(
+        "u16",
+        fields.stake_subsidy_decrease_rate,
+      ),
+      maxValidatorCount: decodeFromFields("u64", fields.max_validator_count),
+      minValidatorJoiningStake: decodeFromFields(
+        "u64",
+        fields.min_validator_joining_stake,
+      ),
+      validatorLowStakeThreshold: decodeFromFields(
+        "u64",
+        fields.validator_low_stake_threshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromFields(
+        "u64",
+        fields.validator_very_low_stake_threshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromFields(
+        "u64",
+        fields.validator_low_stake_grace_period,
       ),
     });
   }
 
-  static fromFields(fields: Record<string, any>): TokenAllocation {
-    return TokenAllocation.reified().new({
-      recipientAddress: decodeFromFields("address", fields.recipient_address),
-      amountMist: decodeFromFields("u64", fields.amount_mist),
-      stakedWithValidator: decodeFromFields(
-        Option.reified("address"),
-        fields.staked_with_validator,
-      ),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): TokenAllocation {
-    if (!isTokenAllocation(item.type)) {
-      throw new Error("not a TokenAllocation type");
+  static fromFieldsWithTypes(item: FieldsWithTypes): GenesisChainParameters {
+    if (!isGenesisChainParameters(item.type)) {
+      throw new Error("not a GenesisChainParameters type");
     }
 
-    return TokenAllocation.reified().new({
-      recipientAddress: decodeFromFieldsWithTypes(
-        "address",
-        item.fields.recipient_address,
+    return GenesisChainParameters.reified().new({
+      protocolVersion: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.protocol_version,
       ),
-      amountMist: decodeFromFieldsWithTypes("u64", item.fields.amount_mist),
-      stakedWithValidator: decodeFromFieldsWithTypes(
-        Option.reified("address"),
-        item.fields.staked_with_validator,
+      chainStartTimestampMs: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.chain_start_timestamp_ms,
+      ),
+      epochDurationMs: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.epoch_duration_ms,
+      ),
+      stakeSubsidyStartEpoch: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.stake_subsidy_start_epoch,
+      ),
+      stakeSubsidyInitialDistributionAmount: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.stake_subsidy_initial_distribution_amount,
+      ),
+      stakeSubsidyPeriodLength: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.stake_subsidy_period_length,
+      ),
+      stakeSubsidyDecreaseRate: decodeFromFieldsWithTypes(
+        "u16",
+        item.fields.stake_subsidy_decrease_rate,
+      ),
+      maxValidatorCount: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.max_validator_count,
+      ),
+      minValidatorJoiningStake: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.min_validator_joining_stake,
+      ),
+      validatorLowStakeThreshold: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_low_stake_threshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_very_low_stake_threshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_low_stake_grace_period,
       ),
     });
   }
 
-  static fromBcs(data: Uint8Array): TokenAllocation {
-    return TokenAllocation.fromFields(TokenAllocation.bcs.parse(data));
+  static fromBcs(data: Uint8Array): GenesisChainParameters {
+    return GenesisChainParameters.fromFields(
+      GenesisChainParameters.bcs.parse(data),
+    );
   }
 
   toJSONField() {
     return {
-      recipientAddress: this.recipientAddress,
-      amountMist: this.amountMist.toString(),
-      stakedWithValidator: fieldToJSON<Option<"address">>(
-        `${Option.$typeName}<address>`,
-        this.stakedWithValidator,
-      ),
+      protocolVersion: this.protocolVersion.toString(),
+      chainStartTimestampMs: this.chainStartTimestampMs.toString(),
+      epochDurationMs: this.epochDurationMs.toString(),
+      stakeSubsidyStartEpoch: this.stakeSubsidyStartEpoch.toString(),
+      stakeSubsidyInitialDistributionAmount:
+        this.stakeSubsidyInitialDistributionAmount.toString(),
+      stakeSubsidyPeriodLength: this.stakeSubsidyPeriodLength.toString(),
+      stakeSubsidyDecreaseRate: this.stakeSubsidyDecreaseRate,
+      maxValidatorCount: this.maxValidatorCount.toString(),
+      minValidatorJoiningStake: this.minValidatorJoiningStake.toString(),
+      validatorLowStakeThreshold: this.validatorLowStakeThreshold.toString(),
+      validatorVeryLowStakeThreshold:
+        this.validatorVeryLowStakeThreshold.toString(),
+      validatorLowStakeGracePeriod:
+        this.validatorLowStakeGracePeriod.toString(),
     };
   }
 
@@ -969,71 +730,109 @@ export class TokenAllocation implements StructClass {
     };
   }
 
-  static fromJSONField(field: any): TokenAllocation {
-    return TokenAllocation.reified().new({
-      recipientAddress: decodeFromJSONField("address", field.recipientAddress),
-      amountMist: decodeFromJSONField("u64", field.amountMist),
-      stakedWithValidator: decodeFromJSONField(
-        Option.reified("address"),
-        field.stakedWithValidator,
+  static fromJSONField(field: any): GenesisChainParameters {
+    return GenesisChainParameters.reified().new({
+      protocolVersion: decodeFromJSONField("u64", field.protocolVersion),
+      chainStartTimestampMs: decodeFromJSONField(
+        "u64",
+        field.chainStartTimestampMs,
+      ),
+      epochDurationMs: decodeFromJSONField("u64", field.epochDurationMs),
+      stakeSubsidyStartEpoch: decodeFromJSONField(
+        "u64",
+        field.stakeSubsidyStartEpoch,
+      ),
+      stakeSubsidyInitialDistributionAmount: decodeFromJSONField(
+        "u64",
+        field.stakeSubsidyInitialDistributionAmount,
+      ),
+      stakeSubsidyPeriodLength: decodeFromJSONField(
+        "u64",
+        field.stakeSubsidyPeriodLength,
+      ),
+      stakeSubsidyDecreaseRate: decodeFromJSONField(
+        "u16",
+        field.stakeSubsidyDecreaseRate,
+      ),
+      maxValidatorCount: decodeFromJSONField("u64", field.maxValidatorCount),
+      minValidatorJoiningStake: decodeFromJSONField(
+        "u64",
+        field.minValidatorJoiningStake,
+      ),
+      validatorLowStakeThreshold: decodeFromJSONField(
+        "u64",
+        field.validatorLowStakeThreshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromJSONField(
+        "u64",
+        field.validatorVeryLowStakeThreshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromJSONField(
+        "u64",
+        field.validatorLowStakeGracePeriod,
       ),
     });
   }
 
-  static fromJSON(json: Record<string, any>): TokenAllocation {
-    if (json.$typeName !== TokenAllocation.$typeName) {
+  static fromJSON(json: Record<string, any>): GenesisChainParameters {
+    if (json.$typeName !== GenesisChainParameters.$typeName) {
       throw new Error("not a WithTwoGenerics json object");
     }
 
-    return TokenAllocation.fromJSONField(json);
+    return GenesisChainParameters.fromJSONField(json);
   }
 
-  static fromSuiParsedData(content: SuiParsedData): TokenAllocation {
+  static fromSuiParsedData(content: SuiParsedData): GenesisChainParameters {
     if (content.dataType !== "moveObject") {
       throw new Error("not an object");
     }
-    if (!isTokenAllocation(content.type)) {
+    if (!isGenesisChainParameters(content.type)) {
       throw new Error(
-        `object at ${(content.fields as any).id} is not a TokenAllocation object`,
+        `object at ${(content.fields as any).id} is not a GenesisChainParameters object`,
       );
     }
-    return TokenAllocation.fromFieldsWithTypes(content);
+    return GenesisChainParameters.fromFieldsWithTypes(content);
   }
 
-  static fromSuiObjectData(data: SuiObjectData): TokenAllocation {
+  static fromSuiObjectData(data: SuiObjectData): GenesisChainParameters {
     if (data.bcs) {
       if (
         data.bcs.dataType !== "moveObject" ||
-        !isTokenAllocation(data.bcs.type)
+        !isGenesisChainParameters(data.bcs.type)
       ) {
-        throw new Error(`object at is not a TokenAllocation object`);
+        throw new Error(`object at is not a GenesisChainParameters object`);
       }
 
-      return TokenAllocation.fromBcs(fromB64(data.bcs.bcsBytes));
+      return GenesisChainParameters.fromBcs(fromB64(data.bcs.bcsBytes));
     }
     if (data.content) {
-      return TokenAllocation.fromSuiParsedData(data.content);
+      return GenesisChainParameters.fromSuiParsedData(data.content);
     }
     throw new Error(
       "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
     );
   }
 
-  static async fetch(client: SuiClient, id: string): Promise<TokenAllocation> {
+  static async fetch(
+    client: SuiClient,
+    id: string,
+  ): Promise<GenesisChainParameters> {
     const res = await client.getObject({ id, options: { showBcs: true } });
     if (res.error) {
       throw new Error(
-        `error fetching TokenAllocation object at id ${id}: ${res.error.code}`,
+        `error fetching GenesisChainParameters object at id ${id}: ${res.error.code}`,
       );
     }
     if (
       res.data?.bcs?.dataType !== "moveObject" ||
-      !isTokenAllocation(res.data.bcs.type)
+      !isGenesisChainParameters(res.data.bcs.type)
     ) {
-      throw new Error(`object at id ${id} is not a TokenAllocation object`);
+      throw new Error(
+        `object at id ${id} is not a GenesisChainParameters object`,
+      );
     }
 
-    return TokenAllocation.fromSuiObjectData(res.data);
+    return GenesisChainParameters.fromSuiObjectData(res.data);
   }
 }
 
@@ -1041,7 +840,7 @@ export class TokenAllocation implements StructClass {
 
 export function isTokenDistributionSchedule(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::genesis::TokenDistributionSchedule`;
+  return type === `0x3::genesis::TokenDistributionSchedule`;
 }
 
 export interface TokenDistributionScheduleFields {
@@ -1057,12 +856,12 @@ export type TokenDistributionScheduleReified = Reified<
 export class TokenDistributionSchedule implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::genesis::TokenDistributionSchedule`;
+  static readonly $typeName = `0x3::genesis::TokenDistributionSchedule`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = TokenDistributionSchedule.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::genesis::TokenDistributionSchedule`;
+  readonly $fullTypeName: `0x3::genesis::TokenDistributionSchedule`;
   readonly $typeArgs: [];
   readonly $isPhantom = TokenDistributionSchedule.$isPhantom;
 
@@ -1073,7 +872,7 @@ export class TokenDistributionSchedule implements StructClass {
     this.$fullTypeName = composeSuiType(
       TokenDistributionSchedule.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::genesis::TokenDistributionSchedule`;
+    ) as `0x3::genesis::TokenDistributionSchedule`;
     this.$typeArgs = typeArgs;
 
     this.stakeSubsidyFundMist = fields.stakeSubsidyFundMist;
@@ -1081,12 +880,13 @@ export class TokenDistributionSchedule implements StructClass {
   }
 
   static reified(): TokenDistributionScheduleReified {
+    const reifiedBcs = TokenDistributionSchedule.bcs;
     return {
       typeName: TokenDistributionSchedule.$typeName,
       fullTypeName: composeSuiType(
         TokenDistributionSchedule.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::genesis::TokenDistributionSchedule`,
+      ) as `0x3::genesis::TokenDistributionSchedule`,
       typeArgs: [] as [],
       isPhantom: TokenDistributionSchedule.$isPhantom,
       reifiedTypeArgs: [],
@@ -1094,8 +894,9 @@ export class TokenDistributionSchedule implements StructClass {
         TokenDistributionSchedule.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         TokenDistributionSchedule.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => TokenDistributionSchedule.fromBcs(data),
-      bcs: TokenDistributionSchedule.bcs,
+      fromBcs: (data: Uint8Array) =>
+        TokenDistributionSchedule.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) =>
         TokenDistributionSchedule.fromJSONField(field),
       fromJSON: (json: Record<string, any>) =>
@@ -1124,11 +925,23 @@ export class TokenDistributionSchedule implements StructClass {
     return TokenDistributionSchedule.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("TokenDistributionSchedule", {
       stake_subsidy_fund_mist: bcs.u64(),
       allocations: bcs.vector(TokenAllocation.bcs),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof TokenDistributionSchedule.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!TokenDistributionSchedule.cachedBcs) {
+      TokenDistributionSchedule.cachedBcs =
+        TokenDistributionSchedule.instantiateBcs();
+    }
+    return TokenDistributionSchedule.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): TokenDistributionSchedule {
@@ -1257,5 +1070,246 @@ export class TokenDistributionSchedule implements StructClass {
     }
 
     return TokenDistributionSchedule.fromSuiObjectData(res.data);
+  }
+}
+
+/* ============================== TokenAllocation =============================== */
+
+export function isTokenAllocation(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `0x3::genesis::TokenAllocation`;
+}
+
+export interface TokenAllocationFields {
+  recipientAddress: ToField<"address">;
+  amountMist: ToField<"u64">;
+  stakedWithValidator: ToField<Option<"address">>;
+}
+
+export type TokenAllocationReified = Reified<
+  TokenAllocation,
+  TokenAllocationFields
+>;
+
+export class TokenAllocation implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `0x3::genesis::TokenAllocation`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = TokenAllocation.$typeName;
+  readonly $fullTypeName: `0x3::genesis::TokenAllocation`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = TokenAllocation.$isPhantom;
+
+  readonly recipientAddress: ToField<"address">;
+  readonly amountMist: ToField<"u64">;
+  readonly stakedWithValidator: ToField<Option<"address">>;
+
+  private constructor(typeArgs: [], fields: TokenAllocationFields) {
+    this.$fullTypeName = composeSuiType(
+      TokenAllocation.$typeName,
+      ...typeArgs,
+    ) as `0x3::genesis::TokenAllocation`;
+    this.$typeArgs = typeArgs;
+
+    this.recipientAddress = fields.recipientAddress;
+    this.amountMist = fields.amountMist;
+    this.stakedWithValidator = fields.stakedWithValidator;
+  }
+
+  static reified(): TokenAllocationReified {
+    const reifiedBcs = TokenAllocation.bcs;
+    return {
+      typeName: TokenAllocation.$typeName,
+      fullTypeName: composeSuiType(
+        TokenAllocation.$typeName,
+        ...[],
+      ) as `0x3::genesis::TokenAllocation`,
+      typeArgs: [] as [],
+      isPhantom: TokenAllocation.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        TokenAllocation.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        TokenAllocation.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        TokenAllocation.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => TokenAllocation.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) => TokenAllocation.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        TokenAllocation.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        TokenAllocation.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        TokenAllocation.fetch(client, id),
+      new: (fields: TokenAllocationFields) => {
+        return new TokenAllocation([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return TokenAllocation.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<TokenAllocation>> {
+    return phantom(TokenAllocation.reified());
+  }
+  static get p() {
+    return TokenAllocation.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("TokenAllocation", {
+      recipient_address: bcs
+        .bytes(32)
+        .transform({
+          input: (val: string) => fromHEX(val),
+          output: (val: Uint8Array) => toHEX(val),
+        }),
+      amount_mist: bcs.u64(),
+      staked_with_validator: Option.bcs(
+        bcs
+          .bytes(32)
+          .transform({
+            input: (val: string) => fromHEX(val),
+            output: (val: Uint8Array) => toHEX(val),
+          }),
+      ),
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof TokenAllocation.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!TokenAllocation.cachedBcs) {
+      TokenAllocation.cachedBcs = TokenAllocation.instantiateBcs();
+    }
+    return TokenAllocation.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): TokenAllocation {
+    return TokenAllocation.reified().new({
+      recipientAddress: decodeFromFields("address", fields.recipient_address),
+      amountMist: decodeFromFields("u64", fields.amount_mist),
+      stakedWithValidator: decodeFromFields(
+        Option.reified("address"),
+        fields.staked_with_validator,
+      ),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): TokenAllocation {
+    if (!isTokenAllocation(item.type)) {
+      throw new Error("not a TokenAllocation type");
+    }
+
+    return TokenAllocation.reified().new({
+      recipientAddress: decodeFromFieldsWithTypes(
+        "address",
+        item.fields.recipient_address,
+      ),
+      amountMist: decodeFromFieldsWithTypes("u64", item.fields.amount_mist),
+      stakedWithValidator: decodeFromFieldsWithTypes(
+        Option.reified("address"),
+        item.fields.staked_with_validator,
+      ),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): TokenAllocation {
+    return TokenAllocation.fromFields(TokenAllocation.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      recipientAddress: this.recipientAddress,
+      amountMist: this.amountMist.toString(),
+      stakedWithValidator: fieldToJSON<Option<"address">>(
+        `${Option.$typeName}<address>`,
+        this.stakedWithValidator,
+      ),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): TokenAllocation {
+    return TokenAllocation.reified().new({
+      recipientAddress: decodeFromJSONField("address", field.recipientAddress),
+      amountMist: decodeFromJSONField("u64", field.amountMist),
+      stakedWithValidator: decodeFromJSONField(
+        Option.reified("address"),
+        field.stakedWithValidator,
+      ),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): TokenAllocation {
+    if (json.$typeName !== TokenAllocation.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return TokenAllocation.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): TokenAllocation {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isTokenAllocation(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a TokenAllocation object`,
+      );
+    }
+    return TokenAllocation.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): TokenAllocation {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isTokenAllocation(data.bcs.type)
+      ) {
+        throw new Error(`object at is not a TokenAllocation object`);
+      }
+
+      return TokenAllocation.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return TokenAllocation.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(client: SuiClient, id: string): Promise<TokenAllocation> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching TokenAllocation object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isTokenAllocation(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a TokenAllocation object`);
+    }
+
+    return TokenAllocation.fromSuiObjectData(res.data);
   }
 }

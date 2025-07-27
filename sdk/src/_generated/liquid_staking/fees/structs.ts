@@ -76,6 +76,7 @@ export class FeeConfig implements StructClass {
   }
 
   static reified(): FeeConfigReified {
+    const reifiedBcs = FeeConfig.bcs;
     return {
       typeName: FeeConfig.$typeName,
       fullTypeName: composeSuiType(
@@ -88,8 +89,9 @@ export class FeeConfig implements StructClass {
       fromFields: (fields: Record<string, any>) => FeeConfig.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         FeeConfig.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => FeeConfig.fromBcs(data),
-      bcs: FeeConfig.bcs,
+      fromBcs: (data: Uint8Array) =>
+        FeeConfig.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => FeeConfig.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => FeeConfig.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -116,7 +118,7 @@ export class FeeConfig implements StructClass {
     return FeeConfig.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("FeeConfig", {
       sui_mint_fee_bps: bcs.u64(),
       staked_sui_mint_fee_bps: bcs.u64(),
@@ -126,6 +128,16 @@ export class FeeConfig implements StructClass {
       custom_redeem_fee_bps: bcs.u64(),
       extra_fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof FeeConfig.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!FeeConfig.cachedBcs) {
+      FeeConfig.cachedBcs = FeeConfig.instantiateBcs();
+    }
+    return FeeConfig.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): FeeConfig {
@@ -320,6 +332,7 @@ export class FeeConfigBuilder implements StructClass {
   }
 
   static reified(): FeeConfigBuilderReified {
+    const reifiedBcs = FeeConfigBuilder.bcs;
     return {
       typeName: FeeConfigBuilder.$typeName,
       fullTypeName: composeSuiType(
@@ -333,8 +346,9 @@ export class FeeConfigBuilder implements StructClass {
         FeeConfigBuilder.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         FeeConfigBuilder.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => FeeConfigBuilder.fromBcs(data),
-      bcs: FeeConfigBuilder.bcs,
+      fromBcs: (data: Uint8Array) =>
+        FeeConfigBuilder.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => FeeConfigBuilder.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => FeeConfigBuilder.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -361,10 +375,21 @@ export class FeeConfigBuilder implements StructClass {
     return FeeConfigBuilder.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("FeeConfigBuilder", {
       fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof FeeConfigBuilder.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!FeeConfigBuilder.cachedBcs) {
+      FeeConfigBuilder.cachedBcs = FeeConfigBuilder.instantiateBcs();
+    }
+    return FeeConfigBuilder.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): FeeConfigBuilder {

@@ -14,7 +14,6 @@ import {
   composeSuiType,
   compressSuiType,
 } from "../../../../_framework/util";
-import { PKG_V19 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -23,7 +22,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isVotingPowerInfo(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::voting_power::VotingPowerInfo`;
+  return type === `0x3::voting_power::VotingPowerInfo`;
 }
 
 export interface VotingPowerInfoFields {
@@ -39,12 +38,12 @@ export type VotingPowerInfoReified = Reified<
 export class VotingPowerInfo implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::voting_power::VotingPowerInfo`;
+  static readonly $typeName = `0x3::voting_power::VotingPowerInfo`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = VotingPowerInfo.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::voting_power::VotingPowerInfo`;
+  readonly $fullTypeName: `0x3::voting_power::VotingPowerInfo`;
   readonly $typeArgs: [];
   readonly $isPhantom = VotingPowerInfo.$isPhantom;
 
@@ -55,7 +54,7 @@ export class VotingPowerInfo implements StructClass {
     this.$fullTypeName = composeSuiType(
       VotingPowerInfo.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::voting_power::VotingPowerInfo`;
+    ) as `0x3::voting_power::VotingPowerInfo`;
     this.$typeArgs = typeArgs;
 
     this.validatorIndex = fields.validatorIndex;
@@ -63,12 +62,13 @@ export class VotingPowerInfo implements StructClass {
   }
 
   static reified(): VotingPowerInfoReified {
+    const reifiedBcs = VotingPowerInfo.bcs;
     return {
       typeName: VotingPowerInfo.$typeName,
       fullTypeName: composeSuiType(
         VotingPowerInfo.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::voting_power::VotingPowerInfo`,
+      ) as `0x3::voting_power::VotingPowerInfo`,
       typeArgs: [] as [],
       isPhantom: VotingPowerInfo.$isPhantom,
       reifiedTypeArgs: [],
@@ -76,8 +76,9 @@ export class VotingPowerInfo implements StructClass {
         VotingPowerInfo.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         VotingPowerInfo.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => VotingPowerInfo.fromBcs(data),
-      bcs: VotingPowerInfo.bcs,
+      fromBcs: (data: Uint8Array) =>
+        VotingPowerInfo.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => VotingPowerInfo.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => VotingPowerInfo.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -104,11 +105,22 @@ export class VotingPowerInfo implements StructClass {
     return VotingPowerInfo.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("VotingPowerInfo", {
       validator_index: bcs.u64(),
       voting_power: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof VotingPowerInfo.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!VotingPowerInfo.cachedBcs) {
+      VotingPowerInfo.cachedBcs = VotingPowerInfo.instantiateBcs();
+    }
+    return VotingPowerInfo.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): VotingPowerInfo {
@@ -219,7 +231,7 @@ export class VotingPowerInfo implements StructClass {
 
 export function isVotingPowerInfoV2(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::voting_power::VotingPowerInfoV2`;
+  return type === `0x3::voting_power::VotingPowerInfoV2`;
 }
 
 export interface VotingPowerInfoV2Fields {
@@ -236,12 +248,12 @@ export type VotingPowerInfoV2Reified = Reified<
 export class VotingPowerInfoV2 implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::voting_power::VotingPowerInfoV2`;
+  static readonly $typeName = `0x3::voting_power::VotingPowerInfoV2`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = VotingPowerInfoV2.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::voting_power::VotingPowerInfoV2`;
+  readonly $fullTypeName: `0x3::voting_power::VotingPowerInfoV2`;
   readonly $typeArgs: [];
   readonly $isPhantom = VotingPowerInfoV2.$isPhantom;
 
@@ -253,7 +265,7 @@ export class VotingPowerInfoV2 implements StructClass {
     this.$fullTypeName = composeSuiType(
       VotingPowerInfoV2.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::voting_power::VotingPowerInfoV2`;
+    ) as `0x3::voting_power::VotingPowerInfoV2`;
     this.$typeArgs = typeArgs;
 
     this.validatorIndex = fields.validatorIndex;
@@ -262,12 +274,13 @@ export class VotingPowerInfoV2 implements StructClass {
   }
 
   static reified(): VotingPowerInfoV2Reified {
+    const reifiedBcs = VotingPowerInfoV2.bcs;
     return {
       typeName: VotingPowerInfoV2.$typeName,
       fullTypeName: composeSuiType(
         VotingPowerInfoV2.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::voting_power::VotingPowerInfoV2`,
+      ) as `0x3::voting_power::VotingPowerInfoV2`,
       typeArgs: [] as [],
       isPhantom: VotingPowerInfoV2.$isPhantom,
       reifiedTypeArgs: [],
@@ -275,8 +288,9 @@ export class VotingPowerInfoV2 implements StructClass {
         VotingPowerInfoV2.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         VotingPowerInfoV2.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => VotingPowerInfoV2.fromBcs(data),
-      bcs: VotingPowerInfoV2.bcs,
+      fromBcs: (data: Uint8Array) =>
+        VotingPowerInfoV2.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => VotingPowerInfoV2.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => VotingPowerInfoV2.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -303,12 +317,23 @@ export class VotingPowerInfoV2 implements StructClass {
     return VotingPowerInfoV2.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("VotingPowerInfoV2", {
       validator_index: bcs.u64(),
       voting_power: bcs.u64(),
       stake: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof VotingPowerInfoV2.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!VotingPowerInfoV2.cachedBcs) {
+      VotingPowerInfoV2.cachedBcs = VotingPowerInfoV2.instantiateBcs();
+    }
+    return VotingPowerInfoV2.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): VotingPowerInfoV2 {

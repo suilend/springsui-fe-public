@@ -2,10 +2,15 @@ import { PUBLISHED_AT } from "..";
 import { GenericArg, generic, obj } from "../../_framework/util";
 import { Transaction, TransactionObjectInput } from "@mysten/sui/transactions";
 
-export function new_(tx: Transaction) {
+export function adminCapId(
+  tx: Transaction,
+  typeArg: string,
+  self: TransactionObjectInput,
+) {
   return tx.moveCall({
-    target: `${PUBLISHED_AT}::registry::new`,
-    arguments: [],
+    target: `${PUBLISHED_AT}::registry::admin_cap_id`,
+    typeArguments: [typeArg],
+    arguments: [obj(tx, self)],
   });
 }
 
@@ -18,6 +23,25 @@ export function liquidStakingInfoId(
     target: `${PUBLISHED_AT}::registry::liquid_staking_info_id`,
     typeArguments: [typeArg],
     arguments: [obj(tx, self)],
+  });
+}
+
+export function extraInfo(
+  tx: Transaction,
+  typeArg: string,
+  self: TransactionObjectInput,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::registry::extra_info`,
+    typeArguments: [typeArg],
+    arguments: [obj(tx, self)],
+  });
+}
+
+export function new_(tx: Transaction) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::registry::new`,
+    arguments: [],
   });
 }
 
@@ -42,30 +66,6 @@ export function addToRegistry(
       obj(tx, args.liquidStakingInfo),
       generic(tx, `${typeArgs[1]}`, args.extraInfo),
     ],
-  });
-}
-
-export function extraInfo(
-  tx: Transaction,
-  typeArg: string,
-  self: TransactionObjectInput,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::registry::extra_info`,
-    typeArguments: [typeArg],
-    arguments: [obj(tx, self)],
-  });
-}
-
-export function adminCapId(
-  tx: Transaction,
-  typeArg: string,
-  self: TransactionObjectInput,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::registry::admin_cap_id`,
-    typeArguments: [typeArg],
-    arguments: [obj(tx, self)],
   });
 }
 

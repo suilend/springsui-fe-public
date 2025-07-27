@@ -22,7 +22,6 @@ import {
   compressSuiType,
   parseTypeName,
 } from "../../../../_framework/util";
-import { PKG_V31 } from "../index";
 import { UID } from "../object/structs";
 import { BcsType, bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -32,7 +31,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isField(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::dynamic_field::Field` + "<");
+  return type.startsWith(`0x2::dynamic_field::Field` + "<");
 }
 
 export interface FieldFields<
@@ -54,12 +53,12 @@ export class Field<Name extends TypeArgument, Value extends TypeArgument>
 {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::dynamic_field::Field`;
+  static readonly $typeName = `0x2::dynamic_field::Field`;
   static readonly $numTypeParams = 2;
   static readonly $isPhantom = [false, false] as const;
 
   readonly $typeName = Field.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::dynamic_field::Field<${ToTypeStr<Name>}, ${ToTypeStr<Value>}>`;
+  readonly $fullTypeName: `0x2::dynamic_field::Field<${ToTypeStr<Name>}, ${ToTypeStr<Value>}>`;
   readonly $typeArgs: [ToTypeStr<Name>, ToTypeStr<Value>];
   readonly $isPhantom = Field.$isPhantom;
 
@@ -74,7 +73,7 @@ export class Field<Name extends TypeArgument, Value extends TypeArgument>
     this.$fullTypeName = composeSuiType(
       Field.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::dynamic_field::Field<${ToTypeStr<Name>}, ${ToTypeStr<Value>}>`;
+    ) as `0x2::dynamic_field::Field<${ToTypeStr<Name>}, ${ToTypeStr<Value>}>`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -89,12 +88,13 @@ export class Field<Name extends TypeArgument, Value extends TypeArgument>
     Name: Name,
     Value: Value,
   ): FieldReified<ToTypeArgument<Name>, ToTypeArgument<Value>> {
+    const reifiedBcs = Field.bcs(toBcs(Name), toBcs(Value));
     return {
       typeName: Field.$typeName,
       fullTypeName: composeSuiType(
         Field.$typeName,
         ...[extractType(Name), extractType(Value)],
-      ) as `${typeof PKG_V31}::dynamic_field::Field<${ToTypeStr<ToTypeArgument<Name>>}, ${ToTypeStr<ToTypeArgument<Value>>}>`,
+      ) as `0x2::dynamic_field::Field<${ToTypeStr<ToTypeArgument<Name>>}, ${ToTypeStr<ToTypeArgument<Value>>}>`,
       typeArgs: [extractType(Name), extractType(Value)] as [
         ToTypeStr<ToTypeArgument<Name>>,
         ToTypeStr<ToTypeArgument<Value>>,
@@ -105,8 +105,9 @@ export class Field<Name extends TypeArgument, Value extends TypeArgument>
         Field.fromFields([Name, Value], fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Field.fromFieldsWithTypes([Name, Value], item),
-      fromBcs: (data: Uint8Array) => Field.fromBcs([Name, Value], data),
-      bcs: Field.bcs(toBcs(Name), toBcs(Value)),
+      fromBcs: (data: Uint8Array) =>
+        Field.fromFields([Name, Value], reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Field.fromJSONField([Name, Value], field),
       fromJSON: (json: Record<string, any>) =>
         Field.fromJSON([Name, Value], json),
@@ -144,7 +145,7 @@ export class Field<Name extends TypeArgument, Value extends TypeArgument>
     return Field.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return <Name extends BcsType<any>, Value extends BcsType<any>>(
       Name: Name,
       Value: Value,
@@ -154,6 +155,16 @@ export class Field<Name extends TypeArgument, Value extends TypeArgument>
         name: Name,
         value: Value,
       });
+  }
+
+  private static cachedBcs: ReturnType<typeof Field.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Field.cachedBcs) {
+      Field.cachedBcs = Field.instantiateBcs();
+    }
+    return Field.cachedBcs;
   }
 
   static fromFields<

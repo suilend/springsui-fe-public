@@ -14,7 +14,6 @@ import {
   composeSuiType,
   compressSuiType,
 } from "../../../../_framework/util";
-import { PKG_V31 } from "../index";
 import { UID } from "../object/structs";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -24,7 +23,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isClock(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::clock::Clock`;
+  return type === `0x2::clock::Clock`;
 }
 
 export interface ClockFields {
@@ -37,12 +36,12 @@ export type ClockReified = Reified<Clock, ClockFields>;
 export class Clock implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::clock::Clock`;
+  static readonly $typeName = `0x2::clock::Clock`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = Clock.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::clock::Clock`;
+  readonly $fullTypeName: `0x2::clock::Clock`;
   readonly $typeArgs: [];
   readonly $isPhantom = Clock.$isPhantom;
 
@@ -53,7 +52,7 @@ export class Clock implements StructClass {
     this.$fullTypeName = composeSuiType(
       Clock.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::clock::Clock`;
+    ) as `0x2::clock::Clock`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -61,20 +60,21 @@ export class Clock implements StructClass {
   }
 
   static reified(): ClockReified {
+    const reifiedBcs = Clock.bcs;
     return {
       typeName: Clock.$typeName,
       fullTypeName: composeSuiType(
         Clock.$typeName,
         ...[],
-      ) as `${typeof PKG_V31}::clock::Clock`,
+      ) as `0x2::clock::Clock`,
       typeArgs: [] as [],
       isPhantom: Clock.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => Clock.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Clock.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => Clock.fromBcs(data),
-      bcs: Clock.bcs,
+      fromBcs: (data: Uint8Array) => Clock.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Clock.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => Clock.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -100,11 +100,21 @@ export class Clock implements StructClass {
     return Clock.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Clock", {
       id: UID.bcs,
       timestamp_ms: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Clock.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Clock.cachedBcs) {
+      Clock.cachedBcs = Clock.instantiateBcs();
+    }
+    return Clock.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): Clock {

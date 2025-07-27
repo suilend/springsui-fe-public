@@ -70,6 +70,7 @@ export class Event<T extends TypeArgument> implements StructClass {
   static reified<T extends Reified<TypeArgument, any>>(
     T: T,
   ): EventReified<ToTypeArgument<T>> {
+    const reifiedBcs = Event.bcs(toBcs(T));
     return {
       typeName: Event.$typeName,
       fullTypeName: composeSuiType(
@@ -82,8 +83,9 @@ export class Event<T extends TypeArgument> implements StructClass {
       fromFields: (fields: Record<string, any>) => Event.fromFields(T, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Event.fromFieldsWithTypes(T, item),
-      fromBcs: (data: Uint8Array) => Event.fromBcs(T, data),
-      bcs: Event.bcs(toBcs(T)),
+      fromBcs: (data: Uint8Array) =>
+        Event.fromFields(T, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Event.fromJSONField(T, field),
       fromJSON: (json: Record<string, any>) => Event.fromJSON(T, json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -112,11 +114,21 @@ export class Event<T extends TypeArgument> implements StructClass {
     return Event.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return <T extends BcsType<any>>(T: T) =>
       bcs.struct(`Event<${T.name}>`, {
         event: T,
       });
+  }
+
+  private static cachedBcs: ReturnType<typeof Event.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Event.cachedBcs) {
+      Event.cachedBcs = Event.instantiateBcs();
+    }
+    return Event.cachedBcs;
   }
 
   static fromFields<T extends Reified<TypeArgument, any>>(

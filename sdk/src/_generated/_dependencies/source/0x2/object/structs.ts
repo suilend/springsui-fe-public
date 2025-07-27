@@ -14,7 +14,6 @@ import {
   composeSuiType,
   compressSuiType,
 } from "../../../../_framework/util";
-import { PKG_V31 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64, fromHEX, toHEX } from "@mysten/sui/utils";
@@ -23,7 +22,7 @@ import { fromB64, fromHEX, toHEX } from "@mysten/sui/utils";
 
 export function isID(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::object::ID`;
+  return type === `0x2::object::ID`;
 }
 
 export interface IDFields {
@@ -35,12 +34,12 @@ export type IDReified = Reified<ID, IDFields>;
 export class ID implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::object::ID`;
+  static readonly $typeName = `0x2::object::ID`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = ID.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::object::ID`;
+  readonly $fullTypeName: `0x2::object::ID`;
   readonly $typeArgs: [];
   readonly $isPhantom = ID.$isPhantom;
 
@@ -50,27 +49,25 @@ export class ID implements StructClass {
     this.$fullTypeName = composeSuiType(
       ID.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::object::ID`;
+    ) as `0x2::object::ID`;
     this.$typeArgs = typeArgs;
 
     this.bytes = fields.bytes;
   }
 
   static reified(): IDReified {
+    const reifiedBcs = ID.bcs;
     return {
       typeName: ID.$typeName,
-      fullTypeName: composeSuiType(
-        ID.$typeName,
-        ...[],
-      ) as `${typeof PKG_V31}::object::ID`,
+      fullTypeName: composeSuiType(ID.$typeName, ...[]) as `0x2::object::ID`,
       typeArgs: [] as [],
       isPhantom: ID.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => ID.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         ID.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => ID.fromBcs(data),
-      bcs: ID.bcs,
+      fromBcs: (data: Uint8Array) => ID.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => ID.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => ID.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -96,7 +93,7 @@ export class ID implements StructClass {
     return ID.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("ID", {
       bytes: bcs
         .bytes(32)
@@ -105,6 +102,15 @@ export class ID implements StructClass {
           output: (val: Uint8Array) => toHEX(val),
         }),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof ID.instantiateBcs> | null = null;
+
+  static get bcs() {
+    if (!ID.cachedBcs) {
+      ID.cachedBcs = ID.instantiateBcs();
+    }
+    return ID.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): ID {
@@ -202,7 +208,7 @@ export class ID implements StructClass {
 
 export function isUID(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::object::UID`;
+  return type === `0x2::object::UID`;
 }
 
 export interface UIDFields {
@@ -214,12 +220,12 @@ export type UIDReified = Reified<UID, UIDFields>;
 export class UID implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::object::UID`;
+  static readonly $typeName = `0x2::object::UID`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = UID.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::object::UID`;
+  readonly $fullTypeName: `0x2::object::UID`;
   readonly $typeArgs: [];
   readonly $isPhantom = UID.$isPhantom;
 
@@ -229,27 +235,25 @@ export class UID implements StructClass {
     this.$fullTypeName = composeSuiType(
       UID.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::object::UID`;
+    ) as `0x2::object::UID`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
   }
 
   static reified(): UIDReified {
+    const reifiedBcs = UID.bcs;
     return {
       typeName: UID.$typeName,
-      fullTypeName: composeSuiType(
-        UID.$typeName,
-        ...[],
-      ) as `${typeof PKG_V31}::object::UID`,
+      fullTypeName: composeSuiType(UID.$typeName, ...[]) as `0x2::object::UID`,
       typeArgs: [] as [],
       isPhantom: UID.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => UID.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         UID.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => UID.fromBcs(data),
-      bcs: UID.bcs,
+      fromBcs: (data: Uint8Array) => UID.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => UID.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => UID.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -275,10 +279,19 @@ export class UID implements StructClass {
     return UID.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("UID", {
       id: ID.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof UID.instantiateBcs> | null = null;
+
+  static get bcs() {
+    if (!UID.cachedBcs) {
+      UID.cachedBcs = UID.instantiateBcs();
+    }
+    return UID.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): UID {

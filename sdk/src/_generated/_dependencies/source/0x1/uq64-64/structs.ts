@@ -14,7 +14,6 @@ import {
   composeSuiType,
   compressSuiType,
 } from "../../../../_framework/util";
-import { PKG_V14 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -23,7 +22,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isUQ64_64(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V14}::uq64_64::UQ64_64`;
+  return type === `0x1::uq64_64::UQ64_64`;
 }
 
 export interface UQ64_64Fields {
@@ -35,12 +34,12 @@ export type UQ64_64Reified = Reified<UQ64_64, UQ64_64Fields>;
 export class UQ64_64 implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V14}::uq64_64::UQ64_64`;
+  static readonly $typeName = `0x1::uq64_64::UQ64_64`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = UQ64_64.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V14}::uq64_64::UQ64_64`;
+  readonly $fullTypeName: `0x1::uq64_64::UQ64_64`;
   readonly $typeArgs: [];
   readonly $isPhantom = UQ64_64.$isPhantom;
 
@@ -50,27 +49,28 @@ export class UQ64_64 implements StructClass {
     this.$fullTypeName = composeSuiType(
       UQ64_64.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V14}::uq64_64::UQ64_64`;
+    ) as `0x1::uq64_64::UQ64_64`;
     this.$typeArgs = typeArgs;
 
     this.pos0 = fields.pos0;
   }
 
   static reified(): UQ64_64Reified {
+    const reifiedBcs = UQ64_64.bcs;
     return {
       typeName: UQ64_64.$typeName,
       fullTypeName: composeSuiType(
         UQ64_64.$typeName,
         ...[],
-      ) as `${typeof PKG_V14}::uq64_64::UQ64_64`,
+      ) as `0x1::uq64_64::UQ64_64`,
       typeArgs: [] as [],
       isPhantom: UQ64_64.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => UQ64_64.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         UQ64_64.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => UQ64_64.fromBcs(data),
-      bcs: UQ64_64.bcs,
+      fromBcs: (data: Uint8Array) => UQ64_64.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => UQ64_64.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => UQ64_64.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -96,10 +96,20 @@ export class UQ64_64 implements StructClass {
     return UQ64_64.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("UQ64_64", {
       pos0: bcs.u128(),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof UQ64_64.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!UQ64_64.cachedBcs) {
+      UQ64_64.cachedBcs = UQ64_64.instantiateBcs();
+    }
+    return UQ64_64.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): UQ64_64 {

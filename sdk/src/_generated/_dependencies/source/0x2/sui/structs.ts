@@ -14,7 +14,6 @@ import {
   composeSuiType,
   compressSuiType,
 } from "../../../../_framework/util";
-import { PKG_V31 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -23,7 +22,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isSUI(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::sui::SUI`;
+  return type === `0x2::sui::SUI`;
 }
 
 export interface SUIFields {
@@ -35,12 +34,12 @@ export type SUIReified = Reified<SUI, SUIFields>;
 export class SUI implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::sui::SUI`;
+  static readonly $typeName = `0x2::sui::SUI`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = SUI.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::sui::SUI`;
+  readonly $fullTypeName: `0x2::sui::SUI`;
   readonly $typeArgs: [];
   readonly $isPhantom = SUI.$isPhantom;
 
@@ -50,27 +49,25 @@ export class SUI implements StructClass {
     this.$fullTypeName = composeSuiType(
       SUI.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::sui::SUI`;
+    ) as `0x2::sui::SUI`;
     this.$typeArgs = typeArgs;
 
     this.dummyField = fields.dummyField;
   }
 
   static reified(): SUIReified {
+    const reifiedBcs = SUI.bcs;
     return {
       typeName: SUI.$typeName,
-      fullTypeName: composeSuiType(
-        SUI.$typeName,
-        ...[],
-      ) as `${typeof PKG_V31}::sui::SUI`,
+      fullTypeName: composeSuiType(SUI.$typeName, ...[]) as `0x2::sui::SUI`,
       typeArgs: [] as [],
       isPhantom: SUI.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => SUI.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         SUI.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => SUI.fromBcs(data),
-      bcs: SUI.bcs,
+      fromBcs: (data: Uint8Array) => SUI.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => SUI.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => SUI.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -96,10 +93,19 @@ export class SUI implements StructClass {
     return SUI.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("SUI", {
       dummy_field: bcs.bool(),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof SUI.instantiateBcs> | null = null;
+
+  static get bcs() {
+    if (!SUI.cachedBcs) {
+      SUI.cachedBcs = SUI.instantiateBcs();
+    }
+    return SUI.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): SUI {

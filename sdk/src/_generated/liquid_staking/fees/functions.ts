@@ -6,9 +6,162 @@ import {
   TransactionObjectInput,
 } from "@mysten/sui/transactions";
 
+export function suiMintFeeBps(tx: Transaction, fees: TransactionObjectInput) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::sui_mint_fee_bps`,
+    arguments: [obj(tx, fees)],
+  });
+}
+
+export function stakedSuiMintFeeBps(
+  tx: Transaction,
+  fees: TransactionObjectInput,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::staked_sui_mint_fee_bps`,
+    arguments: [obj(tx, fees)],
+  });
+}
+
+export function redeemFeeBps(tx: Transaction, fees: TransactionObjectInput) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::redeem_fee_bps`,
+    arguments: [obj(tx, fees)],
+  });
+}
+
+export function stakedSuiRedeemFeeBps(
+  tx: Transaction,
+  fees: TransactionObjectInput,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::staked_sui_redeem_fee_bps`,
+    arguments: [obj(tx, fees)],
+  });
+}
+
+export function spreadFeeBps(tx: Transaction, fees: TransactionObjectInput) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::spread_fee_bps`,
+    arguments: [obj(tx, fees)],
+  });
+}
+
+export function customRedeemFeeBps(
+  tx: Transaction,
+  fees: TransactionObjectInput,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::custom_redeem_fee_bps`,
+    arguments: [obj(tx, fees)],
+  });
+}
+
+export function newBuilder(tx: Transaction) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::new_builder`,
+    arguments: [],
+  });
+}
+
+export interface SetSuiMintFeeBpsArgs {
+  self: TransactionObjectInput;
+  fee: bigint | TransactionArgument;
+}
+
+export function setSuiMintFeeBps(tx: Transaction, args: SetSuiMintFeeBpsArgs) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::set_sui_mint_fee_bps`,
+    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
+  });
+}
+
+export interface SetStakedSuiMintFeeBpsArgs {
+  self: TransactionObjectInput;
+  fee: bigint | TransactionArgument;
+}
+
+export function setStakedSuiMintFeeBps(
+  tx: Transaction,
+  args: SetStakedSuiMintFeeBpsArgs,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::set_staked_sui_mint_fee_bps`,
+    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
+  });
+}
+
+export interface SetRedeemFeeBpsArgs {
+  self: TransactionObjectInput;
+  fee: bigint | TransactionArgument;
+}
+
+export function setRedeemFeeBps(tx: Transaction, args: SetRedeemFeeBpsArgs) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::set_redeem_fee_bps`,
+    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
+  });
+}
+
+export interface SetStakedSuiRedeemFeeBpsArgs {
+  self: TransactionObjectInput;
+  fee: bigint | TransactionArgument;
+}
+
+export function setStakedSuiRedeemFeeBps(
+  tx: Transaction,
+  args: SetStakedSuiRedeemFeeBpsArgs,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::set_staked_sui_redeem_fee_bps`,
+    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
+  });
+}
+
+export interface SetCustomRedeemFeeBpsArgs {
+  self: TransactionObjectInput;
+  fee: bigint | TransactionArgument;
+}
+
+export function setCustomRedeemFeeBps(
+  tx: Transaction,
+  args: SetCustomRedeemFeeBpsArgs,
+) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::set_custom_redeem_fee_bps`,
+    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
+  });
+}
+
+export interface SetSpreadFeeBpsArgs {
+  self: TransactionObjectInput;
+  fee: bigint | TransactionArgument;
+}
+
+export function setSpreadFeeBps(tx: Transaction, args: SetSpreadFeeBpsArgs) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::set_spread_fee_bps`,
+    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
+  });
+}
+
+export function toFeeConfig(tx: Transaction, builder: TransactionObjectInput) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::to_fee_config`,
+    arguments: [obj(tx, builder)],
+  });
+}
+
 export function destroy(tx: Transaction, fees: TransactionObjectInput) {
   return tx.moveCall({
     target: `${PUBLISHED_AT}::fees::destroy`,
+    arguments: [obj(tx, fees)],
+  });
+}
+
+export function validateFees(tx: Transaction, fees: TransactionObjectInput) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::fees::validate_fees`,
     arguments: [obj(tx, fees)],
   });
 }
@@ -40,155 +193,17 @@ export function calculateRedeemFee(
   });
 }
 
-export function customRedeemFeeBps(
+export interface CalculateCustomRedeemFeeArgs {
+  self: TransactionObjectInput;
+  suiAmount: bigint | TransactionArgument;
+}
+
+export function calculateCustomRedeemFee(
   tx: Transaction,
-  fees: TransactionObjectInput,
+  args: CalculateCustomRedeemFeeArgs,
 ) {
   return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::custom_redeem_fee_bps`,
-    arguments: [obj(tx, fees)],
-  });
-}
-
-export function newBuilder(tx: Transaction) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::new_builder`,
-    arguments: [],
-  });
-}
-
-export function redeemFeeBps(tx: Transaction, fees: TransactionObjectInput) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::redeem_fee_bps`,
-    arguments: [obj(tx, fees)],
-  });
-}
-
-export interface SetCustomRedeemFeeBpsArgs {
-  self: TransactionObjectInput;
-  fee: bigint | TransactionArgument;
-}
-
-export function setCustomRedeemFeeBps(
-  tx: Transaction,
-  args: SetCustomRedeemFeeBpsArgs,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::set_custom_redeem_fee_bps`,
-    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
-  });
-}
-
-export interface SetRedeemFeeBpsArgs {
-  self: TransactionObjectInput;
-  fee: bigint | TransactionArgument;
-}
-
-export function setRedeemFeeBps(tx: Transaction, args: SetRedeemFeeBpsArgs) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::set_redeem_fee_bps`,
-    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
-  });
-}
-
-export interface SetSpreadFeeBpsArgs {
-  self: TransactionObjectInput;
-  fee: bigint | TransactionArgument;
-}
-
-export function setSpreadFeeBps(tx: Transaction, args: SetSpreadFeeBpsArgs) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::set_spread_fee_bps`,
-    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
-  });
-}
-
-export interface SetStakedSuiMintFeeBpsArgs {
-  self: TransactionObjectInput;
-  fee: bigint | TransactionArgument;
-}
-
-export function setStakedSuiMintFeeBps(
-  tx: Transaction,
-  args: SetStakedSuiMintFeeBpsArgs,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::set_staked_sui_mint_fee_bps`,
-    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
-  });
-}
-
-export interface SetStakedSuiRedeemFeeBpsArgs {
-  self: TransactionObjectInput;
-  fee: bigint | TransactionArgument;
-}
-
-export function setStakedSuiRedeemFeeBps(
-  tx: Transaction,
-  args: SetStakedSuiRedeemFeeBpsArgs,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::set_staked_sui_redeem_fee_bps`,
-    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
-  });
-}
-
-export interface SetSuiMintFeeBpsArgs {
-  self: TransactionObjectInput;
-  fee: bigint | TransactionArgument;
-}
-
-export function setSuiMintFeeBps(tx: Transaction, args: SetSuiMintFeeBpsArgs) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::set_sui_mint_fee_bps`,
-    arguments: [obj(tx, args.self), pure(tx, args.fee, `u64`)],
-  });
-}
-
-export function spreadFeeBps(tx: Transaction, fees: TransactionObjectInput) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::spread_fee_bps`,
-    arguments: [obj(tx, fees)],
-  });
-}
-
-export function stakedSuiMintFeeBps(
-  tx: Transaction,
-  fees: TransactionObjectInput,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::staked_sui_mint_fee_bps`,
-    arguments: [obj(tx, fees)],
-  });
-}
-
-export function stakedSuiRedeemFeeBps(
-  tx: Transaction,
-  fees: TransactionObjectInput,
-) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::staked_sui_redeem_fee_bps`,
-    arguments: [obj(tx, fees)],
-  });
-}
-
-export function suiMintFeeBps(tx: Transaction, fees: TransactionObjectInput) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::sui_mint_fee_bps`,
-    arguments: [obj(tx, fees)],
-  });
-}
-
-export function toFeeConfig(tx: Transaction, builder: TransactionObjectInput) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::to_fee_config`,
-    arguments: [obj(tx, builder)],
-  });
-}
-
-export function validateFees(tx: Transaction, fees: TransactionObjectInput) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::fees::validate_fees`,
-    arguments: [obj(tx, fees)],
+    target: `${PUBLISHED_AT}::fees::calculate_custom_redeem_fee`,
+    arguments: [obj(tx, args.self), pure(tx, args.suiAmount, `u64`)],
   });
 }

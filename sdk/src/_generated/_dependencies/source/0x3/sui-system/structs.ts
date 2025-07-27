@@ -15,7 +15,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { UID } from "../../0x2/object/structs";
-import { PKG_V19 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -24,7 +23,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isSuiSystemState(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::sui_system::SuiSystemState`;
+  return type === `0x3::sui_system::SuiSystemState`;
 }
 
 export interface SuiSystemStateFields {
@@ -40,12 +39,12 @@ export type SuiSystemStateReified = Reified<
 export class SuiSystemState implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::sui_system::SuiSystemState`;
+  static readonly $typeName = `0x3::sui_system::SuiSystemState`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = SuiSystemState.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::sui_system::SuiSystemState`;
+  readonly $fullTypeName: `0x3::sui_system::SuiSystemState`;
   readonly $typeArgs: [];
   readonly $isPhantom = SuiSystemState.$isPhantom;
 
@@ -56,7 +55,7 @@ export class SuiSystemState implements StructClass {
     this.$fullTypeName = composeSuiType(
       SuiSystemState.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::sui_system::SuiSystemState`;
+    ) as `0x3::sui_system::SuiSystemState`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -64,12 +63,13 @@ export class SuiSystemState implements StructClass {
   }
 
   static reified(): SuiSystemStateReified {
+    const reifiedBcs = SuiSystemState.bcs;
     return {
       typeName: SuiSystemState.$typeName,
       fullTypeName: composeSuiType(
         SuiSystemState.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::sui_system::SuiSystemState`,
+      ) as `0x3::sui_system::SuiSystemState`,
       typeArgs: [] as [],
       isPhantom: SuiSystemState.$isPhantom,
       reifiedTypeArgs: [],
@@ -77,8 +77,9 @@ export class SuiSystemState implements StructClass {
         SuiSystemState.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         SuiSystemState.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => SuiSystemState.fromBcs(data),
-      bcs: SuiSystemState.bcs,
+      fromBcs: (data: Uint8Array) =>
+        SuiSystemState.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => SuiSystemState.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => SuiSystemState.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -105,11 +106,22 @@ export class SuiSystemState implements StructClass {
     return SuiSystemState.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("SuiSystemState", {
       id: UID.bcs,
       version: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof SuiSystemState.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!SuiSystemState.cachedBcs) {
+      SuiSystemState.cachedBcs = SuiSystemState.instantiateBcs();
+    }
+    return SuiSystemState.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): SuiSystemState {

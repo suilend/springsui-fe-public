@@ -14,7 +14,6 @@ import {
   composeSuiType,
   compressSuiType,
 } from "../../../../_framework/util";
-import { PKG_V14 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -23,7 +22,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isFixedPoint32(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V14}::fixed_point32::FixedPoint32`;
+  return type === `0x1::fixed_point32::FixedPoint32`;
 }
 
 export interface FixedPoint32Fields {
@@ -35,12 +34,12 @@ export type FixedPoint32Reified = Reified<FixedPoint32, FixedPoint32Fields>;
 export class FixedPoint32 implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V14}::fixed_point32::FixedPoint32`;
+  static readonly $typeName = `0x1::fixed_point32::FixedPoint32`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = FixedPoint32.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V14}::fixed_point32::FixedPoint32`;
+  readonly $fullTypeName: `0x1::fixed_point32::FixedPoint32`;
   readonly $typeArgs: [];
   readonly $isPhantom = FixedPoint32.$isPhantom;
 
@@ -50,19 +49,20 @@ export class FixedPoint32 implements StructClass {
     this.$fullTypeName = composeSuiType(
       FixedPoint32.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V14}::fixed_point32::FixedPoint32`;
+    ) as `0x1::fixed_point32::FixedPoint32`;
     this.$typeArgs = typeArgs;
 
     this.value = fields.value;
   }
 
   static reified(): FixedPoint32Reified {
+    const reifiedBcs = FixedPoint32.bcs;
     return {
       typeName: FixedPoint32.$typeName,
       fullTypeName: composeSuiType(
         FixedPoint32.$typeName,
         ...[],
-      ) as `${typeof PKG_V14}::fixed_point32::FixedPoint32`,
+      ) as `0x1::fixed_point32::FixedPoint32`,
       typeArgs: [] as [],
       isPhantom: FixedPoint32.$isPhantom,
       reifiedTypeArgs: [],
@@ -70,8 +70,9 @@ export class FixedPoint32 implements StructClass {
         FixedPoint32.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         FixedPoint32.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => FixedPoint32.fromBcs(data),
-      bcs: FixedPoint32.bcs,
+      fromBcs: (data: Uint8Array) =>
+        FixedPoint32.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => FixedPoint32.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => FixedPoint32.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -98,10 +99,21 @@ export class FixedPoint32 implements StructClass {
     return FixedPoint32.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("FixedPoint32", {
       value: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof FixedPoint32.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!FixedPoint32.cachedBcs) {
+      FixedPoint32.cachedBcs = FixedPoint32.instantiateBcs();
+    }
+    return FixedPoint32.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): FixedPoint32 {

@@ -22,7 +22,6 @@ import {
   parseTypeName,
 } from "../../../../_framework/util";
 import { Bag } from "../bag/structs";
-import { PKG_V31 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -31,7 +30,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isExtension(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::kiosk_extension::Extension`;
+  return type === `0x2::kiosk_extension::Extension`;
 }
 
 export interface ExtensionFields {
@@ -45,12 +44,12 @@ export type ExtensionReified = Reified<Extension, ExtensionFields>;
 export class Extension implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::kiosk_extension::Extension`;
+  static readonly $typeName = `0x2::kiosk_extension::Extension`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = Extension.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::kiosk_extension::Extension`;
+  readonly $fullTypeName: `0x2::kiosk_extension::Extension`;
   readonly $typeArgs: [];
   readonly $isPhantom = Extension.$isPhantom;
 
@@ -62,7 +61,7 @@ export class Extension implements StructClass {
     this.$fullTypeName = composeSuiType(
       Extension.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::kiosk_extension::Extension`;
+    ) as `0x2::kiosk_extension::Extension`;
     this.$typeArgs = typeArgs;
 
     this.storage = fields.storage;
@@ -71,20 +70,22 @@ export class Extension implements StructClass {
   }
 
   static reified(): ExtensionReified {
+    const reifiedBcs = Extension.bcs;
     return {
       typeName: Extension.$typeName,
       fullTypeName: composeSuiType(
         Extension.$typeName,
         ...[],
-      ) as `${typeof PKG_V31}::kiosk_extension::Extension`,
+      ) as `0x2::kiosk_extension::Extension`,
       typeArgs: [] as [],
       isPhantom: Extension.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => Extension.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Extension.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => Extension.fromBcs(data),
-      bcs: Extension.bcs,
+      fromBcs: (data: Uint8Array) =>
+        Extension.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Extension.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => Extension.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -111,12 +112,22 @@ export class Extension implements StructClass {
     return Extension.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Extension", {
       storage: Bag.bcs,
       permissions: bcs.u128(),
       is_enabled: bcs.bool(),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Extension.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Extension.cachedBcs) {
+      Extension.cachedBcs = Extension.instantiateBcs();
+    }
+    return Extension.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): Extension {
@@ -225,7 +236,7 @@ export class Extension implements StructClass {
 
 export function isExtensionKey(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::kiosk_extension::ExtensionKey` + "<");
+  return type.startsWith(`0x2::kiosk_extension::ExtensionKey` + "<");
 }
 
 export interface ExtensionKeyFields<Ext extends PhantomTypeArgument> {
@@ -242,12 +253,12 @@ export class ExtensionKey<Ext extends PhantomTypeArgument>
 {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::kiosk_extension::ExtensionKey`;
+  static readonly $typeName = `0x2::kiosk_extension::ExtensionKey`;
   static readonly $numTypeParams = 1;
   static readonly $isPhantom = [true] as const;
 
   readonly $typeName = ExtensionKey.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::kiosk_extension::ExtensionKey<${PhantomToTypeStr<Ext>}>`;
+  readonly $fullTypeName: `0x2::kiosk_extension::ExtensionKey<${PhantomToTypeStr<Ext>}>`;
   readonly $typeArgs: [PhantomToTypeStr<Ext>];
   readonly $isPhantom = ExtensionKey.$isPhantom;
 
@@ -260,7 +271,7 @@ export class ExtensionKey<Ext extends PhantomTypeArgument>
     this.$fullTypeName = composeSuiType(
       ExtensionKey.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::kiosk_extension::ExtensionKey<${PhantomToTypeStr<Ext>}>`;
+    ) as `0x2::kiosk_extension::ExtensionKey<${PhantomToTypeStr<Ext>}>`;
     this.$typeArgs = typeArgs;
 
     this.dummyField = fields.dummyField;
@@ -269,12 +280,13 @@ export class ExtensionKey<Ext extends PhantomTypeArgument>
   static reified<Ext extends PhantomReified<PhantomTypeArgument>>(
     Ext: Ext,
   ): ExtensionKeyReified<ToPhantomTypeArgument<Ext>> {
+    const reifiedBcs = ExtensionKey.bcs;
     return {
       typeName: ExtensionKey.$typeName,
       fullTypeName: composeSuiType(
         ExtensionKey.$typeName,
         ...[extractType(Ext)],
-      ) as `${typeof PKG_V31}::kiosk_extension::ExtensionKey<${PhantomToTypeStr<ToPhantomTypeArgument<Ext>>}>`,
+      ) as `0x2::kiosk_extension::ExtensionKey<${PhantomToTypeStr<ToPhantomTypeArgument<Ext>>}>`,
       typeArgs: [extractType(Ext)] as [
         PhantomToTypeStr<ToPhantomTypeArgument<Ext>>,
       ],
@@ -284,8 +296,9 @@ export class ExtensionKey<Ext extends PhantomTypeArgument>
         ExtensionKey.fromFields(Ext, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         ExtensionKey.fromFieldsWithTypes(Ext, item),
-      fromBcs: (data: Uint8Array) => ExtensionKey.fromBcs(Ext, data),
-      bcs: ExtensionKey.bcs,
+      fromBcs: (data: Uint8Array) =>
+        ExtensionKey.fromFields(Ext, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => ExtensionKey.fromJSONField(Ext, field),
       fromJSON: (json: Record<string, any>) => ExtensionKey.fromJSON(Ext, json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -314,10 +327,21 @@ export class ExtensionKey<Ext extends PhantomTypeArgument>
     return ExtensionKey.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("ExtensionKey", {
       dummy_field: bcs.bool(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof ExtensionKey.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!ExtensionKey.cachedBcs) {
+      ExtensionKey.cachedBcs = ExtensionKey.instantiateBcs();
+    }
+    return ExtensionKey.cachedBcs;
   }
 
   static fromFields<Ext extends PhantomReified<PhantomTypeArgument>>(
