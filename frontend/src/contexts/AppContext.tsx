@@ -265,6 +265,7 @@ export function AppContextProvider({ children }: PropsWithChildren) {
     <AppContext.Provider value={contextValue}>
       <LedgerHashDialog
         isOpen={isLedgerHashDialogOpen}
+        onClose={closeLedgerHashDialog}
         ledgerHash={ledgerHash ?? ""}
       />
 

@@ -2,19 +2,25 @@ import Dialog from "@/components/Dialog";
 
 interface LedgerHashDialogProps {
   isOpen: boolean;
+  onClose: () => void;
   ledgerHash: string;
 }
 
 export default function LedgerHashDialog({
   isOpen,
+  onClose,
   ledgerHash,
 }: LedgerHashDialogProps) {
   return (
     <Dialog
-      rootProps={{ open: isOpen, onOpenChange: () => {} }}
+      rootProps={{
+        open: isOpen,
+        onOpenChange: (isOpen) => {
+          if (!isOpen) onClose();
+        },
+      }}
       headerProps={{
         title: <>Verify Ledger Hash</>,
-        showCloseButton: false,
       }}
       dialogContentOuterClassName="max-w-sm"
     >
