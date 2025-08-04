@@ -21,7 +21,6 @@ import { Balance } from "../../0x2/balance/structs";
 import { SUI } from "../../0x2/sui/structs";
 import { VecMap } from "../../0x2/vec-map/structs";
 import { VecSet } from "../../0x2/vec-set/structs";
-import { PKG_V19 } from "../index";
 import { StakeSubsidy } from "../stake-subsidy/structs";
 import { StorageFund } from "../storage-fund/structs";
 import { ValidatorSet } from "../validator-set/structs";
@@ -29,11 +28,646 @@ import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64, fromHEX, toHEX } from "@mysten/sui/utils";
 
+/* ============================== SystemParameters =============================== */
+
+export function isSystemParameters(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `0x3::sui_system_state_inner::SystemParameters`;
+}
+
+export interface SystemParametersFields {
+  epochDurationMs: ToField<"u64">;
+  stakeSubsidyStartEpoch: ToField<"u64">;
+  maxValidatorCount: ToField<"u64">;
+  minValidatorJoiningStake: ToField<"u64">;
+  validatorLowStakeThreshold: ToField<"u64">;
+  validatorVeryLowStakeThreshold: ToField<"u64">;
+  validatorLowStakeGracePeriod: ToField<"u64">;
+  extraFields: ToField<Bag>;
+}
+
+export type SystemParametersReified = Reified<
+  SystemParameters,
+  SystemParametersFields
+>;
+
+export class SystemParameters implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `0x3::sui_system_state_inner::SystemParameters`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = SystemParameters.$typeName;
+  readonly $fullTypeName: `0x3::sui_system_state_inner::SystemParameters`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = SystemParameters.$isPhantom;
+
+  readonly epochDurationMs: ToField<"u64">;
+  readonly stakeSubsidyStartEpoch: ToField<"u64">;
+  readonly maxValidatorCount: ToField<"u64">;
+  readonly minValidatorJoiningStake: ToField<"u64">;
+  readonly validatorLowStakeThreshold: ToField<"u64">;
+  readonly validatorVeryLowStakeThreshold: ToField<"u64">;
+  readonly validatorLowStakeGracePeriod: ToField<"u64">;
+  readonly extraFields: ToField<Bag>;
+
+  private constructor(typeArgs: [], fields: SystemParametersFields) {
+    this.$fullTypeName = composeSuiType(
+      SystemParameters.$typeName,
+      ...typeArgs,
+    ) as `0x3::sui_system_state_inner::SystemParameters`;
+    this.$typeArgs = typeArgs;
+
+    this.epochDurationMs = fields.epochDurationMs;
+    this.stakeSubsidyStartEpoch = fields.stakeSubsidyStartEpoch;
+    this.maxValidatorCount = fields.maxValidatorCount;
+    this.minValidatorJoiningStake = fields.minValidatorJoiningStake;
+    this.validatorLowStakeThreshold = fields.validatorLowStakeThreshold;
+    this.validatorVeryLowStakeThreshold = fields.validatorVeryLowStakeThreshold;
+    this.validatorLowStakeGracePeriod = fields.validatorLowStakeGracePeriod;
+    this.extraFields = fields.extraFields;
+  }
+
+  static reified(): SystemParametersReified {
+    const reifiedBcs = SystemParameters.bcs;
+    return {
+      typeName: SystemParameters.$typeName,
+      fullTypeName: composeSuiType(
+        SystemParameters.$typeName,
+        ...[],
+      ) as `0x3::sui_system_state_inner::SystemParameters`,
+      typeArgs: [] as [],
+      isPhantom: SystemParameters.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        SystemParameters.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        SystemParameters.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        SystemParameters.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => SystemParameters.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) => SystemParameters.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        SystemParameters.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        SystemParameters.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        SystemParameters.fetch(client, id),
+      new: (fields: SystemParametersFields) => {
+        return new SystemParameters([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return SystemParameters.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<SystemParameters>> {
+    return phantom(SystemParameters.reified());
+  }
+  static get p() {
+    return SystemParameters.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("SystemParameters", {
+      epoch_duration_ms: bcs.u64(),
+      stake_subsidy_start_epoch: bcs.u64(),
+      max_validator_count: bcs.u64(),
+      min_validator_joining_stake: bcs.u64(),
+      validator_low_stake_threshold: bcs.u64(),
+      validator_very_low_stake_threshold: bcs.u64(),
+      validator_low_stake_grace_period: bcs.u64(),
+      extra_fields: Bag.bcs,
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof SystemParameters.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!SystemParameters.cachedBcs) {
+      SystemParameters.cachedBcs = SystemParameters.instantiateBcs();
+    }
+    return SystemParameters.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): SystemParameters {
+    return SystemParameters.reified().new({
+      epochDurationMs: decodeFromFields("u64", fields.epoch_duration_ms),
+      stakeSubsidyStartEpoch: decodeFromFields(
+        "u64",
+        fields.stake_subsidy_start_epoch,
+      ),
+      maxValidatorCount: decodeFromFields("u64", fields.max_validator_count),
+      minValidatorJoiningStake: decodeFromFields(
+        "u64",
+        fields.min_validator_joining_stake,
+      ),
+      validatorLowStakeThreshold: decodeFromFields(
+        "u64",
+        fields.validator_low_stake_threshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromFields(
+        "u64",
+        fields.validator_very_low_stake_threshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromFields(
+        "u64",
+        fields.validator_low_stake_grace_period,
+      ),
+      extraFields: decodeFromFields(Bag.reified(), fields.extra_fields),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): SystemParameters {
+    if (!isSystemParameters(item.type)) {
+      throw new Error("not a SystemParameters type");
+    }
+
+    return SystemParameters.reified().new({
+      epochDurationMs: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.epoch_duration_ms,
+      ),
+      stakeSubsidyStartEpoch: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.stake_subsidy_start_epoch,
+      ),
+      maxValidatorCount: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.max_validator_count,
+      ),
+      minValidatorJoiningStake: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.min_validator_joining_stake,
+      ),
+      validatorLowStakeThreshold: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_low_stake_threshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_very_low_stake_threshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_low_stake_grace_period,
+      ),
+      extraFields: decodeFromFieldsWithTypes(
+        Bag.reified(),
+        item.fields.extra_fields,
+      ),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): SystemParameters {
+    return SystemParameters.fromFields(SystemParameters.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      epochDurationMs: this.epochDurationMs.toString(),
+      stakeSubsidyStartEpoch: this.stakeSubsidyStartEpoch.toString(),
+      maxValidatorCount: this.maxValidatorCount.toString(),
+      minValidatorJoiningStake: this.minValidatorJoiningStake.toString(),
+      validatorLowStakeThreshold: this.validatorLowStakeThreshold.toString(),
+      validatorVeryLowStakeThreshold:
+        this.validatorVeryLowStakeThreshold.toString(),
+      validatorLowStakeGracePeriod:
+        this.validatorLowStakeGracePeriod.toString(),
+      extraFields: this.extraFields.toJSONField(),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): SystemParameters {
+    return SystemParameters.reified().new({
+      epochDurationMs: decodeFromJSONField("u64", field.epochDurationMs),
+      stakeSubsidyStartEpoch: decodeFromJSONField(
+        "u64",
+        field.stakeSubsidyStartEpoch,
+      ),
+      maxValidatorCount: decodeFromJSONField("u64", field.maxValidatorCount),
+      minValidatorJoiningStake: decodeFromJSONField(
+        "u64",
+        field.minValidatorJoiningStake,
+      ),
+      validatorLowStakeThreshold: decodeFromJSONField(
+        "u64",
+        field.validatorLowStakeThreshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromJSONField(
+        "u64",
+        field.validatorVeryLowStakeThreshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromJSONField(
+        "u64",
+        field.validatorLowStakeGracePeriod,
+      ),
+      extraFields: decodeFromJSONField(Bag.reified(), field.extraFields),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): SystemParameters {
+    if (json.$typeName !== SystemParameters.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return SystemParameters.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): SystemParameters {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isSystemParameters(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a SystemParameters object`,
+      );
+    }
+    return SystemParameters.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): SystemParameters {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isSystemParameters(data.bcs.type)
+      ) {
+        throw new Error(`object at is not a SystemParameters object`);
+      }
+
+      return SystemParameters.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return SystemParameters.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(client: SuiClient, id: string): Promise<SystemParameters> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching SystemParameters object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isSystemParameters(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a SystemParameters object`);
+    }
+
+    return SystemParameters.fromSuiObjectData(res.data);
+  }
+}
+
+/* ============================== SystemParametersV2 =============================== */
+
+export function isSystemParametersV2(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `0x3::sui_system_state_inner::SystemParametersV2`;
+}
+
+export interface SystemParametersV2Fields {
+  epochDurationMs: ToField<"u64">;
+  stakeSubsidyStartEpoch: ToField<"u64">;
+  minValidatorCount: ToField<"u64">;
+  maxValidatorCount: ToField<"u64">;
+  minValidatorJoiningStake: ToField<"u64">;
+  validatorLowStakeThreshold: ToField<"u64">;
+  validatorVeryLowStakeThreshold: ToField<"u64">;
+  validatorLowStakeGracePeriod: ToField<"u64">;
+  extraFields: ToField<Bag>;
+}
+
+export type SystemParametersV2Reified = Reified<
+  SystemParametersV2,
+  SystemParametersV2Fields
+>;
+
+export class SystemParametersV2 implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `0x3::sui_system_state_inner::SystemParametersV2`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = SystemParametersV2.$typeName;
+  readonly $fullTypeName: `0x3::sui_system_state_inner::SystemParametersV2`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = SystemParametersV2.$isPhantom;
+
+  readonly epochDurationMs: ToField<"u64">;
+  readonly stakeSubsidyStartEpoch: ToField<"u64">;
+  readonly minValidatorCount: ToField<"u64">;
+  readonly maxValidatorCount: ToField<"u64">;
+  readonly minValidatorJoiningStake: ToField<"u64">;
+  readonly validatorLowStakeThreshold: ToField<"u64">;
+  readonly validatorVeryLowStakeThreshold: ToField<"u64">;
+  readonly validatorLowStakeGracePeriod: ToField<"u64">;
+  readonly extraFields: ToField<Bag>;
+
+  private constructor(typeArgs: [], fields: SystemParametersV2Fields) {
+    this.$fullTypeName = composeSuiType(
+      SystemParametersV2.$typeName,
+      ...typeArgs,
+    ) as `0x3::sui_system_state_inner::SystemParametersV2`;
+    this.$typeArgs = typeArgs;
+
+    this.epochDurationMs = fields.epochDurationMs;
+    this.stakeSubsidyStartEpoch = fields.stakeSubsidyStartEpoch;
+    this.minValidatorCount = fields.minValidatorCount;
+    this.maxValidatorCount = fields.maxValidatorCount;
+    this.minValidatorJoiningStake = fields.minValidatorJoiningStake;
+    this.validatorLowStakeThreshold = fields.validatorLowStakeThreshold;
+    this.validatorVeryLowStakeThreshold = fields.validatorVeryLowStakeThreshold;
+    this.validatorLowStakeGracePeriod = fields.validatorLowStakeGracePeriod;
+    this.extraFields = fields.extraFields;
+  }
+
+  static reified(): SystemParametersV2Reified {
+    const reifiedBcs = SystemParametersV2.bcs;
+    return {
+      typeName: SystemParametersV2.$typeName,
+      fullTypeName: composeSuiType(
+        SystemParametersV2.$typeName,
+        ...[],
+      ) as `0x3::sui_system_state_inner::SystemParametersV2`,
+      typeArgs: [] as [],
+      isPhantom: SystemParametersV2.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        SystemParametersV2.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        SystemParametersV2.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        SystemParametersV2.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => SystemParametersV2.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) =>
+        SystemParametersV2.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        SystemParametersV2.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        SystemParametersV2.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        SystemParametersV2.fetch(client, id),
+      new: (fields: SystemParametersV2Fields) => {
+        return new SystemParametersV2([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return SystemParametersV2.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<SystemParametersV2>> {
+    return phantom(SystemParametersV2.reified());
+  }
+  static get p() {
+    return SystemParametersV2.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("SystemParametersV2", {
+      epoch_duration_ms: bcs.u64(),
+      stake_subsidy_start_epoch: bcs.u64(),
+      min_validator_count: bcs.u64(),
+      max_validator_count: bcs.u64(),
+      min_validator_joining_stake: bcs.u64(),
+      validator_low_stake_threshold: bcs.u64(),
+      validator_very_low_stake_threshold: bcs.u64(),
+      validator_low_stake_grace_period: bcs.u64(),
+      extra_fields: Bag.bcs,
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof SystemParametersV2.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!SystemParametersV2.cachedBcs) {
+      SystemParametersV2.cachedBcs = SystemParametersV2.instantiateBcs();
+    }
+    return SystemParametersV2.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): SystemParametersV2 {
+    return SystemParametersV2.reified().new({
+      epochDurationMs: decodeFromFields("u64", fields.epoch_duration_ms),
+      stakeSubsidyStartEpoch: decodeFromFields(
+        "u64",
+        fields.stake_subsidy_start_epoch,
+      ),
+      minValidatorCount: decodeFromFields("u64", fields.min_validator_count),
+      maxValidatorCount: decodeFromFields("u64", fields.max_validator_count),
+      minValidatorJoiningStake: decodeFromFields(
+        "u64",
+        fields.min_validator_joining_stake,
+      ),
+      validatorLowStakeThreshold: decodeFromFields(
+        "u64",
+        fields.validator_low_stake_threshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromFields(
+        "u64",
+        fields.validator_very_low_stake_threshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromFields(
+        "u64",
+        fields.validator_low_stake_grace_period,
+      ),
+      extraFields: decodeFromFields(Bag.reified(), fields.extra_fields),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): SystemParametersV2 {
+    if (!isSystemParametersV2(item.type)) {
+      throw new Error("not a SystemParametersV2 type");
+    }
+
+    return SystemParametersV2.reified().new({
+      epochDurationMs: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.epoch_duration_ms,
+      ),
+      stakeSubsidyStartEpoch: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.stake_subsidy_start_epoch,
+      ),
+      minValidatorCount: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.min_validator_count,
+      ),
+      maxValidatorCount: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.max_validator_count,
+      ),
+      minValidatorJoiningStake: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.min_validator_joining_stake,
+      ),
+      validatorLowStakeThreshold: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_low_stake_threshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_very_low_stake_threshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.validator_low_stake_grace_period,
+      ),
+      extraFields: decodeFromFieldsWithTypes(
+        Bag.reified(),
+        item.fields.extra_fields,
+      ),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): SystemParametersV2 {
+    return SystemParametersV2.fromFields(SystemParametersV2.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      epochDurationMs: this.epochDurationMs.toString(),
+      stakeSubsidyStartEpoch: this.stakeSubsidyStartEpoch.toString(),
+      minValidatorCount: this.minValidatorCount.toString(),
+      maxValidatorCount: this.maxValidatorCount.toString(),
+      minValidatorJoiningStake: this.minValidatorJoiningStake.toString(),
+      validatorLowStakeThreshold: this.validatorLowStakeThreshold.toString(),
+      validatorVeryLowStakeThreshold:
+        this.validatorVeryLowStakeThreshold.toString(),
+      validatorLowStakeGracePeriod:
+        this.validatorLowStakeGracePeriod.toString(),
+      extraFields: this.extraFields.toJSONField(),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): SystemParametersV2 {
+    return SystemParametersV2.reified().new({
+      epochDurationMs: decodeFromJSONField("u64", field.epochDurationMs),
+      stakeSubsidyStartEpoch: decodeFromJSONField(
+        "u64",
+        field.stakeSubsidyStartEpoch,
+      ),
+      minValidatorCount: decodeFromJSONField("u64", field.minValidatorCount),
+      maxValidatorCount: decodeFromJSONField("u64", field.maxValidatorCount),
+      minValidatorJoiningStake: decodeFromJSONField(
+        "u64",
+        field.minValidatorJoiningStake,
+      ),
+      validatorLowStakeThreshold: decodeFromJSONField(
+        "u64",
+        field.validatorLowStakeThreshold,
+      ),
+      validatorVeryLowStakeThreshold: decodeFromJSONField(
+        "u64",
+        field.validatorVeryLowStakeThreshold,
+      ),
+      validatorLowStakeGracePeriod: decodeFromJSONField(
+        "u64",
+        field.validatorLowStakeGracePeriod,
+      ),
+      extraFields: decodeFromJSONField(Bag.reified(), field.extraFields),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): SystemParametersV2 {
+    if (json.$typeName !== SystemParametersV2.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return SystemParametersV2.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): SystemParametersV2 {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isSystemParametersV2(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a SystemParametersV2 object`,
+      );
+    }
+    return SystemParametersV2.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): SystemParametersV2 {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isSystemParametersV2(data.bcs.type)
+      ) {
+        throw new Error(`object at is not a SystemParametersV2 object`);
+      }
+
+      return SystemParametersV2.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return SystemParametersV2.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(
+    client: SuiClient,
+    id: string,
+  ): Promise<SystemParametersV2> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching SystemParametersV2 object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isSystemParametersV2(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a SystemParametersV2 object`);
+    }
+
+    return SystemParametersV2.fromSuiObjectData(res.data);
+  }
+}
+
 /* ============================== SuiSystemStateInner =============================== */
 
 export function isSuiSystemStateInner(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::sui_system_state_inner::SuiSystemStateInner`;
+  return type === `0x3::sui_system_state_inner::SuiSystemStateInner`;
 }
 
 export interface SuiSystemStateInnerFields {
@@ -63,12 +697,12 @@ export type SuiSystemStateInnerReified = Reified<
 export class SuiSystemStateInner implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::sui_system_state_inner::SuiSystemStateInner`;
+  static readonly $typeName = `0x3::sui_system_state_inner::SuiSystemStateInner`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = SuiSystemStateInner.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::sui_system_state_inner::SuiSystemStateInner`;
+  readonly $fullTypeName: `0x3::sui_system_state_inner::SuiSystemStateInner`;
   readonly $typeArgs: [];
   readonly $isPhantom = SuiSystemStateInner.$isPhantom;
 
@@ -95,7 +729,7 @@ export class SuiSystemStateInner implements StructClass {
     this.$fullTypeName = composeSuiType(
       SuiSystemStateInner.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::sui_system_state_inner::SuiSystemStateInner`;
+    ) as `0x3::sui_system_state_inner::SuiSystemStateInner`;
     this.$typeArgs = typeArgs;
 
     this.epoch = fields.epoch;
@@ -118,12 +752,13 @@ export class SuiSystemStateInner implements StructClass {
   }
 
   static reified(): SuiSystemStateInnerReified {
+    const reifiedBcs = SuiSystemStateInner.bcs;
     return {
       typeName: SuiSystemStateInner.$typeName,
       fullTypeName: composeSuiType(
         SuiSystemStateInner.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::sui_system_state_inner::SuiSystemStateInner`,
+      ) as `0x3::sui_system_state_inner::SuiSystemStateInner`,
       typeArgs: [] as [],
       isPhantom: SuiSystemStateInner.$isPhantom,
       reifiedTypeArgs: [],
@@ -131,8 +766,9 @@ export class SuiSystemStateInner implements StructClass {
         SuiSystemStateInner.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         SuiSystemStateInner.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => SuiSystemStateInner.fromBcs(data),
-      bcs: SuiSystemStateInner.bcs,
+      fromBcs: (data: Uint8Array) =>
+        SuiSystemStateInner.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => SuiSystemStateInner.fromJSONField(field),
       fromJSON: (json: Record<string, any>) =>
         SuiSystemStateInner.fromJSON(json),
@@ -160,7 +796,7 @@ export class SuiSystemStateInner implements StructClass {
     return SuiSystemStateInner.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("SuiSystemStateInner", {
       epoch: bcs.u64(),
       protocol_version: bcs.u64(),
@@ -194,6 +830,17 @@ export class SuiSystemStateInner implements StructClass {
       epoch_start_timestamp_ms: bcs.u64(),
       extra_fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof SuiSystemStateInner.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!SuiSystemStateInner.cachedBcs) {
+      SuiSystemStateInner.cachedBcs = SuiSystemStateInner.instantiateBcs();
+    }
+    return SuiSystemStateInner.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): SuiSystemStateInner {
@@ -454,7 +1101,7 @@ export class SuiSystemStateInner implements StructClass {
 
 export function isSuiSystemStateInnerV2(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::sui_system_state_inner::SuiSystemStateInnerV2`;
+  return type === `0x3::sui_system_state_inner::SuiSystemStateInnerV2`;
 }
 
 export interface SuiSystemStateInnerV2Fields {
@@ -484,12 +1131,12 @@ export type SuiSystemStateInnerV2Reified = Reified<
 export class SuiSystemStateInnerV2 implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::sui_system_state_inner::SuiSystemStateInnerV2`;
+  static readonly $typeName = `0x3::sui_system_state_inner::SuiSystemStateInnerV2`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = SuiSystemStateInnerV2.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::sui_system_state_inner::SuiSystemStateInnerV2`;
+  readonly $fullTypeName: `0x3::sui_system_state_inner::SuiSystemStateInnerV2`;
   readonly $typeArgs: [];
   readonly $isPhantom = SuiSystemStateInnerV2.$isPhantom;
 
@@ -516,7 +1163,7 @@ export class SuiSystemStateInnerV2 implements StructClass {
     this.$fullTypeName = composeSuiType(
       SuiSystemStateInnerV2.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::sui_system_state_inner::SuiSystemStateInnerV2`;
+    ) as `0x3::sui_system_state_inner::SuiSystemStateInnerV2`;
     this.$typeArgs = typeArgs;
 
     this.epoch = fields.epoch;
@@ -539,12 +1186,13 @@ export class SuiSystemStateInnerV2 implements StructClass {
   }
 
   static reified(): SuiSystemStateInnerV2Reified {
+    const reifiedBcs = SuiSystemStateInnerV2.bcs;
     return {
       typeName: SuiSystemStateInnerV2.$typeName,
       fullTypeName: composeSuiType(
         SuiSystemStateInnerV2.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::sui_system_state_inner::SuiSystemStateInnerV2`,
+      ) as `0x3::sui_system_state_inner::SuiSystemStateInnerV2`,
       typeArgs: [] as [],
       isPhantom: SuiSystemStateInnerV2.$isPhantom,
       reifiedTypeArgs: [],
@@ -552,8 +1200,9 @@ export class SuiSystemStateInnerV2 implements StructClass {
         SuiSystemStateInnerV2.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         SuiSystemStateInnerV2.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => SuiSystemStateInnerV2.fromBcs(data),
-      bcs: SuiSystemStateInnerV2.bcs,
+      fromBcs: (data: Uint8Array) =>
+        SuiSystemStateInnerV2.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => SuiSystemStateInnerV2.fromJSONField(field),
       fromJSON: (json: Record<string, any>) =>
         SuiSystemStateInnerV2.fromJSON(json),
@@ -581,7 +1230,7 @@ export class SuiSystemStateInnerV2 implements StructClass {
     return SuiSystemStateInnerV2.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("SuiSystemStateInnerV2", {
       epoch: bcs.u64(),
       protocol_version: bcs.u64(),
@@ -615,6 +1264,17 @@ export class SuiSystemStateInnerV2 implements StructClass {
       epoch_start_timestamp_ms: bcs.u64(),
       extra_fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof SuiSystemStateInnerV2.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!SuiSystemStateInnerV2.cachedBcs) {
+      SuiSystemStateInnerV2.cachedBcs = SuiSystemStateInnerV2.instantiateBcs();
+    }
+    return SuiSystemStateInnerV2.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): SuiSystemStateInnerV2 {
@@ -879,7 +1539,7 @@ export class SuiSystemStateInnerV2 implements StructClass {
 
 export function isSystemEpochInfoEvent(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::sui_system_state_inner::SystemEpochInfoEvent`;
+  return type === `0x3::sui_system_state_inner::SystemEpochInfoEvent`;
 }
 
 export interface SystemEpochInfoEventFields {
@@ -905,12 +1565,12 @@ export type SystemEpochInfoEventReified = Reified<
 export class SystemEpochInfoEvent implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::sui_system_state_inner::SystemEpochInfoEvent`;
+  static readonly $typeName = `0x3::sui_system_state_inner::SystemEpochInfoEvent`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = SystemEpochInfoEvent.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::sui_system_state_inner::SystemEpochInfoEvent`;
+  readonly $fullTypeName: `0x3::sui_system_state_inner::SystemEpochInfoEvent`;
   readonly $typeArgs: [];
   readonly $isPhantom = SystemEpochInfoEvent.$isPhantom;
 
@@ -931,7 +1591,7 @@ export class SystemEpochInfoEvent implements StructClass {
     this.$fullTypeName = composeSuiType(
       SystemEpochInfoEvent.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::sui_system_state_inner::SystemEpochInfoEvent`;
+    ) as `0x3::sui_system_state_inner::SystemEpochInfoEvent`;
     this.$typeArgs = typeArgs;
 
     this.epoch = fields.epoch;
@@ -949,12 +1609,13 @@ export class SystemEpochInfoEvent implements StructClass {
   }
 
   static reified(): SystemEpochInfoEventReified {
+    const reifiedBcs = SystemEpochInfoEvent.bcs;
     return {
       typeName: SystemEpochInfoEvent.$typeName,
       fullTypeName: composeSuiType(
         SystemEpochInfoEvent.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::sui_system_state_inner::SystemEpochInfoEvent`,
+      ) as `0x3::sui_system_state_inner::SystemEpochInfoEvent`,
       typeArgs: [] as [],
       isPhantom: SystemEpochInfoEvent.$isPhantom,
       reifiedTypeArgs: [],
@@ -962,8 +1623,9 @@ export class SystemEpochInfoEvent implements StructClass {
         SystemEpochInfoEvent.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         SystemEpochInfoEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => SystemEpochInfoEvent.fromBcs(data),
-      bcs: SystemEpochInfoEvent.bcs,
+      fromBcs: (data: Uint8Array) =>
+        SystemEpochInfoEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => SystemEpochInfoEvent.fromJSONField(field),
       fromJSON: (json: Record<string, any>) =>
         SystemEpochInfoEvent.fromJSON(json),
@@ -991,7 +1653,7 @@ export class SystemEpochInfoEvent implements StructClass {
     return SystemEpochInfoEvent.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("SystemEpochInfoEvent", {
       epoch: bcs.u64(),
       protocol_version: bcs.u64(),
@@ -1006,6 +1668,17 @@ export class SystemEpochInfoEvent implements StructClass {
       total_stake_rewards_distributed: bcs.u64(),
       leftover_storage_fund_inflow: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof SystemEpochInfoEvent.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!SystemEpochInfoEvent.cachedBcs) {
+      SystemEpochInfoEvent.cachedBcs = SystemEpochInfoEvent.instantiateBcs();
+    }
+    return SystemEpochInfoEvent.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): SystemEpochInfoEvent {
@@ -1202,614 +1875,5 @@ export class SystemEpochInfoEvent implements StructClass {
     }
 
     return SystemEpochInfoEvent.fromSuiObjectData(res.data);
-  }
-}
-
-/* ============================== SystemParameters =============================== */
-
-export function isSystemParameters(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V19}::sui_system_state_inner::SystemParameters`;
-}
-
-export interface SystemParametersFields {
-  epochDurationMs: ToField<"u64">;
-  stakeSubsidyStartEpoch: ToField<"u64">;
-  maxValidatorCount: ToField<"u64">;
-  minValidatorJoiningStake: ToField<"u64">;
-  validatorLowStakeThreshold: ToField<"u64">;
-  validatorVeryLowStakeThreshold: ToField<"u64">;
-  validatorLowStakeGracePeriod: ToField<"u64">;
-  extraFields: ToField<Bag>;
-}
-
-export type SystemParametersReified = Reified<
-  SystemParameters,
-  SystemParametersFields
->;
-
-export class SystemParameters implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V19}::sui_system_state_inner::SystemParameters`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = SystemParameters.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::sui_system_state_inner::SystemParameters`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = SystemParameters.$isPhantom;
-
-  readonly epochDurationMs: ToField<"u64">;
-  readonly stakeSubsidyStartEpoch: ToField<"u64">;
-  readonly maxValidatorCount: ToField<"u64">;
-  readonly minValidatorJoiningStake: ToField<"u64">;
-  readonly validatorLowStakeThreshold: ToField<"u64">;
-  readonly validatorVeryLowStakeThreshold: ToField<"u64">;
-  readonly validatorLowStakeGracePeriod: ToField<"u64">;
-  readonly extraFields: ToField<Bag>;
-
-  private constructor(typeArgs: [], fields: SystemParametersFields) {
-    this.$fullTypeName = composeSuiType(
-      SystemParameters.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V19}::sui_system_state_inner::SystemParameters`;
-    this.$typeArgs = typeArgs;
-
-    this.epochDurationMs = fields.epochDurationMs;
-    this.stakeSubsidyStartEpoch = fields.stakeSubsidyStartEpoch;
-    this.maxValidatorCount = fields.maxValidatorCount;
-    this.minValidatorJoiningStake = fields.minValidatorJoiningStake;
-    this.validatorLowStakeThreshold = fields.validatorLowStakeThreshold;
-    this.validatorVeryLowStakeThreshold = fields.validatorVeryLowStakeThreshold;
-    this.validatorLowStakeGracePeriod = fields.validatorLowStakeGracePeriod;
-    this.extraFields = fields.extraFields;
-  }
-
-  static reified(): SystemParametersReified {
-    return {
-      typeName: SystemParameters.$typeName,
-      fullTypeName: composeSuiType(
-        SystemParameters.$typeName,
-        ...[],
-      ) as `${typeof PKG_V19}::sui_system_state_inner::SystemParameters`,
-      typeArgs: [] as [],
-      isPhantom: SystemParameters.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        SystemParameters.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        SystemParameters.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => SystemParameters.fromBcs(data),
-      bcs: SystemParameters.bcs,
-      fromJSONField: (field: any) => SystemParameters.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) => SystemParameters.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        SystemParameters.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        SystemParameters.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        SystemParameters.fetch(client, id),
-      new: (fields: SystemParametersFields) => {
-        return new SystemParameters([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return SystemParameters.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<SystemParameters>> {
-    return phantom(SystemParameters.reified());
-  }
-  static get p() {
-    return SystemParameters.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("SystemParameters", {
-      epoch_duration_ms: bcs.u64(),
-      stake_subsidy_start_epoch: bcs.u64(),
-      max_validator_count: bcs.u64(),
-      min_validator_joining_stake: bcs.u64(),
-      validator_low_stake_threshold: bcs.u64(),
-      validator_very_low_stake_threshold: bcs.u64(),
-      validator_low_stake_grace_period: bcs.u64(),
-      extra_fields: Bag.bcs,
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): SystemParameters {
-    return SystemParameters.reified().new({
-      epochDurationMs: decodeFromFields("u64", fields.epoch_duration_ms),
-      stakeSubsidyStartEpoch: decodeFromFields(
-        "u64",
-        fields.stake_subsidy_start_epoch,
-      ),
-      maxValidatorCount: decodeFromFields("u64", fields.max_validator_count),
-      minValidatorJoiningStake: decodeFromFields(
-        "u64",
-        fields.min_validator_joining_stake,
-      ),
-      validatorLowStakeThreshold: decodeFromFields(
-        "u64",
-        fields.validator_low_stake_threshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromFields(
-        "u64",
-        fields.validator_very_low_stake_threshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromFields(
-        "u64",
-        fields.validator_low_stake_grace_period,
-      ),
-      extraFields: decodeFromFields(Bag.reified(), fields.extra_fields),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): SystemParameters {
-    if (!isSystemParameters(item.type)) {
-      throw new Error("not a SystemParameters type");
-    }
-
-    return SystemParameters.reified().new({
-      epochDurationMs: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.epoch_duration_ms,
-      ),
-      stakeSubsidyStartEpoch: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.stake_subsidy_start_epoch,
-      ),
-      maxValidatorCount: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.max_validator_count,
-      ),
-      minValidatorJoiningStake: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.min_validator_joining_stake,
-      ),
-      validatorLowStakeThreshold: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_low_stake_threshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_very_low_stake_threshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_low_stake_grace_period,
-      ),
-      extraFields: decodeFromFieldsWithTypes(
-        Bag.reified(),
-        item.fields.extra_fields,
-      ),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): SystemParameters {
-    return SystemParameters.fromFields(SystemParameters.bcs.parse(data));
-  }
-
-  toJSONField() {
-    return {
-      epochDurationMs: this.epochDurationMs.toString(),
-      stakeSubsidyStartEpoch: this.stakeSubsidyStartEpoch.toString(),
-      maxValidatorCount: this.maxValidatorCount.toString(),
-      minValidatorJoiningStake: this.minValidatorJoiningStake.toString(),
-      validatorLowStakeThreshold: this.validatorLowStakeThreshold.toString(),
-      validatorVeryLowStakeThreshold:
-        this.validatorVeryLowStakeThreshold.toString(),
-      validatorLowStakeGracePeriod:
-        this.validatorLowStakeGracePeriod.toString(),
-      extraFields: this.extraFields.toJSONField(),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): SystemParameters {
-    return SystemParameters.reified().new({
-      epochDurationMs: decodeFromJSONField("u64", field.epochDurationMs),
-      stakeSubsidyStartEpoch: decodeFromJSONField(
-        "u64",
-        field.stakeSubsidyStartEpoch,
-      ),
-      maxValidatorCount: decodeFromJSONField("u64", field.maxValidatorCount),
-      minValidatorJoiningStake: decodeFromJSONField(
-        "u64",
-        field.minValidatorJoiningStake,
-      ),
-      validatorLowStakeThreshold: decodeFromJSONField(
-        "u64",
-        field.validatorLowStakeThreshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromJSONField(
-        "u64",
-        field.validatorVeryLowStakeThreshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromJSONField(
-        "u64",
-        field.validatorLowStakeGracePeriod,
-      ),
-      extraFields: decodeFromJSONField(Bag.reified(), field.extraFields),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): SystemParameters {
-    if (json.$typeName !== SystemParameters.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return SystemParameters.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(content: SuiParsedData): SystemParameters {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isSystemParameters(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a SystemParameters object`,
-      );
-    }
-    return SystemParameters.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): SystemParameters {
-    if (data.bcs) {
-      if (
-        data.bcs.dataType !== "moveObject" ||
-        !isSystemParameters(data.bcs.type)
-      ) {
-        throw new Error(`object at is not a SystemParameters object`);
-      }
-
-      return SystemParameters.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return SystemParameters.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(client: SuiClient, id: string): Promise<SystemParameters> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching SystemParameters object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isSystemParameters(res.data.bcs.type)
-    ) {
-      throw new Error(`object at id ${id} is not a SystemParameters object`);
-    }
-
-    return SystemParameters.fromSuiObjectData(res.data);
-  }
-}
-
-/* ============================== SystemParametersV2 =============================== */
-
-export function isSystemParametersV2(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V19}::sui_system_state_inner::SystemParametersV2`;
-}
-
-export interface SystemParametersV2Fields {
-  epochDurationMs: ToField<"u64">;
-  stakeSubsidyStartEpoch: ToField<"u64">;
-  minValidatorCount: ToField<"u64">;
-  maxValidatorCount: ToField<"u64">;
-  minValidatorJoiningStake: ToField<"u64">;
-  validatorLowStakeThreshold: ToField<"u64">;
-  validatorVeryLowStakeThreshold: ToField<"u64">;
-  validatorLowStakeGracePeriod: ToField<"u64">;
-  extraFields: ToField<Bag>;
-}
-
-export type SystemParametersV2Reified = Reified<
-  SystemParametersV2,
-  SystemParametersV2Fields
->;
-
-export class SystemParametersV2 implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V19}::sui_system_state_inner::SystemParametersV2`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = SystemParametersV2.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::sui_system_state_inner::SystemParametersV2`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = SystemParametersV2.$isPhantom;
-
-  readonly epochDurationMs: ToField<"u64">;
-  readonly stakeSubsidyStartEpoch: ToField<"u64">;
-  readonly minValidatorCount: ToField<"u64">;
-  readonly maxValidatorCount: ToField<"u64">;
-  readonly minValidatorJoiningStake: ToField<"u64">;
-  readonly validatorLowStakeThreshold: ToField<"u64">;
-  readonly validatorVeryLowStakeThreshold: ToField<"u64">;
-  readonly validatorLowStakeGracePeriod: ToField<"u64">;
-  readonly extraFields: ToField<Bag>;
-
-  private constructor(typeArgs: [], fields: SystemParametersV2Fields) {
-    this.$fullTypeName = composeSuiType(
-      SystemParametersV2.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V19}::sui_system_state_inner::SystemParametersV2`;
-    this.$typeArgs = typeArgs;
-
-    this.epochDurationMs = fields.epochDurationMs;
-    this.stakeSubsidyStartEpoch = fields.stakeSubsidyStartEpoch;
-    this.minValidatorCount = fields.minValidatorCount;
-    this.maxValidatorCount = fields.maxValidatorCount;
-    this.minValidatorJoiningStake = fields.minValidatorJoiningStake;
-    this.validatorLowStakeThreshold = fields.validatorLowStakeThreshold;
-    this.validatorVeryLowStakeThreshold = fields.validatorVeryLowStakeThreshold;
-    this.validatorLowStakeGracePeriod = fields.validatorLowStakeGracePeriod;
-    this.extraFields = fields.extraFields;
-  }
-
-  static reified(): SystemParametersV2Reified {
-    return {
-      typeName: SystemParametersV2.$typeName,
-      fullTypeName: composeSuiType(
-        SystemParametersV2.$typeName,
-        ...[],
-      ) as `${typeof PKG_V19}::sui_system_state_inner::SystemParametersV2`,
-      typeArgs: [] as [],
-      isPhantom: SystemParametersV2.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        SystemParametersV2.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        SystemParametersV2.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => SystemParametersV2.fromBcs(data),
-      bcs: SystemParametersV2.bcs,
-      fromJSONField: (field: any) => SystemParametersV2.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) =>
-        SystemParametersV2.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        SystemParametersV2.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        SystemParametersV2.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        SystemParametersV2.fetch(client, id),
-      new: (fields: SystemParametersV2Fields) => {
-        return new SystemParametersV2([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return SystemParametersV2.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<SystemParametersV2>> {
-    return phantom(SystemParametersV2.reified());
-  }
-  static get p() {
-    return SystemParametersV2.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("SystemParametersV2", {
-      epoch_duration_ms: bcs.u64(),
-      stake_subsidy_start_epoch: bcs.u64(),
-      min_validator_count: bcs.u64(),
-      max_validator_count: bcs.u64(),
-      min_validator_joining_stake: bcs.u64(),
-      validator_low_stake_threshold: bcs.u64(),
-      validator_very_low_stake_threshold: bcs.u64(),
-      validator_low_stake_grace_period: bcs.u64(),
-      extra_fields: Bag.bcs,
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): SystemParametersV2 {
-    return SystemParametersV2.reified().new({
-      epochDurationMs: decodeFromFields("u64", fields.epoch_duration_ms),
-      stakeSubsidyStartEpoch: decodeFromFields(
-        "u64",
-        fields.stake_subsidy_start_epoch,
-      ),
-      minValidatorCount: decodeFromFields("u64", fields.min_validator_count),
-      maxValidatorCount: decodeFromFields("u64", fields.max_validator_count),
-      minValidatorJoiningStake: decodeFromFields(
-        "u64",
-        fields.min_validator_joining_stake,
-      ),
-      validatorLowStakeThreshold: decodeFromFields(
-        "u64",
-        fields.validator_low_stake_threshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromFields(
-        "u64",
-        fields.validator_very_low_stake_threshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromFields(
-        "u64",
-        fields.validator_low_stake_grace_period,
-      ),
-      extraFields: decodeFromFields(Bag.reified(), fields.extra_fields),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): SystemParametersV2 {
-    if (!isSystemParametersV2(item.type)) {
-      throw new Error("not a SystemParametersV2 type");
-    }
-
-    return SystemParametersV2.reified().new({
-      epochDurationMs: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.epoch_duration_ms,
-      ),
-      stakeSubsidyStartEpoch: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.stake_subsidy_start_epoch,
-      ),
-      minValidatorCount: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.min_validator_count,
-      ),
-      maxValidatorCount: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.max_validator_count,
-      ),
-      minValidatorJoiningStake: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.min_validator_joining_stake,
-      ),
-      validatorLowStakeThreshold: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_low_stake_threshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_very_low_stake_threshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.validator_low_stake_grace_period,
-      ),
-      extraFields: decodeFromFieldsWithTypes(
-        Bag.reified(),
-        item.fields.extra_fields,
-      ),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): SystemParametersV2 {
-    return SystemParametersV2.fromFields(SystemParametersV2.bcs.parse(data));
-  }
-
-  toJSONField() {
-    return {
-      epochDurationMs: this.epochDurationMs.toString(),
-      stakeSubsidyStartEpoch: this.stakeSubsidyStartEpoch.toString(),
-      minValidatorCount: this.minValidatorCount.toString(),
-      maxValidatorCount: this.maxValidatorCount.toString(),
-      minValidatorJoiningStake: this.minValidatorJoiningStake.toString(),
-      validatorLowStakeThreshold: this.validatorLowStakeThreshold.toString(),
-      validatorVeryLowStakeThreshold:
-        this.validatorVeryLowStakeThreshold.toString(),
-      validatorLowStakeGracePeriod:
-        this.validatorLowStakeGracePeriod.toString(),
-      extraFields: this.extraFields.toJSONField(),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): SystemParametersV2 {
-    return SystemParametersV2.reified().new({
-      epochDurationMs: decodeFromJSONField("u64", field.epochDurationMs),
-      stakeSubsidyStartEpoch: decodeFromJSONField(
-        "u64",
-        field.stakeSubsidyStartEpoch,
-      ),
-      minValidatorCount: decodeFromJSONField("u64", field.minValidatorCount),
-      maxValidatorCount: decodeFromJSONField("u64", field.maxValidatorCount),
-      minValidatorJoiningStake: decodeFromJSONField(
-        "u64",
-        field.minValidatorJoiningStake,
-      ),
-      validatorLowStakeThreshold: decodeFromJSONField(
-        "u64",
-        field.validatorLowStakeThreshold,
-      ),
-      validatorVeryLowStakeThreshold: decodeFromJSONField(
-        "u64",
-        field.validatorVeryLowStakeThreshold,
-      ),
-      validatorLowStakeGracePeriod: decodeFromJSONField(
-        "u64",
-        field.validatorLowStakeGracePeriod,
-      ),
-      extraFields: decodeFromJSONField(Bag.reified(), field.extraFields),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): SystemParametersV2 {
-    if (json.$typeName !== SystemParametersV2.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return SystemParametersV2.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(content: SuiParsedData): SystemParametersV2 {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isSystemParametersV2(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a SystemParametersV2 object`,
-      );
-    }
-    return SystemParametersV2.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): SystemParametersV2 {
-    if (data.bcs) {
-      if (
-        data.bcs.dataType !== "moveObject" ||
-        !isSystemParametersV2(data.bcs.type)
-      ) {
-        throw new Error(`object at is not a SystemParametersV2 object`);
-      }
-
-      return SystemParametersV2.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return SystemParametersV2.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(
-    client: SuiClient,
-    id: string,
-  ): Promise<SystemParametersV2> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching SystemParametersV2 object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isSystemParametersV2(res.data.bcs.type)
-    ) {
-      throw new Error(`object at id ${id} is not a SystemParametersV2 object`);
-    }
-
-    return SystemParametersV2.fromSuiObjectData(res.data);
   }
 }

@@ -24,7 +24,6 @@ import {
   parseTypeName,
 } from "../../../../_framework/util";
 import { Vector } from "../../../../_framework/vector";
-import { PKG_V31 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -33,7 +32,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isElement(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::group_ops::Element` + "<");
+  return type.startsWith(`0x2::group_ops::Element` + "<");
 }
 
 export interface ElementFields<T extends PhantomTypeArgument> {
@@ -48,12 +47,12 @@ export type ElementReified<T extends PhantomTypeArgument> = Reified<
 export class Element<T extends PhantomTypeArgument> implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::group_ops::Element`;
+  static readonly $typeName = `0x2::group_ops::Element`;
   static readonly $numTypeParams = 1;
   static readonly $isPhantom = [true] as const;
 
   readonly $typeName = Element.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::group_ops::Element<${PhantomToTypeStr<T>}>`;
+  readonly $fullTypeName: `0x2::group_ops::Element<${PhantomToTypeStr<T>}>`;
   readonly $typeArgs: [PhantomToTypeStr<T>];
   readonly $isPhantom = Element.$isPhantom;
 
@@ -66,7 +65,7 @@ export class Element<T extends PhantomTypeArgument> implements StructClass {
     this.$fullTypeName = composeSuiType(
       Element.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::group_ops::Element<${PhantomToTypeStr<T>}>`;
+    ) as `0x2::group_ops::Element<${PhantomToTypeStr<T>}>`;
     this.$typeArgs = typeArgs;
 
     this.bytes = fields.bytes;
@@ -75,12 +74,13 @@ export class Element<T extends PhantomTypeArgument> implements StructClass {
   static reified<T extends PhantomReified<PhantomTypeArgument>>(
     T: T,
   ): ElementReified<ToPhantomTypeArgument<T>> {
+    const reifiedBcs = Element.bcs;
     return {
       typeName: Element.$typeName,
       fullTypeName: composeSuiType(
         Element.$typeName,
         ...[extractType(T)],
-      ) as `${typeof PKG_V31}::group_ops::Element<${PhantomToTypeStr<ToPhantomTypeArgument<T>>}>`,
+      ) as `0x2::group_ops::Element<${PhantomToTypeStr<ToPhantomTypeArgument<T>>}>`,
       typeArgs: [extractType(T)] as [
         PhantomToTypeStr<ToPhantomTypeArgument<T>>,
       ],
@@ -90,8 +90,9 @@ export class Element<T extends PhantomTypeArgument> implements StructClass {
         Element.fromFields(T, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Element.fromFieldsWithTypes(T, item),
-      fromBcs: (data: Uint8Array) => Element.fromBcs(T, data),
-      bcs: Element.bcs,
+      fromBcs: (data: Uint8Array) =>
+        Element.fromFields(T, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Element.fromJSONField(T, field),
       fromJSON: (json: Record<string, any>) => Element.fromJSON(T, json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -120,10 +121,20 @@ export class Element<T extends PhantomTypeArgument> implements StructClass {
     return Element.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Element", {
       bytes: bcs.vector(bcs.u8()),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Element.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Element.cachedBcs) {
+      Element.cachedBcs = Element.instantiateBcs();
+    }
+    return Element.cachedBcs;
   }
 
   static fromFields<T extends PhantomReified<PhantomTypeArgument>>(

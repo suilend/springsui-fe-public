@@ -57,6 +57,7 @@ export class Version implements StructClass {
   }
 
   static reified(): VersionReified {
+    const reifiedBcs = Version.bcs;
     return {
       typeName: Version.$typeName,
       fullTypeName: composeSuiType(
@@ -69,8 +70,8 @@ export class Version implements StructClass {
       fromFields: (fields: Record<string, any>) => Version.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Version.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => Version.fromBcs(data),
-      bcs: Version.bcs,
+      fromBcs: (data: Uint8Array) => Version.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Version.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => Version.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -96,10 +97,20 @@ export class Version implements StructClass {
     return Version.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Version", {
       pos0: bcs.u16(),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Version.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Version.cachedBcs) {
+      Version.cachedBcs = Version.instantiateBcs();
+    }
+    return Version.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): Version {

@@ -21,7 +21,6 @@ import {
   compressSuiType,
   parseTypeName,
 } from "../../../../_framework/util";
-import { PKG_V31 } from "../index";
 import { UID } from "../object/structs";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -31,7 +30,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isObjectTable(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::object_table::ObjectTable` + "<");
+  return type.startsWith(`0x2::object_table::ObjectTable` + "<");
 }
 
 export interface ObjectTableFields<
@@ -54,12 +53,12 @@ export class ObjectTable<
 {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::object_table::ObjectTable`;
+  static readonly $typeName = `0x2::object_table::ObjectTable`;
   static readonly $numTypeParams = 2;
   static readonly $isPhantom = [true, true] as const;
 
   readonly $typeName = ObjectTable.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::object_table::ObjectTable<${PhantomToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
+  readonly $fullTypeName: `0x2::object_table::ObjectTable<${PhantomToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
   readonly $typeArgs: [PhantomToTypeStr<K>, PhantomToTypeStr<V>];
   readonly $isPhantom = ObjectTable.$isPhantom;
 
@@ -73,7 +72,7 @@ export class ObjectTable<
     this.$fullTypeName = composeSuiType(
       ObjectTable.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::object_table::ObjectTable<${PhantomToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
+    ) as `0x2::object_table::ObjectTable<${PhantomToTypeStr<K>}, ${PhantomToTypeStr<V>}>`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -87,12 +86,13 @@ export class ObjectTable<
     K: K,
     V: V,
   ): ObjectTableReified<ToPhantomTypeArgument<K>, ToPhantomTypeArgument<V>> {
+    const reifiedBcs = ObjectTable.bcs;
     return {
       typeName: ObjectTable.$typeName,
       fullTypeName: composeSuiType(
         ObjectTable.$typeName,
         ...[extractType(K), extractType(V)],
-      ) as `${typeof PKG_V31}::object_table::ObjectTable<${PhantomToTypeStr<ToPhantomTypeArgument<K>>}, ${PhantomToTypeStr<ToPhantomTypeArgument<V>>}>`,
+      ) as `0x2::object_table::ObjectTable<${PhantomToTypeStr<ToPhantomTypeArgument<K>>}, ${PhantomToTypeStr<ToPhantomTypeArgument<V>>}>`,
       typeArgs: [extractType(K), extractType(V)] as [
         PhantomToTypeStr<ToPhantomTypeArgument<K>>,
         PhantomToTypeStr<ToPhantomTypeArgument<V>>,
@@ -103,8 +103,9 @@ export class ObjectTable<
         ObjectTable.fromFields([K, V], fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         ObjectTable.fromFieldsWithTypes([K, V], item),
-      fromBcs: (data: Uint8Array) => ObjectTable.fromBcs([K, V], data),
-      bcs: ObjectTable.bcs,
+      fromBcs: (data: Uint8Array) =>
+        ObjectTable.fromFields([K, V], reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => ObjectTable.fromJSONField([K, V], field),
       fromJSON: (json: Record<string, any>) =>
         ObjectTable.fromJSON([K, V], json),
@@ -145,11 +146,22 @@ export class ObjectTable<
     return ObjectTable.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("ObjectTable", {
       id: UID.bcs,
       size: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof ObjectTable.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!ObjectTable.cachedBcs) {
+      ObjectTable.cachedBcs = ObjectTable.instantiateBcs();
+    }
+    return ObjectTable.cachedBcs;
   }
 
   static fromFields<

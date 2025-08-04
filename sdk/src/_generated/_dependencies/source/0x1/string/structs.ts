@@ -17,7 +17,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { Vector } from "../../../../_framework/vector";
-import { PKG_V14 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -26,7 +25,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isString(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V14}::string::String`;
+  return type === `0x1::string::String`;
 }
 
 export interface StringFields {
@@ -38,12 +37,12 @@ export type StringReified = Reified<String, StringFields>;
 export class String implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V14}::string::String`;
+  static readonly $typeName = `0x1::string::String`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = String.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V14}::string::String`;
+  readonly $fullTypeName: `0x1::string::String`;
   readonly $typeArgs: [];
   readonly $isPhantom = String.$isPhantom;
 
@@ -53,27 +52,28 @@ export class String implements StructClass {
     this.$fullTypeName = composeSuiType(
       String.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V14}::string::String`;
+    ) as `0x1::string::String`;
     this.$typeArgs = typeArgs;
 
     this.bytes = fields.bytes;
   }
 
   static reified(): StringReified {
+    const reifiedBcs = String.bcs;
     return {
       typeName: String.$typeName,
       fullTypeName: composeSuiType(
         String.$typeName,
         ...[],
-      ) as `${typeof PKG_V14}::string::String`,
+      ) as `0x1::string::String`,
       typeArgs: [] as [],
       isPhantom: String.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => String.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         String.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => String.fromBcs(data),
-      bcs: String.bcs,
+      fromBcs: (data: Uint8Array) => String.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => String.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => String.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -99,10 +99,20 @@ export class String implements StructClass {
     return String.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("String", {
       bytes: bcs.vector(bcs.u8()),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof String.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!String.cachedBcs) {
+      String.cachedBcs = String.instantiateBcs();
+    }
+    return String.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): String {

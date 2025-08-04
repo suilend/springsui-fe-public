@@ -15,7 +15,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { String } from "../ascii/structs";
-import { PKG_V14 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -24,7 +23,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isTypeName(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V14}::type_name::TypeName`;
+  return type === `0x1::type_name::TypeName`;
 }
 
 export interface TypeNameFields {
@@ -36,12 +35,12 @@ export type TypeNameReified = Reified<TypeName, TypeNameFields>;
 export class TypeName implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V14}::type_name::TypeName`;
+  static readonly $typeName = `0x1::type_name::TypeName`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = TypeName.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V14}::type_name::TypeName`;
+  readonly $fullTypeName: `0x1::type_name::TypeName`;
   readonly $typeArgs: [];
   readonly $isPhantom = TypeName.$isPhantom;
 
@@ -51,27 +50,29 @@ export class TypeName implements StructClass {
     this.$fullTypeName = composeSuiType(
       TypeName.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V14}::type_name::TypeName`;
+    ) as `0x1::type_name::TypeName`;
     this.$typeArgs = typeArgs;
 
     this.name = fields.name;
   }
 
   static reified(): TypeNameReified {
+    const reifiedBcs = TypeName.bcs;
     return {
       typeName: TypeName.$typeName,
       fullTypeName: composeSuiType(
         TypeName.$typeName,
         ...[],
-      ) as `${typeof PKG_V14}::type_name::TypeName`,
+      ) as `0x1::type_name::TypeName`,
       typeArgs: [] as [],
       isPhantom: TypeName.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => TypeName.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         TypeName.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => TypeName.fromBcs(data),
-      bcs: TypeName.bcs,
+      fromBcs: (data: Uint8Array) =>
+        TypeName.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => TypeName.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => TypeName.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -98,10 +99,20 @@ export class TypeName implements StructClass {
     return TypeName.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("TypeName", {
       name: String.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof TypeName.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!TypeName.cachedBcs) {
+      TypeName.cachedBcs = TypeName.instantiateBcs();
+    }
+    return TypeName.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): TypeName {

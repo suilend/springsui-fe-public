@@ -15,7 +15,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { String } from "../../0x1/ascii/structs";
-import { PKG_V31 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -24,7 +23,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isUrl(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::url::Url`;
+  return type === `0x2::url::Url`;
 }
 
 export interface UrlFields {
@@ -36,12 +35,12 @@ export type UrlReified = Reified<Url, UrlFields>;
 export class Url implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::url::Url`;
+  static readonly $typeName = `0x2::url::Url`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = Url.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::url::Url`;
+  readonly $fullTypeName: `0x2::url::Url`;
   readonly $typeArgs: [];
   readonly $isPhantom = Url.$isPhantom;
 
@@ -51,27 +50,25 @@ export class Url implements StructClass {
     this.$fullTypeName = composeSuiType(
       Url.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::url::Url`;
+    ) as `0x2::url::Url`;
     this.$typeArgs = typeArgs;
 
     this.url = fields.url;
   }
 
   static reified(): UrlReified {
+    const reifiedBcs = Url.bcs;
     return {
       typeName: Url.$typeName,
-      fullTypeName: composeSuiType(
-        Url.$typeName,
-        ...[],
-      ) as `${typeof PKG_V31}::url::Url`,
+      fullTypeName: composeSuiType(Url.$typeName, ...[]) as `0x2::url::Url`,
       typeArgs: [] as [],
       isPhantom: Url.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => Url.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Url.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => Url.fromBcs(data),
-      bcs: Url.bcs,
+      fromBcs: (data: Uint8Array) => Url.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Url.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => Url.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -97,10 +94,19 @@ export class Url implements StructClass {
     return Url.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Url", {
       url: String.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Url.instantiateBcs> | null = null;
+
+  static get bcs() {
+    if (!Url.cachedBcs) {
+      Url.cachedBcs = Url.instantiateBcs();
+    }
+    return Url.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): Url {

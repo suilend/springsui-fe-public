@@ -186,14 +186,38 @@ export class LstClient {
   }
 
   // returns the sui coin
-  redeem(tx: Transaction, lstId: TransactionObjectInput) {
-    const [suiCoin] = generated.redeem(tx, this.liquidStakingObject.type, {
-      self: this.liquidStakingObject.id,
-      systemState: SUI_SYSTEM_STATE_ID,
-      lst: lstId,
-    });
+  redeem(tx: Transaction, lstId: TransactionObjectInput, customRedeem: boolean = false) {
+    if (customRedeem) {
+      const [request] = generated.customRedeemRequest(tx, this.liquidStakingObject.type, {
+        self: this.liquidStakingObject.id,
+        systemState: SUI_SYSTEM_STATE_ID,
+        lst: lstId,
+      });
 
-    return suiCoin;
+      weightHookGenerated.handleCustomRedeemRequest(tx, this.liquidStakingObject.type, {
+        self: this.liquidStakingObject.weightHookId,
+        systemState: SUI_SYSTEM_STATE_ID,
+        liquidStakingInfo: this.liquidStakingObject.id,
+        request,
+      });
+
+      const [suiCoin] = generated.customRedeem(tx, this.liquidStakingObject.type, {
+        self: this.liquidStakingObject.id,
+        systemState: SUI_SYSTEM_STATE_ID,
+        request,
+      });
+
+      return suiCoin;
+
+    } else {
+      const [suiCoin] = generated.redeem(tx, this.liquidStakingObject.type, {
+        self: this.liquidStakingObject.id,
+        systemState: SUI_SYSTEM_STATE_ID,
+        lst: lstId,
+      });
+
+      return suiCoin;
+    }
   }
   async redeemAmountAndRebalance(
     tx: Transaction,

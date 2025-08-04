@@ -17,7 +17,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { Vector } from "../../../../_framework/vector";
-import { PKG_V14 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -26,7 +25,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isBitVector(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V14}::bit_vector::BitVector`;
+  return type === `0x1::bit_vector::BitVector`;
 }
 
 export interface BitVectorFields {
@@ -39,12 +38,12 @@ export type BitVectorReified = Reified<BitVector, BitVectorFields>;
 export class BitVector implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V14}::bit_vector::BitVector`;
+  static readonly $typeName = `0x1::bit_vector::BitVector`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = BitVector.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V14}::bit_vector::BitVector`;
+  readonly $fullTypeName: `0x1::bit_vector::BitVector`;
   readonly $typeArgs: [];
   readonly $isPhantom = BitVector.$isPhantom;
 
@@ -55,7 +54,7 @@ export class BitVector implements StructClass {
     this.$fullTypeName = composeSuiType(
       BitVector.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V14}::bit_vector::BitVector`;
+    ) as `0x1::bit_vector::BitVector`;
     this.$typeArgs = typeArgs;
 
     this.length = fields.length;
@@ -63,20 +62,22 @@ export class BitVector implements StructClass {
   }
 
   static reified(): BitVectorReified {
+    const reifiedBcs = BitVector.bcs;
     return {
       typeName: BitVector.$typeName,
       fullTypeName: composeSuiType(
         BitVector.$typeName,
         ...[],
-      ) as `${typeof PKG_V14}::bit_vector::BitVector`,
+      ) as `0x1::bit_vector::BitVector`,
       typeArgs: [] as [],
       isPhantom: BitVector.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => BitVector.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         BitVector.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => BitVector.fromBcs(data),
-      bcs: BitVector.bcs,
+      fromBcs: (data: Uint8Array) =>
+        BitVector.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => BitVector.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => BitVector.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -103,11 +104,21 @@ export class BitVector implements StructClass {
     return BitVector.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("BitVector", {
       length: bcs.u64(),
       bit_field: bcs.vector(bcs.bool()),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof BitVector.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!BitVector.cachedBcs) {
+      BitVector.cachedBcs = BitVector.instantiateBcs();
+    }
+    return BitVector.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): BitVector {

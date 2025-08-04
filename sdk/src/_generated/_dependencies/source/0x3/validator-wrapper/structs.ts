@@ -15,7 +15,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { Versioned } from "../../0x2/versioned/structs";
-import { PKG_V19 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -24,7 +23,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isValidatorWrapper(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::validator_wrapper::ValidatorWrapper`;
+  return type === `0x3::validator_wrapper::ValidatorWrapper`;
 }
 
 export interface ValidatorWrapperFields {
@@ -39,12 +38,12 @@ export type ValidatorWrapperReified = Reified<
 export class ValidatorWrapper implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::validator_wrapper::ValidatorWrapper`;
+  static readonly $typeName = `0x3::validator_wrapper::ValidatorWrapper`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = ValidatorWrapper.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::validator_wrapper::ValidatorWrapper`;
+  readonly $fullTypeName: `0x3::validator_wrapper::ValidatorWrapper`;
   readonly $typeArgs: [];
   readonly $isPhantom = ValidatorWrapper.$isPhantom;
 
@@ -54,19 +53,20 @@ export class ValidatorWrapper implements StructClass {
     this.$fullTypeName = composeSuiType(
       ValidatorWrapper.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::validator_wrapper::ValidatorWrapper`;
+    ) as `0x3::validator_wrapper::ValidatorWrapper`;
     this.$typeArgs = typeArgs;
 
     this.inner = fields.inner;
   }
 
   static reified(): ValidatorWrapperReified {
+    const reifiedBcs = ValidatorWrapper.bcs;
     return {
       typeName: ValidatorWrapper.$typeName,
       fullTypeName: composeSuiType(
         ValidatorWrapper.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::validator_wrapper::ValidatorWrapper`,
+      ) as `0x3::validator_wrapper::ValidatorWrapper`,
       typeArgs: [] as [],
       isPhantom: ValidatorWrapper.$isPhantom,
       reifiedTypeArgs: [],
@@ -74,8 +74,9 @@ export class ValidatorWrapper implements StructClass {
         ValidatorWrapper.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         ValidatorWrapper.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => ValidatorWrapper.fromBcs(data),
-      bcs: ValidatorWrapper.bcs,
+      fromBcs: (data: Uint8Array) =>
+        ValidatorWrapper.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => ValidatorWrapper.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => ValidatorWrapper.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -102,10 +103,21 @@ export class ValidatorWrapper implements StructClass {
     return ValidatorWrapper.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("ValidatorWrapper", {
       inner: Versioned.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof ValidatorWrapper.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!ValidatorWrapper.cachedBcs) {
+      ValidatorWrapper.cachedBcs = ValidatorWrapper.instantiateBcs();
+    }
+    return ValidatorWrapper.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): ValidatorWrapper {

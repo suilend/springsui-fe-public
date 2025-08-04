@@ -22,7 +22,6 @@ import {
   compressSuiType,
   parseTypeName,
 } from "../../../../_framework/util";
-import { PKG_V31 } from "../index";
 import { Table } from "../table/structs";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -32,7 +31,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isTableVec(type: string): boolean {
   type = compressSuiType(type);
-  return type.startsWith(`${PKG_V31}::table_vec::TableVec` + "<");
+  return type.startsWith(`0x2::table_vec::TableVec` + "<");
 }
 
 export interface TableVecFields<Element extends PhantomTypeArgument> {
@@ -49,12 +48,12 @@ export class TableVec<Element extends PhantomTypeArgument>
 {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::table_vec::TableVec`;
+  static readonly $typeName = `0x2::table_vec::TableVec`;
   static readonly $numTypeParams = 1;
   static readonly $isPhantom = [true] as const;
 
   readonly $typeName = TableVec.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::table_vec::TableVec<${PhantomToTypeStr<Element>}>`;
+  readonly $fullTypeName: `0x2::table_vec::TableVec<${PhantomToTypeStr<Element>}>`;
   readonly $typeArgs: [PhantomToTypeStr<Element>];
   readonly $isPhantom = TableVec.$isPhantom;
 
@@ -67,7 +66,7 @@ export class TableVec<Element extends PhantomTypeArgument>
     this.$fullTypeName = composeSuiType(
       TableVec.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::table_vec::TableVec<${PhantomToTypeStr<Element>}>`;
+    ) as `0x2::table_vec::TableVec<${PhantomToTypeStr<Element>}>`;
     this.$typeArgs = typeArgs;
 
     this.contents = fields.contents;
@@ -76,12 +75,13 @@ export class TableVec<Element extends PhantomTypeArgument>
   static reified<Element extends PhantomReified<PhantomTypeArgument>>(
     Element: Element,
   ): TableVecReified<ToPhantomTypeArgument<Element>> {
+    const reifiedBcs = TableVec.bcs;
     return {
       typeName: TableVec.$typeName,
       fullTypeName: composeSuiType(
         TableVec.$typeName,
         ...[extractType(Element)],
-      ) as `${typeof PKG_V31}::table_vec::TableVec<${PhantomToTypeStr<ToPhantomTypeArgument<Element>>}>`,
+      ) as `0x2::table_vec::TableVec<${PhantomToTypeStr<ToPhantomTypeArgument<Element>>}>`,
       typeArgs: [extractType(Element)] as [
         PhantomToTypeStr<ToPhantomTypeArgument<Element>>,
       ],
@@ -91,8 +91,9 @@ export class TableVec<Element extends PhantomTypeArgument>
         TableVec.fromFields(Element, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         TableVec.fromFieldsWithTypes(Element, item),
-      fromBcs: (data: Uint8Array) => TableVec.fromBcs(Element, data),
-      bcs: TableVec.bcs,
+      fromBcs: (data: Uint8Array) =>
+        TableVec.fromFields(Element, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => TableVec.fromJSONField(Element, field),
       fromJSON: (json: Record<string, any>) => TableVec.fromJSON(Element, json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -121,10 +122,20 @@ export class TableVec<Element extends PhantomTypeArgument>
     return TableVec.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("TableVec", {
       contents: Table.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof TableVec.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!TableVec.cachedBcs) {
+      TableVec.cachedBcs = TableVec.instantiateBcs();
+    }
+    return TableVec.cachedBcs;
   }
 
   static fromFields<Element extends PhantomReified<PhantomTypeArgument>>(

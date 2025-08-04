@@ -83,6 +83,7 @@ export class Storage implements StructClass {
   }
 
   static reified(): StorageReified {
+    const reifiedBcs = Storage.bcs;
     return {
       typeName: Storage.$typeName,
       fullTypeName: composeSuiType(
@@ -95,8 +96,8 @@ export class Storage implements StructClass {
       fromFields: (fields: Record<string, any>) => Storage.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Storage.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => Storage.fromBcs(data),
-      bcs: Storage.bcs,
+      fromBcs: (data: Uint8Array) => Storage.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Storage.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => Storage.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -122,7 +123,7 @@ export class Storage implements StructClass {
     return Storage.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Storage", {
       sui_pool: Balance.bcs,
       validator_infos: bcs.vector(ValidatorInfo.bcs),
@@ -130,6 +131,16 @@ export class Storage implements StructClass {
       last_refresh_epoch: bcs.u64(),
       extra_fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Storage.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Storage.cachedBcs) {
+      Storage.cachedBcs = Storage.instantiateBcs();
+    }
+    return Storage.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): Storage {
@@ -328,6 +339,7 @@ export class ValidatorInfo implements StructClass {
   }
 
   static reified(): ValidatorInfoReified {
+    const reifiedBcs = ValidatorInfo.bcs;
     return {
       typeName: ValidatorInfo.$typeName,
       fullTypeName: composeSuiType(
@@ -341,8 +353,9 @@ export class ValidatorInfo implements StructClass {
         ValidatorInfo.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         ValidatorInfo.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => ValidatorInfo.fromBcs(data),
-      bcs: ValidatorInfo.bcs,
+      fromBcs: (data: Uint8Array) =>
+        ValidatorInfo.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => ValidatorInfo.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => ValidatorInfo.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -369,7 +382,7 @@ export class ValidatorInfo implements StructClass {
     return ValidatorInfo.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("ValidatorInfo", {
       staking_pool_id: ID.bcs,
       validator_address: bcs
@@ -384,6 +397,17 @@ export class ValidatorInfo implements StructClass {
       total_sui_amount: bcs.u64(),
       extra_fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof ValidatorInfo.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!ValidatorInfo.cachedBcs) {
+      ValidatorInfo.cachedBcs = ValidatorInfo.instantiateBcs();
+    }
+    return ValidatorInfo.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): ValidatorInfo {

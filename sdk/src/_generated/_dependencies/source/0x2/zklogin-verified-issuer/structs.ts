@@ -15,7 +15,6 @@ import {
   compressSuiType,
 } from "../../../../_framework/util";
 import { String } from "../../0x1/string/structs";
-import { PKG_V31 } from "../index";
 import { UID } from "../object/structs";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -25,7 +24,7 @@ import { fromB64, fromHEX, toHEX } from "@mysten/sui/utils";
 
 export function isVerifiedIssuer(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::zklogin_verified_issuer::VerifiedIssuer`;
+  return type === `0x2::zklogin_verified_issuer::VerifiedIssuer`;
 }
 
 export interface VerifiedIssuerFields {
@@ -42,12 +41,12 @@ export type VerifiedIssuerReified = Reified<
 export class VerifiedIssuer implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::zklogin_verified_issuer::VerifiedIssuer`;
+  static readonly $typeName = `0x2::zklogin_verified_issuer::VerifiedIssuer`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = VerifiedIssuer.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::zklogin_verified_issuer::VerifiedIssuer`;
+  readonly $fullTypeName: `0x2::zklogin_verified_issuer::VerifiedIssuer`;
   readonly $typeArgs: [];
   readonly $isPhantom = VerifiedIssuer.$isPhantom;
 
@@ -59,7 +58,7 @@ export class VerifiedIssuer implements StructClass {
     this.$fullTypeName = composeSuiType(
       VerifiedIssuer.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::zklogin_verified_issuer::VerifiedIssuer`;
+    ) as `0x2::zklogin_verified_issuer::VerifiedIssuer`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -68,12 +67,13 @@ export class VerifiedIssuer implements StructClass {
   }
 
   static reified(): VerifiedIssuerReified {
+    const reifiedBcs = VerifiedIssuer.bcs;
     return {
       typeName: VerifiedIssuer.$typeName,
       fullTypeName: composeSuiType(
         VerifiedIssuer.$typeName,
         ...[],
-      ) as `${typeof PKG_V31}::zklogin_verified_issuer::VerifiedIssuer`,
+      ) as `0x2::zklogin_verified_issuer::VerifiedIssuer`,
       typeArgs: [] as [],
       isPhantom: VerifiedIssuer.$isPhantom,
       reifiedTypeArgs: [],
@@ -81,8 +81,9 @@ export class VerifiedIssuer implements StructClass {
         VerifiedIssuer.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         VerifiedIssuer.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => VerifiedIssuer.fromBcs(data),
-      bcs: VerifiedIssuer.bcs,
+      fromBcs: (data: Uint8Array) =>
+        VerifiedIssuer.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => VerifiedIssuer.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => VerifiedIssuer.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -109,7 +110,7 @@ export class VerifiedIssuer implements StructClass {
     return VerifiedIssuer.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("VerifiedIssuer", {
       id: UID.bcs,
       owner: bcs
@@ -120,6 +121,17 @@ export class VerifiedIssuer implements StructClass {
         }),
       issuer: String.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof VerifiedIssuer.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!VerifiedIssuer.cachedBcs) {
+      VerifiedIssuer.cachedBcs = VerifiedIssuer.instantiateBcs();
+    }
+    return VerifiedIssuer.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): VerifiedIssuer {

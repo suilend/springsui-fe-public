@@ -14,7 +14,6 @@ import {
   composeSuiType,
   compressSuiType,
 } from "../../../../_framework/util";
-import { PKG_V31 } from "../index";
 import { UID } from "../object/structs";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
@@ -24,7 +23,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isBag(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::bag::Bag`;
+  return type === `0x2::bag::Bag`;
 }
 
 export interface BagFields {
@@ -37,12 +36,12 @@ export type BagReified = Reified<Bag, BagFields>;
 export class Bag implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::bag::Bag`;
+  static readonly $typeName = `0x2::bag::Bag`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = Bag.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::bag::Bag`;
+  readonly $fullTypeName: `0x2::bag::Bag`;
   readonly $typeArgs: [];
   readonly $isPhantom = Bag.$isPhantom;
 
@@ -53,7 +52,7 @@ export class Bag implements StructClass {
     this.$fullTypeName = composeSuiType(
       Bag.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::bag::Bag`;
+    ) as `0x2::bag::Bag`;
     this.$typeArgs = typeArgs;
 
     this.id = fields.id;
@@ -61,20 +60,18 @@ export class Bag implements StructClass {
   }
 
   static reified(): BagReified {
+    const reifiedBcs = Bag.bcs;
     return {
       typeName: Bag.$typeName,
-      fullTypeName: composeSuiType(
-        Bag.$typeName,
-        ...[],
-      ) as `${typeof PKG_V31}::bag::Bag`,
+      fullTypeName: composeSuiType(Bag.$typeName, ...[]) as `0x2::bag::Bag`,
       typeArgs: [] as [],
       isPhantom: Bag.$isPhantom,
       reifiedTypeArgs: [],
       fromFields: (fields: Record<string, any>) => Bag.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Bag.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => Bag.fromBcs(data),
-      bcs: Bag.bcs,
+      fromBcs: (data: Uint8Array) => Bag.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Bag.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => Bag.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -100,11 +97,20 @@ export class Bag implements StructClass {
     return Bag.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("Bag", {
       id: UID.bcs,
       size: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof Bag.instantiateBcs> | null = null;
+
+  static get bcs() {
+    if (!Bag.cachedBcs) {
+      Bag.cachedBcs = Bag.instantiateBcs();
+    }
+    return Bag.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): Bag {

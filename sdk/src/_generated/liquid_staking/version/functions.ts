@@ -13,6 +13,18 @@ export function new_(tx: Transaction, version: number | TransactionArgument) {
   });
 }
 
+export interface Migrate_Args {
+  version: TransactionObjectInput;
+  currentVersion: number | TransactionArgument;
+}
+
+export function migrate_(tx: Transaction, args: Migrate_Args) {
+  return tx.moveCall({
+    target: `${PUBLISHED_AT}::version::migrate_`,
+    arguments: [obj(tx, args.version), pure(tx, args.currentVersion, `u16`)],
+  });
+}
+
 export interface AssertVersionArgs {
   version: TransactionObjectInput;
   currentVersion: number | TransactionArgument;
@@ -36,18 +48,6 @@ export function assertVersionAndUpgrade(
 ) {
   return tx.moveCall({
     target: `${PUBLISHED_AT}::version::assert_version_and_upgrade`,
-    arguments: [obj(tx, args.version), pure(tx, args.currentVersion, `u16`)],
-  });
-}
-
-export interface Migrate_Args {
-  version: TransactionObjectInput;
-  currentVersion: number | TransactionArgument;
-}
-
-export function migrate_(tx: Transaction, args: Migrate_Args) {
-  return tx.moveCall({
-    target: `${PUBLISHED_AT}::version::migrate_`,
     arguments: [obj(tx, args.version), pure(tx, args.currentVersion, `u16`)],
   });
 }

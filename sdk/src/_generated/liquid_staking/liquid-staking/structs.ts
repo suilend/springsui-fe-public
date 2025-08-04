@@ -2,7 +2,7 @@ import * as reified from "../../_framework/reified";
 import { TypeName } from "../../_dependencies/source/0x1/type-name/structs";
 import { Bag } from "../../_dependencies/source/0x2/bag/structs";
 import { Balance } from "../../_dependencies/source/0x2/balance/structs";
-import { TreasuryCap } from "../../_dependencies/source/0x2/coin/structs";
+import { Coin, TreasuryCap } from "../../_dependencies/source/0x2/coin/structs";
 import { ID, UID } from "../../_dependencies/source/0x2/object/structs";
 import { SUI } from "../../_dependencies/source/0x2/sui/structs";
 import {
@@ -31,1316 +31,12 @@ import {
 } from "../../_framework/util";
 import { Cell } from "../cell/structs";
 import { FeeConfig } from "../fees/structs";
-import { PKG_V1 } from "../index";
+import { PKG_V1, PKG_V6 } from "../index";
 import { Storage } from "../storage/structs";
 import { Version } from "../version/structs";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
-
-/* ============================== AdminCap =============================== */
-
-export function isAdminCap(type: string): boolean {
-  type = compressSuiType(type);
-  return type.startsWith(`${PKG_V1}::liquid_staking::AdminCap` + "<");
-}
-
-export interface AdminCapFields<P extends PhantomTypeArgument> {
-  id: ToField<UID>;
-}
-
-export type AdminCapReified<P extends PhantomTypeArgument> = Reified<
-  AdminCap<P>,
-  AdminCapFields<P>
->;
-
-export class AdminCap<P extends PhantomTypeArgument> implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V1}::liquid_staking::AdminCap`;
-  static readonly $numTypeParams = 1;
-  static readonly $isPhantom = [true] as const;
-
-  readonly $typeName = AdminCap.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::AdminCap<${PhantomToTypeStr<P>}>`;
-  readonly $typeArgs: [PhantomToTypeStr<P>];
-  readonly $isPhantom = AdminCap.$isPhantom;
-
-  readonly id: ToField<UID>;
-
-  private constructor(
-    typeArgs: [PhantomToTypeStr<P>],
-    fields: AdminCapFields<P>,
-  ) {
-    this.$fullTypeName = composeSuiType(
-      AdminCap.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V1}::liquid_staking::AdminCap<${PhantomToTypeStr<P>}>`;
-    this.$typeArgs = typeArgs;
-
-    this.id = fields.id;
-  }
-
-  static reified<P extends PhantomReified<PhantomTypeArgument>>(
-    P: P,
-  ): AdminCapReified<ToPhantomTypeArgument<P>> {
-    return {
-      typeName: AdminCap.$typeName,
-      fullTypeName: composeSuiType(
-        AdminCap.$typeName,
-        ...[extractType(P)],
-      ) as `${typeof PKG_V1}::liquid_staking::AdminCap<${PhantomToTypeStr<ToPhantomTypeArgument<P>>}>`,
-      typeArgs: [extractType(P)] as [
-        PhantomToTypeStr<ToPhantomTypeArgument<P>>,
-      ],
-      isPhantom: AdminCap.$isPhantom,
-      reifiedTypeArgs: [P],
-      fromFields: (fields: Record<string, any>) =>
-        AdminCap.fromFields(P, fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        AdminCap.fromFieldsWithTypes(P, item),
-      fromBcs: (data: Uint8Array) => AdminCap.fromBcs(P, data),
-      bcs: AdminCap.bcs,
-      fromJSONField: (field: any) => AdminCap.fromJSONField(P, field),
-      fromJSON: (json: Record<string, any>) => AdminCap.fromJSON(P, json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        AdminCap.fromSuiParsedData(P, content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        AdminCap.fromSuiObjectData(P, content),
-      fetch: async (client: SuiClient, id: string) =>
-        AdminCap.fetch(client, P, id),
-      new: (fields: AdminCapFields<ToPhantomTypeArgument<P>>) => {
-        return new AdminCap([extractType(P)], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return AdminCap.reified;
-  }
-
-  static phantom<P extends PhantomReified<PhantomTypeArgument>>(
-    P: P,
-  ): PhantomReified<ToTypeStr<AdminCap<ToPhantomTypeArgument<P>>>> {
-    return phantom(AdminCap.reified(P));
-  }
-  static get p() {
-    return AdminCap.phantom;
-  }
-
-  static get bcs() {
-    return bcs.struct("AdminCap", {
-      id: UID.bcs,
-    });
-  }
-
-  static fromFields<P extends PhantomReified<PhantomTypeArgument>>(
-    typeArg: P,
-    fields: Record<string, any>,
-  ): AdminCap<ToPhantomTypeArgument<P>> {
-    return AdminCap.reified(typeArg).new({
-      id: decodeFromFields(UID.reified(), fields.id),
-    });
-  }
-
-  static fromFieldsWithTypes<P extends PhantomReified<PhantomTypeArgument>>(
-    typeArg: P,
-    item: FieldsWithTypes,
-  ): AdminCap<ToPhantomTypeArgument<P>> {
-    if (!isAdminCap(item.type)) {
-      throw new Error("not a AdminCap type");
-    }
-    assertFieldsWithTypesArgsMatch(item, [typeArg]);
-
-    return AdminCap.reified(typeArg).new({
-      id: decodeFromFieldsWithTypes(UID.reified(), item.fields.id),
-    });
-  }
-
-  static fromBcs<P extends PhantomReified<PhantomTypeArgument>>(
-    typeArg: P,
-    data: Uint8Array,
-  ): AdminCap<ToPhantomTypeArgument<P>> {
-    return AdminCap.fromFields(typeArg, AdminCap.bcs.parse(data));
-  }
-
-  toJSONField() {
-    return {
-      id: this.id,
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField<P extends PhantomReified<PhantomTypeArgument>>(
-    typeArg: P,
-    field: any,
-  ): AdminCap<ToPhantomTypeArgument<P>> {
-    return AdminCap.reified(typeArg).new({
-      id: decodeFromJSONField(UID.reified(), field.id),
-    });
-  }
-
-  static fromJSON<P extends PhantomReified<PhantomTypeArgument>>(
-    typeArg: P,
-    json: Record<string, any>,
-  ): AdminCap<ToPhantomTypeArgument<P>> {
-    if (json.$typeName !== AdminCap.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-    assertReifiedTypeArgsMatch(
-      composeSuiType(AdminCap.$typeName, extractType(typeArg)),
-      json.$typeArgs,
-      [typeArg],
-    );
-
-    return AdminCap.fromJSONField(typeArg, json);
-  }
-
-  static fromSuiParsedData<P extends PhantomReified<PhantomTypeArgument>>(
-    typeArg: P,
-    content: SuiParsedData,
-  ): AdminCap<ToPhantomTypeArgument<P>> {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isAdminCap(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a AdminCap object`,
-      );
-    }
-    return AdminCap.fromFieldsWithTypes(typeArg, content);
-  }
-
-  static fromSuiObjectData<P extends PhantomReified<PhantomTypeArgument>>(
-    typeArg: P,
-    data: SuiObjectData,
-  ): AdminCap<ToPhantomTypeArgument<P>> {
-    if (data.bcs) {
-      if (data.bcs.dataType !== "moveObject" || !isAdminCap(data.bcs.type)) {
-        throw new Error(`object at is not a AdminCap object`);
-      }
-
-      const gotTypeArgs = parseTypeName(data.bcs.type).typeArgs;
-      if (gotTypeArgs.length !== 1) {
-        throw new Error(
-          `type argument mismatch: expected 1 type argument but got '${gotTypeArgs.length}'`,
-        );
-      }
-      const gotTypeArg = compressSuiType(gotTypeArgs[0]);
-      const expectedTypeArg = compressSuiType(extractType(typeArg));
-      if (gotTypeArg !== compressSuiType(extractType(typeArg))) {
-        throw new Error(
-          `type argument mismatch: expected '${expectedTypeArg}' but got '${gotTypeArg}'`,
-        );
-      }
-
-      return AdminCap.fromBcs(typeArg, fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return AdminCap.fromSuiParsedData(typeArg, data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch<P extends PhantomReified<PhantomTypeArgument>>(
-    client: SuiClient,
-    typeArg: P,
-    id: string,
-  ): Promise<AdminCap<ToPhantomTypeArgument<P>>> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching AdminCap object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isAdminCap(res.data.bcs.type)
-    ) {
-      throw new Error(`object at id ${id} is not a AdminCap object`);
-    }
-
-    return AdminCap.fromSuiObjectData(typeArg, res.data);
-  }
-}
-
-/* ============================== CollectFeesEvent =============================== */
-
-export function isCollectFeesEvent(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V1}::liquid_staking::CollectFeesEvent`;
-}
-
-export interface CollectFeesEventFields {
-  typename: ToField<TypeName>;
-  amount: ToField<"u64">;
-}
-
-export type CollectFeesEventReified = Reified<
-  CollectFeesEvent,
-  CollectFeesEventFields
->;
-
-export class CollectFeesEvent implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V1}::liquid_staking::CollectFeesEvent`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = CollectFeesEvent.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::CollectFeesEvent`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = CollectFeesEvent.$isPhantom;
-
-  readonly typename: ToField<TypeName>;
-  readonly amount: ToField<"u64">;
-
-  private constructor(typeArgs: [], fields: CollectFeesEventFields) {
-    this.$fullTypeName = composeSuiType(
-      CollectFeesEvent.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V1}::liquid_staking::CollectFeesEvent`;
-    this.$typeArgs = typeArgs;
-
-    this.typename = fields.typename;
-    this.amount = fields.amount;
-  }
-
-  static reified(): CollectFeesEventReified {
-    return {
-      typeName: CollectFeesEvent.$typeName,
-      fullTypeName: composeSuiType(
-        CollectFeesEvent.$typeName,
-        ...[],
-      ) as `${typeof PKG_V1}::liquid_staking::CollectFeesEvent`,
-      typeArgs: [] as [],
-      isPhantom: CollectFeesEvent.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        CollectFeesEvent.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        CollectFeesEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => CollectFeesEvent.fromBcs(data),
-      bcs: CollectFeesEvent.bcs,
-      fromJSONField: (field: any) => CollectFeesEvent.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) => CollectFeesEvent.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        CollectFeesEvent.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        CollectFeesEvent.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        CollectFeesEvent.fetch(client, id),
-      new: (fields: CollectFeesEventFields) => {
-        return new CollectFeesEvent([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return CollectFeesEvent.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<CollectFeesEvent>> {
-    return phantom(CollectFeesEvent.reified());
-  }
-  static get p() {
-    return CollectFeesEvent.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("CollectFeesEvent", {
-      typename: TypeName.bcs,
-      amount: bcs.u64(),
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): CollectFeesEvent {
-    return CollectFeesEvent.reified().new({
-      typename: decodeFromFields(TypeName.reified(), fields.typename),
-      amount: decodeFromFields("u64", fields.amount),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): CollectFeesEvent {
-    if (!isCollectFeesEvent(item.type)) {
-      throw new Error("not a CollectFeesEvent type");
-    }
-
-    return CollectFeesEvent.reified().new({
-      typename: decodeFromFieldsWithTypes(
-        TypeName.reified(),
-        item.fields.typename,
-      ),
-      amount: decodeFromFieldsWithTypes("u64", item.fields.amount),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): CollectFeesEvent {
-    return CollectFeesEvent.fromFields(CollectFeesEvent.bcs.parse(data));
-  }
-
-  toJSONField() {
-    return {
-      typename: this.typename.toJSONField(),
-      amount: this.amount.toString(),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): CollectFeesEvent {
-    return CollectFeesEvent.reified().new({
-      typename: decodeFromJSONField(TypeName.reified(), field.typename),
-      amount: decodeFromJSONField("u64", field.amount),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): CollectFeesEvent {
-    if (json.$typeName !== CollectFeesEvent.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return CollectFeesEvent.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(content: SuiParsedData): CollectFeesEvent {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isCollectFeesEvent(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a CollectFeesEvent object`,
-      );
-    }
-    return CollectFeesEvent.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): CollectFeesEvent {
-    if (data.bcs) {
-      if (
-        data.bcs.dataType !== "moveObject" ||
-        !isCollectFeesEvent(data.bcs.type)
-      ) {
-        throw new Error(`object at is not a CollectFeesEvent object`);
-      }
-
-      return CollectFeesEvent.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return CollectFeesEvent.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(client: SuiClient, id: string): Promise<CollectFeesEvent> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching CollectFeesEvent object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isCollectFeesEvent(res.data.bcs.type)
-    ) {
-      throw new Error(`object at id ${id} is not a CollectFeesEvent object`);
-    }
-
-    return CollectFeesEvent.fromSuiObjectData(res.data);
-  }
-}
-
-/* ============================== CreateEvent =============================== */
-
-export function isCreateEvent(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V1}::liquid_staking::CreateEvent`;
-}
-
-export interface CreateEventFields {
-  typename: ToField<TypeName>;
-  liquidStakingInfoId: ToField<ID>;
-}
-
-export type CreateEventReified = Reified<CreateEvent, CreateEventFields>;
-
-export class CreateEvent implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V1}::liquid_staking::CreateEvent`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = CreateEvent.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::CreateEvent`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = CreateEvent.$isPhantom;
-
-  readonly typename: ToField<TypeName>;
-  readonly liquidStakingInfoId: ToField<ID>;
-
-  private constructor(typeArgs: [], fields: CreateEventFields) {
-    this.$fullTypeName = composeSuiType(
-      CreateEvent.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V1}::liquid_staking::CreateEvent`;
-    this.$typeArgs = typeArgs;
-
-    this.typename = fields.typename;
-    this.liquidStakingInfoId = fields.liquidStakingInfoId;
-  }
-
-  static reified(): CreateEventReified {
-    return {
-      typeName: CreateEvent.$typeName,
-      fullTypeName: composeSuiType(
-        CreateEvent.$typeName,
-        ...[],
-      ) as `${typeof PKG_V1}::liquid_staking::CreateEvent`,
-      typeArgs: [] as [],
-      isPhantom: CreateEvent.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        CreateEvent.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        CreateEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => CreateEvent.fromBcs(data),
-      bcs: CreateEvent.bcs,
-      fromJSONField: (field: any) => CreateEvent.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) => CreateEvent.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        CreateEvent.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        CreateEvent.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        CreateEvent.fetch(client, id),
-      new: (fields: CreateEventFields) => {
-        return new CreateEvent([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return CreateEvent.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<CreateEvent>> {
-    return phantom(CreateEvent.reified());
-  }
-  static get p() {
-    return CreateEvent.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("CreateEvent", {
-      typename: TypeName.bcs,
-      liquid_staking_info_id: ID.bcs,
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): CreateEvent {
-    return CreateEvent.reified().new({
-      typename: decodeFromFields(TypeName.reified(), fields.typename),
-      liquidStakingInfoId: decodeFromFields(
-        ID.reified(),
-        fields.liquid_staking_info_id,
-      ),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): CreateEvent {
-    if (!isCreateEvent(item.type)) {
-      throw new Error("not a CreateEvent type");
-    }
-
-    return CreateEvent.reified().new({
-      typename: decodeFromFieldsWithTypes(
-        TypeName.reified(),
-        item.fields.typename,
-      ),
-      liquidStakingInfoId: decodeFromFieldsWithTypes(
-        ID.reified(),
-        item.fields.liquid_staking_info_id,
-      ),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): CreateEvent {
-    return CreateEvent.fromFields(CreateEvent.bcs.parse(data));
-  }
-
-  toJSONField() {
-    return {
-      typename: this.typename.toJSONField(),
-      liquidStakingInfoId: this.liquidStakingInfoId,
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): CreateEvent {
-    return CreateEvent.reified().new({
-      typename: decodeFromJSONField(TypeName.reified(), field.typename),
-      liquidStakingInfoId: decodeFromJSONField(
-        ID.reified(),
-        field.liquidStakingInfoId,
-      ),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): CreateEvent {
-    if (json.$typeName !== CreateEvent.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return CreateEvent.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(content: SuiParsedData): CreateEvent {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isCreateEvent(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a CreateEvent object`,
-      );
-    }
-    return CreateEvent.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): CreateEvent {
-    if (data.bcs) {
-      if (data.bcs.dataType !== "moveObject" || !isCreateEvent(data.bcs.type)) {
-        throw new Error(`object at is not a CreateEvent object`);
-      }
-
-      return CreateEvent.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return CreateEvent.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(client: SuiClient, id: string): Promise<CreateEvent> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching CreateEvent object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isCreateEvent(res.data.bcs.type)
-    ) {
-      throw new Error(`object at id ${id} is not a CreateEvent object`);
-    }
-
-    return CreateEvent.fromSuiObjectData(res.data);
-  }
-}
-
-/* ============================== DecreaseValidatorStakeEvent =============================== */
-
-export function isDecreaseValidatorStakeEvent(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
-}
-
-export interface DecreaseValidatorStakeEventFields {
-  typename: ToField<TypeName>;
-  stakingPoolId: ToField<ID>;
-  amount: ToField<"u64">;
-}
-
-export type DecreaseValidatorStakeEventReified = Reified<
-  DecreaseValidatorStakeEvent,
-  DecreaseValidatorStakeEventFields
->;
-
-export class DecreaseValidatorStakeEvent implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = DecreaseValidatorStakeEvent.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = DecreaseValidatorStakeEvent.$isPhantom;
-
-  readonly typename: ToField<TypeName>;
-  readonly stakingPoolId: ToField<ID>;
-  readonly amount: ToField<"u64">;
-
-  private constructor(typeArgs: [], fields: DecreaseValidatorStakeEventFields) {
-    this.$fullTypeName = composeSuiType(
-      DecreaseValidatorStakeEvent.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
-    this.$typeArgs = typeArgs;
-
-    this.typename = fields.typename;
-    this.stakingPoolId = fields.stakingPoolId;
-    this.amount = fields.amount;
-  }
-
-  static reified(): DecreaseValidatorStakeEventReified {
-    return {
-      typeName: DecreaseValidatorStakeEvent.$typeName,
-      fullTypeName: composeSuiType(
-        DecreaseValidatorStakeEvent.$typeName,
-        ...[],
-      ) as `${typeof PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`,
-      typeArgs: [] as [],
-      isPhantom: DecreaseValidatorStakeEvent.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        DecreaseValidatorStakeEvent.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        DecreaseValidatorStakeEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => DecreaseValidatorStakeEvent.fromBcs(data),
-      bcs: DecreaseValidatorStakeEvent.bcs,
-      fromJSONField: (field: any) =>
-        DecreaseValidatorStakeEvent.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) =>
-        DecreaseValidatorStakeEvent.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        DecreaseValidatorStakeEvent.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        DecreaseValidatorStakeEvent.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        DecreaseValidatorStakeEvent.fetch(client, id),
-      new: (fields: DecreaseValidatorStakeEventFields) => {
-        return new DecreaseValidatorStakeEvent([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return DecreaseValidatorStakeEvent.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<DecreaseValidatorStakeEvent>> {
-    return phantom(DecreaseValidatorStakeEvent.reified());
-  }
-  static get p() {
-    return DecreaseValidatorStakeEvent.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("DecreaseValidatorStakeEvent", {
-      typename: TypeName.bcs,
-      staking_pool_id: ID.bcs,
-      amount: bcs.u64(),
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): DecreaseValidatorStakeEvent {
-    return DecreaseValidatorStakeEvent.reified().new({
-      typename: decodeFromFields(TypeName.reified(), fields.typename),
-      stakingPoolId: decodeFromFields(ID.reified(), fields.staking_pool_id),
-      amount: decodeFromFields("u64", fields.amount),
-    });
-  }
-
-  static fromFieldsWithTypes(
-    item: FieldsWithTypes,
-  ): DecreaseValidatorStakeEvent {
-    if (!isDecreaseValidatorStakeEvent(item.type)) {
-      throw new Error("not a DecreaseValidatorStakeEvent type");
-    }
-
-    return DecreaseValidatorStakeEvent.reified().new({
-      typename: decodeFromFieldsWithTypes(
-        TypeName.reified(),
-        item.fields.typename,
-      ),
-      stakingPoolId: decodeFromFieldsWithTypes(
-        ID.reified(),
-        item.fields.staking_pool_id,
-      ),
-      amount: decodeFromFieldsWithTypes("u64", item.fields.amount),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): DecreaseValidatorStakeEvent {
-    return DecreaseValidatorStakeEvent.fromFields(
-      DecreaseValidatorStakeEvent.bcs.parse(data),
-    );
-  }
-
-  toJSONField() {
-    return {
-      typename: this.typename.toJSONField(),
-      stakingPoolId: this.stakingPoolId,
-      amount: this.amount.toString(),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): DecreaseValidatorStakeEvent {
-    return DecreaseValidatorStakeEvent.reified().new({
-      typename: decodeFromJSONField(TypeName.reified(), field.typename),
-      stakingPoolId: decodeFromJSONField(ID.reified(), field.stakingPoolId),
-      amount: decodeFromJSONField("u64", field.amount),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): DecreaseValidatorStakeEvent {
-    if (json.$typeName !== DecreaseValidatorStakeEvent.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return DecreaseValidatorStakeEvent.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(
-    content: SuiParsedData,
-  ): DecreaseValidatorStakeEvent {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isDecreaseValidatorStakeEvent(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a DecreaseValidatorStakeEvent object`,
-      );
-    }
-    return DecreaseValidatorStakeEvent.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): DecreaseValidatorStakeEvent {
-    if (data.bcs) {
-      if (
-        data.bcs.dataType !== "moveObject" ||
-        !isDecreaseValidatorStakeEvent(data.bcs.type)
-      ) {
-        throw new Error(
-          `object at is not a DecreaseValidatorStakeEvent object`,
-        );
-      }
-
-      return DecreaseValidatorStakeEvent.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return DecreaseValidatorStakeEvent.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(
-    client: SuiClient,
-    id: string,
-  ): Promise<DecreaseValidatorStakeEvent> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching DecreaseValidatorStakeEvent object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isDecreaseValidatorStakeEvent(res.data.bcs.type)
-    ) {
-      throw new Error(
-        `object at id ${id} is not a DecreaseValidatorStakeEvent object`,
-      );
-    }
-
-    return DecreaseValidatorStakeEvent.fromSuiObjectData(res.data);
-  }
-}
-
-/* ============================== EpochChangedEvent =============================== */
-
-export function isEpochChangedEvent(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V1}::liquid_staking::EpochChangedEvent`;
-}
-
-export interface EpochChangedEventFields {
-  typename: ToField<TypeName>;
-  oldSuiSupply: ToField<"u64">;
-  newSuiSupply: ToField<"u64">;
-  lstSupply: ToField<"u64">;
-  spreadFee: ToField<"u64">;
-}
-
-export type EpochChangedEventReified = Reified<
-  EpochChangedEvent,
-  EpochChangedEventFields
->;
-
-export class EpochChangedEvent implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V1}::liquid_staking::EpochChangedEvent`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = EpochChangedEvent.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::EpochChangedEvent`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = EpochChangedEvent.$isPhantom;
-
-  readonly typename: ToField<TypeName>;
-  readonly oldSuiSupply: ToField<"u64">;
-  readonly newSuiSupply: ToField<"u64">;
-  readonly lstSupply: ToField<"u64">;
-  readonly spreadFee: ToField<"u64">;
-
-  private constructor(typeArgs: [], fields: EpochChangedEventFields) {
-    this.$fullTypeName = composeSuiType(
-      EpochChangedEvent.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V1}::liquid_staking::EpochChangedEvent`;
-    this.$typeArgs = typeArgs;
-
-    this.typename = fields.typename;
-    this.oldSuiSupply = fields.oldSuiSupply;
-    this.newSuiSupply = fields.newSuiSupply;
-    this.lstSupply = fields.lstSupply;
-    this.spreadFee = fields.spreadFee;
-  }
-
-  static reified(): EpochChangedEventReified {
-    return {
-      typeName: EpochChangedEvent.$typeName,
-      fullTypeName: composeSuiType(
-        EpochChangedEvent.$typeName,
-        ...[],
-      ) as `${typeof PKG_V1}::liquid_staking::EpochChangedEvent`,
-      typeArgs: [] as [],
-      isPhantom: EpochChangedEvent.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        EpochChangedEvent.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        EpochChangedEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => EpochChangedEvent.fromBcs(data),
-      bcs: EpochChangedEvent.bcs,
-      fromJSONField: (field: any) => EpochChangedEvent.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) => EpochChangedEvent.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        EpochChangedEvent.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        EpochChangedEvent.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        EpochChangedEvent.fetch(client, id),
-      new: (fields: EpochChangedEventFields) => {
-        return new EpochChangedEvent([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return EpochChangedEvent.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<EpochChangedEvent>> {
-    return phantom(EpochChangedEvent.reified());
-  }
-  static get p() {
-    return EpochChangedEvent.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("EpochChangedEvent", {
-      typename: TypeName.bcs,
-      old_sui_supply: bcs.u64(),
-      new_sui_supply: bcs.u64(),
-      lst_supply: bcs.u64(),
-      spread_fee: bcs.u64(),
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): EpochChangedEvent {
-    return EpochChangedEvent.reified().new({
-      typename: decodeFromFields(TypeName.reified(), fields.typename),
-      oldSuiSupply: decodeFromFields("u64", fields.old_sui_supply),
-      newSuiSupply: decodeFromFields("u64", fields.new_sui_supply),
-      lstSupply: decodeFromFields("u64", fields.lst_supply),
-      spreadFee: decodeFromFields("u64", fields.spread_fee),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): EpochChangedEvent {
-    if (!isEpochChangedEvent(item.type)) {
-      throw new Error("not a EpochChangedEvent type");
-    }
-
-    return EpochChangedEvent.reified().new({
-      typename: decodeFromFieldsWithTypes(
-        TypeName.reified(),
-        item.fields.typename,
-      ),
-      oldSuiSupply: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.old_sui_supply,
-      ),
-      newSuiSupply: decodeFromFieldsWithTypes(
-        "u64",
-        item.fields.new_sui_supply,
-      ),
-      lstSupply: decodeFromFieldsWithTypes("u64", item.fields.lst_supply),
-      spreadFee: decodeFromFieldsWithTypes("u64", item.fields.spread_fee),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): EpochChangedEvent {
-    return EpochChangedEvent.fromFields(EpochChangedEvent.bcs.parse(data));
-  }
-
-  toJSONField() {
-    return {
-      typename: this.typename.toJSONField(),
-      oldSuiSupply: this.oldSuiSupply.toString(),
-      newSuiSupply: this.newSuiSupply.toString(),
-      lstSupply: this.lstSupply.toString(),
-      spreadFee: this.spreadFee.toString(),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): EpochChangedEvent {
-    return EpochChangedEvent.reified().new({
-      typename: decodeFromJSONField(TypeName.reified(), field.typename),
-      oldSuiSupply: decodeFromJSONField("u64", field.oldSuiSupply),
-      newSuiSupply: decodeFromJSONField("u64", field.newSuiSupply),
-      lstSupply: decodeFromJSONField("u64", field.lstSupply),
-      spreadFee: decodeFromJSONField("u64", field.spreadFee),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): EpochChangedEvent {
-    if (json.$typeName !== EpochChangedEvent.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return EpochChangedEvent.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(content: SuiParsedData): EpochChangedEvent {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isEpochChangedEvent(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a EpochChangedEvent object`,
-      );
-    }
-    return EpochChangedEvent.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): EpochChangedEvent {
-    if (data.bcs) {
-      if (
-        data.bcs.dataType !== "moveObject" ||
-        !isEpochChangedEvent(data.bcs.type)
-      ) {
-        throw new Error(`object at is not a EpochChangedEvent object`);
-      }
-
-      return EpochChangedEvent.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return EpochChangedEvent.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(
-    client: SuiClient,
-    id: string,
-  ): Promise<EpochChangedEvent> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching EpochChangedEvent object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isEpochChangedEvent(res.data.bcs.type)
-    ) {
-      throw new Error(`object at id ${id} is not a EpochChangedEvent object`);
-    }
-
-    return EpochChangedEvent.fromSuiObjectData(res.data);
-  }
-}
-
-/* ============================== IncreaseValidatorStakeEvent =============================== */
-
-export function isIncreaseValidatorStakeEvent(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
-}
-
-export interface IncreaseValidatorStakeEventFields {
-  typename: ToField<TypeName>;
-  stakingPoolId: ToField<ID>;
-  amount: ToField<"u64">;
-}
-
-export type IncreaseValidatorStakeEventReified = Reified<
-  IncreaseValidatorStakeEvent,
-  IncreaseValidatorStakeEventFields
->;
-
-export class IncreaseValidatorStakeEvent implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = IncreaseValidatorStakeEvent.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = IncreaseValidatorStakeEvent.$isPhantom;
-
-  readonly typename: ToField<TypeName>;
-  readonly stakingPoolId: ToField<ID>;
-  readonly amount: ToField<"u64">;
-
-  private constructor(typeArgs: [], fields: IncreaseValidatorStakeEventFields) {
-    this.$fullTypeName = composeSuiType(
-      IncreaseValidatorStakeEvent.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
-    this.$typeArgs = typeArgs;
-
-    this.typename = fields.typename;
-    this.stakingPoolId = fields.stakingPoolId;
-    this.amount = fields.amount;
-  }
-
-  static reified(): IncreaseValidatorStakeEventReified {
-    return {
-      typeName: IncreaseValidatorStakeEvent.$typeName,
-      fullTypeName: composeSuiType(
-        IncreaseValidatorStakeEvent.$typeName,
-        ...[],
-      ) as `${typeof PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`,
-      typeArgs: [] as [],
-      isPhantom: IncreaseValidatorStakeEvent.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) =>
-        IncreaseValidatorStakeEvent.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        IncreaseValidatorStakeEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => IncreaseValidatorStakeEvent.fromBcs(data),
-      bcs: IncreaseValidatorStakeEvent.bcs,
-      fromJSONField: (field: any) =>
-        IncreaseValidatorStakeEvent.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) =>
-        IncreaseValidatorStakeEvent.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        IncreaseValidatorStakeEvent.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        IncreaseValidatorStakeEvent.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        IncreaseValidatorStakeEvent.fetch(client, id),
-      new: (fields: IncreaseValidatorStakeEventFields) => {
-        return new IncreaseValidatorStakeEvent([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return IncreaseValidatorStakeEvent.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<IncreaseValidatorStakeEvent>> {
-    return phantom(IncreaseValidatorStakeEvent.reified());
-  }
-  static get p() {
-    return IncreaseValidatorStakeEvent.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("IncreaseValidatorStakeEvent", {
-      typename: TypeName.bcs,
-      staking_pool_id: ID.bcs,
-      amount: bcs.u64(),
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): IncreaseValidatorStakeEvent {
-    return IncreaseValidatorStakeEvent.reified().new({
-      typename: decodeFromFields(TypeName.reified(), fields.typename),
-      stakingPoolId: decodeFromFields(ID.reified(), fields.staking_pool_id),
-      amount: decodeFromFields("u64", fields.amount),
-    });
-  }
-
-  static fromFieldsWithTypes(
-    item: FieldsWithTypes,
-  ): IncreaseValidatorStakeEvent {
-    if (!isIncreaseValidatorStakeEvent(item.type)) {
-      throw new Error("not a IncreaseValidatorStakeEvent type");
-    }
-
-    return IncreaseValidatorStakeEvent.reified().new({
-      typename: decodeFromFieldsWithTypes(
-        TypeName.reified(),
-        item.fields.typename,
-      ),
-      stakingPoolId: decodeFromFieldsWithTypes(
-        ID.reified(),
-        item.fields.staking_pool_id,
-      ),
-      amount: decodeFromFieldsWithTypes("u64", item.fields.amount),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): IncreaseValidatorStakeEvent {
-    return IncreaseValidatorStakeEvent.fromFields(
-      IncreaseValidatorStakeEvent.bcs.parse(data),
-    );
-  }
-
-  toJSONField() {
-    return {
-      typename: this.typename.toJSONField(),
-      stakingPoolId: this.stakingPoolId,
-      amount: this.amount.toString(),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): IncreaseValidatorStakeEvent {
-    return IncreaseValidatorStakeEvent.reified().new({
-      typename: decodeFromJSONField(TypeName.reified(), field.typename),
-      stakingPoolId: decodeFromJSONField(ID.reified(), field.stakingPoolId),
-      amount: decodeFromJSONField("u64", field.amount),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): IncreaseValidatorStakeEvent {
-    if (json.$typeName !== IncreaseValidatorStakeEvent.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return IncreaseValidatorStakeEvent.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(
-    content: SuiParsedData,
-  ): IncreaseValidatorStakeEvent {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isIncreaseValidatorStakeEvent(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a IncreaseValidatorStakeEvent object`,
-      );
-    }
-    return IncreaseValidatorStakeEvent.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): IncreaseValidatorStakeEvent {
-    if (data.bcs) {
-      if (
-        data.bcs.dataType !== "moveObject" ||
-        !isIncreaseValidatorStakeEvent(data.bcs.type)
-      ) {
-        throw new Error(
-          `object at is not a IncreaseValidatorStakeEvent object`,
-        );
-      }
-
-      return IncreaseValidatorStakeEvent.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return IncreaseValidatorStakeEvent.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(
-    client: SuiClient,
-    id: string,
-  ): Promise<IncreaseValidatorStakeEvent> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching IncreaseValidatorStakeEvent object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isIncreaseValidatorStakeEvent(res.data.bcs.type)
-    ) {
-      throw new Error(
-        `object at id ${id} is not a IncreaseValidatorStakeEvent object`,
-      );
-    }
-
-    return IncreaseValidatorStakeEvent.fromSuiObjectData(res.data);
-  }
-}
 
 /* ============================== LIQUID_STAKING =============================== */
 
@@ -1383,6 +79,7 @@ export class LIQUID_STAKING implements StructClass {
   }
 
   static reified(): LIQUID_STAKINGReified {
+    const reifiedBcs = LIQUID_STAKING.bcs;
     return {
       typeName: LIQUID_STAKING.$typeName,
       fullTypeName: composeSuiType(
@@ -1396,8 +93,9 @@ export class LIQUID_STAKING implements StructClass {
         LIQUID_STAKING.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         LIQUID_STAKING.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => LIQUID_STAKING.fromBcs(data),
-      bcs: LIQUID_STAKING.bcs,
+      fromBcs: (data: Uint8Array) =>
+        LIQUID_STAKING.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => LIQUID_STAKING.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => LIQUID_STAKING.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -1424,10 +122,21 @@ export class LIQUID_STAKING implements StructClass {
     return LIQUID_STAKING.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("LIQUID_STAKING", {
       dummy_field: bcs.bool(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof LIQUID_STAKING.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!LIQUID_STAKING.cachedBcs) {
+      LIQUID_STAKING.cachedBcs = LIQUID_STAKING.instantiateBcs();
+    }
+    return LIQUID_STAKING.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): LIQUID_STAKING {
@@ -1596,6 +305,7 @@ export class LiquidStakingInfo<P extends PhantomTypeArgument>
   static reified<P extends PhantomReified<PhantomTypeArgument>>(
     P: P,
   ): LiquidStakingInfoReified<ToPhantomTypeArgument<P>> {
+    const reifiedBcs = LiquidStakingInfo.bcs;
     return {
       typeName: LiquidStakingInfo.$typeName,
       fullTypeName: composeSuiType(
@@ -1611,8 +321,9 @@ export class LiquidStakingInfo<P extends PhantomTypeArgument>
         LiquidStakingInfo.fromFields(P, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         LiquidStakingInfo.fromFieldsWithTypes(P, item),
-      fromBcs: (data: Uint8Array) => LiquidStakingInfo.fromBcs(P, data),
-      bcs: LiquidStakingInfo.bcs,
+      fromBcs: (data: Uint8Array) =>
+        LiquidStakingInfo.fromFields(P, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => LiquidStakingInfo.fromJSONField(P, field),
       fromJSON: (json: Record<string, any>) =>
         LiquidStakingInfo.fromJSON(P, json),
@@ -1642,7 +353,7 @@ export class LiquidStakingInfo<P extends PhantomTypeArgument>
     return LiquidStakingInfo.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("LiquidStakingInfo", {
       id: UID.bcs,
       lst_treasury_cap: TreasuryCap.bcs,
@@ -1653,6 +364,17 @@ export class LiquidStakingInfo<P extends PhantomTypeArgument>
       version: Version.bcs,
       extra_fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof LiquidStakingInfo.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!LiquidStakingInfo.cachedBcs) {
+      LiquidStakingInfo.cachedBcs = LiquidStakingInfo.instantiateBcs();
+    }
+    return LiquidStakingInfo.cachedBcs;
   }
 
   static fromFields<P extends PhantomReified<PhantomTypeArgument>>(
@@ -1867,6 +589,738 @@ export class LiquidStakingInfo<P extends PhantomTypeArgument>
   }
 }
 
+/* ============================== AdminCap =============================== */
+
+export function isAdminCap(type: string): boolean {
+  type = compressSuiType(type);
+  return type.startsWith(`${PKG_V1}::liquid_staking::AdminCap` + "<");
+}
+
+export interface AdminCapFields<P extends PhantomTypeArgument> {
+  id: ToField<UID>;
+}
+
+export type AdminCapReified<P extends PhantomTypeArgument> = Reified<
+  AdminCap<P>,
+  AdminCapFields<P>
+>;
+
+export class AdminCap<P extends PhantomTypeArgument> implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `${PKG_V1}::liquid_staking::AdminCap`;
+  static readonly $numTypeParams = 1;
+  static readonly $isPhantom = [true] as const;
+
+  readonly $typeName = AdminCap.$typeName;
+  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::AdminCap<${PhantomToTypeStr<P>}>`;
+  readonly $typeArgs: [PhantomToTypeStr<P>];
+  readonly $isPhantom = AdminCap.$isPhantom;
+
+  readonly id: ToField<UID>;
+
+  private constructor(
+    typeArgs: [PhantomToTypeStr<P>],
+    fields: AdminCapFields<P>,
+  ) {
+    this.$fullTypeName = composeSuiType(
+      AdminCap.$typeName,
+      ...typeArgs,
+    ) as `${typeof PKG_V1}::liquid_staking::AdminCap<${PhantomToTypeStr<P>}>`;
+    this.$typeArgs = typeArgs;
+
+    this.id = fields.id;
+  }
+
+  static reified<P extends PhantomReified<PhantomTypeArgument>>(
+    P: P,
+  ): AdminCapReified<ToPhantomTypeArgument<P>> {
+    const reifiedBcs = AdminCap.bcs;
+    return {
+      typeName: AdminCap.$typeName,
+      fullTypeName: composeSuiType(
+        AdminCap.$typeName,
+        ...[extractType(P)],
+      ) as `${typeof PKG_V1}::liquid_staking::AdminCap<${PhantomToTypeStr<ToPhantomTypeArgument<P>>}>`,
+      typeArgs: [extractType(P)] as [
+        PhantomToTypeStr<ToPhantomTypeArgument<P>>,
+      ],
+      isPhantom: AdminCap.$isPhantom,
+      reifiedTypeArgs: [P],
+      fromFields: (fields: Record<string, any>) =>
+        AdminCap.fromFields(P, fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        AdminCap.fromFieldsWithTypes(P, item),
+      fromBcs: (data: Uint8Array) =>
+        AdminCap.fromFields(P, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => AdminCap.fromJSONField(P, field),
+      fromJSON: (json: Record<string, any>) => AdminCap.fromJSON(P, json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        AdminCap.fromSuiParsedData(P, content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        AdminCap.fromSuiObjectData(P, content),
+      fetch: async (client: SuiClient, id: string) =>
+        AdminCap.fetch(client, P, id),
+      new: (fields: AdminCapFields<ToPhantomTypeArgument<P>>) => {
+        return new AdminCap([extractType(P)], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return AdminCap.reified;
+  }
+
+  static phantom<P extends PhantomReified<PhantomTypeArgument>>(
+    P: P,
+  ): PhantomReified<ToTypeStr<AdminCap<ToPhantomTypeArgument<P>>>> {
+    return phantom(AdminCap.reified(P));
+  }
+  static get p() {
+    return AdminCap.phantom;
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("AdminCap", {
+      id: UID.bcs,
+    });
+  }
+
+  private static cachedBcs: ReturnType<typeof AdminCap.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!AdminCap.cachedBcs) {
+      AdminCap.cachedBcs = AdminCap.instantiateBcs();
+    }
+    return AdminCap.cachedBcs;
+  }
+
+  static fromFields<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    fields: Record<string, any>,
+  ): AdminCap<ToPhantomTypeArgument<P>> {
+    return AdminCap.reified(typeArg).new({
+      id: decodeFromFields(UID.reified(), fields.id),
+    });
+  }
+
+  static fromFieldsWithTypes<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    item: FieldsWithTypes,
+  ): AdminCap<ToPhantomTypeArgument<P>> {
+    if (!isAdminCap(item.type)) {
+      throw new Error("not a AdminCap type");
+    }
+    assertFieldsWithTypesArgsMatch(item, [typeArg]);
+
+    return AdminCap.reified(typeArg).new({
+      id: decodeFromFieldsWithTypes(UID.reified(), item.fields.id),
+    });
+  }
+
+  static fromBcs<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    data: Uint8Array,
+  ): AdminCap<ToPhantomTypeArgument<P>> {
+    return AdminCap.fromFields(typeArg, AdminCap.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      id: this.id,
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    field: any,
+  ): AdminCap<ToPhantomTypeArgument<P>> {
+    return AdminCap.reified(typeArg).new({
+      id: decodeFromJSONField(UID.reified(), field.id),
+    });
+  }
+
+  static fromJSON<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    json: Record<string, any>,
+  ): AdminCap<ToPhantomTypeArgument<P>> {
+    if (json.$typeName !== AdminCap.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+    assertReifiedTypeArgsMatch(
+      composeSuiType(AdminCap.$typeName, extractType(typeArg)),
+      json.$typeArgs,
+      [typeArg],
+    );
+
+    return AdminCap.fromJSONField(typeArg, json);
+  }
+
+  static fromSuiParsedData<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    content: SuiParsedData,
+  ): AdminCap<ToPhantomTypeArgument<P>> {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isAdminCap(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a AdminCap object`,
+      );
+    }
+    return AdminCap.fromFieldsWithTypes(typeArg, content);
+  }
+
+  static fromSuiObjectData<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    data: SuiObjectData,
+  ): AdminCap<ToPhantomTypeArgument<P>> {
+    if (data.bcs) {
+      if (data.bcs.dataType !== "moveObject" || !isAdminCap(data.bcs.type)) {
+        throw new Error(`object at is not a AdminCap object`);
+      }
+
+      const gotTypeArgs = parseTypeName(data.bcs.type).typeArgs;
+      if (gotTypeArgs.length !== 1) {
+        throw new Error(
+          `type argument mismatch: expected 1 type argument but got '${gotTypeArgs.length}'`,
+        );
+      }
+      const gotTypeArg = compressSuiType(gotTypeArgs[0]);
+      const expectedTypeArg = compressSuiType(extractType(typeArg));
+      if (gotTypeArg !== compressSuiType(extractType(typeArg))) {
+        throw new Error(
+          `type argument mismatch: expected '${expectedTypeArg}' but got '${gotTypeArg}'`,
+        );
+      }
+
+      return AdminCap.fromBcs(typeArg, fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return AdminCap.fromSuiParsedData(typeArg, data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch<P extends PhantomReified<PhantomTypeArgument>>(
+    client: SuiClient,
+    typeArg: P,
+    id: string,
+  ): Promise<AdminCap<ToPhantomTypeArgument<P>>> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching AdminCap object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isAdminCap(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a AdminCap object`);
+    }
+
+    return AdminCap.fromSuiObjectData(typeArg, res.data);
+  }
+}
+
+/* ============================== CustomRedeemRequest =============================== */
+
+export function isCustomRedeemRequest(type: string): boolean {
+  type = compressSuiType(type);
+  return type.startsWith(
+    `${PKG_V6}::liquid_staking::CustomRedeemRequest` + "<",
+  );
+}
+
+export interface CustomRedeemRequestFields<P extends PhantomTypeArgument> {
+  lst: ToField<Coin<P>>;
+  requestProcessed: ToField<"bool">;
+}
+
+export type CustomRedeemRequestReified<P extends PhantomTypeArgument> = Reified<
+  CustomRedeemRequest<P>,
+  CustomRedeemRequestFields<P>
+>;
+
+export class CustomRedeemRequest<P extends PhantomTypeArgument>
+  implements StructClass
+{
+  __StructClass = true as const;
+
+  static readonly $typeName = `${PKG_V6}::liquid_staking::CustomRedeemRequest`;
+  static readonly $numTypeParams = 1;
+  static readonly $isPhantom = [true] as const;
+
+  readonly $typeName = CustomRedeemRequest.$typeName;
+  readonly $fullTypeName: `${typeof PKG_V6}::liquid_staking::CustomRedeemRequest<${PhantomToTypeStr<P>}>`;
+  readonly $typeArgs: [PhantomToTypeStr<P>];
+  readonly $isPhantom = CustomRedeemRequest.$isPhantom;
+
+  readonly lst: ToField<Coin<P>>;
+  readonly requestProcessed: ToField<"bool">;
+
+  private constructor(
+    typeArgs: [PhantomToTypeStr<P>],
+    fields: CustomRedeemRequestFields<P>,
+  ) {
+    this.$fullTypeName = composeSuiType(
+      CustomRedeemRequest.$typeName,
+      ...typeArgs,
+    ) as `${typeof PKG_V6}::liquid_staking::CustomRedeemRequest<${PhantomToTypeStr<P>}>`;
+    this.$typeArgs = typeArgs;
+
+    this.lst = fields.lst;
+    this.requestProcessed = fields.requestProcessed;
+  }
+
+  static reified<P extends PhantomReified<PhantomTypeArgument>>(
+    P: P,
+  ): CustomRedeemRequestReified<ToPhantomTypeArgument<P>> {
+    const reifiedBcs = CustomRedeemRequest.bcs;
+    return {
+      typeName: CustomRedeemRequest.$typeName,
+      fullTypeName: composeSuiType(
+        CustomRedeemRequest.$typeName,
+        ...[extractType(P)],
+      ) as `${typeof PKG_V6}::liquid_staking::CustomRedeemRequest<${PhantomToTypeStr<ToPhantomTypeArgument<P>>}>`,
+      typeArgs: [extractType(P)] as [
+        PhantomToTypeStr<ToPhantomTypeArgument<P>>,
+      ],
+      isPhantom: CustomRedeemRequest.$isPhantom,
+      reifiedTypeArgs: [P],
+      fromFields: (fields: Record<string, any>) =>
+        CustomRedeemRequest.fromFields(P, fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        CustomRedeemRequest.fromFieldsWithTypes(P, item),
+      fromBcs: (data: Uint8Array) =>
+        CustomRedeemRequest.fromFields(P, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) =>
+        CustomRedeemRequest.fromJSONField(P, field),
+      fromJSON: (json: Record<string, any>) =>
+        CustomRedeemRequest.fromJSON(P, json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        CustomRedeemRequest.fromSuiParsedData(P, content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        CustomRedeemRequest.fromSuiObjectData(P, content),
+      fetch: async (client: SuiClient, id: string) =>
+        CustomRedeemRequest.fetch(client, P, id),
+      new: (fields: CustomRedeemRequestFields<ToPhantomTypeArgument<P>>) => {
+        return new CustomRedeemRequest([extractType(P)], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return CustomRedeemRequest.reified;
+  }
+
+  static phantom<P extends PhantomReified<PhantomTypeArgument>>(
+    P: P,
+  ): PhantomReified<ToTypeStr<CustomRedeemRequest<ToPhantomTypeArgument<P>>>> {
+    return phantom(CustomRedeemRequest.reified(P));
+  }
+  static get p() {
+    return CustomRedeemRequest.phantom;
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("CustomRedeemRequest", {
+      lst: Coin.bcs,
+      request_processed: bcs.bool(),
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof CustomRedeemRequest.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!CustomRedeemRequest.cachedBcs) {
+      CustomRedeemRequest.cachedBcs = CustomRedeemRequest.instantiateBcs();
+    }
+    return CustomRedeemRequest.cachedBcs;
+  }
+
+  static fromFields<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    fields: Record<string, any>,
+  ): CustomRedeemRequest<ToPhantomTypeArgument<P>> {
+    return CustomRedeemRequest.reified(typeArg).new({
+      lst: decodeFromFields(Coin.reified(typeArg), fields.lst),
+      requestProcessed: decodeFromFields("bool", fields.request_processed),
+    });
+  }
+
+  static fromFieldsWithTypes<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    item: FieldsWithTypes,
+  ): CustomRedeemRequest<ToPhantomTypeArgument<P>> {
+    if (!isCustomRedeemRequest(item.type)) {
+      throw new Error("not a CustomRedeemRequest type");
+    }
+    assertFieldsWithTypesArgsMatch(item, [typeArg]);
+
+    return CustomRedeemRequest.reified(typeArg).new({
+      lst: decodeFromFieldsWithTypes(Coin.reified(typeArg), item.fields.lst),
+      requestProcessed: decodeFromFieldsWithTypes(
+        "bool",
+        item.fields.request_processed,
+      ),
+    });
+  }
+
+  static fromBcs<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    data: Uint8Array,
+  ): CustomRedeemRequest<ToPhantomTypeArgument<P>> {
+    return CustomRedeemRequest.fromFields(
+      typeArg,
+      CustomRedeemRequest.bcs.parse(data),
+    );
+  }
+
+  toJSONField() {
+    return {
+      lst: this.lst.toJSONField(),
+      requestProcessed: this.requestProcessed,
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    field: any,
+  ): CustomRedeemRequest<ToPhantomTypeArgument<P>> {
+    return CustomRedeemRequest.reified(typeArg).new({
+      lst: decodeFromJSONField(Coin.reified(typeArg), field.lst),
+      requestProcessed: decodeFromJSONField("bool", field.requestProcessed),
+    });
+  }
+
+  static fromJSON<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    json: Record<string, any>,
+  ): CustomRedeemRequest<ToPhantomTypeArgument<P>> {
+    if (json.$typeName !== CustomRedeemRequest.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+    assertReifiedTypeArgsMatch(
+      composeSuiType(CustomRedeemRequest.$typeName, extractType(typeArg)),
+      json.$typeArgs,
+      [typeArg],
+    );
+
+    return CustomRedeemRequest.fromJSONField(typeArg, json);
+  }
+
+  static fromSuiParsedData<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    content: SuiParsedData,
+  ): CustomRedeemRequest<ToPhantomTypeArgument<P>> {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isCustomRedeemRequest(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a CustomRedeemRequest object`,
+      );
+    }
+    return CustomRedeemRequest.fromFieldsWithTypes(typeArg, content);
+  }
+
+  static fromSuiObjectData<P extends PhantomReified<PhantomTypeArgument>>(
+    typeArg: P,
+    data: SuiObjectData,
+  ): CustomRedeemRequest<ToPhantomTypeArgument<P>> {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isCustomRedeemRequest(data.bcs.type)
+      ) {
+        throw new Error(`object at is not a CustomRedeemRequest object`);
+      }
+
+      const gotTypeArgs = parseTypeName(data.bcs.type).typeArgs;
+      if (gotTypeArgs.length !== 1) {
+        throw new Error(
+          `type argument mismatch: expected 1 type argument but got '${gotTypeArgs.length}'`,
+        );
+      }
+      const gotTypeArg = compressSuiType(gotTypeArgs[0]);
+      const expectedTypeArg = compressSuiType(extractType(typeArg));
+      if (gotTypeArg !== compressSuiType(extractType(typeArg))) {
+        throw new Error(
+          `type argument mismatch: expected '${expectedTypeArg}' but got '${gotTypeArg}'`,
+        );
+      }
+
+      return CustomRedeemRequest.fromBcs(typeArg, fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return CustomRedeemRequest.fromSuiParsedData(typeArg, data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch<P extends PhantomReified<PhantomTypeArgument>>(
+    client: SuiClient,
+    typeArg: P,
+    id: string,
+  ): Promise<CustomRedeemRequest<ToPhantomTypeArgument<P>>> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching CustomRedeemRequest object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isCustomRedeemRequest(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a CustomRedeemRequest object`);
+    }
+
+    return CustomRedeemRequest.fromSuiObjectData(typeArg, res.data);
+  }
+}
+
+/* ============================== CreateEvent =============================== */
+
+export function isCreateEvent(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `${PKG_V1}::liquid_staking::CreateEvent`;
+}
+
+export interface CreateEventFields {
+  typename: ToField<TypeName>;
+  liquidStakingInfoId: ToField<ID>;
+}
+
+export type CreateEventReified = Reified<CreateEvent, CreateEventFields>;
+
+export class CreateEvent implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `${PKG_V1}::liquid_staking::CreateEvent`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = CreateEvent.$typeName;
+  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::CreateEvent`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = CreateEvent.$isPhantom;
+
+  readonly typename: ToField<TypeName>;
+  readonly liquidStakingInfoId: ToField<ID>;
+
+  private constructor(typeArgs: [], fields: CreateEventFields) {
+    this.$fullTypeName = composeSuiType(
+      CreateEvent.$typeName,
+      ...typeArgs,
+    ) as `${typeof PKG_V1}::liquid_staking::CreateEvent`;
+    this.$typeArgs = typeArgs;
+
+    this.typename = fields.typename;
+    this.liquidStakingInfoId = fields.liquidStakingInfoId;
+  }
+
+  static reified(): CreateEventReified {
+    const reifiedBcs = CreateEvent.bcs;
+    return {
+      typeName: CreateEvent.$typeName,
+      fullTypeName: composeSuiType(
+        CreateEvent.$typeName,
+        ...[],
+      ) as `${typeof PKG_V1}::liquid_staking::CreateEvent`,
+      typeArgs: [] as [],
+      isPhantom: CreateEvent.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        CreateEvent.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        CreateEvent.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        CreateEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => CreateEvent.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) => CreateEvent.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        CreateEvent.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        CreateEvent.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        CreateEvent.fetch(client, id),
+      new: (fields: CreateEventFields) => {
+        return new CreateEvent([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return CreateEvent.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<CreateEvent>> {
+    return phantom(CreateEvent.reified());
+  }
+  static get p() {
+    return CreateEvent.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("CreateEvent", {
+      typename: TypeName.bcs,
+      liquid_staking_info_id: ID.bcs,
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof CreateEvent.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!CreateEvent.cachedBcs) {
+      CreateEvent.cachedBcs = CreateEvent.instantiateBcs();
+    }
+    return CreateEvent.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): CreateEvent {
+    return CreateEvent.reified().new({
+      typename: decodeFromFields(TypeName.reified(), fields.typename),
+      liquidStakingInfoId: decodeFromFields(
+        ID.reified(),
+        fields.liquid_staking_info_id,
+      ),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): CreateEvent {
+    if (!isCreateEvent(item.type)) {
+      throw new Error("not a CreateEvent type");
+    }
+
+    return CreateEvent.reified().new({
+      typename: decodeFromFieldsWithTypes(
+        TypeName.reified(),
+        item.fields.typename,
+      ),
+      liquidStakingInfoId: decodeFromFieldsWithTypes(
+        ID.reified(),
+        item.fields.liquid_staking_info_id,
+      ),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): CreateEvent {
+    return CreateEvent.fromFields(CreateEvent.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      typename: this.typename.toJSONField(),
+      liquidStakingInfoId: this.liquidStakingInfoId,
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): CreateEvent {
+    return CreateEvent.reified().new({
+      typename: decodeFromJSONField(TypeName.reified(), field.typename),
+      liquidStakingInfoId: decodeFromJSONField(
+        ID.reified(),
+        field.liquidStakingInfoId,
+      ),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): CreateEvent {
+    if (json.$typeName !== CreateEvent.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return CreateEvent.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): CreateEvent {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isCreateEvent(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a CreateEvent object`,
+      );
+    }
+    return CreateEvent.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): CreateEvent {
+    if (data.bcs) {
+      if (data.bcs.dataType !== "moveObject" || !isCreateEvent(data.bcs.type)) {
+        throw new Error(`object at is not a CreateEvent object`);
+      }
+
+      return CreateEvent.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return CreateEvent.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(client: SuiClient, id: string): Promise<CreateEvent> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching CreateEvent object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isCreateEvent(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a CreateEvent object`);
+    }
+
+    return CreateEvent.fromSuiObjectData(res.data);
+  }
+}
+
 /* ============================== MintEvent =============================== */
 
 export function isMintEvent(type: string): boolean {
@@ -1914,6 +1368,7 @@ export class MintEvent implements StructClass {
   }
 
   static reified(): MintEventReified {
+    const reifiedBcs = MintEvent.bcs;
     return {
       typeName: MintEvent.$typeName,
       fullTypeName: composeSuiType(
@@ -1926,8 +1381,9 @@ export class MintEvent implements StructClass {
       fromFields: (fields: Record<string, any>) => MintEvent.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         MintEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => MintEvent.fromBcs(data),
-      bcs: MintEvent.bcs,
+      fromBcs: (data: Uint8Array) =>
+        MintEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => MintEvent.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => MintEvent.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -1954,13 +1410,23 @@ export class MintEvent implements StructClass {
     return MintEvent.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("MintEvent", {
       typename: TypeName.bcs,
       sui_amount_in: bcs.u64(),
       lst_amount_out: bcs.u64(),
       fee_amount: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<typeof MintEvent.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!MintEvent.cachedBcs) {
+      MintEvent.cachedBcs = MintEvent.instantiateBcs();
+    }
+    return MintEvent.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): MintEvent {
@@ -2122,6 +1588,7 @@ export class RedeemEvent implements StructClass {
   }
 
   static reified(): RedeemEventReified {
+    const reifiedBcs = RedeemEvent.bcs;
     return {
       typeName: RedeemEvent.$typeName,
       fullTypeName: composeSuiType(
@@ -2135,8 +1602,9 @@ export class RedeemEvent implements StructClass {
         RedeemEvent.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         RedeemEvent.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => RedeemEvent.fromBcs(data),
-      bcs: RedeemEvent.bcs,
+      fromBcs: (data: Uint8Array) =>
+        RedeemEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => RedeemEvent.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => RedeemEvent.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -2163,13 +1631,24 @@ export class RedeemEvent implements StructClass {
     return RedeemEvent.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("RedeemEvent", {
       typename: TypeName.bcs,
       lst_amount_in: bcs.u64(),
       sui_amount_out: bcs.u64(),
       fee_amount: bcs.u64(),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof RedeemEvent.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!RedeemEvent.cachedBcs) {
+      RedeemEvent.cachedBcs = RedeemEvent.instantiateBcs();
+    }
+    return RedeemEvent.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): RedeemEvent {
@@ -2281,5 +1760,928 @@ export class RedeemEvent implements StructClass {
     }
 
     return RedeemEvent.fromSuiObjectData(res.data);
+  }
+}
+
+/* ============================== DecreaseValidatorStakeEvent =============================== */
+
+export function isDecreaseValidatorStakeEvent(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `${PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
+}
+
+export interface DecreaseValidatorStakeEventFields {
+  typename: ToField<TypeName>;
+  stakingPoolId: ToField<ID>;
+  amount: ToField<"u64">;
+}
+
+export type DecreaseValidatorStakeEventReified = Reified<
+  DecreaseValidatorStakeEvent,
+  DecreaseValidatorStakeEventFields
+>;
+
+export class DecreaseValidatorStakeEvent implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `${PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = DecreaseValidatorStakeEvent.$typeName;
+  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = DecreaseValidatorStakeEvent.$isPhantom;
+
+  readonly typename: ToField<TypeName>;
+  readonly stakingPoolId: ToField<ID>;
+  readonly amount: ToField<"u64">;
+
+  private constructor(typeArgs: [], fields: DecreaseValidatorStakeEventFields) {
+    this.$fullTypeName = composeSuiType(
+      DecreaseValidatorStakeEvent.$typeName,
+      ...typeArgs,
+    ) as `${typeof PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`;
+    this.$typeArgs = typeArgs;
+
+    this.typename = fields.typename;
+    this.stakingPoolId = fields.stakingPoolId;
+    this.amount = fields.amount;
+  }
+
+  static reified(): DecreaseValidatorStakeEventReified {
+    const reifiedBcs = DecreaseValidatorStakeEvent.bcs;
+    return {
+      typeName: DecreaseValidatorStakeEvent.$typeName,
+      fullTypeName: composeSuiType(
+        DecreaseValidatorStakeEvent.$typeName,
+        ...[],
+      ) as `${typeof PKG_V1}::liquid_staking::DecreaseValidatorStakeEvent`,
+      typeArgs: [] as [],
+      isPhantom: DecreaseValidatorStakeEvent.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        DecreaseValidatorStakeEvent.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        DecreaseValidatorStakeEvent.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        DecreaseValidatorStakeEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) =>
+        DecreaseValidatorStakeEvent.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) =>
+        DecreaseValidatorStakeEvent.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        DecreaseValidatorStakeEvent.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        DecreaseValidatorStakeEvent.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        DecreaseValidatorStakeEvent.fetch(client, id),
+      new: (fields: DecreaseValidatorStakeEventFields) => {
+        return new DecreaseValidatorStakeEvent([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return DecreaseValidatorStakeEvent.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<DecreaseValidatorStakeEvent>> {
+    return phantom(DecreaseValidatorStakeEvent.reified());
+  }
+  static get p() {
+    return DecreaseValidatorStakeEvent.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("DecreaseValidatorStakeEvent", {
+      typename: TypeName.bcs,
+      staking_pool_id: ID.bcs,
+      amount: bcs.u64(),
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof DecreaseValidatorStakeEvent.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!DecreaseValidatorStakeEvent.cachedBcs) {
+      DecreaseValidatorStakeEvent.cachedBcs =
+        DecreaseValidatorStakeEvent.instantiateBcs();
+    }
+    return DecreaseValidatorStakeEvent.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): DecreaseValidatorStakeEvent {
+    return DecreaseValidatorStakeEvent.reified().new({
+      typename: decodeFromFields(TypeName.reified(), fields.typename),
+      stakingPoolId: decodeFromFields(ID.reified(), fields.staking_pool_id),
+      amount: decodeFromFields("u64", fields.amount),
+    });
+  }
+
+  static fromFieldsWithTypes(
+    item: FieldsWithTypes,
+  ): DecreaseValidatorStakeEvent {
+    if (!isDecreaseValidatorStakeEvent(item.type)) {
+      throw new Error("not a DecreaseValidatorStakeEvent type");
+    }
+
+    return DecreaseValidatorStakeEvent.reified().new({
+      typename: decodeFromFieldsWithTypes(
+        TypeName.reified(),
+        item.fields.typename,
+      ),
+      stakingPoolId: decodeFromFieldsWithTypes(
+        ID.reified(),
+        item.fields.staking_pool_id,
+      ),
+      amount: decodeFromFieldsWithTypes("u64", item.fields.amount),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): DecreaseValidatorStakeEvent {
+    return DecreaseValidatorStakeEvent.fromFields(
+      DecreaseValidatorStakeEvent.bcs.parse(data),
+    );
+  }
+
+  toJSONField() {
+    return {
+      typename: this.typename.toJSONField(),
+      stakingPoolId: this.stakingPoolId,
+      amount: this.amount.toString(),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): DecreaseValidatorStakeEvent {
+    return DecreaseValidatorStakeEvent.reified().new({
+      typename: decodeFromJSONField(TypeName.reified(), field.typename),
+      stakingPoolId: decodeFromJSONField(ID.reified(), field.stakingPoolId),
+      amount: decodeFromJSONField("u64", field.amount),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): DecreaseValidatorStakeEvent {
+    if (json.$typeName !== DecreaseValidatorStakeEvent.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return DecreaseValidatorStakeEvent.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(
+    content: SuiParsedData,
+  ): DecreaseValidatorStakeEvent {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isDecreaseValidatorStakeEvent(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a DecreaseValidatorStakeEvent object`,
+      );
+    }
+    return DecreaseValidatorStakeEvent.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): DecreaseValidatorStakeEvent {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isDecreaseValidatorStakeEvent(data.bcs.type)
+      ) {
+        throw new Error(
+          `object at is not a DecreaseValidatorStakeEvent object`,
+        );
+      }
+
+      return DecreaseValidatorStakeEvent.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return DecreaseValidatorStakeEvent.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(
+    client: SuiClient,
+    id: string,
+  ): Promise<DecreaseValidatorStakeEvent> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching DecreaseValidatorStakeEvent object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isDecreaseValidatorStakeEvent(res.data.bcs.type)
+    ) {
+      throw new Error(
+        `object at id ${id} is not a DecreaseValidatorStakeEvent object`,
+      );
+    }
+
+    return DecreaseValidatorStakeEvent.fromSuiObjectData(res.data);
+  }
+}
+
+/* ============================== IncreaseValidatorStakeEvent =============================== */
+
+export function isIncreaseValidatorStakeEvent(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `${PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
+}
+
+export interface IncreaseValidatorStakeEventFields {
+  typename: ToField<TypeName>;
+  stakingPoolId: ToField<ID>;
+  amount: ToField<"u64">;
+}
+
+export type IncreaseValidatorStakeEventReified = Reified<
+  IncreaseValidatorStakeEvent,
+  IncreaseValidatorStakeEventFields
+>;
+
+export class IncreaseValidatorStakeEvent implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `${PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = IncreaseValidatorStakeEvent.$typeName;
+  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = IncreaseValidatorStakeEvent.$isPhantom;
+
+  readonly typename: ToField<TypeName>;
+  readonly stakingPoolId: ToField<ID>;
+  readonly amount: ToField<"u64">;
+
+  private constructor(typeArgs: [], fields: IncreaseValidatorStakeEventFields) {
+    this.$fullTypeName = composeSuiType(
+      IncreaseValidatorStakeEvent.$typeName,
+      ...typeArgs,
+    ) as `${typeof PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`;
+    this.$typeArgs = typeArgs;
+
+    this.typename = fields.typename;
+    this.stakingPoolId = fields.stakingPoolId;
+    this.amount = fields.amount;
+  }
+
+  static reified(): IncreaseValidatorStakeEventReified {
+    const reifiedBcs = IncreaseValidatorStakeEvent.bcs;
+    return {
+      typeName: IncreaseValidatorStakeEvent.$typeName,
+      fullTypeName: composeSuiType(
+        IncreaseValidatorStakeEvent.$typeName,
+        ...[],
+      ) as `${typeof PKG_V1}::liquid_staking::IncreaseValidatorStakeEvent`,
+      typeArgs: [] as [],
+      isPhantom: IncreaseValidatorStakeEvent.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        IncreaseValidatorStakeEvent.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        IncreaseValidatorStakeEvent.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        IncreaseValidatorStakeEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) =>
+        IncreaseValidatorStakeEvent.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) =>
+        IncreaseValidatorStakeEvent.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        IncreaseValidatorStakeEvent.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        IncreaseValidatorStakeEvent.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        IncreaseValidatorStakeEvent.fetch(client, id),
+      new: (fields: IncreaseValidatorStakeEventFields) => {
+        return new IncreaseValidatorStakeEvent([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return IncreaseValidatorStakeEvent.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<IncreaseValidatorStakeEvent>> {
+    return phantom(IncreaseValidatorStakeEvent.reified());
+  }
+  static get p() {
+    return IncreaseValidatorStakeEvent.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("IncreaseValidatorStakeEvent", {
+      typename: TypeName.bcs,
+      staking_pool_id: ID.bcs,
+      amount: bcs.u64(),
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof IncreaseValidatorStakeEvent.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!IncreaseValidatorStakeEvent.cachedBcs) {
+      IncreaseValidatorStakeEvent.cachedBcs =
+        IncreaseValidatorStakeEvent.instantiateBcs();
+    }
+    return IncreaseValidatorStakeEvent.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): IncreaseValidatorStakeEvent {
+    return IncreaseValidatorStakeEvent.reified().new({
+      typename: decodeFromFields(TypeName.reified(), fields.typename),
+      stakingPoolId: decodeFromFields(ID.reified(), fields.staking_pool_id),
+      amount: decodeFromFields("u64", fields.amount),
+    });
+  }
+
+  static fromFieldsWithTypes(
+    item: FieldsWithTypes,
+  ): IncreaseValidatorStakeEvent {
+    if (!isIncreaseValidatorStakeEvent(item.type)) {
+      throw new Error("not a IncreaseValidatorStakeEvent type");
+    }
+
+    return IncreaseValidatorStakeEvent.reified().new({
+      typename: decodeFromFieldsWithTypes(
+        TypeName.reified(),
+        item.fields.typename,
+      ),
+      stakingPoolId: decodeFromFieldsWithTypes(
+        ID.reified(),
+        item.fields.staking_pool_id,
+      ),
+      amount: decodeFromFieldsWithTypes("u64", item.fields.amount),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): IncreaseValidatorStakeEvent {
+    return IncreaseValidatorStakeEvent.fromFields(
+      IncreaseValidatorStakeEvent.bcs.parse(data),
+    );
+  }
+
+  toJSONField() {
+    return {
+      typename: this.typename.toJSONField(),
+      stakingPoolId: this.stakingPoolId,
+      amount: this.amount.toString(),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): IncreaseValidatorStakeEvent {
+    return IncreaseValidatorStakeEvent.reified().new({
+      typename: decodeFromJSONField(TypeName.reified(), field.typename),
+      stakingPoolId: decodeFromJSONField(ID.reified(), field.stakingPoolId),
+      amount: decodeFromJSONField("u64", field.amount),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): IncreaseValidatorStakeEvent {
+    if (json.$typeName !== IncreaseValidatorStakeEvent.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return IncreaseValidatorStakeEvent.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(
+    content: SuiParsedData,
+  ): IncreaseValidatorStakeEvent {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isIncreaseValidatorStakeEvent(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a IncreaseValidatorStakeEvent object`,
+      );
+    }
+    return IncreaseValidatorStakeEvent.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): IncreaseValidatorStakeEvent {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isIncreaseValidatorStakeEvent(data.bcs.type)
+      ) {
+        throw new Error(
+          `object at is not a IncreaseValidatorStakeEvent object`,
+        );
+      }
+
+      return IncreaseValidatorStakeEvent.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return IncreaseValidatorStakeEvent.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(
+    client: SuiClient,
+    id: string,
+  ): Promise<IncreaseValidatorStakeEvent> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching IncreaseValidatorStakeEvent object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isIncreaseValidatorStakeEvent(res.data.bcs.type)
+    ) {
+      throw new Error(
+        `object at id ${id} is not a IncreaseValidatorStakeEvent object`,
+      );
+    }
+
+    return IncreaseValidatorStakeEvent.fromSuiObjectData(res.data);
+  }
+}
+
+/* ============================== CollectFeesEvent =============================== */
+
+export function isCollectFeesEvent(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `${PKG_V1}::liquid_staking::CollectFeesEvent`;
+}
+
+export interface CollectFeesEventFields {
+  typename: ToField<TypeName>;
+  amount: ToField<"u64">;
+}
+
+export type CollectFeesEventReified = Reified<
+  CollectFeesEvent,
+  CollectFeesEventFields
+>;
+
+export class CollectFeesEvent implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `${PKG_V1}::liquid_staking::CollectFeesEvent`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = CollectFeesEvent.$typeName;
+  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::CollectFeesEvent`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = CollectFeesEvent.$isPhantom;
+
+  readonly typename: ToField<TypeName>;
+  readonly amount: ToField<"u64">;
+
+  private constructor(typeArgs: [], fields: CollectFeesEventFields) {
+    this.$fullTypeName = composeSuiType(
+      CollectFeesEvent.$typeName,
+      ...typeArgs,
+    ) as `${typeof PKG_V1}::liquid_staking::CollectFeesEvent`;
+    this.$typeArgs = typeArgs;
+
+    this.typename = fields.typename;
+    this.amount = fields.amount;
+  }
+
+  static reified(): CollectFeesEventReified {
+    const reifiedBcs = CollectFeesEvent.bcs;
+    return {
+      typeName: CollectFeesEvent.$typeName,
+      fullTypeName: composeSuiType(
+        CollectFeesEvent.$typeName,
+        ...[],
+      ) as `${typeof PKG_V1}::liquid_staking::CollectFeesEvent`,
+      typeArgs: [] as [],
+      isPhantom: CollectFeesEvent.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        CollectFeesEvent.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        CollectFeesEvent.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        CollectFeesEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => CollectFeesEvent.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) => CollectFeesEvent.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        CollectFeesEvent.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        CollectFeesEvent.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        CollectFeesEvent.fetch(client, id),
+      new: (fields: CollectFeesEventFields) => {
+        return new CollectFeesEvent([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return CollectFeesEvent.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<CollectFeesEvent>> {
+    return phantom(CollectFeesEvent.reified());
+  }
+  static get p() {
+    return CollectFeesEvent.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("CollectFeesEvent", {
+      typename: TypeName.bcs,
+      amount: bcs.u64(),
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof CollectFeesEvent.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!CollectFeesEvent.cachedBcs) {
+      CollectFeesEvent.cachedBcs = CollectFeesEvent.instantiateBcs();
+    }
+    return CollectFeesEvent.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): CollectFeesEvent {
+    return CollectFeesEvent.reified().new({
+      typename: decodeFromFields(TypeName.reified(), fields.typename),
+      amount: decodeFromFields("u64", fields.amount),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): CollectFeesEvent {
+    if (!isCollectFeesEvent(item.type)) {
+      throw new Error("not a CollectFeesEvent type");
+    }
+
+    return CollectFeesEvent.reified().new({
+      typename: decodeFromFieldsWithTypes(
+        TypeName.reified(),
+        item.fields.typename,
+      ),
+      amount: decodeFromFieldsWithTypes("u64", item.fields.amount),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): CollectFeesEvent {
+    return CollectFeesEvent.fromFields(CollectFeesEvent.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      typename: this.typename.toJSONField(),
+      amount: this.amount.toString(),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): CollectFeesEvent {
+    return CollectFeesEvent.reified().new({
+      typename: decodeFromJSONField(TypeName.reified(), field.typename),
+      amount: decodeFromJSONField("u64", field.amount),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): CollectFeesEvent {
+    if (json.$typeName !== CollectFeesEvent.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return CollectFeesEvent.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): CollectFeesEvent {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isCollectFeesEvent(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a CollectFeesEvent object`,
+      );
+    }
+    return CollectFeesEvent.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): CollectFeesEvent {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isCollectFeesEvent(data.bcs.type)
+      ) {
+        throw new Error(`object at is not a CollectFeesEvent object`);
+      }
+
+      return CollectFeesEvent.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return CollectFeesEvent.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(client: SuiClient, id: string): Promise<CollectFeesEvent> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching CollectFeesEvent object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isCollectFeesEvent(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a CollectFeesEvent object`);
+    }
+
+    return CollectFeesEvent.fromSuiObjectData(res.data);
+  }
+}
+
+/* ============================== EpochChangedEvent =============================== */
+
+export function isEpochChangedEvent(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `${PKG_V1}::liquid_staking::EpochChangedEvent`;
+}
+
+export interface EpochChangedEventFields {
+  typename: ToField<TypeName>;
+  oldSuiSupply: ToField<"u64">;
+  newSuiSupply: ToField<"u64">;
+  lstSupply: ToField<"u64">;
+  spreadFee: ToField<"u64">;
+}
+
+export type EpochChangedEventReified = Reified<
+  EpochChangedEvent,
+  EpochChangedEventFields
+>;
+
+export class EpochChangedEvent implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `${PKG_V1}::liquid_staking::EpochChangedEvent`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = EpochChangedEvent.$typeName;
+  readonly $fullTypeName: `${typeof PKG_V1}::liquid_staking::EpochChangedEvent`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = EpochChangedEvent.$isPhantom;
+
+  readonly typename: ToField<TypeName>;
+  readonly oldSuiSupply: ToField<"u64">;
+  readonly newSuiSupply: ToField<"u64">;
+  readonly lstSupply: ToField<"u64">;
+  readonly spreadFee: ToField<"u64">;
+
+  private constructor(typeArgs: [], fields: EpochChangedEventFields) {
+    this.$fullTypeName = composeSuiType(
+      EpochChangedEvent.$typeName,
+      ...typeArgs,
+    ) as `${typeof PKG_V1}::liquid_staking::EpochChangedEvent`;
+    this.$typeArgs = typeArgs;
+
+    this.typename = fields.typename;
+    this.oldSuiSupply = fields.oldSuiSupply;
+    this.newSuiSupply = fields.newSuiSupply;
+    this.lstSupply = fields.lstSupply;
+    this.spreadFee = fields.spreadFee;
+  }
+
+  static reified(): EpochChangedEventReified {
+    const reifiedBcs = EpochChangedEvent.bcs;
+    return {
+      typeName: EpochChangedEvent.$typeName,
+      fullTypeName: composeSuiType(
+        EpochChangedEvent.$typeName,
+        ...[],
+      ) as `${typeof PKG_V1}::liquid_staking::EpochChangedEvent`,
+      typeArgs: [] as [],
+      isPhantom: EpochChangedEvent.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) =>
+        EpochChangedEvent.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        EpochChangedEvent.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        EpochChangedEvent.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => EpochChangedEvent.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) => EpochChangedEvent.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        EpochChangedEvent.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        EpochChangedEvent.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        EpochChangedEvent.fetch(client, id),
+      new: (fields: EpochChangedEventFields) => {
+        return new EpochChangedEvent([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return EpochChangedEvent.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<EpochChangedEvent>> {
+    return phantom(EpochChangedEvent.reified());
+  }
+  static get p() {
+    return EpochChangedEvent.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("EpochChangedEvent", {
+      typename: TypeName.bcs,
+      old_sui_supply: bcs.u64(),
+      new_sui_supply: bcs.u64(),
+      lst_supply: bcs.u64(),
+      spread_fee: bcs.u64(),
+    });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof EpochChangedEvent.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!EpochChangedEvent.cachedBcs) {
+      EpochChangedEvent.cachedBcs = EpochChangedEvent.instantiateBcs();
+    }
+    return EpochChangedEvent.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): EpochChangedEvent {
+    return EpochChangedEvent.reified().new({
+      typename: decodeFromFields(TypeName.reified(), fields.typename),
+      oldSuiSupply: decodeFromFields("u64", fields.old_sui_supply),
+      newSuiSupply: decodeFromFields("u64", fields.new_sui_supply),
+      lstSupply: decodeFromFields("u64", fields.lst_supply),
+      spreadFee: decodeFromFields("u64", fields.spread_fee),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): EpochChangedEvent {
+    if (!isEpochChangedEvent(item.type)) {
+      throw new Error("not a EpochChangedEvent type");
+    }
+
+    return EpochChangedEvent.reified().new({
+      typename: decodeFromFieldsWithTypes(
+        TypeName.reified(),
+        item.fields.typename,
+      ),
+      oldSuiSupply: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.old_sui_supply,
+      ),
+      newSuiSupply: decodeFromFieldsWithTypes(
+        "u64",
+        item.fields.new_sui_supply,
+      ),
+      lstSupply: decodeFromFieldsWithTypes("u64", item.fields.lst_supply),
+      spreadFee: decodeFromFieldsWithTypes("u64", item.fields.spread_fee),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): EpochChangedEvent {
+    return EpochChangedEvent.fromFields(EpochChangedEvent.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      typename: this.typename.toJSONField(),
+      oldSuiSupply: this.oldSuiSupply.toString(),
+      newSuiSupply: this.newSuiSupply.toString(),
+      lstSupply: this.lstSupply.toString(),
+      spreadFee: this.spreadFee.toString(),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): EpochChangedEvent {
+    return EpochChangedEvent.reified().new({
+      typename: decodeFromJSONField(TypeName.reified(), field.typename),
+      oldSuiSupply: decodeFromJSONField("u64", field.oldSuiSupply),
+      newSuiSupply: decodeFromJSONField("u64", field.newSuiSupply),
+      lstSupply: decodeFromJSONField("u64", field.lstSupply),
+      spreadFee: decodeFromJSONField("u64", field.spreadFee),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): EpochChangedEvent {
+    if (json.$typeName !== EpochChangedEvent.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return EpochChangedEvent.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): EpochChangedEvent {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isEpochChangedEvent(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a EpochChangedEvent object`,
+      );
+    }
+    return EpochChangedEvent.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): EpochChangedEvent {
+    if (data.bcs) {
+      if (
+        data.bcs.dataType !== "moveObject" ||
+        !isEpochChangedEvent(data.bcs.type)
+      ) {
+        throw new Error(`object at is not a EpochChangedEvent object`);
+      }
+
+      return EpochChangedEvent.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return EpochChangedEvent.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(
+    client: SuiClient,
+    id: string,
+  ): Promise<EpochChangedEvent> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching EpochChangedEvent object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isEpochChangedEvent(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a EpochChangedEvent object`);
+    }
+
+    return EpochChangedEvent.fromSuiObjectData(res.data);
   }
 }

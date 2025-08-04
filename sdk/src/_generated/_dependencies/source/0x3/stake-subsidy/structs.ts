@@ -19,7 +19,6 @@ import {
 import { Bag } from "../../0x2/bag/structs";
 import { Balance } from "../../0x2/balance/structs";
 import { SUI } from "../../0x2/sui/structs";
-import { PKG_V19 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -28,7 +27,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isStakeSubsidy(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::stake_subsidy::StakeSubsidy`;
+  return type === `0x3::stake_subsidy::StakeSubsidy`;
 }
 
 export interface StakeSubsidyFields {
@@ -45,12 +44,12 @@ export type StakeSubsidyReified = Reified<StakeSubsidy, StakeSubsidyFields>;
 export class StakeSubsidy implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::stake_subsidy::StakeSubsidy`;
+  static readonly $typeName = `0x3::stake_subsidy::StakeSubsidy`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = StakeSubsidy.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::stake_subsidy::StakeSubsidy`;
+  readonly $fullTypeName: `0x3::stake_subsidy::StakeSubsidy`;
   readonly $typeArgs: [];
   readonly $isPhantom = StakeSubsidy.$isPhantom;
 
@@ -65,7 +64,7 @@ export class StakeSubsidy implements StructClass {
     this.$fullTypeName = composeSuiType(
       StakeSubsidy.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::stake_subsidy::StakeSubsidy`;
+    ) as `0x3::stake_subsidy::StakeSubsidy`;
     this.$typeArgs = typeArgs;
 
     this.balance = fields.balance;
@@ -77,12 +76,13 @@ export class StakeSubsidy implements StructClass {
   }
 
   static reified(): StakeSubsidyReified {
+    const reifiedBcs = StakeSubsidy.bcs;
     return {
       typeName: StakeSubsidy.$typeName,
       fullTypeName: composeSuiType(
         StakeSubsidy.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::stake_subsidy::StakeSubsidy`,
+      ) as `0x3::stake_subsidy::StakeSubsidy`,
       typeArgs: [] as [],
       isPhantom: StakeSubsidy.$isPhantom,
       reifiedTypeArgs: [],
@@ -90,8 +90,9 @@ export class StakeSubsidy implements StructClass {
         StakeSubsidy.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         StakeSubsidy.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => StakeSubsidy.fromBcs(data),
-      bcs: StakeSubsidy.bcs,
+      fromBcs: (data: Uint8Array) =>
+        StakeSubsidy.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => StakeSubsidy.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => StakeSubsidy.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -118,7 +119,7 @@ export class StakeSubsidy implements StructClass {
     return StakeSubsidy.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("StakeSubsidy", {
       balance: Balance.bcs,
       distribution_counter: bcs.u64(),
@@ -127,6 +128,17 @@ export class StakeSubsidy implements StructClass {
       stake_subsidy_decrease_rate: bcs.u16(),
       extra_fields: Bag.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof StakeSubsidy.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!StakeSubsidy.cachedBcs) {
+      StakeSubsidy.cachedBcs = StakeSubsidy.instantiateBcs();
+    }
+    return StakeSubsidy.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): StakeSubsidy {

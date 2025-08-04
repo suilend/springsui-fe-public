@@ -18,16 +18,213 @@ import {
 } from "../../../../_framework/util";
 import { Vector } from "../../../../_framework/vector";
 import { Option } from "../../0x1/option/structs";
-import { PKG_V31 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
+
+/* ============================== PCREntry =============================== */
+
+export function isPCREntry(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `0x2::nitro_attestation::PCREntry`;
+}
+
+export interface PCREntryFields {
+  index: ToField<"u8">;
+  value: ToField<Vector<"u8">>;
+}
+
+export type PCREntryReified = Reified<PCREntry, PCREntryFields>;
+
+export class PCREntry implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName = `0x2::nitro_attestation::PCREntry`;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName = PCREntry.$typeName;
+  readonly $fullTypeName: `0x2::nitro_attestation::PCREntry`;
+  readonly $typeArgs: [];
+  readonly $isPhantom = PCREntry.$isPhantom;
+
+  readonly index: ToField<"u8">;
+  readonly value: ToField<Vector<"u8">>;
+
+  private constructor(typeArgs: [], fields: PCREntryFields) {
+    this.$fullTypeName = composeSuiType(
+      PCREntry.$typeName,
+      ...typeArgs,
+    ) as `0x2::nitro_attestation::PCREntry`;
+    this.$typeArgs = typeArgs;
+
+    this.index = fields.index;
+    this.value = fields.value;
+  }
+
+  static reified(): PCREntryReified {
+    const reifiedBcs = PCREntry.bcs;
+    return {
+      typeName: PCREntry.$typeName,
+      fullTypeName: composeSuiType(
+        PCREntry.$typeName,
+        ...[],
+      ) as `0x2::nitro_attestation::PCREntry`,
+      typeArgs: [] as [],
+      isPhantom: PCREntry.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) => PCREntry.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        PCREntry.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) =>
+        PCREntry.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => PCREntry.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) => PCREntry.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        PCREntry.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        PCREntry.fromSuiObjectData(content),
+      fetch: async (client: SuiClient, id: string) =>
+        PCREntry.fetch(client, id),
+      new: (fields: PCREntryFields) => {
+        return new PCREntry([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r() {
+    return PCREntry.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<PCREntry>> {
+    return phantom(PCREntry.reified());
+  }
+  static get p() {
+    return PCREntry.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("PCREntry", {
+      index: bcs.u8(),
+      value: bcs.vector(bcs.u8()),
+    });
+  }
+
+  private static cachedBcs: ReturnType<typeof PCREntry.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!PCREntry.cachedBcs) {
+      PCREntry.cachedBcs = PCREntry.instantiateBcs();
+    }
+    return PCREntry.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): PCREntry {
+    return PCREntry.reified().new({
+      index: decodeFromFields("u8", fields.index),
+      value: decodeFromFields(reified.vector("u8"), fields.value),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): PCREntry {
+    if (!isPCREntry(item.type)) {
+      throw new Error("not a PCREntry type");
+    }
+
+    return PCREntry.reified().new({
+      index: decodeFromFieldsWithTypes("u8", item.fields.index),
+      value: decodeFromFieldsWithTypes(reified.vector("u8"), item.fields.value),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): PCREntry {
+    return PCREntry.fromFields(PCREntry.bcs.parse(data));
+  }
+
+  toJSONField() {
+    return {
+      index: this.index,
+      value: fieldToJSON<Vector<"u8">>(`vector<u8>`, this.value),
+    };
+  }
+
+  toJSON() {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): PCREntry {
+    return PCREntry.reified().new({
+      index: decodeFromJSONField("u8", field.index),
+      value: decodeFromJSONField(reified.vector("u8"), field.value),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): PCREntry {
+    if (json.$typeName !== PCREntry.$typeName) {
+      throw new Error("not a WithTwoGenerics json object");
+    }
+
+    return PCREntry.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): PCREntry {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isPCREntry(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a PCREntry object`,
+      );
+    }
+    return PCREntry.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): PCREntry {
+    if (data.bcs) {
+      if (data.bcs.dataType !== "moveObject" || !isPCREntry(data.bcs.type)) {
+        throw new Error(`object at is not a PCREntry object`);
+      }
+
+      return PCREntry.fromBcs(fromB64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return PCREntry.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(client: SuiClient, id: string): Promise<PCREntry> {
+    const res = await client.getObject({ id, options: { showBcs: true } });
+    if (res.error) {
+      throw new Error(
+        `error fetching PCREntry object at id ${id}: ${res.error.code}`,
+      );
+    }
+    if (
+      res.data?.bcs?.dataType !== "moveObject" ||
+      !isPCREntry(res.data.bcs.type)
+    ) {
+      throw new Error(`object at id ${id} is not a PCREntry object`);
+    }
+
+    return PCREntry.fromSuiObjectData(res.data);
+  }
+}
 
 /* ============================== NitroAttestationDocument =============================== */
 
 export function isNitroAttestationDocument(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V31}::nitro_attestation::NitroAttestationDocument`;
+  return type === `0x2::nitro_attestation::NitroAttestationDocument`;
 }
 
 export interface NitroAttestationDocumentFields {
@@ -48,12 +245,12 @@ export type NitroAttestationDocumentReified = Reified<
 export class NitroAttestationDocument implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V31}::nitro_attestation::NitroAttestationDocument`;
+  static readonly $typeName = `0x2::nitro_attestation::NitroAttestationDocument`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = NitroAttestationDocument.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::nitro_attestation::NitroAttestationDocument`;
+  readonly $fullTypeName: `0x2::nitro_attestation::NitroAttestationDocument`;
   readonly $typeArgs: [];
   readonly $isPhantom = NitroAttestationDocument.$isPhantom;
 
@@ -69,7 +266,7 @@ export class NitroAttestationDocument implements StructClass {
     this.$fullTypeName = composeSuiType(
       NitroAttestationDocument.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V31}::nitro_attestation::NitroAttestationDocument`;
+    ) as `0x2::nitro_attestation::NitroAttestationDocument`;
     this.$typeArgs = typeArgs;
 
     this.moduleId = fields.moduleId;
@@ -82,12 +279,13 @@ export class NitroAttestationDocument implements StructClass {
   }
 
   static reified(): NitroAttestationDocumentReified {
+    const reifiedBcs = NitroAttestationDocument.bcs;
     return {
       typeName: NitroAttestationDocument.$typeName,
       fullTypeName: composeSuiType(
         NitroAttestationDocument.$typeName,
         ...[],
-      ) as `${typeof PKG_V31}::nitro_attestation::NitroAttestationDocument`,
+      ) as `0x2::nitro_attestation::NitroAttestationDocument`,
       typeArgs: [] as [],
       isPhantom: NitroAttestationDocument.$isPhantom,
       reifiedTypeArgs: [],
@@ -95,8 +293,9 @@ export class NitroAttestationDocument implements StructClass {
         NitroAttestationDocument.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         NitroAttestationDocument.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => NitroAttestationDocument.fromBcs(data),
-      bcs: NitroAttestationDocument.bcs,
+      fromBcs: (data: Uint8Array) =>
+        NitroAttestationDocument.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) =>
         NitroAttestationDocument.fromJSONField(field),
       fromJSON: (json: Record<string, any>) =>
@@ -125,7 +324,7 @@ export class NitroAttestationDocument implements StructClass {
     return NitroAttestationDocument.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("NitroAttestationDocument", {
       module_id: bcs.vector(bcs.u8()),
       timestamp: bcs.u64(),
@@ -135,6 +334,18 @@ export class NitroAttestationDocument implements StructClass {
       user_data: Option.bcs(bcs.vector(bcs.u8())),
       nonce: Option.bcs(bcs.vector(bcs.u8())),
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof NitroAttestationDocument.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!NitroAttestationDocument.cachedBcs) {
+      NitroAttestationDocument.cachedBcs =
+        NitroAttestationDocument.instantiateBcs();
+    }
+    return NitroAttestationDocument.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): NitroAttestationDocument {
@@ -310,191 +521,5 @@ export class NitroAttestationDocument implements StructClass {
     }
 
     return NitroAttestationDocument.fromSuiObjectData(res.data);
-  }
-}
-
-/* ============================== PCREntry =============================== */
-
-export function isPCREntry(type: string): boolean {
-  type = compressSuiType(type);
-  return type === `${PKG_V31}::nitro_attestation::PCREntry`;
-}
-
-export interface PCREntryFields {
-  index: ToField<"u8">;
-  value: ToField<Vector<"u8">>;
-}
-
-export type PCREntryReified = Reified<PCREntry, PCREntryFields>;
-
-export class PCREntry implements StructClass {
-  __StructClass = true as const;
-
-  static readonly $typeName = `${PKG_V31}::nitro_attestation::PCREntry`;
-  static readonly $numTypeParams = 0;
-  static readonly $isPhantom = [] as const;
-
-  readonly $typeName = PCREntry.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V31}::nitro_attestation::PCREntry`;
-  readonly $typeArgs: [];
-  readonly $isPhantom = PCREntry.$isPhantom;
-
-  readonly index: ToField<"u8">;
-  readonly value: ToField<Vector<"u8">>;
-
-  private constructor(typeArgs: [], fields: PCREntryFields) {
-    this.$fullTypeName = composeSuiType(
-      PCREntry.$typeName,
-      ...typeArgs,
-    ) as `${typeof PKG_V31}::nitro_attestation::PCREntry`;
-    this.$typeArgs = typeArgs;
-
-    this.index = fields.index;
-    this.value = fields.value;
-  }
-
-  static reified(): PCREntryReified {
-    return {
-      typeName: PCREntry.$typeName,
-      fullTypeName: composeSuiType(
-        PCREntry.$typeName,
-        ...[],
-      ) as `${typeof PKG_V31}::nitro_attestation::PCREntry`,
-      typeArgs: [] as [],
-      isPhantom: PCREntry.$isPhantom,
-      reifiedTypeArgs: [],
-      fromFields: (fields: Record<string, any>) => PCREntry.fromFields(fields),
-      fromFieldsWithTypes: (item: FieldsWithTypes) =>
-        PCREntry.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => PCREntry.fromBcs(data),
-      bcs: PCREntry.bcs,
-      fromJSONField: (field: any) => PCREntry.fromJSONField(field),
-      fromJSON: (json: Record<string, any>) => PCREntry.fromJSON(json),
-      fromSuiParsedData: (content: SuiParsedData) =>
-        PCREntry.fromSuiParsedData(content),
-      fromSuiObjectData: (content: SuiObjectData) =>
-        PCREntry.fromSuiObjectData(content),
-      fetch: async (client: SuiClient, id: string) =>
-        PCREntry.fetch(client, id),
-      new: (fields: PCREntryFields) => {
-        return new PCREntry([], fields);
-      },
-      kind: "StructClassReified",
-    };
-  }
-
-  static get r() {
-    return PCREntry.reified();
-  }
-
-  static phantom(): PhantomReified<ToTypeStr<PCREntry>> {
-    return phantom(PCREntry.reified());
-  }
-  static get p() {
-    return PCREntry.phantom();
-  }
-
-  static get bcs() {
-    return bcs.struct("PCREntry", {
-      index: bcs.u8(),
-      value: bcs.vector(bcs.u8()),
-    });
-  }
-
-  static fromFields(fields: Record<string, any>): PCREntry {
-    return PCREntry.reified().new({
-      index: decodeFromFields("u8", fields.index),
-      value: decodeFromFields(reified.vector("u8"), fields.value),
-    });
-  }
-
-  static fromFieldsWithTypes(item: FieldsWithTypes): PCREntry {
-    if (!isPCREntry(item.type)) {
-      throw new Error("not a PCREntry type");
-    }
-
-    return PCREntry.reified().new({
-      index: decodeFromFieldsWithTypes("u8", item.fields.index),
-      value: decodeFromFieldsWithTypes(reified.vector("u8"), item.fields.value),
-    });
-  }
-
-  static fromBcs(data: Uint8Array): PCREntry {
-    return PCREntry.fromFields(PCREntry.bcs.parse(data));
-  }
-
-  toJSONField() {
-    return {
-      index: this.index,
-      value: fieldToJSON<Vector<"u8">>(`vector<u8>`, this.value),
-    };
-  }
-
-  toJSON() {
-    return {
-      $typeName: this.$typeName,
-      $typeArgs: this.$typeArgs,
-      ...this.toJSONField(),
-    };
-  }
-
-  static fromJSONField(field: any): PCREntry {
-    return PCREntry.reified().new({
-      index: decodeFromJSONField("u8", field.index),
-      value: decodeFromJSONField(reified.vector("u8"), field.value),
-    });
-  }
-
-  static fromJSON(json: Record<string, any>): PCREntry {
-    if (json.$typeName !== PCREntry.$typeName) {
-      throw new Error("not a WithTwoGenerics json object");
-    }
-
-    return PCREntry.fromJSONField(json);
-  }
-
-  static fromSuiParsedData(content: SuiParsedData): PCREntry {
-    if (content.dataType !== "moveObject") {
-      throw new Error("not an object");
-    }
-    if (!isPCREntry(content.type)) {
-      throw new Error(
-        `object at ${(content.fields as any).id} is not a PCREntry object`,
-      );
-    }
-    return PCREntry.fromFieldsWithTypes(content);
-  }
-
-  static fromSuiObjectData(data: SuiObjectData): PCREntry {
-    if (data.bcs) {
-      if (data.bcs.dataType !== "moveObject" || !isPCREntry(data.bcs.type)) {
-        throw new Error(`object at is not a PCREntry object`);
-      }
-
-      return PCREntry.fromBcs(fromB64(data.bcs.bcsBytes));
-    }
-    if (data.content) {
-      return PCREntry.fromSuiParsedData(data.content);
-    }
-    throw new Error(
-      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
-    );
-  }
-
-  static async fetch(client: SuiClient, id: string): Promise<PCREntry> {
-    const res = await client.getObject({ id, options: { showBcs: true } });
-    if (res.error) {
-      throw new Error(
-        `error fetching PCREntry object at id ${id}: ${res.error.code}`,
-      );
-    }
-    if (
-      res.data?.bcs?.dataType !== "moveObject" ||
-      !isPCREntry(res.data.bcs.type)
-    ) {
-      throw new Error(`object at id ${id} is not a PCREntry object`);
-    }
-
-    return PCREntry.fromSuiObjectData(res.data);
   }
 }

@@ -18,7 +18,6 @@ import {
 } from "../../../../_framework/util";
 import { Balance } from "../../0x2/balance/structs";
 import { SUI } from "../../0x2/sui/structs";
-import { PKG_V19 } from "../index";
 import { bcs } from "@mysten/sui/bcs";
 import { SuiClient, SuiObjectData, SuiParsedData } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
@@ -27,7 +26,7 @@ import { fromB64 } from "@mysten/sui/utils";
 
 export function isStorageFund(type: string): boolean {
   type = compressSuiType(type);
-  return type === `${PKG_V19}::storage_fund::StorageFund`;
+  return type === `0x3::storage_fund::StorageFund`;
 }
 
 export interface StorageFundFields {
@@ -40,12 +39,12 @@ export type StorageFundReified = Reified<StorageFund, StorageFundFields>;
 export class StorageFund implements StructClass {
   __StructClass = true as const;
 
-  static readonly $typeName = `${PKG_V19}::storage_fund::StorageFund`;
+  static readonly $typeName = `0x3::storage_fund::StorageFund`;
   static readonly $numTypeParams = 0;
   static readonly $isPhantom = [] as const;
 
   readonly $typeName = StorageFund.$typeName;
-  readonly $fullTypeName: `${typeof PKG_V19}::storage_fund::StorageFund`;
+  readonly $fullTypeName: `0x3::storage_fund::StorageFund`;
   readonly $typeArgs: [];
   readonly $isPhantom = StorageFund.$isPhantom;
 
@@ -56,7 +55,7 @@ export class StorageFund implements StructClass {
     this.$fullTypeName = composeSuiType(
       StorageFund.$typeName,
       ...typeArgs,
-    ) as `${typeof PKG_V19}::storage_fund::StorageFund`;
+    ) as `0x3::storage_fund::StorageFund`;
     this.$typeArgs = typeArgs;
 
     this.totalObjectStorageRebates = fields.totalObjectStorageRebates;
@@ -64,12 +63,13 @@ export class StorageFund implements StructClass {
   }
 
   static reified(): StorageFundReified {
+    const reifiedBcs = StorageFund.bcs;
     return {
       typeName: StorageFund.$typeName,
       fullTypeName: composeSuiType(
         StorageFund.$typeName,
         ...[],
-      ) as `${typeof PKG_V19}::storage_fund::StorageFund`,
+      ) as `0x3::storage_fund::StorageFund`,
       typeArgs: [] as [],
       isPhantom: StorageFund.$isPhantom,
       reifiedTypeArgs: [],
@@ -77,8 +77,9 @@ export class StorageFund implements StructClass {
         StorageFund.fromFields(fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         StorageFund.fromFieldsWithTypes(item),
-      fromBcs: (data: Uint8Array) => StorageFund.fromBcs(data),
-      bcs: StorageFund.bcs,
+      fromBcs: (data: Uint8Array) =>
+        StorageFund.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => StorageFund.fromJSONField(field),
       fromJSON: (json: Record<string, any>) => StorageFund.fromJSON(json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -105,11 +106,22 @@ export class StorageFund implements StructClass {
     return StorageFund.phantom();
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return bcs.struct("StorageFund", {
       total_object_storage_rebates: Balance.bcs,
       non_refundable_balance: Balance.bcs,
     });
+  }
+
+  private static cachedBcs: ReturnType<
+    typeof StorageFund.instantiateBcs
+  > | null = null;
+
+  static get bcs() {
+    if (!StorageFund.cachedBcs) {
+      StorageFund.cachedBcs = StorageFund.instantiateBcs();
+    }
+    return StorageFund.cachedBcs;
   }
 
   static fromFields(fields: Record<string, any>): StorageFund {

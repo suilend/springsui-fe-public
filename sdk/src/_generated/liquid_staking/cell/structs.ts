@@ -74,6 +74,7 @@ export class Cell<Element extends TypeArgument> implements StructClass {
   static reified<Element extends Reified<TypeArgument, any>>(
     Element: Element,
   ): CellReified<ToTypeArgument<Element>> {
+    const reifiedBcs = Cell.bcs(toBcs(Element));
     return {
       typeName: Cell.$typeName,
       fullTypeName: composeSuiType(
@@ -87,8 +88,9 @@ export class Cell<Element extends TypeArgument> implements StructClass {
         Cell.fromFields(Element, fields),
       fromFieldsWithTypes: (item: FieldsWithTypes) =>
         Cell.fromFieldsWithTypes(Element, item),
-      fromBcs: (data: Uint8Array) => Cell.fromBcs(Element, data),
-      bcs: Cell.bcs(toBcs(Element)),
+      fromBcs: (data: Uint8Array) =>
+        Cell.fromFields(Element, reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
       fromJSONField: (field: any) => Cell.fromJSONField(Element, field),
       fromJSON: (json: Record<string, any>) => Cell.fromJSON(Element, json),
       fromSuiParsedData: (content: SuiParsedData) =>
@@ -117,11 +119,21 @@ export class Cell<Element extends TypeArgument> implements StructClass {
     return Cell.phantom;
   }
 
-  static get bcs() {
+  private static instantiateBcs() {
     return <Element extends BcsType<any>>(Element: Element) =>
       bcs.struct(`Cell<${Element.name}>`, {
         element: Option.bcs(Element),
       });
+  }
+
+  private static cachedBcs: ReturnType<typeof Cell.instantiateBcs> | null =
+    null;
+
+  static get bcs() {
+    if (!Cell.cachedBcs) {
+      Cell.cachedBcs = Cell.instantiateBcs();
+    }
+    return Cell.cachedBcs;
   }
 
   static fromFields<Element extends Reified<TypeArgument, any>>(
