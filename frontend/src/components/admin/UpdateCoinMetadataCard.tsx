@@ -42,7 +42,9 @@ export default function UpdateCoinMetadataCard() {
 
   // State
   const [name, setName] = useState<string>(
-    admin.lstData.token.name.slice(0, -1 * " Staked SUI".length),
+    admin.lstData.token.name.includes("Staked SUI")
+      ? admin.lstData.token.name.slice(0, -1 * " Staked SUI".length)
+      : "",
   );
   const [symbol, setSymbol] = useState<string>(
     (admin.lstData.token.raw?.symbol ?? admin.lstData.token.symbol).slice(
@@ -70,7 +72,11 @@ export default function UpdateCoinMetadataCard() {
     if (admin.lstCoinType === prevLstCoinTypeRef.current) return;
     prevLstCoinTypeRef.current = admin.lstCoinType;
 
-    setName(admin.lstData.token.name.slice(0, -1 * " Staked SUI".length));
+    setName(
+      admin.lstData.token.name.includes("Staked SUI")
+        ? admin.lstData.token.name.slice(0, -1 * " Staked SUI".length)
+        : "",
+    );
     setSymbol(
       (admin.lstData.token.raw?.symbol ?? admin.lstData.token.symbol).slice(
         0,
@@ -153,7 +159,7 @@ export default function UpdateCoinMetadataCard() {
           transaction.object(
             admin.lstData.lstInfo.LIQUID_STAKING_INFO.weightHookId,
           ),
-          transaction.object(admin.weightHookAdminCapId),
+          transaction.object(admin.weightHookAdminCapId), // 0x680ca9845a8903ae9b108648ca6f95ac509ad295337862671e6721cb66182a29 (sSUI)
           transaction.object(admin.lstData.lstInfo.liquidStakingInfo.id),
           transaction.object(admin.lstData.token.id),
           transaction.pure.option("string", fullName),
