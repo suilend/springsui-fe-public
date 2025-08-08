@@ -11,6 +11,7 @@ import {
 
 import Card from "@/components/Card";
 import Button from "@/components/create-admin/Button";
+import { useLoadedAppContext } from "@/contexts/AppContext";
 import { useLoadedLstContext } from "@/contexts/LstContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { showSuccessTxnToast } from "@/lib/toasts";
@@ -20,6 +21,7 @@ export default function ClaimFeesCard() {
   const { explorer } = useSettingsContext();
   const { address, signExecuteAndWaitForTransaction } = useWalletContext();
   const { refresh } = useUserContext();
+  const { appData } = useLoadedAppContext();
   const { admin } = useLoadedLstContext();
 
   // Submit
@@ -68,7 +70,7 @@ export default function ClaimFeesCard() {
               admin.lstData.fees.plus(admin.lstData.accruedSpreadFees),
               { dp: admin.lstData.token.decimals },
             )}{" "}
-            {admin.lstData.token.symbol}
+            {appData.suiToken.symbol}
           </p>
         </div>
 
