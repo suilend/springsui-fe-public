@@ -45,14 +45,17 @@ export default function UpdateCoinMetadataCard() {
     admin.lstData.token.name.slice(0, -1 * " Staked SUI".length),
   );
   const [symbol, setSymbol] = useState<string>(
-    admin.lstData.token.symbol.slice(0, -1 * "SUI".length),
+    (admin.lstData.token.raw?.symbol ?? admin.lstData.token.symbol).slice(
+      0,
+      -1 * "SUI".length,
+    ),
   );
   const [description, setDescription] = useState<string>(
     admin.lstData.token.description,
   );
 
   const [iconUrl, setIconUrl] = useState<string>(
-    admin.lstData.token.iconUrl ?? "",
+    admin.lstData.token.raw?.iconUrl ?? admin.lstData.token.iconUrl ?? "",
   );
   const [iconFilename, setIconFilename] = useState<string>("");
   const [iconFileSize, setIconFileSize] = useState<string>("");
@@ -68,17 +71,26 @@ export default function UpdateCoinMetadataCard() {
     prevLstCoinTypeRef.current = admin.lstCoinType;
 
     setName(admin.lstData.token.name.slice(0, -1 * " Staked SUI".length));
-    setSymbol(admin.lstData.token.symbol.slice(0, -1 * "SUI".length));
+    setSymbol(
+      (admin.lstData.token.raw?.symbol ?? admin.lstData.token.symbol).slice(
+        0,
+        -1 * "SUI".length,
+      ),
+    );
     setDescription(admin.lstData.token.description);
 
-    setIconUrl(admin.lstData.token.iconUrl ?? "");
+    setIconUrl(
+      admin.lstData.token.raw?.iconUrl ?? admin.lstData.token.iconUrl ?? "",
+    );
     setIconFilename("");
     setIconFileSize("");
   }, [
     admin.lstCoinType,
     admin.lstData.token.name,
+    admin.lstData.token.raw?.symbol,
     admin.lstData.token.symbol,
     admin.lstData.token.description,
+    admin.lstData.token.raw?.iconUrl,
     admin.lstData.token.iconUrl,
   ]);
 
