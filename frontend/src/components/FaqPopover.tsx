@@ -107,19 +107,19 @@ export function FaqContent() {
       question: "What fees are there?",
       answer: (
         <>
-          Mint Fee: A small fee (e.g. 0.10%) charged when minting sSUI by
-          depositing SUI, covering protocol operation costs. For instance,
-          minting 1,000 SUI at 10 bps would result in a 1 SUI fee.
+          Mint Fee: A fee charged when minting a SpringSui LST by depositing
+          SUI. For example, minting 1,000 SUI of a SpringSui LST with a 10 bps
+          mint fee (staking fee) would result in a 1 SUI fee.
+          <br />
+          <br />
+          Redemption Fee: A fee charged when converting a SpringSui LST back to
+          SUI. For example, redeeming 1,000 units of a SpringSui LST with a 1 bp
+          redemption fee would result in a 0.1 SUI fee.
           <br />
           <br />
           Performance Fee: The performance fee is the percentage of staking
           rewards kept as a fee by the LST pool operator or owner. This is
           deducted on every epoch change (~1 day).
-          <br />
-          <br />
-          Redemption Fee: A fee (minimum 1 bp) charged when converting sSUI back
-          to SUI, covering unstaking costs. Redeeming 1,000 sSUI at 1 bp would
-          result in a 0.1 SUI fee.
         </>
       ),
     },
