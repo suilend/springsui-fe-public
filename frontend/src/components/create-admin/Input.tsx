@@ -6,23 +6,28 @@ import { cn } from "@/lib/utils";
 
 interface InputProps {
   className?: ClassValue;
+  autoFocus?: boolean;
   type?: InputHTMLAttributes<HTMLInputElement>["type"];
   placeholder?: string;
   value: string;
   onChange?: (value: string) => void;
+  onBlur?: () => void;
 }
 
 export default function Input({
   className,
+  autoFocus,
   type,
   placeholder,
   value,
   onChange,
+  onBlur,
 }: InputProps) {
   const isReadOnly = !onChange;
 
   return (
     <input
+      autoFocus={autoFocus}
       type={type}
       className={cn(
         "h-10 w-full rounded-sm bg-white px-4 font-sans text-p1 text-foreground placeholder:text-navy-500 focus-within:shadow-[inset_0_0_0_1px_hsl(var(--blue))] focus-visible:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
@@ -34,6 +39,7 @@ export default function Input({
       onChange={onChange ? (e) => onChange(e.target.value) : undefined}
       readOnly={isReadOnly}
       onWheel={(e) => e.currentTarget.blur()}
+      onBlur={onBlur}
       autoComplete="off"
     />
   );

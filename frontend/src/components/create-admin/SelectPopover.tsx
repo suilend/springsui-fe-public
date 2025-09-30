@@ -1,11 +1,13 @@
 import { ReactNode, useState } from "react";
 
+import { ClassValue } from "clsx";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import Popover from "@/components/Popover";
 import { cn } from "@/lib/utils";
 
 interface SelectPopoverProps {
+  className?: ClassValue;
   maxWidth?: number;
   placeholder?: string;
   options: {
@@ -20,6 +22,7 @@ interface SelectPopoverProps {
 }
 
 export default function SelectPopover({
+  className,
   maxWidth,
   placeholder,
   options,
@@ -41,7 +44,12 @@ export default function SelectPopover({
         maxWidth: maxWidth ?? 280,
       }}
       trigger={
-        <button className="group flex h-10 w-full flex-row items-center justify-between gap-4 rounded-sm bg-white pl-4 pr-3">
+        <button
+          className={cn(
+            "group flex h-10 w-full flex-row items-center justify-between gap-4 rounded-sm bg-white pl-4 pr-3",
+            className,
+          )}
+        >
           {selectedOption ? (
             <div className="flex min-w-0 flex-1 flex-row items-center justify-between gap-4">
               <div className="flex min-w-0 flex-row items-center gap-2">
