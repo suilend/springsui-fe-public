@@ -144,21 +144,7 @@ export default function TokenSelectionDialog({
 
     return sortedTokens;
   }, [tokens, getBalance]);
-
-  const suilendTokens = useMemo(
-    () => tokens.filter((t) => !!appData.reserveMap[t.coinType]),
-    [tokens, appData.reserveMap],
-  );
-
-  const otherTokens = useMemo(
-    () =>
-      tokens.filter(
-        (t) =>
-          !balanceTokens.find((_t) => _t.coinType === t.coinType) &&
-          !suilendTokens.find((_t) => _t.coinType === t.coinType),
-      ),
-    [tokens, balanceTokens, suilendTokens],
-  );
+  const allTokens = useMemo(() => tokens, [tokens]);
 
   // Tokens - top
   const topTokens = useMemo(
@@ -194,22 +180,14 @@ export default function TokenSelectionDialog({
     () => filterTokens(balanceTokens),
     [filterTokens, balanceTokens],
   );
-  const filteredSuilendTokens = useMemo(
-    () => filterTokens(suilendTokens),
-    [filterTokens, suilendTokens],
-  );
-  const filteredOtherTokens = useMemo(
-    () => filterTokens(otherTokens),
-    [filterTokens, otherTokens],
+  const filteredAllTokens = useMemo(
+    () => filterTokens(allTokens),
+    [filterTokens, allTokens],
   );
 
   const filteredTokens = useMemo(
-    () => [
-      ...filteredBalanceTokens,
-      ...filteredSuilendTokens,
-      ...filteredOtherTokens,
-    ],
-    [filteredBalanceTokens, filteredSuilendTokens, filteredOtherTokens],
+    () => [...filteredBalanceTokens, ...filteredAllTokens],
+    [filteredBalanceTokens, filteredAllTokens],
   );
 
   const filteredTokensMap = useMemo(
@@ -218,16 +196,12 @@ export default function TokenSelectionDialog({
         title: "Wallet balances",
         tokens: filteredBalanceTokens,
       },
-      suilend: {
-        title: "Available on Suilend",
-        tokens: filteredSuilendTokens,
-      },
-      other: {
-        title: "Other",
-        tokens: filteredOtherTokens,
+      all: {
+        title: "Assets",
+        tokens: filteredAllTokens,
       },
     }),
-    [filteredBalanceTokens, filteredSuilendTokens, filteredOtherTokens],
+    [filteredBalanceTokens, filteredAllTokens],
   );
 
   // Select token
