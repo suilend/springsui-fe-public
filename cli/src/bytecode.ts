@@ -15,7 +15,7 @@ import { LstClient } from "@suilend/springsui-sdk";
 // import url from "@mysten/move-bytecode-template/move_bytecode_template_bg.wasm?url";
 
 const keypair = Ed25519Keypair.fromSecretKey(
-  fromBase64(process.env.SUI_SECRET_KEY!)
+  fromBase64(process.env.SUI_SECRET_KEY!),
 );
 
 function generate_bytecode(
@@ -24,11 +24,11 @@ function generate_bytecode(
   symbol: string, // eg sSUI
   name: string, // eg Spring SUI
   description: string, // eg Spring SUI is a liquid staking protocol on Sui
-  img_url: string
+  img_url: string,
 ) {
   const bytecode = Buffer.from(
     "oRzrCwYAAAAKAQAMAgweAyonBFEIBVlMB6UBywEI8AJgBtADXQqtBAUMsgQoABABCwIGAhECEgITAAICAAEBBwEAAAIADAEAAQIDDAEAAQQEAgAFBQcAAAkAAQABDwUGAQACBwgJAQIDDAUBAQwDDQ0BAQwEDgoLAAUKAwQAAQQCBwQMAwICCAAHCAQAAQsCAQgAAQoCAQgFAQkAAQsBAQkAAQgABwkAAgoCCgIKAgsBAQgFBwgEAgsDAQkACwIBCQABBggEAQUBCwMBCAACCQAFDENvaW5NZXRhZGF0YQZPcHRpb24IVEVNUExBVEULVHJlYXN1cnlDYXAJVHhDb250ZXh0A1VybARjb2luD2NyZWF0ZV9jdXJyZW5jeQtkdW1teV9maWVsZARpbml0FW5ld191bnNhZmVfZnJvbV9ieXRlcwZvcHRpb24TcHVibGljX3NoYXJlX29iamVjdA9wdWJsaWNfdHJhbnNmZXIGc2VuZGVyBHNvbWUIdGVtcGxhdGUIdHJhbnNmZXIKdHhfY29udGV4dAN1cmwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAQkKAgUEVE1QTAoCDg1UZW1wbGF0ZSBDb2luCgIaGVRlbXBsYXRlIENvaW4gRGVzY3JpcHRpb24KAiEgaHR0cHM6Ly9leGFtcGxlLmNvbS90ZW1wbGF0ZS5wbmcAAgEIAQAAAAACEgsABwAHAQcCBwMHBBEGOAAKATgBDAILAS4RBTgCCwI4AwIA=",
-    "base64"
+    "base64",
   );
 
   let updated = update_identifiers(bytecode, {
@@ -40,28 +40,28 @@ function generate_bytecode(
     updated,
     bcs.string().serialize(symbol).toBytes(),
     bcs.string().serialize("TMPL").toBytes(),
-    "Vector(U8)" // type of the constant
+    "Vector(U8)", // type of the constant
   );
 
   updated = update_constants(
     updated,
     bcs.string().serialize(name).toBytes(), // new value
     bcs.string().serialize("Template Coin").toBytes(), // current value
-    "Vector(U8)" // type of the constant
+    "Vector(U8)", // type of the constant
   );
 
   updated = update_constants(
     updated,
     bcs.string().serialize(description).toBytes(), // new value
     bcs.string().serialize("Template Coin Description").toBytes(), // current value
-    "Vector(U8)" // type of the constant
+    "Vector(U8)", // type of the constant
   );
 
   updated = update_constants(
     updated,
     bcs.string().serialize(img_url).toBytes(), // new value
     bcs.string().serialize("https://example.com/template.png").toBytes(), // current value
-    "Vector(U8)" // type of the constant
+    "Vector(U8)", // type of the constant
   );
 
   return updated;
@@ -78,7 +78,7 @@ async function main() {
     "rSui",
     "Ripleys Staked Sui",
     "Ripleys Staked Sui is a liquid staking protocol on Sui",
-    "https://example.com/ripleys.png"
+    "https://example.com/ripleys.png",
   );
 
   // Step 1: Create the coin
@@ -104,7 +104,7 @@ async function main() {
   // Step 2: Get the treasury Cap id from the transaction
   const treasuryCapObjectChange = txResponse.objectChanges?.find(
     (change) =>
-      change.type === "created" && change.objectType.includes("TreasuryCap")
+      change.type === "created" && change.objectType.includes("TreasuryCap"),
   );
   assert(treasuryCapObjectChange?.type === "created");
 
@@ -132,7 +132,7 @@ async function main() {
   const weightHookAdminCap = LstClient.createNewLst(
     tx2,
     treasuryCapId,
-    coinType
+    coinType,
   );
 
   tx2.transferObjects([tx2.object(weightHookAdminCap)], keypair.toSuiAddress());
