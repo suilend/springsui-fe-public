@@ -17,5 +17,8 @@
     "frontend",
     "sdk",
     "cli"
-  ]
+  ],
+  "dependencies": {
+    "@suilend/sui-fe-next": "^0.1.78"
+  }
 }
