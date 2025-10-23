@@ -10,7 +10,6 @@ import {
 } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
-import * as Sentry from "@sentry/nextjs";
 import BigNumber from "bignumber.js";
 
 import { ParsedReserve, SuilendClient } from "@suilend/sdk";
@@ -185,7 +184,6 @@ export function AppContextProvider({ children }: PropsWithChildren) {
           err as Error,
         );
         console.error(err);
-        Sentry.captureException(err);
       }
     },
     [appData, getOwnedObjects, address],

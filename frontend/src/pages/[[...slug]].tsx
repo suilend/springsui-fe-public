@@ -9,7 +9,6 @@ import {
 } from "react";
 
 import { Transaction } from "@mysten/sui/transactions";
-import * as Sentry from "@sentry/react";
 import BigNumber from "bignumber.js";
 import { cloneDeep } from "lodash";
 import { ArrowUpDown, Wallet } from "lucide-react";
@@ -473,7 +472,6 @@ export default function Home() {
         }
       }
     } catch (err) {
-      Sentry.captureException(err);
       console.error(err);
       throw err;
     }
